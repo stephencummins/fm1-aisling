@@ -1,65 +1,81 @@
-# the eight pieces, three minutes of each from its start (PRESETS turned a step each time), a shot each:
-# for the ear and tools/analyze_wav.py (levels, bands)
+# AISLING's eight pieces, three minutes of each from its start (PRESETS turned a step each time), a shot each,
+# no clipping: for the ear and tools/analyze_wav.py (levels, bands)
 wait 300
 expect piece 0
-# Timewind
-wav pieces_0_timewind.wav
+# Skellig
+peakreset
+wav pieces_0_skellig.wav
 wait 180000
 wavstop
-shot pieces_0_timewind.png
+expect peak_db_max -0.5
+shot pieces_0_skellig.png
 turn PRESET 1
 wait 300
 expect piece 1
-# Wahnfried
-wav pieces_1_wahnfried.wav
+# Burren
+peakreset
+wav pieces_1_burren.wav
 wait 180000
 wavstop
-shot pieces_1_wahnfried.png
+expect peak_db_max -0.5
+shot pieces_1_burren.png
 turn PRESET 1
 wait 300
 expect piece 2
-# Phaedra
-wav pieces_2_phaedra.wav
+# Aran
+peakreset
+wav pieces_2_aran.wav
 wait 180000
 wavstop
-shot pieces_2_phaedra.png
+expect peak_db_max -0.5
+shot pieces_2_aran.png
 turn PRESET 1
 wait 300
 expect piece 3
-# Rubycon
-wav pieces_3_rubycon.wav
+# Carolan
+peakreset
+wav pieces_3_carolan.wav
 wait 180000
 wavstop
-shot pieces_3_rubycon.png
+expect peak_db_max -0.5
+shot pieces_3_carolan.png
 turn PRESET 1
 wait 300
 expect piece 4
-# Stratosfear
-wav pieces_4_stratosfear.wav
+# Blasket
+peakreset
+wav pieces_4_blasket.wav
 wait 180000
 wavstop
-shot pieces_4_stratosfear.png
+expect peak_db_max -0.5
+shot pieces_4_blasket.png
 turn PRESET 1
 wait 300
 expect piece 5
-# Sunrain
-wav pieces_5_sunrain.wav
+# Samhain
+peakreset
+wav pieces_5_samhain.wav
 wait 180000
 wavstop
-shot pieces_5_sunrain.png
+expect peak_db_max -0.5
+shot pieces_5_samhain.png
 turn PRESET 1
 wait 300
 expect piece 6
-# Mirage
-wav pieces_6_mirage.wav
+# Connemara
+peakreset
+wav pieces_6_connemara.wav
 wait 180000
 wavstop
-shot pieces_6_mirage.png
+expect peak_db_max -0.5
+shot pieces_6_connemara.png
 turn PRESET 1
 wait 300
 expect piece 7
-# Cyborg
-wav pieces_7_cyborg.wav
+# Tir na nOg
+peakreset
+wav pieces_7_tirnanog.wav
 wait 180000
 wavstop
-shot pieces_7_cyborg.png
+expect peak_db_max -0.5
+shot pieces_7_tirnanog.png
