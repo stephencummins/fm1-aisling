@@ -582,10 +582,11 @@ bash tools/fm1_rescue.sh
 Install the command line developer tools if asked, type your Mac password if asked, then plug the FM-1 in
 and switch it on when the script says it's waiting. It checks the chip, saves a backup of the FM-1's memory
 in `fm1-rescue` in your home folder, and asks before it writes. Type **yes**; don't unplug anything until
-it says it's restarting the FM-1, which then starts into its original firmware. The script downloads its
-rescue tool from X0X's repository, M-VAVE's FM-1 V15 firmware and JieLi's flash loader, checks the firmware
-against a known fingerprint, and writes only the firmware area, never the bootloader or the FM-1's own
-settings. If the FM-1 never shows up at all, Felucca's
+it says it's restarting the FM-1, which then starts into M-VAVE's firmware. The script downloads M-VAVE's
+FM-1 V16 and V15 (V15 from the Internet Archive's copy, since M-VAVE now serves only V16) and JieLi's flash
+loader, and checks each against a known fingerprint. V15 and V16 come with different bootloaders, so it
+writes the version whose bootloader is already on your FM-1, and only the firmware area, never the
+bootloader or the FM-1's own settings. If the FM-1 never shows up at all, Felucca's
 [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter) can still reach it.
 
 ---
