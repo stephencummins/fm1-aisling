@@ -38,6 +38,11 @@ remembers and answers) and changes what it plays:
 It runs on the FM-1, installed from the [web installer](https://stephencummins.github.io/fm1-aisling/install/), and
 in the [browser emulator](https://stephencummins.github.io/fm1-aisling/emu/), from the same code.
 
+**Saved pieces.** AISLING saves its eight pieces in the same place in the FM-1's memory as NACHTFAHRT, DUB-1 and
+AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
+after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
+Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
 ## The pieces
 
 | # | Piece | Named for | Key, tempo | What you hear |
