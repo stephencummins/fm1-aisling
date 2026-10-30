@@ -18,7 +18,8 @@
   h1 { font-size: 28px; font-weight: 300; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 24px; }
   .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; color: var(--dim); }
   p { margin: 0 0 16px; }
-  button { font: inherit; background: var(--accent); color: var(--fg); border: 1px solid var(--fg); padding: 6px 22px; cursor: pointer; }
+  button, a.btn { font: inherit; background: var(--accent); color: var(--fg); border: 1px solid var(--fg); padding: 6px 22px; cursor: pointer; }
+  a.btn { display: inline-block; text-decoration: none; }
   button:disabled { opacity: .3; cursor: default; }
   #status, #alert { margin-top: 16px; min-height: 1.6em; }
   #alert:empty { display: none; }
@@ -34,7 +35,6 @@
   pre:empty { display: none; }
   h2 { font-size: 16px; font-weight: 400; text-transform: uppercase; letter-spacing: .06em; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--fg); }
   ol { margin: 0 0 16px; padding-left: 20px; }
-  input[type=file] { font: inherit; font-size: 13px; color: var(--dim); max-width: 100%; }
   .site { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1.2rem; margin: 0 0 1.6rem; padding-bottom: .5rem; border-bottom: 1px solid var(--fg); }
   .site .home { font-size: 1.05rem; font-weight: 400; letter-spacing: .08em; color: var(--fg); text-decoration: none; }
   .site .home:hover { color: var(--river-2); background: none; }
@@ -56,7 +56,6 @@
   <p class="small"><span data-t="brick"></span>
     <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
   <p class="small" data-t="back"></p>
-  <p class="small"><a href="https://www.m-vave.com/download" target="_blank" rel="noopener" style="color:inherit">www.m-vave.com/download<span class="sr" data-t="newtab"></span></a></p>
   <p><button id="go" disabled data-t="install"></button></p>
   <label class="bar" for="bar"><span data-t="progress"></span>
     <progress id="bar" max="100" value="0"></progress></label>
@@ -66,11 +65,11 @@
   <h2 data-t="stockh"></h2>
   <p class="small" data-t="stockwhy"></p>
   <ol class="small">
-    <li><span data-t="stock1"></span> <a id="stocklink" href="https://yms-file-store.oss-cn-hongkong.aliyuncs.com/software/firmware/FM-1.fwsc" style="color:inherit">FM-1.fwsc</a></li>
-    <li><label for="stockfile" data-t="stock2"></label><br><input type="file" id="stockfile" accept=".fwsc"></li>
+    <li data-t="stock1"></li>
+    <li data-t="stock2"></li>
     <li data-t="stock3"></li>
   </ol>
-  <p><button id="stockgo" disabled data-t="stockinstall"></button></p>
+  <p><a class="btn" href="https://www.m-vave.com/download" target="_blank" rel="noopener"><span data-t="stockgo"></span><span class="sr" data-t="newtab"></span></a></p>
   <p><a href="../" style="color:inherit" data-t="manual"></a></p>
   <p class="small">AISLING is by CU_STE, <a href="https://www.stephen8n.com" target="_blank" rel="noopener" style="color:inherit">www.stephen8n.com<span class="sr" data-t="newtab"></span></a>.
     It is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener" style="color:inherit">Hügelton Instruments<span class="sr" data-t="newtab"></span></a>,
@@ -94,16 +93,13 @@ const TEXT = {
     brick: "万一 FM-1 が起動しなくなった場合は、Mac から標準ファームウェアに戻せます:",
     bricklink: "起動しない FM-1 の復旧（英語）",
     beta: "このカスタムファームウェアを使ったことで FM-1 が壊れたり不具合が起きたりしても、作者は一切の責任を負いません。自己責任でお使いください。",
-    back: "公式ファームウェアに戻すには、このページ下の「純正ファームウェアに戻す」か、M-VAVE 公式のアップデーター M-UPGRADE（Downloads → PC Software → M-UPGRADE）を使います。",
+    back: "公式ファームウェアに戻すには、M-VAVE 公式のアップデーター M-UPGRADE を使います。このページ下の「純正ファームウェアに戻す」を見てください。",
     stockh: "純正ファームウェアに戻す",
-    stockwhy: "M-VAVE の FM-1 V15 を、AISLING（またはそのセーフモード）から同じ USB ケーブルで書き込みます。AISLING で保存した曲の設定は消えることがあります。",
-    stock1: "M-VAVE の FM-1 V15 をダウンロード:",
-    stock2: "ダウンロードしたファイルを選ぶ:",
-    stock3: "FM-1 を USB で接続し、下のボタンを押す。",
-    stockinstall: "純正ファームウェアを書き込む",
-    stockok: "M-VAVE の FM-1 V15 です。ボタンを押してください。",
-    stockbad: "これは M-VAVE の FM-1 V15 のファイルではありません。上のリンクのファイルを選んでください。",
-    stockdone: "完了。FM-1 は純正ファームウェアで起動しました。",
+    stockwhy: "M-VAVE 公式のアップデーター M-UPGRADE で、AISLING（またはそのセーフモード）から同じ USB ケーブルで純正ファームウェアを書き込めます。AISLING で保存した曲の設定は消えることがあります。",
+    stock1: "M-VAVE のダウンロードページから、M-UPGRADE（PC Software、Windows または Mac）と FM-1 のファームウェア（PC Firmware）を入手する。",
+    stock2: "FM-1 を USB で接続し、MIDI を使う他のアプリを閉じて、M-UPGRADE でファームウェアを書き込む。",
+    stock3: "「Failed to enter upgrade mode!」と表示されたら、M-UPGRADE を開いたまま USB ケーブルを挿し直して続ける。",
+    stockgo: "M-VAVE のダウンロードページへ",
     nomidi: "このブラウザでは使えません。Chrome か Edge で開いてください。", loadfail: "読み込めませんでした: ",
     start: "開始します", verify: "確認中", loader: "書き込みモードに切り替え中", write: "書き込み中",
     reboot: "再起動中", done: "完了しました", stopped: "途中で止まりました。USB を挿し直してもう一度押してください。",
@@ -131,16 +127,13 @@ const TEXT = {
     brick: "If the FM-1 no longer starts, a Mac can put the stock firmware back:",
     bricklink: "recovering an FM-1 that won't start",
     beta: "The author accepts no responsibility if your FM-1 is damaged or misbehaves because of this custom firmware. Use it at your own risk.",
-    back: "To go back to the official firmware, use \"Back to the stock firmware\" below, or M-VAVE's own updater, M-UPGRADE (Downloads → PC Software → M-UPGRADE).",
+    back: "To go back to the official firmware, use M-VAVE's own updater, M-UPGRADE: see \"Back to the stock firmware\" below.",
     stockh: "Back to the stock firmware",
-    stockwhy: "This writes M-VAVE's own FM-1 V15 back, from AISLING (or its safe mode, X0X or Felucca) over the same USB cable. The pieces saved in AISLING may be lost.",
-    stock1: "Download M-VAVE's FM-1 V15:",
-    stock2: "Choose the file you downloaded:",
-    stock3: "Connect the FM-1 by USB and press the button below.",
-    stockinstall: "Install the stock firmware",
-    stockok: "That is M-VAVE's FM-1 V15. Press the button to install it.",
-    stockbad: "That is not M-VAVE's FM-1 V15 file. Choose the file from the link above.",
-    stockdone: "Done. The FM-1 has restarted with its original firmware.",
+    stockwhy: "M-VAVE's own updater, M-UPGRADE, writes the official firmware back from AISLING (or its safe mode, X0X or Felucca) over the same USB cable. The pieces saved in AISLING may be lost.",
+    stock1: "On M-VAVE's download page, get M-UPGRADE (under PC Software, for Windows or Mac) and the FM-1 firmware (under PC Firmware).",
+    stock2: "Connect the FM-1 by USB, close other apps that use MIDI, and write the firmware with M-UPGRADE.",
+    stock3: "If M-UPGRADE says \"Failed to enter upgrade mode!\", leave it open, replug the USB cable and carry on.",
+    stockgo: "Go to M-VAVE's download page",
     nomidi: "This browser cannot do it. Open the page in Chrome or Edge.", loadfail: "Could not load: ",
     start: "Starting", verify: "Verifying", loader: "Switching to update mode", write: "Writing",
     reboot: "Restarting", done: "Done", stopped: "Stopped. Replug the USB cable and press Install again.",
@@ -162,7 +155,7 @@ const t = (k) => TEXT[lang][k];
 let lastKey = null, lastArg = "";
 /* what went wrong goes to the alert (read at once), the rest to the status (read when the reader is free) */
 const FAIL = new Set(["nomidi", "loadfail", "stopped", "error", "denied", "notfound", "model", "lost", "noloader", "noreturn",
-                      "mismatch", "badpkg", "stockbad"]);
+                      "mismatch", "badpkg"]);
 function show(k, txt) {
   $(FAIL.has(k) ? "alert" : "status").textContent = txt;
   $(FAIL.has(k) ? "status" : "alert").textContent = "";
@@ -207,31 +200,14 @@ window.addEventListener("beforeunload", (e) => { if (writing) { e.preventDefault
   } catch (e) { sayK("loadfail", e.message); }
 })();
 
-/* stock firmware: M-VAVE's FM-1 V15, chosen by the user (M-VAVE's server allows no cross-site
-   download) and checked against its SHA-256 before anything is written */
-const STOCK_SHA256 = "db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a";
-let stock = null;
-$("stockfile").addEventListener("change", async (e) => {
-  stock = null;
-  $("stockgo").disabled = true;
-  const f = e.target.files && e.target.files[0];
-  if (!f) return;
-  try {
-    const raw = new Uint8Array(await f.arrayBuffer());
-    const hex = [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("");
-    if (hex !== STOCK_SHA256) { sayK("stockbad"); return; }
-    stock = { image: logicalImage(raw), product: productOf(raw) };
-    $("stockgo").disabled = writing;
-    sayK("stockok");
-  } catch (err) { sayK("error", err && err.message); }
-});
-
-async function run(img, product, isStock) {
+/* stock firmware: M-VAVE's own updater, M-UPGRADE (the link under "Back to the stock firmware"); this
+   page wrote M-VAVE's FM-1 V15 itself until M-VAVE replaced it with V16 */
+async function run(img, product) {
   let midi;
   try { midi = await navigator.requestMIDIAccess({ sysex: true }); }
   catch (e) { sayK("denied"); return; }
   writing = true;
-  $("go").disabled = $("stockgo").disabled = true;
+  $("go").disabled = true;
   try {
     const up = new Updater(midi, log);
     const total = 74 + 1167;
@@ -242,28 +218,25 @@ async function run(img, product, isStock) {
       if (k === "loader") sayK("loader");
       if (k === "write") progress("write", ((74 + a) / total) * 100);
       if (k === "reboot") sayK("reboot");
-      if (k === "done") { $("bar").value = 100; sayK(isStock ? "stockdone" : "done"); }
+      if (k === "done") { $("bar").value = 100; sayK("done"); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));
     if (ota) {
       ota.link.close();
-      sayK((await up.resume(img, step)) ? (isStock ? "stockdone" : "done") : "stopped");
+      sayK((await up.resume(img, step)) ? "done" : "stopped");
     } else {
       await up.install(img, product, step);
     }
   } catch (e) {
-    if (isStock && e && e.code === "mismatch") { $("bar").value = 100; sayK("stockdone"); }   /* stock names itself its own way */
-    else if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
+    if (e && e.code && TEXT[lang][e.code]) sayK(e.code, e.detail || "");
     else sayK("error", e && e.message);
     log(String(e && e.stack || e));
   }
   writing = false;
   $("go").disabled = !image;
-  $("stockgo").disabled = !stock;
 }
 
-$("go").addEventListener("click", () => run(image, meta.product, false));
-$("stockgo").addEventListener("click", () => { if (stock) run(stock.image, stock.product, true); });
+$("go").addEventListener("click", () => run(image, meta.product));
 </script>
 </body>
 </html>

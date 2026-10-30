@@ -122,8 +122,8 @@ mutes and solos the layers and pushes Filter, Wet and Energy.</p>
 <p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain, Connemara and Tir na nOg, in the old modes and the
 pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders
 relative to the knob you set.</p>
-<p class="small">To go back to the official firmware, use the installer's "Back to the stock firmware", or
-M-VAVE's updater, M-UPGRADE, from <a href="https://www.m-vave.com/download">m-vave.com/download</a>.
+<p class="small">To go back to the official firmware, use M-VAVE's updater, M-UPGRADE, from
+<a href="https://www.m-vave.com/download">m-vave.com/download</a>.
 AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>). It is a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, based on
 <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> by sbegueria, itself based on

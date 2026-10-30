@@ -5,21 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Emulator · AISLING</title>
 <meta name="description" content="AISLING, a generative Irish ambient firmware for the M-VAVE FM-1, in your browser: the same code the FM-1 runs.">
+<meta name="theme-color" content="#10141a">
+<link rel="icon" href="card.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
 <style>
-/* the screen's colours: a dark room, a cold teal (ui.c's K_*); the FM-1 itself stays as it is.
-   --muted and --river-2 read at 4.5:1 or more on the ground and on the cards */
-:root { --ground: #10141a; --ink: #dee4e8; --muted: #9aa8b6; --rule: #2e3846; --accent: #5cc4cc; --river: #2b6e72; --river-2: #5cc4cc;
-        --green-1: #1e4648; --card: #1e252f; --focus: #5cc4cc; color-scheme: dark; }
+/* AISLING's colours: a dark room and the card's green (docs/card.png, the landing page's accent); the FM-1 itself
+   stays as it is. --muted and --river-2 read at 4.5:1 or more on the ground and on the cards, --ink at 5:1 on --river */
+:root { --ground: #10141a; --ink: #dee4e8; --muted: #9aa8b6; --rule: #2e3846; --accent: #34c474; --river: #146c41; --river-2: #34c474;
+        --green-1: #0e5432; --card: #1e252f; --focus: #34c474; color-scheme: dark; }
 body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 28px 48px;
        font: 400 16px/1.55 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 main { max-width: 1040px; margin: 0 auto; }
-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1.2rem; margin: 0 0 1rem; }
-h1 { font-size: 2rem; font-weight: 300; line-height: 1.1; letter-spacing: .06em; margin: 0; }
-header p { margin: 0; color: var(--muted); }
-header nav { margin-left: auto; display: flex; gap: 1rem; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.2rem; margin: 0 0 1rem; }
+header .brand { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+header .card { width: 64px; height: 64px; image-rendering: pixelated; border-radius: 4px; flex: none; }
+h1 { font-size: 2rem; font-weight: 600; line-height: 1.1; letter-spacing: .12em; margin: 0; }
+header p { margin: .2rem 0 0; color: var(--muted); font-size: .92rem; }
+header p.sub { text-transform: uppercase; letter-spacing: .1em; font-size: .8rem; color: var(--accent); }
+header p.sub a { color: inherit; }
+header nav { margin-left: auto; align-self: flex-end; display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
 header nav a[aria-current] { text-decoration: none; color: var(--river-2); }
 a { color: var(--ink); text-decoration-color: var(--river-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -89,8 +95,14 @@ kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--card); b
 <body>
 <main>
 <header>
-  <h1><a href="../" style="color:inherit;text-decoration:none">AISLING</a></h1>
-  <p>Irish ambient drones for the FM-1, in the browser: the same code the FM-1 runs</p>
+  <div class="brand">
+    <img class="card" src="card.png" width="240" height="240" alt="">
+    <div>
+      <h1><a href="../" style="color:inherit;text-decoration:none">AISLING</a></h1>
+      <p class="sub">Irish ambient for the M-VAVE FM-1 · by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a></p>
+      <p>In the browser: the same code the FM-1 runs</p>
+    </div>
+  </div>
   <nav aria-label="AISLING"><a href="../emu/" aria-current="page">Emulator</a><a href="../install/">Install</a><a href="../manual/">Manual</a><a href="../cheat/">Cheat sheet</a><a href="https://github.com/stephencummins/fm1-aisling">Source</a></nav>
 </header>
 
