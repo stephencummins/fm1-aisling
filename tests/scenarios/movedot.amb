@@ -1,6 +1,6 @@
 # (BERLIN) the filter motion shown: on the Seq sound page the Cutoff knob's dot is where the filter is now. Timewind
 # opens its Sequence from closed (its Intro): the dot far under the knob's 45 at first; with the Sequence's Width and
-# Intro 0, and the Arc's Bridge and Arc 0, the dot sits on the knob
+# Intro 0, and the Arc's Bridge and Arc 0, the dot sits on the knob ((AISLING) Skellig: its Cutoff 55)
 wait 300
 tap ARP
 wait 200
@@ -27,4 +27,4 @@ wait 200
 tap ARP
 wait 6000
 expect view 9
-expect fodot 45
+expect fodot 55

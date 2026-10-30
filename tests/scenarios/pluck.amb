@@ -6,7 +6,8 @@ listen
 tap ARP
 wait 300
 expect view 2
-# (AISLING) Skellig's harp is Pluck already: one turn back is Glass, one on Pluck again
+# (AISLING) Skellig's harp is this voice already (Pluck, renamed Harp, its ring made long, 2026-10-30): one turn back
+# is Glass, one on Harp again
 expect par33 5
 turn ALGO -1
 wait 300
@@ -14,12 +15,12 @@ said VOICE Glass
 expect par33 4
 turn ALGO 1
 wait 300
-said VOICE Pluck
+said VOICE Harp
 expect par33 5
 tap ARP
 wait 300
 expect view 9
-said Seq sound page, voice Pluck: Cutoff 45, Decay 35, Reverb 50, Echo 50
+said Seq sound page, voice Harp: Cutoff 55, Decay 80, Reverb 50, Echo 50
 shot seqpluck.png
 turn ALGO 1
 wait 300
@@ -27,14 +28,14 @@ said VOICE 2600
 expect par33 0
 turn ALGO -1
 wait 300
-said VOICE Pluck
+said VOICE Harp
 expect par33 5
 tap SEQ
 wait 300
 expect view 4
 spin ALGO -2
 wait 300
-said VOICE Pluck
+said VOICE Harp
 expect par35 6
 spin ALGO -1
 wait 300
@@ -42,7 +43,7 @@ said VOICE Sub
 expect par35 5
 spin ALGO 1
 wait 300
-said VOICE Pluck
+said VOICE Harp
 expect par35 6
 spin ALGO 1
 wait 300

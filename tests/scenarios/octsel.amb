@@ -1,29 +1,29 @@
 # SELECT and OCT- / OCT+ (the user, 2026-10-28). SELECT never pages: on a layer's pages (its main, sound, Repeats,
-# Pattern and Move pages) it is that layer's level, 1 a detent, with the level ring and said ("SEQ 64"); elsewhere
+# Pattern and Move pages) it is that layer's level, 1 a detent, with the level ring and said ("SEQ 38"); elsewhere
 # nothing (no tempo, not with HOME held either; PERFORM stays). OCT- / OCT+ on the
 # Sequence's, the Lead's and Sequence 2's pages: its octave, a step a press (on its release; none held on, none with
 # both), said ("SEQ OCTAVE -2"); lit while that octave is above (OCT+) or below (OCT-) where the piece was loaded.
 # The Drone's and the Atmosphere's pages, and pages of no layer: nothing
 wait 300
 listen
-# Skellig: the Sequence at 70, the tempo 76
+# Skellig: the Sequence at 44 (AISLING: its levels 3 dB under the first flutes-and-harps balance), the tempo 76
 tap ARP
 wait 300
 expect view 2
-expect par1 70
+expect par1 44
 spin SELECT -6
 wait 200
-expect par1 64
+expect par1 38
 expect view 2
 expect octring 2
-said SEQ 64
+said SEQ 38
 # its sound page too (the same layer)
 tap ARP
 wait 300
 expect view 9
 spin SELECT 1
 wait 200
-expect par1 65
+expect par1 39
 expect view 9
 # Sequence 2's Pattern page: Sequence 2's level (0, Skellig's off: brought in, quietly)
 tap SEQ
@@ -80,11 +80,11 @@ spin SELECT 1
 wait 300
 expect view 17
 expect par18 76
-expect par1 65
+expect par1 39
 expect par3 2
 expect par29 4
-expect par0 60
-expect par2 40
+expect par0 38
+expect par2 76
 tap HOME
 wait 300
 # OCT- / OCT+: Samhain (the Sequence at -1, Sequence 2 at -1, its default, the Lead
@@ -104,7 +104,7 @@ expect par21 -2
 said SEQ OCTAVE -2
 expect litbtn12 1
 expect litbtn13 0
-expect par1 70
+expect par1 59
 tap OCT-
 wait 200
 expect par21 -2
@@ -181,5 +181,5 @@ wait 200
 expect par21 0
 expect par44 1
 expect par23 -2
-expect par0 75
+expect par0 42
 expect octring 0

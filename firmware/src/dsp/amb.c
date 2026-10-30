@@ -76,14 +76,20 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
 
 /* (AISLING) the pieces: eight recipes for the whole machine (the FM-1's PRESETS), each what it sets over the defaults
  * (PARAMS), in pairs, to -1. Tune and MIDI out are never set here: they belong to the player. Each is a place in the
- * west and a starting point, to tune by ear: the voices for now NACHTFAHRT's, standing in for AISLING's own to come
- * (the Pluck for the harp, the Flute for the whistle, the Odyssey bowed for the fiddle, the Theremin for the voice,
- * the Organ for the pipes). The Irish of it, for now, in four things: the modes (Major, Mixolydian, Dorian, Minor
- * and the two hexatonics), the drone held under them (Pedal high), the double tonic (the chords' slots, the walk's
- * degrees in Loop: I and bVII in turn, a long Drift each), and the jig's threes (Sequence lengths 12 and 9, and the
- * pulse: Accents every third step, played in Auto, seq_pulse). The Lead dreamy in all of them (its reverb and echo
- * 90, the defaults), the Atmosphere's levels NACHTFAHRT's for the FM-1's speaker (Surf 5, Wind and Rain 7, Tape 10).
- * (Voices: the Sequence's 2600 Moog Synthi Pulse Glass Pluck (0..5), Sequence 2's the five, Sub, Pluck (0..6);
+ * west and a starting point, to tune by ear. Flutes and harps (Stephen, 2026-10-30, on step 3's renders): the Harp
+ * (NACHTFAHRT's Pluck made a wire-strung harp: a long bright ring, Decay long) in the Sequence, and in Sequence 2,
+ * where it plays, as the harper's other hand, an octave down; the Flute (breath, a chiff, overtones low) leading in
+ * all eight, louder and busier than NACHTFAHRT's Lead (Lead 76: ~2 dB over the harp; Phrases 90-95 and Lead in 4-8
+ * bars, the Intros 8-12 (it waits out Emerge), so it is heard from the first half-minute), its vibrato light; the Drone
+ * held under them (~15 dB under the Lead), still standing in for the pipes (the Organ) and the reeds. Every layer's
+ * level 3 dB under where that balance was first set (Lead 90): the harp's strikes rang into the soft clip, and the
+ * effects grid's Reverb on a full piece reached -0.2 dBFS. The Irish of it, besides, in four things: the modes
+ * (Major, Mixolydian, Dorian, Minor and the two hexatonics), the drone held under them (Pedal high), the double tonic
+ * (the chords' slots, the walk's degrees in Loop: I and bVII in turn, a long Drift each), and the jig's threes
+ * (Sequence lengths 12 and 9, and the pulse: Accents every third step, played in Auto, seq_pulse).
+ * The Lead dreamy in all of them (its reverb and echo 90, the defaults), the Atmosphere's levels NACHTFAHRT's for the
+ * FM-1's speaker (Surf 5, Wind and Rain 7, Tape 10), kept when the layers came 3 dB down (set for the speaker).
+ * (Voices: the Sequence's 2600 Moog Synthi Pulse Glass Harp (0..5), Sequence 2's the five, Sub, Harp (0..6);
  *  the Drone's Organ Strings Horn Saws Glass Choir; the Lead's Odyssey Mini Flute Theremin Synthi. Repeat times:
  *  1/8 1/8. 1/4 1/4. 1/2 1 bar. Drift: 2 4 8 16 32 64 bars, Hold. Grid: 8ths, 16ths. Atmosphere: None Wind Surf Space
  *  Air Tape Rain. A walk slot's root: the scale's degree plus one (a hexatonic's bVII its 6); its type the voicing,
@@ -95,35 +101,36 @@ static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the
                                                 * ostinato in threes (12 sixteenths, every third accented), a whistle;
                                                 * Dm and C in turn, sixteen bars each */
     P_TEMPO, 76, P_ROOT, 2, P_MODE, MODE_AEOLIAN,
-    P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 55, P_SACC0, 0x249,
+    P_SEQ, 44, P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 55, P_SACC0, 0x249, P_DECAY, 80, P_CUTOFF, 55,
     P_SEQ2, 0,
-    P_CVOICE, 0, P_PEDAL, 90, P_PHASER, 15, P_DRIFT, 3,
+    P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 90, P_PHASER, 15, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LVOICE, 2, P_VIB, 30, P_GLIDE, 15, P_LDIN, 16,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4,
     P_REVERB, 55, P_SIZE, 80,
     P_NCHAR, 2, P_CRACKLE, 5,
     P_MW0, 30, P_MR0, 25, P_MW4, 30, P_MR4, 20, P_BRIDGE, 40,
-    P_MI1, 16, P_ARC, 20, P_MOTION, 40, P_LMEM, 60, -1};
-static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limestone, the wind; a choir held over G, glass
-                                                * of 12 and 11 drifting apart, a bowed line; I IV I ii, sixteen bars each */
+    P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 60, -1};
+static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limestone, the wind; a choir held over G, two
+                                                * harps of 12 and 11 drifting apart, a soft flute; I IV I ii, sixteen
+                                                * bars each */
     P_TEMPO, 84, P_ROOT, 7, P_MODE, MODE_IONIAN,
-    P_SVOICE, 4, P_SEQLEN, 12, P_DENSITY, 45, P_SWEEP, 35,
-    P_SEQ2, 45, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 11, P_MI3, 16,
-    P_CHORD, 70, P_CVOICE, 5, P_PEDAL, 80, P_DRIFT, 3,
+    P_SEQ, 67, P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 45, P_SWEEP, 35, P_DECAY, 75,
+    P_SEQ2, 46, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 85, P_MI3, 8,
+    P_CHORD, 55, P_CVOICE, 5, P_PEDAL, 80, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 2,
-    P_LVOICE, 0, P_LTONE, 35, P_VIB, 60, P_GLIDE, 40, P_LDIN, 24,
+    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 35, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 8,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
     P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
-static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, plucked strings in a jig's threes over a
-                                                * slip jig's nine an octave down, a nasal square for the chanter, a turf
-                                                * fire (Tape's crackle); Am and G in turn, eight bars each */
+static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a harp in a jig's threes over a slip
+                                                * jig's nine an octave down, a bright flute, a turf fire (Tape's
+                                                * crackle); Am and G in turn, eight bars each */
     P_TEMPO, 96, P_ROOT, 9, P_MODE, MODE_DORIAN,
-    P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55,
-    P_SEQ2, 50, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_MI3, 8,
-    P_CHORD, 55, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
+    P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
+    P_SEQ, 59, P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 80, P_MI3, 8,
+    P_CHORD, 46, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
-    P_LVOICE, 4, P_LTONE, 60, P_VIB, 15, P_GLIDE, 10, P_LDENS, 60, P_LDIN, 12,
+    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 60, P_VIB, 10, P_GLIDE, 10, P_LDENS, 95, P_LDIN, 4,
     P_NCHAR, 5, P_CRACKLE, 10,
     P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 30, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
     P_ARC, 25, P_MOTION, 55, P_LMEM, 70, -1};
@@ -131,68 +138,68 @@ static const int16_t PC_CAROLAN[] = {         /* Turlough O'Carolan, the harper 
                                                 * and 15, a whistle, rain; a planxty's chords (I IV I V vi IV V I), eight
                                                 * bars each */
     P_TEMPO, 88, P_ROOT, 2, P_MODE, MODE_IONIAN,
-    P_SVOICE, 5, P_SEQLEN, 16, P_SEQGRID, 1, P_DENSITY, 60,
-    P_SEQ2, 45, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 15, P_MI3, 16,
+    P_SEQ, 50, P_SVOICE, 5, P_SEQLEN, 16, P_SEQGRID, 1, P_DENSITY, 60, P_DECAY, 85,
+    P_SEQ2, 38, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 15, P_S2DEC, 90, P_MI3, 8,
     P_TAPB, 40, P_TAPBT, 2,
-    P_CHORD, 65, P_CVOICE, 1, P_PEDAL, 60, P_DRIFT, 2,
+    P_CHORD, 50, P_CVOICE, 1, P_PEDAL, 60, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 5, P_CR4, 6, P_CR5, 4, P_CR6, 5, P_CR7, 1,
     P_CX0, 1, P_CX1, 1, P_CX2, 1, P_CX3, 1, P_CX4, 1, P_CX5, 1, P_CX6, 1, P_CX7, 1,
-    P_LVOICE, 2, P_VIB, 30, P_GLIDE, 15, P_LDIN, 16,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 20, P_MR0, 25, P_SWEEP, 40, P_MR1, 30, P_MW4, 25, P_MR4, 20,
     P_ARC, 25, P_MOTION, 50, P_LMEM, 70, -1};
-static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, left in 1953: a choir over E, slow glass
-                                                * bells in threes for the dulcimer, a voice wavering over the surf; Em
-                                                * and D in turn, thirty-two bars each */
+static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, left in 1953: a choir over E, slow harps
+                                                * in threes, a flute's slow air over the surf; Em and D in turn,
+                                                * thirty-two bars each */
     P_TEMPO, 70, P_ROOT, 4, P_MODE, MODE_DORIAN,
-    P_SVOICE, 4, P_SEQLEN, 12, P_DENSITY, 40, P_SACC0, 0x249,
-    P_SEQ2, 40, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 11, P_MI3, 24,
+    P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 40, P_SACC0, 0x249, P_DECAY, 90,
+    P_SEQ, 59, P_SEQ2, 46, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 90, P_MI3, 12,
     P_TAPB, 50, P_TAPBT, 4,
-    P_CHORD, 75, P_CVOICE, 5, P_PEDAL, 85, P_DRIFT, 4,
+    P_CHORD, 50, P_CVOICE, 5, P_PEDAL, 85, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LEAD, 50, P_LVOICE, 3, P_LTONE, 45, P_VIB, 45, P_GLIDE, 45, P_LDENS, 40, P_LDIN, 16,
+    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 45, P_VIB, 20, P_GLIDE, 35, P_LDENS, 90, P_LDIN, 8,
     P_REVERB, 50, P_SIZE, 85,
     P_NCHAR, 2, P_CRACKLE, 5,
     P_MW0, 35, P_MT0, 60, P_MR0, 30, P_MW4, 30, P_MR4, 25, P_BRIDGE, 35,
-    P_MI1, 16, P_ARC, 20, P_MOTION, 35, P_LMEM, 65, -1};
-static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: a low drone on B beating, a slow Moog
-                                                * line of eight, a voice an octave down, the wind; Bm, G, A, thirty-two
+    P_MI1, 8, P_ARC, 20, P_MOTION, 35, P_LMEM, 65, -1};
+static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: a low drone on B beating, a low harp of
+                                                * eight, a low whistle an octave down, the wind; Bm, G, A, thirty-two
                                                 * bars each (Sequence 2 silent: the bodhran's place) */
     P_TEMPO, 64, P_ROOT, 11, P_MODE, MODE_AEOLIAN,
-    P_SVOICE, 1, P_SEQOCT, -1, P_SEQLEN, 8, P_DENSITY, 45, P_CUTOFF, 35, P_SWEEP, 55,
-    P_SEQ2, 0,
-    P_CHORD, 75, P_CVOICE, 0, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
+    P_SVOICE, 5, P_SEQOCT, -1, P_SEQLEN, 8, P_DENSITY, 45, P_CUTOFF, 40, P_SWEEP, 55, P_DECAY, 95,
+    P_SEQ, 59, P_SEQ2, 0,
+    P_CHORD, 42, P_CVOICE, 0, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6, P_CR2, 7,
-    P_LEAD, 60, P_LVOICE, 3, P_LOCT, -1, P_VIB, 50, P_LDENS, 35, P_LDIN, 16,
+    P_LEAD, 76, P_LVOICE, 2, P_LOCT, -1, P_VIB, 15, P_LDENS, 90, P_LDIN, 8,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 45, P_MT0, 70, P_MR0, 40, P_MW2, 10, P_BRIDGE, 30,
-    P_MI0, 16, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
+    P_MI0, 8, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
 static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; an organ on G in the gapped minor (no
-                                                * sixth), a harp in a slip jig's nine over glass of eight, a bowed line;
-                                                * Gm and F in turn, sixteen bars each */
+                                                * sixth), a harp in a slip jig's nine over another of eight an octave
+                                                * down, a flute; Gm and F in turn, sixteen bars each */
     P_TEMPO, 92, P_ROOT, 7, P_MODE, MODE_HEX_MIN,
-    P_SVOICE, 5, P_SEQLEN, 9, P_DENSITY, 60, P_SACC0, 0x49,
-    P_SEQ2, 45, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 8, P_MI3, 16,
-    P_CHORD, 60, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
+    P_SVOICE, 5, P_SEQLEN, 9, P_DENSITY, 60, P_SACC0, 0x49, P_DECAY, 75,
+    P_SEQ, 59, P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_S2DEC, 85, P_MI3, 8,
+    P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6,
-    P_LVOICE, 0, P_LTONE, 40, P_VIB, 60, P_GLIDE, 40, P_LDIN, 16,
+    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 40, P_VIB, 12, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 30, P_MR0, 30, P_MW3, 30, P_MR3, 35, P_BRIDGE, 40,
     P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
 static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the young over the western sea: glass for the
-                                                * drone, phased, in the gapped major (no seventh) on D, a harp of 12 over
-                                                * glass of 11, a whistle, a long reverb; D and G in turn, sixteen bars
-                                                * each (no Atmosphere yet: the curlew's place) */
+                                                * drone, phased, in the gapped major (no seventh) on D, two harps of 12
+                                                * and 11, a whistle, a long reverb; D and G in turn, sixteen bars each
+                                                * (no Atmosphere yet: the curlew's place) */
     P_TEMPO, 80, P_ROOT, 2, P_MODE, MODE_HEX_MAJ,
-    P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 50, P_SACC0, 0x249,
-    P_SEQ2, 45, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 11, P_MI3, 24,
+    P_SEQ, 47, P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 50, P_SACC0, 0x249, P_DECAY, 90,
+    P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 90, P_MI3, 12,
     P_TAPB, 60, P_TAPBT, 4,
-    P_CHORD, 65, P_CVOICE, 4, P_PHASER, 70, P_DRIFT, 3,
+    P_CHORD, 42, P_CVOICE, 4, P_PHASER, 70, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CX0, 1, P_CX1, 1,
-    P_LVOICE, 2, P_VIB, 35, P_GLIDE, 20, P_LDIN, 24,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4,
     P_REVERB, 60, P_SIZE, 90,
     P_MW0, 25, P_MR0, 20, P_MW3, 35, P_MR3, 20,
-    P_MI1, 16, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
+    P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
 static const struct {
     const char *name;
     const int16_t *set;
@@ -1337,7 +1344,7 @@ static void ar_tick_bar(void)                    /* a bar line (the first, at th
  * Density as it plays; one written (en_seq_set) plays as written */
 #define NPLUCK 6
 typedef struct {
-    uint8_t on, note, layer, voice;
+    uint8_t on, note, layer, voice, tk;          /* (tk: taken while sounding, not yet rendered since) */
     float ph, ph2, dt, dt2, amp, att, adec, env, edec, gl, gr, cut, c1[4], c2[4], s1[2], s2[2];
     float last;                                  /* (its last output sample, before the pan: a steal's step) */
     uint16_t ks_w, ks_r;                         /* (Pluck: its string, ks_line[its slot]) where it writes, where it
@@ -1345,6 +1352,7 @@ typedef struct {
     float ks_fr, ks_fb, ks_a1, ks_x1, ks_g;      /* the delay's fraction; the loop's gain a period; the last sample
                                                   * read and the last read between two (the average's); the output's
                                                   * gain (the velocity's, from the line's units) */
+    float ks_dk;                                 /* (Harp) the voice it took over: its last sample, fading out */
 } pluck_t;
 static pluck_t pluck[NPLUCK];
 
@@ -1375,9 +1383,17 @@ static pluck_t pluck[NPLUCK];
  *   IN THE SOFTWARE. */
 #define KS_N 1400                                /* (a line: 1389 needed, above) */
 #define KS_Q 16383.0f                            /* (the line's units a 1) */
-#define KS_GAIN 1.78f                            /* (its level: a note's energy as 2600's at the same knobs, +-1.5 dB
-                                                  * from 24 to 72 (the tests); the higher, the sooner its partials die,
-                                                  * so ~2 dB an octave more over 48, to 84) */
+#define KS_GAIN 2.13f                            /* (its level: a strike's power, a note's energy over its T60, as
+                                                  * 2600's at the same knobs, +-1 dB from 24 to 72 (the tests). (AISLING)
+                                                  * Flat now: NACHTFAHRT's ~2 dB an octave more over 48 made up for the
+                                                  * top's partials dying sooner in a fixed window; the ring taken out,
+                                                  * the strike measured, that tilt was the whole error) */
+#define KS_S 0.33f                               /* (AISLING's Harp) the loop's weight on the sample before: under the
+                                                  * average's 0.5, so the partials ring on (a wire-strung harp's
+                                                  * brightness) */
+#define KS_RING 6.0f                             /* (Harp) how much longer than the other voices a string rings at 48,
+                                                  * twice that two octaves down, half two up */
+#define KS_POS 0.4f                              /* (Harp) where the finger takes the string: the pluck's apex */
 static int16_t ks_line[NPLUCK][KS_N] EN_POOL;
 static uint32_t ks_rng = 0x6C078965u;
 static seq_t sq[2], sq_pend[2];
@@ -1392,7 +1408,7 @@ volatile uint8_t en_seq_len[2];
 volatile int8_t en_s2oct_shift;
 volatile uint16_t en_seq_lane[5], en_seq_acc[2];   /* (the Pattern page's lanes as Auto plays them: each sequence's
                                                   * steps (as Density thins them), octaves; the Sequence's skips; accents) */
-const char *const EN_SV_NAME[EN_NS2V] = {"2600", "Moog", "Synthi", "Pulse", "Glass", "Sub", "Pluck"};
+const char *const EN_SV_NAME[EN_NS2V] = {"2600", "Moog", "Synthi", "Pulse", "Glass", "Sub", "Harp"};
 
 /* a piece's patterns, kept (en_seq_get, en_seq: EN_SEQ_N bytes): each one's degrees (16 + 16), steps, octaves and
  * accents (two bytes each, low first) and Density's order (16 + 16) */
@@ -1443,29 +1459,36 @@ int en_ks_ok(void)                               /* (host tests) the strings' fl
     for (i = 0; i < NPLUCK; i++) {
         const pluck_t *v = &pluck[i];
         ok &= ks_fine(v->ks_fr) & ks_fine(v->ks_fb) & ks_fine(v->ks_a1) & ks_fine(v->ks_x1) & ks_fine(v->ks_g) &
-              ks_fine(v->amp) & ks_fine(v->att) & ks_fine(v->last);
+              ks_fine(v->amp) & ks_fine(v->att) & ks_fine(v->last) & ks_fine(v->ks_dk);
     }
     return ok;
 }
 #endif
 
 static float fx_swm;                             /* (the grid's Sweep, below: the burst's brightness moves with it) */
-/* (Pluck) v struck (pluck_voice: its note, level, length and cutoff set): its line filled with the burst, a period and
- * two (what the first reads, the fraction's neighbour and the average's), its mean taken out (no thump); the delay
- * and the loop's gain from the period */
+/* (Pluck, AISLING's Harp) v struck (pluck_voice: its note, level, length and cutoff set): its line filled with the
+ * finger's shape, a period and two (what the first reads, the fraction's neighbour and the filter's), its mean taken
+ * out (no thump); the delay and the loop's gain from the period; it rings KS_RING times as long as the other voices
+ * (amp with it, so the note ends when the string does), longer low, shorter high, as a harp's strings */
 static void ks_strike(pluck_t *v, int16_t *line)
 {
-    const float p = 1.0f / v->dt, d = fm_clampf(p - 0.5f, 2.0f, (float)(KS_N - 3)), w = FM_TWO_PI * v->dt,
-                b = 1.0f - fm_expf(-FM_TWO_PI * fm_minf(v->cut * 11.3137085f * fx_swm, 0.45f * EN_SR) * (1.0f / EN_SR));
+    const float p = 1.0f / v->dt, w = FM_TWO_PI * v->dt, cw = 1.0f - fm_cosf(w),
+                pd = KS_S * (1.0f - w * w * (1.0f - KS_S) * (1.0f - 2.0f * KS_S) * (1.0f / 6.0f)),   /* (the loop
+                                                  * filter's delay at the fundamental: KS_S, a little less up high) */
+                d = fm_clampf(p - pd, 2.0f, (float)(KS_N - 3)),
+                b = 1.0f - fm_expf(-FM_TWO_PI * fm_minf(v->cut * 11.3137085f * fx_swm, 0.45f * EN_SR) * (1.0f / EN_SR)),
+                ring = KS_RING * fm_exp2f(fm_clampf(48.0f - (float)v->note, -36.0f, 24.0f) * (1.0f / 24.0f));
     const int len = (int)d, nb = len + 2;
-    const float fr = d - (float)len;
+    const float fr = d - (float)len, apex = KS_POS * (float)nb;
     float lp = 0.0f, loss;
     int32_t sum = 0, mean;
     int i;
-    for (i = 0; i < nb; i++) {                   /* (white noise, -1 .. 1, through the one-pole) */
+    for (i = 0; i < nb; i++) {                   /* (the finger: a triangle up to the apex and down, a little noise
+                                                  * on it, 0 .. 1, through the one-pole) */
+        const float tri = (float)i < apex ? (float)i / apex : (float)(nb - i) / ((float)nb - apex);
         int k;
         ks_rng = ks_rng * 1664525u + 1013904223u;
-        lp += b * ((float)(int32_t)ks_rng * (1.0f / 2147483648.0f) - lp);
+        lp += b * (0.85f * tri + 0.15f * (float)(int32_t)ks_rng * (1.0f / 2147483648.0f) - lp);
         k = (int)(lp * KS_Q);
         line[KS_N - 1 - i] = (int16_t)k;
         sum += k;
@@ -1478,11 +1501,12 @@ static void ks_strike(pluck_t *v, int16_t *line)
     v->ks_r = (uint16_t)(KS_N - len);
     v->ks_a1 = (float)line[KS_N - len - 1];
     v->ks_x1 = v->ks_a1 + fr * ((float)line[KS_N - len - 2] - v->ks_a1);
-    /* the loop's gain: the amplitude's decay over a period (Decay's T60), over what the average (cos w/2) and the
-     * fraction's line take from the fundamental each time round; under 1, whatever (the top notes, a long Decay) */
-    loss = fm_cosf(0.5f * w) * fm_sqrtf(1.0f - 2.0f * fr * (1.0f - fr) * (1.0f - fm_cosf(w)));
+    /* the loop's gain: the amplitude's decay over a period (Decay's T60, ring times), over what the loop's filter and
+     * the fraction's line take from the fundamental each time round; under 1, whatever (the top notes, a long Decay) */
+    loss = fm_sqrtf((1.0f - 2.0f * KS_S * (1.0f - KS_S) * cw) * (1.0f - 2.0f * fr * (1.0f - fr) * cw));
+    v->adec = fm_expf(fm_logf(v->adec) / ring);
     v->ks_fb = fm_minf(fm_expf(p * fm_logf(v->adec)) / loss, 0.9995f);
-    v->ks_g = v->amp * (KS_GAIN / KS_Q) * fm_exp2f(0.34f * fm_minf((float)v->note - 48.0f, 36.0f) * (1.0f / 12.0f));
+    v->ks_g = v->amp * (KS_GAIN / KS_Q);
 #ifdef EN_HOST
     en_ks_struck++;
 #endif
@@ -1490,7 +1514,7 @@ static void ks_strike(pluck_t *v, int16_t *line)
 
 static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, panned across from the note */
 {
-    int i, best = 0;
+    int i, best = 0, sv;
     float lo = 9.0f, p;
     pluck_t *v;
     if (!sq_audible(l) || vel <= 0)
@@ -1501,17 +1525,23 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
             lo = a, best = i;
     }
     v = &pluck[best];
+    sv = sv_of(l, par[l ? P_S2VOICE : P_SVOICE]);
     if (v->on) {
         midi(v->layer ? 0x83u : 0x81u, v->note, 0);
 #ifdef EN_HOST
-        if (fm_fabsf(v->last) > en_pl_steal)
+        if (sv != SV_PLUCK && fm_fabsf(v->last) > en_pl_steal)   /* (the step a take leaves: an oscillator's
+                                                                   * last sample; a string's, render_ks) */
             en_pl_steal = fm_fabsf(v->last);
 #endif
     }
+    /* (Harp) a string rings long, so it is often taken while still heard: what was sounding fades out under it
+     * (render_ks: ~2 ms from its last sample), no step */
+    v->ks_dk = v->on && sv == SV_PLUCK ? v->last : 0.0f;
+    v->tk = (uint8_t)(v->on && sv == SV_PLUCK);
     v->on = 1;
     v->note = (uint8_t)n;
     v->layer = (uint8_t)l;
-    v->voice = (uint8_t)sv_of(l, par[l ? P_S2VOICE : P_SVOICE]);
+    v->voice = (uint8_t)sv;
     v->dt = mtof((float)n) * (1.0f / EN_SR);
     v->dt2 = v->dt * (v->voice == 1 ? 1.004f : v->voice == 4 ? 3.5f : 0.5f);   /* Moog's second saw, Glass's
                                                                                 * modulator, Sub's octave under */
@@ -4897,17 +4927,22 @@ static inline float frac1(float x) { return x - (float)(int)x; }
 static void render_ks(pluck_t *v, int16_t *line, uint32_t n, float g, float es, float rv)
 {
     const float adec = v->adec, fr = v->ks_fr, fb = v->ks_fb, kg = v->ks_g * g, gl = v->gl, gr = v->gr;
-    float amp = v->amp, att = v->att, a1 = v->ks_a1, x1 = v->ks_x1, y = 0.0f;
+    float amp = v->amp, att = v->att, a1 = v->ks_a1, x1 = v->ks_x1, dk = v->ks_dk, y = 0.0f;
     uint32_t w = v->ks_w, r = v->ks_r, j;
     for (j = 0; j < n; j++) {
-        const float a = (float)line[r], x = a + fr * (a1 - a), s = 0.5f * (x + x1);
+        const float a = (float)line[r], x = a + fr * (a1 - a), s = x + KS_S * (x1 - x);
         line[w] = (int16_t)(s * fb);             /* (toward 0: a string's last whisper is 0, never a denormal) */
         a1 = a, x1 = x;
         if (++w >= KS_N)
             w = 0;
         if (++r >= KS_N)
             r = 0;
-        y = s * kg * att;
+        y = s * kg * att + dk;                   /* (dk: the voice taken, fading out) */
+        dk *= 0.98f;
+#ifdef EN_HOST
+        if (!j && v->tk && fm_fabsf(y - v->ks_dk) > en_pl_steal)   /* (the step the take left) */
+            en_pl_steal = fm_fabsf(y - v->ks_dk);
+#endif
         mixl[j] += y * gl;
         mixr[j] += y * gr;
         rsend[j] += y * rv;
@@ -4916,6 +4951,7 @@ static void render_ks(pluck_t *v, int16_t *line, uint32_t n, float g, float es, 
         att += (1.0f - att) * 0.03f;
     }
     v->amp = amp, v->att = att, v->ks_a1 = a1, v->ks_x1 = x1, v->last = y;
+    v->ks_dk = fm_fabsf(dk) < 1e-6f ? 0.0f : dk, v->tk = 0;
     v->ks_w = (uint16_t)w, v->ks_r = (uint16_t)r;
     if (amp < 0.0008f) {
         v->on = 0;
@@ -5296,7 +5332,7 @@ static void render_lead(uint32_t n)
     const float g = lead_vol * 0.45f, vib = (float)par[P_VIB] * 0.004f + (lv == 3 ? 0.25f : 0.0f), gl = 0.84f, gr = 1.08f,
                 tone = ld_tone * fo_mul(FO_LEAD);   /* (Tone, moved by the filter motion) */
     uint32_t j;
-    float dt = 0.0f;
+    float dt = 0.0f, h2 = 0.0f, h3 = 0.0f, br = 0.0f;
     if (!lead.on && lead.env < 1e-5f) {
         en_bass_level = 0.0f;                    /* (the meter, at rest) */
         return;
@@ -5308,6 +5344,16 @@ static void render_lead(uint32_t n)
             dt = f * (1.0f / EN_SR);
             svf_coefs(lead.c1, f * (3.0f + 6.0f * lead.fenv) * tone, 0.9f);
             svf_coefs(lead.c2, f * (3.0f + 6.0f * lead.fenv) * tone, 0.7f);
+            if (lv == 2) {                       /* (AISLING's Flute: breath, a band round the second harmonic; the
+                                                  * overtones a low note and Tone give it, none up high; the chiff,
+                                                  * fenv squared (~12 ms), a puff and a hard second at the start) */
+                const float reg = fm_clampf((84.0f - lead.cur) * (1.0f / 24.0f), 0.0f, 1.0f),
+                            tb = fm_clampf(tone, 0.5f, 2.0f), ch = lead.fenv * lead.fenv;
+                h2 = (0.08f + 0.14f * reg) * tb + 0.3f * ch;
+                h3 = (0.02f + 0.06f * reg) * tb + 0.1f * ch;
+                br = 0.5f + 0.4f * reg + 4.0f * ch;
+                svf_coefs(lead.c1, f * 2.0f * tb, 1.0f);
+            }
             lead.vt += 16.0f / EN_SR;
             lead.vph += 16.0f * 5.5f / EN_SR;
             if (lead.vph >= 1.0f)
@@ -5318,7 +5364,10 @@ static void render_lead(uint32_t n)
         switch (lv) {
         case 0: x = 0.6f * blep_saw(lead.ph, dt) + 0.4f * (blep_saw(lead.ph, dt) - blep_saw(frac1(lead.ph + 0.35f), dt)); break;
         case 1: x = 0.45f * (blep_saw(lead.ph, dt) + blep_saw(lead.ph2, dt * 1.004f) + blep_saw(lead.ph3, dt * 0.996f)); break;
-        case 2: x = sine(lead.ph) + 0.08f * lead.env * (frand() - 0.5f); break;
+        case 2:                                  /* (one draw a sample, as before: the generator's stream unchanged) */
+            svf_lp(lead.c1, lead.s1, frand() - 0.5f, &bp);
+            x = sine(lead.ph) + h2 * sine(2.0f * lead.ph) + h3 * sine(3.0f * lead.ph) + br * bp;
+            break;
         case 3: x = sine(lead.ph); break;
         default: x = blep_saw(lead.ph, dt) - blep_saw(frac1(lead.ph + 0.5f), dt); break;
         }

@@ -26,26 +26,26 @@ said Drone move page, voice Organ: Width
 tap ARP
 wait 300
 expect view 2
-said Sequence page, voice Pluck: Density 55, Octave 0, Length 12, Grid 16ths
+said Sequence page, voice Harp: Density 55, Octave 0, Length 12, Grid 16ths
 tap ARP
 wait 300
 expect view 9
-said Seq sound page, voice Pluck: Cutoff 45, Decay 35, Reverb 50, Echo 50
+said Seq sound page, voice Harp: Cutoff 55, Decay 80, Reverb 50, Echo 50
 tap ARP
 wait 300
 expect view 13
-said Repeats page, voice Pluck: Repeat A 100, A time 1/8., Repeat B 0, B time 1/4
+said Repeats page, voice Harp: Repeat A 100, A time 1/8., Repeat B 0, B time 1/4
 tap ARP
 wait 300
 expect view 23
-said Seq move page, voice Pluck: Width
+said Seq move page, voice Harp: Width
 tap ARP
 wait 300
 expect view 2
 tap LFO
 wait 300
 expect view 3
-said Lead page, voice Flute: Phrases 50, Octave 0, Glide 15, Vibrato 30
+said Lead page, voice Flute: Phrases 95, Octave 0, Glide 15, Vibrato 12
 tap LFO
 wait 300
 expect view 10
@@ -96,11 +96,12 @@ said Setup page: Tune 0, MIDI out On
 tap GLO
 wait 300
 expect view 22
-said Arc page: Lead in 16, Bridge 40, Arc 20, Memory 60
+# ((AISLING) Skellig's Lead in 4: the Flute heard from the first half-minute)
+said Arc page: Lead in 4, Bridge 40, Arc 20, Memory 60
 # a knob on the Arc page: its help line shown as it turns (the review: the Arc's row was missing, NULL)
 turn K1 1
 wait 300
-said Lead in 17
+said Lead in 5
 turn K1 -1
 wait 300
 # (the Lead's memory) the fourth knob: Memory, Skellig's 60, the Lead's own parameter (130)
@@ -130,10 +131,10 @@ spin K3 -4
 wait 300
 said Length 8
 expect par28 8
-# a layer's level: SELECT (1 a detent; octsel.amb has the rest)
-expect par1 70
+# a layer's level: SELECT (1 a detent; octsel.amb has the rest; Skellig's Sequence at 44, under its Lead)
+expect par1 44
 spin SELECT 5
 wait 300
-expect par1 75
+expect par1 49
 # every page's knobs have a help line, NACHTFAHRT's, and each fits the rule
 expect helpfit 0

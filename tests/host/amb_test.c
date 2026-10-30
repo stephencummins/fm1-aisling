@@ -1622,16 +1622,17 @@ int main(void)
         en_param_text(P_SVOICE, 0, t);
         CHECK(!strcmp(t, "2600"), "seq voice 0: %s", t);
         /* (the voices batch, item 2) Pluck appended to both sequences' voices: the Sequence's sixth (after Glass),
-         * Sequence 2's seventh (after Sub, which keeps its 5: Rubycon and the saves keep their sound) */
+         * Sequence 2's seventh (after Sub, which keeps its 5: Rubycon and the saves keep their sound); (AISLING) made
+         * the Harp, its name with it */
         en_param_text(P_SVOICE, 4, t);
         CHECK(!strcmp(t, "Glass"), "seq voice 4: %s", t);
         en_param_text(P_SVOICE, 5, t);
-        CHECK(!strcmp(t, "Pluck") && en_param_info(P_SVOICE)->hi == 5, "test_pluck_listed: seq voice 5 %s, hi %d", t,
+        CHECK(!strcmp(t, "Harp") && en_param_info(P_SVOICE)->hi == 5, "test_pluck_listed: seq voice 5 %s, hi %d", t,
               en_param_info(P_SVOICE)->hi);
         en_param_text(P_S2VOICE, 5, t);
         CHECK(!strcmp(t, "Sub"), "seq2 voice 5: %s", t);
         en_param_text(P_S2VOICE, 6, t);
-        CHECK(!strcmp(t, "Pluck") && en_param_info(P_S2VOICE)->hi == 6, "test_pluck_listed: seq2 voice 6 %s, hi %d", t,
+        CHECK(!strcmp(t, "Harp") && en_param_info(P_S2VOICE)->hi == 6, "test_pluck_listed: seq2 voice 6 %s, hi %d", t,
               en_param_info(P_S2VOICE)->hi);
         en_param_text(P_CATT, 40, t);
         CHECK(!strcmp(t, "40"), "attack 40, unsigned: %s", t);
@@ -2176,7 +2177,9 @@ int main(void)
         en_set(P_ECHO, 0);
         en_set(P_LDECHO, 0);
         en_set(P_LDREV, 100);
-        en_set(P_LVOICE, 2);                     /* (a sine, its breath a whisper; vibrato 0) */
+        en_set(P_LVOICE, 3);                     /* (a sine: the Theremin; its own vibrato, a quarter tone, well
+                                                  * inside the bands. (AISLING) Not the Flute: its overtones, the
+                                                  * second most, are the octave this measures) */
         en_set(P_VIB, 0);
         en_set(P_LDIN, 0);
         en_play(1);
@@ -2285,9 +2288,11 @@ int main(void)
      * lowest note either sequence reaches (24, the clamp, at Tune -50: ~31.8 Hz, the delay line's whole length) to the
      * highest (108); (ii) Decay sets how long it rings, as it does the other voices' (their amplitude's T60, 1.5 x
      * 80 .. 250 ms); (iii) about as loud as 2600 at the same knobs; (iv) after a long silence its state finite, no
-     * denormals; (v) a voice taken for a new note no louder than the oscillator voices' are, the notes paired */
+     * denormals; (v) a voice taken for a new note no louder than the oscillator voices' are, the notes paired.
+     * (AISLING, 2026-10-30) Pluck made the Harp: a wire string rings on, KS_RING (6) times the other voices' at note 48,
+     * so (ii) expects that, (iii) compares the strike, its ring taken out, and (v) lets the ring fill the mix */
     {
-        static float x[2 * 44100];
+        static float x[4 * 44100];
         static const int OCT[10] = {-2, -2, -1, -1, 1, 1, 2, 2, 2, 2}, DEG[10] = {0, 0, 0, 5, 0, 5, 0, 7, 14, 21},
                          TUNE[10] = {-50, 0, 0, 0, 0, 50, 0, 0, 0, 0};
         float t60[2], lv[5][2], st[2], sl[2][3];
@@ -2311,31 +2316,38 @@ int main(void)
             if (!k)
                 CHECK(note == 24, "test_pluck_pitch: the lowest note %d (24)", note);
         }
-        for (k = 0; k < 2; k++) {                /* (ii) Decay 0 and 100, note 48 */
-            const float nom = 1.5f * 0.08f * powf(2.0f, 0.0164f * (float)(k ? 100 : 0));
+        for (k = 0; k < 2; k++) {                /* (ii) Decay 0 and 100, note 48: KS_RING (amb.c's 6) times the other
+                                                  * voices' T60 (to 2.2 s at Decay 100: 3 s caught, its -40 dB in it) */
+            const float nom = 6.0f * 1.5f * 0.08f * powf(2.0f, 0.0164f * (float)(k ? 100 : 0));
             ks_solo(5, 0, 0, 0, k ? 100 : 0);
-            n = run_cap(1.2f, x, 2 * 44100);
+            n = run_cap(3.0f, x, 4 * 44100);
             on = ks_onset(x, n);
             t60[k] = on >= 0 ? ks_t60(x + on, n - on) : 0.0f;
-            printf("  pluck: Decay %d: T60 %.3f s (the other voices' %.3f)\n", k ? 100 : 0, (double)t60[k], (double)nom);
+            printf("  pluck: Decay %d: T60 %.3f s (the other voices' %.3f, x6)\n", k ? 100 : 0, (double)t60[k],
+                   (double)nom);
             CHECK(t60[k] > 0.6f * nom && t60[k] < 1.25f * nom, "test_pluck_decay: Decay %d T60 %.3f s (%.3f)",
                   k ? 100 : 0, (double)t60[k], (double)nom);
         }
         CHECK(t60[1] > 2.3f * t60[0] && t60[1] < 4.0f * t60[0], "test_pluck_decay: 100 over 0 x%.2f (x3.1)",
               (double)(t60[1] / fmaxf(t60[0], 1e-6f)));
-        for (k = 0; k < 5; k++) {                /* (iii) Pluck and 2600, notes 24 .. 72, the knobs' defaults */
+        for (k = 0; k < 5; k++) {                /* (iii) Pluck and 2600, notes 24 .. 72, the knobs' defaults: the
+                                                  * strike's power, the note's energy over its T60 (a decay's energy
+                                                  * is its first power times its time constant: the Harp's longer ring
+                                                  * taken out; the lowest rings 2.1 s, 3 s caught) */
             int v;
             for (v = 0; v < 2; v++) {
                 double e = 0.0;
+                float t;
                 int i;
                 ks_solo(v ? 0 : 5, k - 2, 0, 0, 35);
-                n = run_cap(1.0f, x, 2 * 44100);
+                n = run_cap(3.0f, x, 4 * 44100);
                 on = ks_onset(x, n);
-                for (i = on; on >= 0 && i < on + 26460 && i < n; i++)
+                for (i = on; on >= 0 && i < n; i++)
                     e += (double)x[i] * (double)x[i];
-                lv[k][v] = (float)(10.0 * log10(e + 1e-30));
+                t = on >= 0 ? ks_t60(x + on, n - on) : 0.0f;
+                lv[k][v] = (float)(10.0 * log10(e / (double)fmaxf(t, 1e-3f) + 1e-30));
             }
-            printf("  pluck: note %d, the note's energy: Pluck %.1f dB, 2600 %.1f dB\n", 48 + 12 * (k - 2),
+            printf("  pluck: note %d, the strike's power: Pluck %.1f dB, 2600 %.1f dB\n", 48 + 12 * (k - 2),
                    (double)lv[k][0], (double)lv[k][1]);
             CHECK(fabsf(lv[k][0] - lv[k][1]) < 3.0f, "test_pluck_level: note %d Pluck %.1f dB, 2600 %.1f dB",
                   48 + 12 * (k - 2), (double)lv[k][0], (double)lv[k][1]);
@@ -2363,7 +2375,7 @@ int main(void)
             run_lvl(10.0f, &sl[k][0], &sl[k][1], &sl[k][2]);
             st[k] = en_pl_steal;
             en_play(0);
-            run(2.0f);
+            run(6.0f);                           /* (the Harp's lowest ring 4.5 s at Decay 100 to its last note-off) */
             for (c = 1; c < 4; c += 2)
                 for (nt = 0; nt < 128; nt++)
                     stuck += sounding[c][nt] != was[c >> 1][nt];
@@ -2374,7 +2386,9 @@ int main(void)
                "%.1f dB, peak %.3f, over 0.9 %.5f (2600/Moog %.1f dB, %.3f, %.5f)\n", (double)st[0], (double)st[1],
                (double)sl[0][0], (double)sl[0][1], (double)sl[0][2], (double)sl[1][0], (double)sl[1][1],
                (double)sl[1][2]);
-        CHECK(fabsf(sl[0][0] - sl[1][0]) < 3.0f && sl[0][2] <= sl[1][2] + 0.001f,
+        /* (AISLING) the Harp rings on under the notes after it, so crowded it fills the mix more than the oscillators
+         * (Decay 100: each note still heard several steps on): up to 6 dB over, not under by 3; never more over 0.9 */
+        CHECK(sl[0][0] > sl[1][0] - 3.0f && sl[0][0] < sl[1][0] + 6.0f && sl[0][2] <= sl[1][2] + 0.001f,
               "test_pluck_crowded: the mix %.1f dB (oscillators %.1f), over 0.9 %.5f (%.5f)", (double)sl[0][0],
               (double)sl[1][0], (double)sl[0][2], (double)sl[1][2]);
         CHECK(st[0] <= 1.5f * st[1] + 0.002f, "test_pluck_steal: a voice taken at %.5f (the oscillators' %.5f)",
