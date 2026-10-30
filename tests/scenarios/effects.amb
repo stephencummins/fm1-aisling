@@ -127,7 +127,7 @@ key w8 up
 wait 500
 key w9 down
 wait 300
-said Take-off
+said Ceo
 wait 3700
 key w9 up
 wait 500
@@ -157,13 +157,13 @@ key w13 up
 wait 500
 key w14 down
 wait 300
-said Twitter
+said Fras
 wait 3700
 key w14 up
 wait 500
 key w15 down
 wait 300
-said Supernova
+said Macalla
 wait 3700
 key w15 up
 wait 500

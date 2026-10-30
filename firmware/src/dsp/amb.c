@@ -509,9 +509,11 @@ int en_macro_now(int i) { return en_mac_got == mac_sent ? en_mac[i] : EN_MAC_BUS
 void en_lock(int on) { post(C_LOCK, on != 0, 0); }
 void en_prog_rotate(void) { post(C_PROT, 0, 0); }
 void en_prog_rewalk(void) { post(C_REWALK, 0, 0); }
+/* (AISLING, the user's names for three: Ceo, fog (was Take-off, the noise rolling into the echo); Fras, a burst of
+ * rain (was Twitter, the bleeps); Macalla, an echo (was Supernova, the echo's feedback past full)) */
 const char *const EN_FX_NAME[EN_NFX] = {"Repeat", "Time", "Tape stop", "Shimmer", "Low-pass", "High-pass", "Sweep",
-                                        "Phaser", "Reverb", "Take-off", "Freeze", "Wash", "Octave", "Return", "Twitter",
-                                        "Supernova"};
+                                        "Phaser", "Reverb", "Ceo", "Freeze", "Wash", "Octave", "Return", "Fras",
+                                        "Macalla"};
 
 /* -------------------------------------------------------------- state --- */
 volatile uint8_t en_playing, en_frozen, en_ext;

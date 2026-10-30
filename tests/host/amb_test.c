@@ -2014,8 +2014,8 @@ int main(void)
     /* (BERLIN) the grid's sixteen, in its order */
     {
         static const char *const FX[EN_NFX] = {"Repeat", "Time", "Tape stop", "Shimmer", "Low-pass", "High-pass", "Sweep",
-                                               "Phaser", "Reverb", "Take-off", "Freeze", "Wash", "Octave", "Return",
-                                               "Twitter", "Supernova"};
+                                               "Phaser", "Reverb", "Ceo", "Freeze", "Wash", "Octave", "Return",
+                                               "Fras", "Macalla"};
         int e;
         for (e = 0; e < EN_NFX; e++)
             CHECK(!strcmp(EN_FX_NAME[e], FX[e]), "test_fx_names: effect %d is %s, not %s", e, EN_FX_NAME[e], FX[e]);

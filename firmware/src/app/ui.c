@@ -198,6 +198,8 @@ static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, 
 #define K_RIM_T RGB(108, 58, 86)
 #define K_CLAP RGB(232, 206, 98)         /* the clap */
 #define K_CLAP_T RGB(108, 98, 48)
+#define K_EIRE RGB(52, 196, 116)         /* (AISLING) the triskele's green */
+#define K_EIRE_O RGB(255, 146, 72)       /* (AISLING) and the flag's orange: the launch screen's "by" */
 #define K_NOISE RGB(186, 174, 156)       /* the noise (its level ring) */
 
 static struct {
@@ -948,7 +950,8 @@ static const uint8_t BLACK_KEY[NBLACK] = {1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25
 static const uint8_t BLACK_DO[NBLACK] = {EN_FX_TAKEOFF, EN_FX_SUPERNOVA, EN_FX_TWITTER, EN_FX_REPEAT, EN_FX_SHIMMER,
                                          EN_FX_FREEZE, EN_FX_OCTAVE, EN_FX_RETURN, 100 + EN_MV_RISE, 100 + EN_MV_CLOSE,
                                          100 + EN_MV_TRANSPOSE};
-static const char *const BLACK_NAME[NBLACK] = {"Take-off", "Supernova", "Twitter", "Repeat", "Shimmer", "Freeze",
+/* (AISLING) the first three black keys (the user's OP1, OP2, OP3) named as the user asked: Ceo, Macalla, Fras */
+static const char *const BLACK_NAME[NBLACK] = {"Ceo", "Macalla", "Fras", "Repeat", "Shimmer", "Freeze",
                                                "Octave", "Return", "Rise", "Close", "Transpose"};
 static int black_of(uint32_t key)                /* the black key's index (0..10), or -1 */
 {
@@ -1591,6 +1594,23 @@ static void disc(float cx, float cy, float r, uint16_t c)
         }
 }
 
+/* (AISLING) the triskele, Newgrange's triple spiral: three spirals, their centres R from (cx, cy), each winding `turns`
+ * from its centre out to (cx, cy), where the three meet; a line th wide, each arm drawn to the fraction g (0..1) of
+ * its length from its own centre (the launch screen grows it) */
+static void triskele(float cx, float cy, float R, float turns, float th, float g, uint16_t c)
+{
+    const float T = turns * FM_TWO_PI, end = T * fm_clampf(g, 0.0f, 1.0f);
+    int k;
+    for (k = 0; k < 3; k++) {
+        const float phi = FM_TWO_PI * ((float)k / 3.0f - 0.25f), sx = cx + R * fm_cosf(phi), sy = cy + R * fm_sinf(phi);
+        float t;
+        for (t = 0.0f; t <= end; t += 0.6f / fm_maxf(R * t / T, 0.6f)) {   /* (a step of ~0.6 px along the arm) */
+            const float r = R * t / T, a = phi + FM_PI - (T - t);
+            disc(sx + r * fm_cosf(a), sy + r * fm_sinf(a), th * 0.5f, c);
+        }
+    }
+}
+
 /* atan2 in turns, 0..1 from +x going clockwise on screen (y down) */
 static float turns(float y, float x)
 {
@@ -2068,8 +2088,8 @@ static void draw_lanes(void)
 
 /* the grid's cells, in its order (the host's gridfit checks each fits its 55 px) */
 static const char *const GRID_CELL[EN_NFX] = {"Repeat", "Time", "Stop", "Shimmer", "Low", "High", "Sweep", "Phaser",
-                                              "Reverb", "Takeoff", "Freeze", "Wash", "Octave", "Return", "Twitter",
-                                              "Nova"};
+                                              "Reverb", "Ceo", "Freeze", "Wash", "Octave", "Return", "Fras",
+                                              "Macalla"};
 static void grid_band(int32_t oy)                 /* the whole screen, in two bands of 240 x 120 */
 {
     static const char *const GROUP[4] = {"ECHO", "FILTER", "SPACE", "MOVES"};   /* (BERLIN's) */
@@ -2373,6 +2393,10 @@ static void draw_main(void)
         caps(pn, VIEW_NAME[ui.view], sizeof pn);
         x = 232 - text_w(&FONT_B, pn);
         cv_text(x, 12, &FONT_B, pn, K_ACC);
+        if (ui.view == V_DUB) {                  /* (AISLING) the main page: a small green triskele before its name */
+            triskele((float)x - 11.0f, 20.0f, 4.0f, 1.5f, 1.6f, 1.0f, K_EIRE);
+            x -= 20;
+        }
         for (k = 0; k < NROUND; k++)             /* (under it, the round's dots, in the panel's order: FX ENV LFO GLO
                                                   * HOME SAVE ARP SEQ) */
             cv_round(212 - NROUND * 6 + 2 + k * 6, 31, 4, 4, 2, PAGE_ORDER[k] == page_of(ui.view) ? K_ACC : K_LINE);
@@ -3107,9 +3131,9 @@ void ui_frame(void)
 
 void ui_input_only(void) { input(); }
 
-/* (AISLING) the launch screen, the user's: AISLING large, "by S. CUMMINS" under
- * it, on black among a few stars, fading in; the version small at the foot. Frame f of UI_SPLASH_N, drawn whole (two
- * bands of 240 x 120) */
+/* (AISLING) the launch screen, the user's: a green triskele growing out from its three centres, then AISLING large under
+ * it and "by S. CUMMINS" in orange (the flag's three colours, the name between), on black among a few stars, fading in;
+ * the version small at the foot. Frame f of UI_SPLASH_N, drawn whole (two bands of 240 x 120) */
 static void splash_band(int f, int32_t oy)
 {
     static const uint8_t SX[14] = {18, 51, 77, 103, 139, 171, 205, 226, 33, 66, 121, 158, 190, 214},
@@ -3119,10 +3143,12 @@ static void splash_band(int f, int32_t oy)
     for (k = 0; k < 14; k++)
         cv_rect(SX[k], SY[k] - oy, 1, 1, mix(K_BG, K_DIM, 3 + (k & 3)));
     if (f >= 1)
-        text_c(120, 92 - oy, &FONT_L, "AISLING", mix(K_BG, K_TEXT, f >= 8 ? 16 : 2 * f));
-    if (f >= 8)
-        text_c(120, 132 - oy, &FONT_S, "by " AISLING_BY, mix(K_BG, K_BELL, f >= 16 ? 16 : 2 * (f - 7)));
-    if (f >= 16)
+        triskele(120.0f, 70.0f - (float)oy, 15.0f, 2.0f, 2.8f, (float)f / 12.0f, K_EIRE);
+    if (f >= 6)
+        text_c(120, 112 - oy, &FONT_L, "AISLING", mix(K_BG, K_TEXT, f >= 13 ? 16 : 2 * (f - 5)));
+    if (f >= 12)
+        text_c(120, 152 - oy, &FONT_S, "by " AISLING_BY, mix(K_BG, K_EIRE_O, f >= 19 ? 16 : 2 * (f - 11)));
+    if (f >= 20)
         text_c(120, 224 - oy, &FONT_XS, EN_VERSION, K_DIM);
     cv_blit(0, (uint32_t)oy);
 }
