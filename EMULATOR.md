@@ -68,7 +68,8 @@ It prints each `expect` check and ends with the simulated time and the render co
 The exit code is 1 if an `expect` fails.
 
 Files written to the output folder: the WAVs and PNGs the script names, and `midi_out.txt` (the
-MIDI the engine sent).
+MIDI the engine sent, with a line where each WAV starts and stops; `tools/midi_export.py` turns it into a
+`.mid` file per WAV).
 
 ### Script commands
 

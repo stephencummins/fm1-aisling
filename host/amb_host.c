@@ -849,9 +849,13 @@ int main(int argc, char **argv)
         } else if (!strcmp(cmd, "wav")) {
             snprintf(out, sizeof out, "%s/%s", dir, a);
             wav_open(out);
-        } else if (!strcmp(cmd, "wavstop"))
+            if (midi_log)                        /* (where the WAV starts and stops, for tools/midi_export.py) */
+                fprintf(midi_log, "%u ms: wav %s %d bpm\n", now_ms, a, (int)proj.par[P_TEMPO]);
+        } else if (!strcmp(cmd, "wavstop")) {
             wav_close();
-        else if (!strcmp(cmd, "peakreset"))
+            if (midi_log)
+                fprintf(midi_log, "%u ms: wavstop\n", now_ms);
+        } else if (!strcmp(cmd, "peakreset"))
             peak_out = 0.0f, memset(notes_ch, 0, sizeof notes_ch), seq_apart = 0;
         else if (!strcmp(cmd, "shot")) {
             snprintf(out, sizeof out, "%s/%s", dir, a);
