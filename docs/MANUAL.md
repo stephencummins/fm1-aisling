@@ -1,24 +1,27 @@
-# NACHTFAHRT
+# AISLING
 
-NACHTFAHRT (called BERLIN while it was built) turns the M-VAVE FM-1 into a generative Berlin School
-machine, after the 1970s music of Tangerine Dream, Klaus Schulze and Ashra: long, hypnotic pieces built on repeating synthesizer
-sequences, slowly evolving textures and a lot of space. It plays itself from the moment it's switched on.
-A sequence of plucked notes runs over a drone, its notes repeated by the echo; a second sequence, often a
-step shorter, drifts against it; a lead sings long phrases far back in the reverb; wind, surf or the sounds
-of space pass behind. Each piece opens from the drone, flows, gives the lead its turn, crosses a bridge, and goes on for ever;
-every layer's filter moves slowly on its own. Listen, and play: let it run, or join in. Play a melody on the white
-keys and the lead answers it, takes it as its theme and grows new ideas out of it; pick a piece and a key, thin or fill
-the sequences, open the filter, push the echo, mute and solo the layers.
+AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps and a flute over a held drone,
+in the old modes, with the weather of the west coast behind them. It plays itself from the moment it's switched on.
+A harp's ostinato runs over the drone, often in a jig's threes, its notes repeated by the echo; a second harp, a
+step shorter and an octave down, drifts against it like the harper's other hand; a flute plays long phrases far
+back in the reverb; surf, wind, rain or a turf fire pass behind. The chords swing between two tonics, D and C or
+E minor and D, as the old tunes do. Each piece opens from the drone, flows, gives the flute its turn, crosses a
+bridge, and goes on for ever; every layer's filter moves slowly on its own. Listen, and play: let it run, or join
+in. Play a melody on the white keys and the flute answers it, takes it as its theme and grows new ideas out of it;
+pick a piece and a key, thin or fill the harps, open the filter, push the echo, mute and solo the layers.
 
-Source, releases and the web installer: [github.com/FartyPants/fm1-nachtfahrt](https://github.com/FartyPants/fm1-nachtfahrt)
-and [fartypants.github.io/fm1-nachtfahrt](https://fartypants.github.io/fm1-nachtfahrt/).
+Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling)
+and [stephencummins.github.io/fm1-aisling](https://stephencummins.github.io/fm1-aisling/). AISLING is by CU_STE
+([www.stephen8n.com](https://www.stephen8n.com)).
 
-NACHTFAHRT is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
+AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt)
+by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
+is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 0.9.2, a test version below 1.0.** It runs on the FM-1 (install it from the web installer) and in the
+**This is 0.1, the first test version.** It runs on the FM-1 (install it from the web installer) and in the
 browser emulator, from the same code.
 
-![A drawing of the FM-1 running NACHTFAHRT, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running NACHTFAHRT, each control labelled")
+![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
 
 ---
 
@@ -54,7 +57,7 @@ python3 tools/fm1_install.py build/amb.fwsc
 ```
 
 (Python 3 with `pip3 install mido python-rtmidi`, the FM-1 connected by a USB data cable and switched on.)
-Don't unplug it while it's writing; when it finishes, the FM-1 restarts into NACHTFAHRT. M-VAVE's own
+Don't unplug it while it's writing; when it finishes, the FM-1 restarts into AISLING. M-VAVE's own
 updater, M-UPGRADE, puts the stock firmware back.
 
 > Installing other firmware is at your own risk. If the FM-1 ever won't start, see
@@ -64,16 +67,16 @@ updater, M-UPGRADE, puts the stock firmware back.
 
 ## 2. Getting started
 
-NACHTFAHRT starts playing as soon as it's on. A few minutes with it:
+AISLING starts playing as soon as it's on. A few minutes with it:
 
-1. **Listen.** The first piece, Timewind (D minor, 96), begins with its drone, an organ through a
-   phaser, and the wind. Its sequence is there from the start, behind a closed filter that opens over the
-   first 32 bars (about 80 seconds). Then the sequence runs, its notes repeated by the echo, and later the
-   lead comes in. Nothing is hidden: no layer is turned down behind your back, only filters move. Turn
+1. **Listen.** The first piece, Skellig (D minor, 76), begins with its drone, an organ on D, and the surf.
+   Its harp is there from the start, twelve notes with every third accented (a jig's lilt), behind a closed
+   filter that opens over the first 8 bars (about 25 seconds). Then the harp runs, its notes repeated by the
+   echo, and within the first minute the flute comes in. Nothing is hidden: no layer is turned down behind your back, only filters move. Turn
    MASTER for the volume.
 2. **Try another piece.** Turn PRESETS. Each of the eight has its own key, tempo, voices, sequences and
-   arc. Stratosfear and Sunrain start at once with both sequences; in Wahnfried and Cyborg the
-   Sequence is only a faint heartbeat under the drone.
+   arc. Aran and Carolan start their harps at once; Skellig and Samhain have one harp only, and in
+   Samhain even the drone opens slowly out of the dark.
 3. **Play the lead.** Press a white key: the lead plays that step of the scale, from the root up, and its
    key lights while it sounds. It glides from note to note, deep in the reverb and the echo. Play three notes or more
    and pause: the lead takes them as its theme, answers you a beat or two later in your rhythm, and brings your
@@ -93,7 +96,7 @@ NACHTFAHRT starts playing as soon as it's on. A few minutes with it:
 8. **Rest.** Press PLAY: the music stops and the echo and reverb ring away. PLAY again and the piece opens
    again from the top.
 
-What you change is kept with the piece. NACHTFAHRT saves it by itself while resting; or hold GLO for half a
+What you change is kept with the piece. AISLING saves it by itself while resting; or hold GLO for half a
 second.
 
 ---
@@ -103,7 +106,7 @@ second.
 | Control | What it does |
 |---|---|
 | MASTER | The volume |
-| SELECT | On a layer's pages (the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, and each one's further pages), the layer's level, 1 a click: a ring in the middle of the screen shows it, and the header says it ("SEQ 64"). On the Nachtfahrt page it turns **Energy**, PERFORM's (the same value, 1 a click: the screen shows twice), so you can play the keys and push Energy at once: the knobs' rule shows "ENERGY 24" with a bar while you turn, and the header says it. Elsewhere it does nothing (the pages are on their buttons, the tempo on the Key page) |
+| SELECT | On a layer's pages (the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, and each one's further pages), the layer's level, 1 a click: a ring in the middle of the screen shows it, and the header says it ("SEQ 64"). On the Aisling page it turns **Energy**, PERFORM's (the same value, 1 a click: the screen shows twice), so you can play the keys and push Energy at once: the knobs' rule shows "ENERGY 24" with a bar while you turn, and the header says it. Elsewhere it does nothing (the pages are on their buttons, the tempo on the Key page) |
 | PRESETS | The piece (eight) |
 | ALGORITHM | On a layer's page, its voice (on the Atmosphere's pages, its character). On the Chords page, the chord walk's character (Home, Wander, Free) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, the layer's octave, a step a press (the Sequence −2 to 2, the Lead and Sequence 2 −2 to 1): the page's Octave knob shows it, the header says it ("SEQ OCTAVE −1"). OCT+ is lit while that octave is above where the piece was loaded, OCT− while it's below. On the other pages they do nothing. Both held 5 s: the update mode |
@@ -114,7 +117,7 @@ second.
 | REC | A tap: hold (the echo and the cloud repeat what they hold). Held: the effects grid |
 | EDIT | A tap: the Chords page. Held: the next chord, on the next bar. Held on (1.5 s): new chords |
 | SEL | A tap: PERFORM. Held: **Lock** (the sequences stop varying, each pass as the last, until SEL is held again; not saved) |
-| HOME | The Nachtfahrt page; again, the Key page |
+| HOME | The Aisling page; again, the Key page |
 | ENV | The Drone; again, its sound page; again, its Move page |
 | ARP | The Sequence; again, its sound page; again, its Repeats; again, its Move page |
 | LFO | The Lead; again, its sound page; again, its Move page |
@@ -127,7 +130,7 @@ second.
 somewhere new (its filter, envelope, tone or vibrato, never its sends or octave). Hold it on for 1.5 s: a
 shake, a new voice and bigger steps. HOME held on shakes every layer at once. Each step is pulled back
 towards the piece's recipe, so nudges explore around the piece's sound rather than wander off. With Evolve
-over 40, NACHTFAHRT nudges a layer by itself now and then.
+over 40, AISLING nudges a layer by itself now and then.
 
 A long press says what it did on a card in the middle of the screen.
 
@@ -135,14 +138,15 @@ A long press says what it did on a card in the middle of the screen.
 
 ## 4. The screen
 
-![Stratosfear playing: the piece, its key and tempo at the top, FLOW and its bars on the left over five level meters, the chord Em7 in white in the middle with the sequences' notes circling it, CRANKY MAN and the page's name at the top right, the echo's level on the right, two lanes of steps below, the Nachtfahrt page's four knobs at the bottom](img/screen-main.png "The main screen, Stratosfear")
+![Carolan playing: the piece, its key and tempo at the top, EMERGE and its bars on the left over five level meters, the chord DM7 in white in the middle with the harps' notes circling it, CU_STE and, under it, a green triskele and AISLING at the top right, the echo's level on the right, two lanes of steps below, the Aisling page's four knobs at the bottom](img/screen-main.png "The main screen, Carolan")
 
 The screen is black, with a few dim stars drifting slowly left while the music plays.
 
 - **Top:** the piece, its key and mode, the tempo (EXT under MIDI clock). A dot means unsaved changes.
 - **Top left:** the section of the arc (EMERGE, FLOW, SOLO, BRIDGE), with **hold** and **lock** after it in red
   while they're on, and under it the eight bars of the phrase.
-- **Top right:** "CRANKY MAN", small, and under it the page's name (with SOLO beside it while a solo is on).
+- **Top right:** "CU_STE", small, and under it the page's name (with SOLO beside it while a solo is on); on the
+  Aisling page, a small green triskele before it.
 - **Left:** five **meters**, one for each layer in its own colour: the Drone (violet), the Sequence (pink), the
   Lead (gold), Sequence 2 (cyan), the Atmosphere (grey). Each rises with what its layer is playing. Across each
   one, a white **tick** shows where that layer's filter has moved to: above the middle, brighter; below,
@@ -163,7 +167,7 @@ The screen is black, with a few dim stars drifting slowly left while the music p
   different lengths drift apart and meet again, and you can see them do it. On a layer's page, the other
   lane is greyed.
 - **Bottom:** the page's four knobs and their values. While a knob turns, the rule above them says what it does;
-  while SELECT turns Energy on the Nachtfahrt page, it shows "ENERGY", its value and a bar from the middle.
+  while SELECT turns Energy on the Aisling page, it shows "ENERGY", its value and a bar from the middle.
 
 **The filter motion, shown.** On a layer's *sound* page (the one with its brightness knob), a small cyan
 dot sits on that knob's ring where the filter really is now: the knob's own pointer stays where you set it.
@@ -173,27 +177,28 @@ moving darker, about -1 octave").
 
 ![The Sequence's sound page: Cutoff, Decay, Reverb and Echo, with MOVING DARKER, -0.5 OCT under the lanes](img/screen-seqsound.png "A sound page: the cyan dot on Cutoff's ring, and the words under the lanes")
 
-**The launch screen.** Every time the FM-1 starts, NACHTFAHRT comes up large on black among a few stars, with
-"by CRANKY MAN" under it and the version at the foot, for a moment. The music starts as always, under it.
+**The launch screen.** Every time the FM-1 starts, a green triskele (the triple spiral, as carved at Newgrange)
+draws itself on black among a few stars, AISLING comes up large under it, then "by CU_STE" in orange and
+www.stephen8n.com, and the version at the foot, for a moment. The music starts as always, under it.
 
-![The launch screen: NACHTFAHRT, by CRANKY MAN, and the version](img/screen-launch.png "The launch screen")
+![The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com, and the version](img/screen-launch.png "The launch screen")
 
 ---
 
 ## 5. The layers
 
-**The Sequence** (ARP; MIDI channel 2) is the heart. Up to 16 steps in the scale, eighths or sixteenths,
+**The Sequence** (ARP; MIDI channel 2) is the heart: in all eight pieces, a harp. Up to 16 steps in the scale, eighths or sixteenths,
 played on a plucked voice: **2600** (a saw), **Moog** (two saws a little apart), **Synthi** (a square),
 **Pulse** (a narrow pulse), **Glass** (an FM bell), each through two low-passes, the second resonant,
-swept down by a short envelope; or **Pluck**, a plucked string (Karplus-Strong: a burst of noise ringing round a
-delay line a period long), whose Cutoff is how bright the pluck is and Decay how long the string rings (in the
+swept down by a short envelope; or **Harp**, a plucked wire string, as on the old Irish harp (Karplus-Strong: a burst of noise ringing round a
+delay line a period long), whose Cutoff is how bright the string is struck and Decay how long it rings (long: a wire string rings on) (in the
 highest octaves, from about C7, a string rings short whatever Decay is set to, as a real one does). The
 root step is accented and the others quieter (Accent, on the Pattern page). Density decides how many of the steps sound, the least important dropping out first. Now and then
 (Evolve, Motion) a step changes, a note moves, an octave jumps, the sequence comes round early; it follows the Drone's chord
 (Transpose, on the Key page). Its cutoff wanders slowly over minutes, around the Cutoff you set (its Move page, below; its Width is the
 **Sweep**, also on PERFORM).
 
-**The Repeats** (ARP, third page) are what makes it Berlin: each note is played again at one of the echo's
+**The Repeats** (ARP, third page), NACHTFAHRT's Berlin School echo, kept: each note is played again at one of the echo's
 times, by default a dotted eighth (**Repeat A**, as loud as the note: 100), and a second time
 (**Repeat B**) into the rests only. They are real notes, so they go through the filter and the echo like the
 rest, and the Sequences are sent into the echo generously. The echo's own time is by default a dotted
@@ -201,7 +206,7 @@ quarter (1/4.), so Repeat A, a dotted eighth, doesn't land on the echo's first r
 
 **Sequence 2** (SEQ; channel 4) is a second line, by default an octave down and a step shorter (7 against
 8), so the two drift apart and come back together. It has the same voices and **Sub** (a sine and its
-octave below); on ALGORITHM, Pluck comes after Sub. Chance thins it at random. Its **Intro** (Move page) opens its filter, from closed, over that many bars: in Rubycon
+octave below); on ALGORITHM, Harp comes after Sub. Chance thins it at random. Its **Intro** (Move page) opens its filter, from closed, over that many bars: in Blasket
 it comes out of the drone after the Sequence. Motion changes its steps and octave jumps but never its length:
 an 8 against a 7 stays 8 against 7. And with **Motion**, at a change of section, Sequence 2 may move an octave up
 or down from where its Octave knob is set (at the range's ends, the other way), and back at the next change of
@@ -217,9 +222,10 @@ chooses it ('oo' at −25, 'ah' at 0, 'ee' at +25, 'oh' and 'eh' between; past �
 brighter), and its **Move** page moves it, slowly, as it moves the other voices' filter (two vowels for each
 octave the filter moves; the Intro opens it from 'oo'). Its **Reso** makes the formants sharper or softer. A
 phaser sweeps it slowly (**Phaser**). The chord walks from degree to degree every **Drift** bars
-(the Nachtfahrt page), or follows the eight slots of the Chords page.
+(the Aisling page), or follows the eight slots of the Chords page.
 
-**The Lead** (LFO; channel 3) is one voice, gliding: **Odyssey**, **Mini**, **Flute**, **Theremin**, **Synthi**. It plays
+**The Lead** (LFO; channel 3) is one voice, gliding: **Odyssey**, **Mini**, **Flute**, **Theremin**, **Synthi**. Every piece plays the Flute: a soft tone
+with a little of its second and third harmonics, breath, and a chiff as each note starts. It plays
 in pairs: a call that ends open, then, a beat or two later, its answer, the same rhythm ending on the chord's root or
 fifth, held longer. It remembers its motifs: it plays one for a few pairs, then keeps it, varies it a little (a note
 moved, a new tail, its first half twice, slower) or finds a new one. How much it keeps is **Memory** (the Arc page):
@@ -272,10 +278,10 @@ opened, it goes on through flow, solo and bridge for ever, until you stop it or 
 
 ### The filter motion
 
-Nothing in NACHTFAHRT fades behind your back. A layer whose level is up and which isn't muted always plays at its
+Nothing in AISLING fades behind your back. A layer whose level is up and which isn't muted always plays at its
 level (your mutes, your solos and PERFORM's Drop are the only ways a layer goes quiet, and they are shown).
 What moves is each layer's **brightness**: the Drone's Colour, the Sequence's and Sequence 2's Cutoff, the
-Lead's Tone and the Atmosphere's Colour. NACHTFAHRT moves each one's filter by an **offset in octaves from the
+Lead's Tone and the Atmosphere's Colour. AISLING moves each one's filter by an **offset in octaves from the
 knob**, never to a value of its own. The knob keeps the value you gave it; turn it and the whole movement
 moves with it at once.
 
@@ -314,7 +320,7 @@ dot sits at the bottom, and the section reads EMERGE.
   come together again at the end. Bridge 0: no extra move, and the section is like Flow. A swell of echo in
   the two bars before Flow returns.
 
-Sections last 16 to 64 bars; **Motion** (the Nachtfahrt page) makes them shorter, and at 0 the piece stays in
+Sections last 16 to 64 bars; **Motion** (the Aisling page) makes them shorter, and at 0 the piece stays in
 Flow. At a change of section, with Motion, Sequence 2 may move an octave away for that section (see Sequence 2).
 
 ### The master actions move by themselves
@@ -328,9 +334,9 @@ With Motion, PERFORM's **Filter**, **Wet** and **Energy** move on their own, slo
   (Arc 0: it stays at 0).
 
 Motion sets how far: at 100 the full ranges above, at 50 half of them, at 0 none of them moves. Turn one of the
-three knobs (or SELECT on the Nachtfahrt page, for Energy) and your value holds until the next change of
+three knobs (or SELECT on the Aisling page, for Energy) and your value holds until the next change of
 section; then the motion takes over again from your value, gliding back over eight bars, without a jump. Lock
-holds all three where they are. A sequence whose level is 0 (Cyborg's Sequence 2) stays silent whatever
+holds all three where they are. A sequence whose level is 0 (Skellig's and Samhain's Sequence 2) stays silent whatever
 Energy does. A new piece, or PLAY from the top, starts the motion from its beginning.
 
 ### The Arc page
@@ -352,23 +358,28 @@ filter's usable range.
 
 ## 7. The pieces
 
-| # | Piece | After | Key, tempo | Sequence | Drone, Lead | Atmosphere | Moves |
-|---|---|---|---|---|---|---|---|
-| 1 | **Timewind** | Schulze, *Bayreuth Return* | D minor, 96 | Two: 2600, 16 steps in 16ths, Repeat B; Sequence 2 Moog, 15 steps, an octave down; Reverb 50 | Organ + phaser, Odyssey | Wind | A slow opening: the Sequence's Intro is 32 bars. A gentle wander on every layer; Bridge 45 |
-| 2 | **Wahnfried** | Schulze, *Wahnfried 1883* | B♭ Dorian, 80 | A faint heartbeat: the Sequence at 30 (opening over 16 bars), Sequence 2 at 50, an octave down | Strings at 95, the roots walking free; Theremin | None | The Drone's filter is the main movement: Width 45, with long moves; Bridge 30 |
-| 3 | **Phaedra** | Tangerine Dream, *Phaedra* | D minor, 149 | Moog bass 16, a Moog line of 15 over it, much sweep | Choir (level 70), Flute | Tape | The Sequence opens over 16 bars (Sweep 85, wide); Sequence 2 straight in, sweeping often |
-| 4 | **Rubycon** | Tangerine Dream, *Rubycon* | F minor, 144 | 2600 8, two octaves down, and Sub 7 at octave 0, dark | Organ, low and dark, Synthi | None | The Sequence opens over 16 bars, then Sequence 2 over 32: it comes out of the drone after it; Bridge 50 |
-| 5 | **Stratosfear** | Tangerine Dream, *Stratosfear* | E minor, 138 | Pulse 16 and 2600 15, together from the start | Strings, Mini forward | None | Straight in, no Intros; both sequences' filters move often |
-| 6 | **Sunrain** | Ashra, *New Age of Earth* | D major, 130 | Pulse 8, Glass 7, both repeats at 100 | Strings, Odyssey | Surf | Straight in, no Intros; Sequence 2 and the Atmosphere wander a little wider |
-| 7 | **Mirage** | Schulze, *Mirage* | F♯ minor, 95 | Glass 12 and 11, sparse, in 16ths | Glass + deep phaser, Theremin; a long reverb | Space | A slow opening: the Sequence's Intro 16 bars, Sequence 2's 24; the Atmosphere moves widest |
-| 8 | **Cyborg** | Schulze, *Cyborg* | C Phrygian, 70 | One, quiet (level 20): 2600, 8 steps in 8ths; no Sequence 2 | Organ, deep and beating; Theremin, low and up front (level 70) | None | The Drone's filter moves widely and slowly (Width 50, Time 70) |
+Each piece is a place in the west, or a harper, and each plays the same band: a drone, one or two harps (the
+Sequence and Sequence 2), the Flute leading, and the weather behind. The Irish of it is in four things: the modes
+(major, Mixolydian, Dorian, minor, and two gapped scales of six notes), the drone held under everything, the double
+tonic (the chords swinging between two, a long while each: the Chords page in Loop) and the jig's threes (harps of
+12 and 9 steps, every third accented).
 
-In every piece the Lead's Width is low: it stays gentle. Its **Memory** (the Arc page): Timewind 55, Wahnfried
-40, Phaedra 75, Rubycon 45, Stratosfear 85, Sunrain 60, Mirage 50, Cyborg 35 (Stratosfear's and Phaedra's Leads hold
-on to their ideas, Cyborg's and Wahnfried's wander). The names are working titles. The keys and tempos are
-starting points from music analysis sites, to be tuned by ear; fast readings such as Phaedra's 149 and
-Rubycon's 144 may be double the felt tempo (they run in eighths, which feel like sixteenths at half the speed).
-NACHTFAHRT is not connected with any of these artists.
+| # | Piece | The place | Key, tempo | Harps | Drone | Atmosphere | Chords |
+|---|---|---|---|---|---|---|---|
+| 1 | **Skellig** | Skellig Michael, the rock off Kerry | D minor, 76 | One: 12 sixteenths in threes, every third accented, opening over 8 bars; no Sequence 2 | Organ | Surf | Dm and C in turn, 16 bars each |
+| 2 | **Burren** | The Burren, Clare: bare limestone | G major, 84 | Two, of 12 and 11 steps, drifting apart | Choir | Wind | I IV I ii, 16 bars each |
+| 3 | **Aran** | Inis Mór | A Dorian, 96 | A jig's 12 over a slip jig's 9, an octave down; the first straight in | Saws, a reed drone | Tape: a turf fire's crackle | Am and G in turn, 8 bars each |
+| 4 | **Carolan** | Turlough O'Carolan, the blind harper (1670–1738) | D major, 88 | Two, of 16 and 15 sixteenths; the first straight in | Strings | Rain | A planxty's: I IV I V vi IV V I, 8 bars each |
+| 5 | **Blasket** | The Blasket Islands, Kerry, left in 1953 | E Dorian, 70 | Two slow harps of 12 and 11; the second opens over 12 bars, after the first | Choir | Surf | Em and D in turn, 32 bars each |
+| 6 | **Samhain** | The year's dark turn | B minor, 64 | One low harp of 8; Sequence 2 silent | Organ, low, opening over 8 bars | Wind | Bm, G, A, 32 bars each |
+| 7 | **Connemara** | Bog, lake and rain | G hexatonic minor (no sixth), 92 | A slip jig's 9 over 8, an octave down | Organ | Rain | Gm and F in turn, 16 bars each |
+| 8 | **Tir na nOg** | Tír na nÓg, the land of the young over the western sea | D hexatonic major (no seventh), 80 | Two, of 12 and 11 sixteenths | Glass, phased; a long reverb | None | D and G in turn, 16 bars each |
+
+In every piece the Sequence plays the Harp and the Lead is the Flute, coming in within the first minute (Lead in
+4 to 8 bars); its Width is low, so it stays gentle. Its **Memory** (the Arc page): Skellig 60, Burren 55, Aran 70,
+Carolan 70, Blasket 65, Samhain 40, Connemara 50, Tir na nOg 55 (Aran's and Carolan's flutes hold on to their
+ideas, Samhain's wanders). The keys are the pipes' and the whistle's (D, G, A, E, B). The keys, modes and tempos
+are starting points, to be tuned by ear. The flute's themes are its own: no air is quoted.
 
 ---
 
@@ -380,7 +391,7 @@ Each layer's pages share a layout: its main page has how much (K1), its octave (
 sound page has brightness, envelope, Reverb and Echo (the layer's sends); its **Move** page has Width, Time,
 Rate and Intro (see [The arc and the filter motion](#6-the-arc-and-the-filter-motion)).
 
-**HOME: Nachtfahrt:** Filter (on everything, Off in the middle: turned down it shuts, a low-pass; turned up it
+**HOME: Aisling:** Filter (on everything, Off in the middle: turned down it shuts, a low-pass; turned up it
 opens, a resonant high-pass), Evolve (how often the sequences change
 a step), Motion (how much they change, and how quickly the sections move; 0: Flow for ever), Drift (bars
 per chord: 2–64, or Hold).
@@ -478,7 +489,7 @@ reader names the effect as each key goes down.
 
 ![PERFORM: the knobs Filter, Wet, Energy and Sweep](img/screen-perform.png)
 
-Tap SEL. The knobs become the master actions: **Filter** (as on the Nachtfahrt page), **Wet** (the whole music dry, or drowned in the
+Tap SEL. The knobs become the master actions: **Filter** (as on the Aisling page), **Wet** (the whole music dry, or drowned in the
 echo: every layer's echo send, the Drone's, both Sequences', the Lead's and the Atmosphere's), **Energy**
 (sparser or busier: the Sequence's Density, levels, Sweep, note length, Cutoff, and Repeat B, the second
 repeat), and **Sweep** (how far the Sequence's cutoff wanders on its own: the same as its Width on the
@@ -512,13 +523,13 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
 - **Out** (on by default; a muted layer sends nothing): the Drone on channel 1, the Sequence (and its repeats) on 2, the Lead on 3,
   Sequence 2 on 4, and, on its own tempo, clock with start and stop.
 - **In, clock:** the sequences follow MIDI clock, and start, continue and stop start, continue and stop
-  the music. The screen shows EXT for the tempo; when the clock stops, NACHTFAHRT goes back to its own.
+  the music. The screen shows EXT for the tempo; when the clock stops, AISLING goes back to its own.
 - **In, channel 1:** a note adds or removes its note from the scale ("ADDED", "REMOVED"; the root stays,
   three notes at least). The keys no longer do this; they play the Lead.
 
 ### Screen reader
 
-NACHTFAHRT can tell the [FM-1 Screen Reader](https://charlesvestal.github.io/fm1-reader/) what its screen
+AISLING can tell the [FM-1 Screen Reader](https://charlesvestal.github.io/fm1-reader/) what its screen
 shows, over USB: the page and its knobs, a knob's value as it turns, the piece, its key and tempo, the
 chord as it moves, the effects as they're held, and every message. Press W in the reader to hear the whole
 screen again, with the section of the arc and its bar, and how far a filter has moved. The FM-1 says nothing until the page connects.
@@ -527,7 +538,7 @@ screen again, with the section of the arc and its bar, and how far a filter has 
 
 ## 12. Saving
 
-NACHTFAHRT keeps all eight pieces in the FM-1's memory, each as you left it, with Tune, MIDI out and Lights.
+AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with Tune, MIDI out and Lights.
 
 - **By itself:** a few seconds after a change, while resting (writing to the memory interrupts the sound
   for a moment, so it never happens while the music plays). A dot at the top means unsaved changes.
@@ -537,8 +548,8 @@ NACHTFAHRT keeps all eight pieces in the FM-1's memory, each as you left it, wit
 - **GLO held on** (1.5 s): the piece back to its recipe ("RESET"); not saved until the next save.
 
 Lock and PERFORM's Filter, Wet and Energy aren't saved; a piece change (or GLO's reset) returns the three to 0, so
-none of one piece's push carries into the next. Projects saved by DUB-1, AMB-1 or an earlier NACHTFAHRT
-build aren't read: NACHTFAHRT starts with its eight recipes.
+none of one piece's push carries into the next. Projects saved by DUB-1, AMB-1 or an earlier AISLING
+build aren't read: AISLING starts with its eight recipes.
 
 ---
 
@@ -550,13 +561,13 @@ cancel.
 **Calibration:** if a button or knob does the wrong thing, hold OCT− and OCT+ while you switch the FM-1 on.
 The screen asks you to press each button and turn each knob in turn.
 
-**After a crash:** NACHTFAHRT shows a red CRASH screen and restarts by itself. The next start shows RESTARTED
+**After a crash:** AISLING shows a red CRASH screen and restarts by itself. The next start shows RESTARTED
 AFTER A CRASH and an address (PC ...) for a moment; if you report the problem, include it and what you were
 doing.
 
-**Safe mode:** if NACHTFAHRT crashes twice in a row while starting, it starts in SAFE MODE: no sound, but USB
+**Safe mode:** if AISLING crashes twice in a row while starting, it starts in SAFE MODE: no sound, but USB
 works, so you can reinstall with `tools/fm1_install.py` or put the stock firmware back with M-UPGRADE. Press
-PLAY to try starting NACHTFAHRT normally. If even safe mode fails twice, the FM-1 drops into the chip's own
+PLAY to try starting AISLING normally. If even safe mode fails twice, the FM-1 drops into the chip's own
 update mode, and only the rescue below can reach it.
 
 ### Recovering an FM-1 that won't start
@@ -581,25 +592,28 @@ settings. If the FM-1 never shows up at all, Felucca's
 
 ## 14. Credits
 
-Source, releases and the web installer: [github.com/FartyPants/fm1-nachtfahrt](https://github.com/FartyPants/fm1-nachtfahrt)
-and [fartypants.github.io/fm1-nachtfahrt](https://fartypants.github.io/fm1-nachtfahrt/).
+Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling)
+and [stephencummins.github.io/fm1-aisling](https://stephencummins.github.io/fm1-aisling/). AISLING is by CU_STE:
+[www.stephen8n.com](https://www.stephen8n.com).
 
-NACHTFAHRT is free software under the GNU General Public License, version 3. If you share the firmware, you
+AISLING is free software under the GNU General Public License, version 3. If you share the firmware, you
 must also share its source code.
 
-- NACHTFAHRT is a fork of [DUB-1](https://github.com/sbegueria/fm1-dub), a fork of
+- AISLING is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt) by FartyPants (GPL-3.0-only),
+  whose engine, layers, song arc, filter motion, remembering Lead, pages, effects grid, emulator and site it keeps.
+  NACHTFAHRT is a fork of [DUB-1](https://github.com/sbegueria/fm1-dub), a fork of
   [AMB-1](https://github.com/charlesvestal/fm1-amb) by Charles Vestal (GPL-3.0-only), whose echo chain,
-  plate, pieces system, chord walk, UI and platform it keeps.
-- The music is Tangerine Dream's, Klaus Schulze's and Ashra's of the 1970s, as heard; nothing of theirs is
-  in it.
-- The way the sequence is played (a short pluck, the root accented, sparse notes, a dotted-eighth repeat as
-  loud as the note, two delays filling the spaces) owes much to Synth Seeker's videos on Berlin School
-  sequencing.
+  plate, pieces system, chord walk, UI and platform they keep.
+- The music is Irish traditional music's, as heard: its modes, its drones, its double tonic, the jig's threes,
+  the harp and the flute. No tune is quoted.
+- NACHTFAHRT's way of playing a sequence (the root accented, sparse notes, a dotted-eighth repeat as loud as the
+  note, two delays filling the spaces), which AISLING's harps keep, owes much to Synth Seeker's videos on Berlin
+  School sequencing.
 - The Drone's Choir (formants in cascade on its notes, its vowels moving) follows VOICE in **Felucca**
   (`eng_formant.c`, Leo Kuroshita, Hügelton Instruments, GPL-3.0), after D. H. Klatt's cascade formant
   synthesizer (JASA, 1980); written again in floating point. Its vowels' formants are Felucca's table (after the
   men's means measured by Hillenbrand, Getty, Clark and Wheeler, JASA, 1995).
-- Pluck's string (Karplus-Strong) follows `pluck.c` in M-VAVE's [fm1_open](https://github.com/m-vave/fm1_open), an
+- The Harp's string (Karplus-Strong) follows `pluck.c` in M-VAVE's [fm1_open](https://github.com/m-vave/fm1_open), an
   adaptation of DaisySP's String (Electrosmith, Emilie Gillet; MIT licence), written again for this engine.
 - The reverb is Jon Dattorro's plate ("Effect Design, Part 1", JAES 1997), by way of
   [FoMni-1](https://github.com/charlesvestal/fm1-fomni).
@@ -620,4 +634,4 @@ must also share its source code.
 - The idea of running FM-1 firmware in the browser comes from [Groove OS](https://www.groove-os.com/).
 - The fonts are Barlow Semi Condensed and Terminus (SIL Open Font License).
 
-M-VAVE and FM-1 are trademarks of their owners. NACHTFAHRT is not connected with M-VAVE or Hügelton Instruments.
+M-VAVE and FM-1 are trademarks of their owners. AISLING is not connected with M-VAVE, Hügelton Instruments or NACHTFAHRT's author.

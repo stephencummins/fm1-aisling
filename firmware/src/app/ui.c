@@ -2257,7 +2257,8 @@ static void draw_card(uint32_t now)
     text_c(CX, y + 28, &FONT_XS, ui.card_text, tc);
 }
 
-#define AISLING_BY "S. CUMMINS"                  /* (the user's name, on the main screen and the launch screen) */
+#define AISLING_BY "CU_STE"                      /* (the user's name, as signed (2026-10-30): on the main screen and the launch screen) */
+#define AISLING_AT "www.stephen8n.com"           /* (and the user's site, under it on the launch screen) */
 static void draw_main(void)
 {
     uint32_t now = plat_ms(), h = hash(2166136261u, (uint32_t)en_frozen << 16 | proj.piece << 24 | (uint32_t)en_playing << 17), i;
@@ -3148,6 +3149,8 @@ static void splash_band(int f, int32_t oy)
         text_c(120, 112 - oy, &FONT_L, "AISLING", mix(K_BG, K_TEXT, f >= 13 ? 16 : 2 * (f - 5)));
     if (f >= 12)
         text_c(120, 152 - oy, &FONT_S, "by " AISLING_BY, mix(K_BG, K_EIRE_O, f >= 19 ? 16 : 2 * (f - 11)));
+    if (f >= 16)
+        text_c(120, 174 - oy, &FONT_XS, AISLING_AT, mix(K_BG, K_DIM, f >= 23 ? 16 : 2 * (f - 15)));
     if (f >= 20)
         text_c(120, 224 - oy, &FONT_XS, EN_VERSION, K_DIM);
     cv_blit(0, (uint32_t)oy);

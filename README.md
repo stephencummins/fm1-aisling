@@ -1,88 +1,67 @@
-# NACHTFAHRT for the M-VAVE FM-1
+# AISLING for the M-VAVE FM-1
 
-![NACHTFAHRT](docs/img/site/banner.jpg)
+<img src="docs/card.png" width="240" height="240" alt="AISLING: a gold 8-bit harp on green">
 
-**[Install](https://fartypants.github.io/fm1-nachtfahrt/install/)** (Chrome or Edge, also Chrome on Android or Chromebook; the FM-1
-on USB) · **[Try it in the browser](https://fartypants.github.io/fm1-nachtfahrt/emu/)** ·
-**[Manual](https://fartypants.github.io/fm1-nachtfahrt/manual/)** ·
-**[Website](https://fartypants.github.io/fm1-nachtfahrt/)**
+**[Install](https://stephencummins.github.io/fm1-aisling/install/)** (Chrome or Edge, also Chrome on Android or
+Chromebook; the FM-1 on USB) · **[Try it in the browser](https://stephencummins.github.io/fm1-aisling/emu/)** ·
+**[Manual](https://stephencummins.github.io/fm1-aisling/manual/)** ·
+**[Cheat sheet](https://stephencummins.github.io/fm1-aisling/cheat/)** ·
+**[Website](https://stephencummins.github.io/fm1-aisling/)**
+
+By CU_STE · [www.stephen8n.com](https://www.stephen8n.com)
 
 ## What?
-NACHTFAHRT turns the M-VAVE FM-1 into a generative Berlin School machine, after the 1970s music of
-Tangerine Dream, Klaus Schulze and Ashra: long, hypnotic pieces, repeating synthesizer sequences,
-slowly evolving hypnotic textures, a strong sense of space. It plays itself from the moment it's switched on, but you
-can play with it: the white keys give you the melody, always in the piece's key.
-It was called BERLIN while it was being built; but NACHTFAHRT (however you want to pronounce it) is just the right name.
 
-## VIDEO (click to play)
+AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps and a flute over a held drone,
+in the old modes, with the weather of the west coast behind them. It plays itself from the moment it's switched
+on, and it never ends. You can play with it: the white keys give you the flute, always in the piece's scale, and
+it answers you. (An *aisling*, said "ash-ling", is an Irish vision poem.)
 
-[![NACHTFAHRT on the FM-1 — watch on YouTube](docs/img/site/video.jpg)](https://youtu.be/OLXYHRydniw)
+It is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt), FartyPants's Berlin School firmware.
+AISLING keeps NACHTFAHRT's whole machine (its five layers, its arc, its slowly moving filters, its lead that
+remembers and answers) and changes what it plays:
 
-## Why?
-Cranky Man loves this "Berlin School" thing, with all its repetition and echoing, evolving plucks and drones and whatnots, because it puts him to sleep, and if there is one thing that a Cranky Man needs, it is sleep. Lots of it. Usually around 15 hours per week. And now it can put you to sleep, too!
+- **the harp**: NACHTFAHRT's plucked string restrung as a wire-strung harp, with a long, bright ring. It plays
+  every piece's Sequence and, an octave down, its Sequence 2, like the harper's other hand;
+- **the flute**: a soft tone, breath, and a chiff as each note starts, leading in every piece;
+- **the modes**: major, Mixolydian, Dorian and minor, and two gapped scales of six notes (one with no seventh,
+  one with no sixth), in the pipes' and the whistle's keys (D, G, A, E, B);
+- **the double tonic**: the chords swing between two, D and C or E minor and D, a long while each, as the old
+  tunes do;
+- **the jig's threes**: harps of 12 and 9 steps, with every third step accented;
+- **eight pieces** named for places in the west and for a harper;
+- three of the black keys' effects named in Irish: **Ceo** (fog), **Macalla** (an echo) and **Fras** (a burst
+  of rain);
+- a green triskele on the launch screen and the main page.
 
-<img width="1102" height="709" alt="image" src="https://github.com/user-attachments/assets/f64bdf21-ec1d-4225-835f-0af762f5a676" />
-
-The whole idea behind this music generator is that IF you are NOT put to sleep by the lead sound (which invents its own melody), then when you start playing, it will listen, and then respond to your musical "call" with its own version of the musical phrase.
-
-## What it does?
-- a **Sequence** of up to 16 steps on a plucked analog-style voice (2600, Moog, Synthi, Pulse, Glass) or a
-  plucked string (Pluck),
-  its filter wandering slowly, its notes **repeated** at the echo's times (a dotted eighth by default, the
-  classic Berlin School echo), so sparse notes fill in the spaces;
-- **Sequence 2**, often a step shorter, so the two drift apart and meet again, and with Motion an octave up or
-  down now and then, for a section;
-- a **Drone**: a chord on two banks of voices (Organ, Strings, Horn, Saws, Glass, or a Choir whose vowel moves
-  with the Drone's filter) with a pedal under it, a
-  phaser and a slow walk from chord to chord;
-- a **Lead**: one gliding voice (Odyssey, Mini, Flute, Theremin, Synthi) playing dreamy calls and answers deep in
-  the reverb and the echo; it remembers its motifs and returns to the piece's theme (how much it keeps: **Memory**).
-  You can also play it on the white keys, in the scale: three notes or more and a pause become its theme, and its
-  next ideas grow out of yours, straying further until they are its own again;
-- an **Atmosphere**: Wind, Surf, Space, Air, Tape or Rain (or none);
-- an **arc**: a piece opens from the drone (each layer's filter rising from closed), flows, lets the Lead take
-  over and crosses a bridge in the middle, where the layers' filters part and come together. It never ends by
-  itself: it repeats for ever;
-- **filter motion**: every layer's filter moves on its own clock, always relative to where you've set its
-  Cutoff, so the layers diverge and converge, and you can turn the knob at any moment. The screen shows it.
-
-Listen, and play: let it run for hours, or join in. Play the melody on the white keys over the sequences and the
-drone, sweep the filters on the black keys, pick a piece, change its key and tempo, thin or fill the sequences,
-push the echo, mute and solo the layers.
-
-NACHTFAHRT is a fork of [DUB-1](https://github.com/sbegueria/fm1-dub), itself a fork of
-[AMB-1](https://github.com/charlesvestal/fm1-amb), Charles Vestal's generative ambient firmware for the FM-1. It
-keeps their platform, panel, echo, plate and much of the engine.
-
-**Status: a test version below 1.0** (see [the releases](https://github.com/FartyPants/fm1-nachtfahrt/releases)). It
-runs on the FM-1, installed from the [web installer](https://fartypants.github.io/fm1-nachtfahrt/install/), and in the
-[browser emulator](https://fartypants.github.io/fm1-nachtfahrt/emu/), from the same code.
+**Status: 0.1, a first test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+It runs on the FM-1, installed from the [web installer](https://stephencummins.github.io/fm1-aisling/install/), and
+in the [browser emulator](https://stephencummins.github.io/fm1-aisling/emu/), from the same code.
 
 ## The pieces
 
-| # | Piece | After | Key, tempo | |
+| # | Piece | Named for | Key, tempo | What you hear |
 |---|---|---|---|---|
-| 1 | Timewind | Schulze, *Bayreuth Return* | D minor, 96 | Two sequences of 16 and 15, an organ through the phaser, a long opening (the Sequence's filter takes 32 bars to open), a wider reverb |
-| 2 | Wahnfried | Schulze, *Wahnfried 1883* | B♭ Dorian, 80 | Strings drifting, the roots walking with no home, a faint heartbeat of sequences under them, a theremin lead; the Drone's filter is the main movement |
-| 3 | Phaedra | Tangerine Dream, *Phaedra* | D minor, 149 | A Moog bass line of 16 over a second line of 15, a choir, flutes, much filter movement; the Sequence opens over 16 bars, Sequence 2 is straight in |
-| 4 | Rubycon | Tangerine Dream, *Rubycon* | F minor, 144 | Dark organ, two sequences of 8 (the 2600, two octaves down) and 7 rising out of the drone, the Synthi lead: the Sequence opens over 16 bars, Sequence 2 after it, over 32 |
-| 5 | Stratosfear | Tangerine Dream, *Stratosfear* | E minor, 138 | Brighter and driving, two sequences interlocking, straight in, the Lead forward |
-| 6 | Sunrain | Ashra, *New Age of Earth* | D major, 130 | The most hopeful: sequences of 8 and 7, both echo repeats at full, bright strings, surf; straight in |
-| 7 | Mirage | Schulze, *Mirage* | F♯ minor, 95 | Icy glass sequences of 12 and 11 opening slowly (16 and 24 bars), a deep phaser, a long reverb, sparse |
-| 8 | Cyborg | Schulze, *Cyborg* | C Phrygian, 70 | Early and raw: deep organ drones beating, a quiet sequence (level 20), no Sequence 2; the theremin Lead up front (level 70); the Drone's filter moves widely |
+| 1 | Skellig | Skellig Michael, off Kerry | D minor, 76 | An organ drone, one harp in a jig's threes, the surf; Dm and C in turn |
+| 2 | Burren | The Burren, Clare | G major, 84 | A choir, two harps of 12 and 11 drifting apart, the wind |
+| 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a jig's 12 over a slip jig's 9, a turf fire's crackle; Am and G in turn |
+| 4 | Carolan | Turlough O'Carolan, the harper | D major, 88 | Strings, two harps of 16 and 15, rain, a planxty's chords |
+| 5 | Blasket | The Blasket Islands, Kerry | E Dorian, 70 | A choir, slow harps, the flute's slow air over the surf; Em and D in turn |
+| 6 | Samhain | The year's dark turn | B minor, 64 | A low, beating organ, one low harp, a low flute, the wind |
+| 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a slip jig's 9 over 8, rain; Gm and F in turn |
+| 8 | Tir na nOg | The land of the young, over the western sea | D hexatonic major, 80 | A phased glass drone, two harps, a long reverb; D and G in turn |
 
-The names are working titles and the keys and tempos are starting points (from analysis sites, to tune by ear).
-NACHTFAHRT is not connected with any of these artists.
+The keys, modes and tempos are starting points, tuned by ear. The flute's themes are its own: no air is quoted.
 
 ## In short
 
 | | |
 |---|---|
-| White keys | Play the Lead, in the piece's scale (the key it sounds is lit) |
+| White keys | Play the Lead (the flute), in the piece's scale (the key it sounds is lit) |
 | Black keys | Eleven effects, each while held (lit; dark while held): Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, then Rise, Close, Transpose (in PERFORM: the solos) |
 | PLAY · REC · EDIT | Play / rest · a tap: hold (the echo repeats what it holds), held: the effects grid (16 effects on the white keys) · a tap: the Chords page, held: the next chord |
 | SEL | PERFORM: the knobs Filter, Wet, Energy, Sweep; white 1–5 mute the Drone, Sequence, Lead, Sequence 2, Atmosphere; black 1–5 solo them; white 6 held: the levels; white 7–11 held: Sweep, Open, Shut, Drop (both sequences out), Echo; the top key (G): the Lead forgets its ideas and its theme. Held: Lock |
-| HOME | The Nachtfahrt page (Filter, Evolve, Motion, Drift); again, the Key page (Tempo, Root, Mode, Transpose) |
+| HOME | The Aisling page (Filter, Evolve, Motion, Drift); again, the Key page (Tempo, Root, Mode, Transpose) |
 | ENV | The Drone (Pedal, Reso, Phaser, Attack); again, its sound (Colour, Release, Reverb, Echo); again, its Move page (Width, Time, Rate, Intro) |
 | ARP | The Sequence (Density, Octave, Length, Grid); again, its sound (Cutoff, Decay, Reverb, Echo); again, its Repeats (Repeat A, A time, Repeat B, B time); again, its Move page |
 | LFO | The Lead (Phrases, Octave, Glide, Vibrato); again, its sound (Tone, Attack, Reverb, Echo); again, its Move page |
@@ -92,14 +71,15 @@ NACHTFAHRT is not connected with any of these artists.
 | GLO | Setup (Tune, MIDI out, Lights, Save); again, the Arc (Lead in, Bridge, Arc, Memory). Held: save; held on: the piece back to its recipe |
 | ALGORITHM | On a layer's page, its voice (the Atmosphere: its character) |
 | PRESETS | The piece |
-| SELECT | On a layer's pages, its level; on the Nachtfahrt page, Energy (elsewhere nothing) |
+| SELECT | On a layer's pages, its level; on the Aisling page, Energy (elsewhere nothing) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, its octave (lit while it's above or below where the piece was loaded) |
 
-The [manual](docs/MANUAL.md) has the rest.
+The [manual](docs/MANUAL.md) has the rest; the [cheat sheet](https://stephencummins.github.io/fm1-aisling/cheat/)
+is this table on one page, to print.
 
 ## Building and testing
 
-The toolchain is the same as DUB-1's (see [BUILDING.md](BUILDING.md) and [EMULATOR.md](EMULATOR.md)):
+The toolchain is the same as NACHTFAHRT's and DUB-1's (see [BUILDING.md](BUILDING.md) and [EMULATOR.md](EMULATOR.md)):
 
 ```
 tests/run_tests.sh      # the engine, the platform pieces, the app in a simulator, the web builds
@@ -110,28 +90,31 @@ python3 tools/fm1_install.py build/amb.fwsc     # install it over USB
 
 `build/host/amb_host SCRIPT OUTDIR` runs the whole app on a computer from a script
 (`tests/scenarios/*.amb`), with audio and screenshots coming out; `build/host/en_render OUT.wav SECS piece=N`
-renders the engine alone.
+renders the engine alone. `tools/make_card.py` draws the harp on the card ([docs/card.png](docs/card.png)).
 
 ## Credits
 
-NACHTFAHRT is a fork of [DUB-1](https://github.com/sbegueria/fm1-dub), a fork of
+AISLING is by CU_STE ([www.stephen8n.com](https://www.stephen8n.com)). It is a fork of
+[NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt) by FartyPants (GPL-3.0-only): the engine, the layers,
+the arc, the filter motion, the remembering lead, the pages, the effects grid, the emulator and the site come from
+there. NACHTFAHRT is a fork of [DUB-1](https://github.com/sbegueria/fm1-dub), a fork of
 [AMB-1](https://github.com/charlesvestal/fm1-amb) by Charles Vestal (GPL-3.0-only): the echo chain, the plate,
 the pieces system, the chord walk, the UI and the platform come from there. The reverb is Jon Dattorro's plate
 ("Effect Design, Part 1", JAES 1997), as in [FoMni-1](https://github.com/charlesvestal/fm1-fomni); Shimmer's
 octave shifter follows OCT UP and its SHIMMER in [Felucca](https://github.com/hugelton/Felucca)'s performance layer
 (Leo Kuroshita, Hügelton Instruments; also in [Skiff](https://github.com/illuminus5/skiff)); the Drone's Choir
-follows VOICE in Felucca (`eng_formant.c`, GPL-3.0; Klatt's cascade; its vowel table, after Hillenbrand et al.); the granular
-cloud (Freeze) follows the design of CLOUD in [JIANT](https://github.com/juanjiant-bit/JIANT) (GPL-3.0); Pluck's
-string follows `pluck.c` in M-VAVE's [fm1_open](https://github.com/m-vave/fm1_open) (after DaisySP's String,
-Electrosmith and Emilie Gillet; MIT); Wind's pink and Surf's brown noise and Rain's drops follow NOISE in
-[Skiff](https://github.com/illuminus5/skiff) (`eng_noise.c`, Leo Kuroshita, Hügelton Instruments; GPL-3.0; Paul Kellet's
-pink filter); the Tape
-atmosphere is DUB-1's crackle, after Bahadirhan Kocer's "Using Resonators in Live". The way the sequence is
-played (a root accented, sparse notes, a dotted-eighth repeat as loud as the note, two delays) owes much to
-Synth Seeker's videos on Berlin School sequencing. (The Bob Ross of Berlin School) The platform (hardware layer, USB, update loader, storage,
-installer) is [Felucca](https://github.com/hugelton/Felucca)'s by Leo Kuroshita (Hügelton Instruments), by way
-of [X0X](https://github.com/charlesvestal/fm1-x0x), FoMni-1, AMB-1 and DUB-1. The idea of running FM-1 firmware
-in the browser comes from [Groove OS](https://www.groove-os.com/). GPL-3.0-only; see [LICENSING.md](LICENSING.md).
-The snoring you hear in your head is Cranky Man himself.
+follows VOICE in Felucca (`eng_formant.c`, GPL-3.0; Klatt's cascade; its vowel table, after Hillenbrand et al.); the
+granular cloud (Freeze) follows the design of CLOUD in [JIANT](https://github.com/juanjiant-bit/JIANT) (GPL-3.0);
+the Harp's string follows `pluck.c` in M-VAVE's [fm1_open](https://github.com/m-vave/fm1_open) (after DaisySP's
+String, Electrosmith and Emilie Gillet; MIT); Wind's pink and Surf's brown noise and Rain's drops follow NOISE in
+[Skiff](https://github.com/illuminus5/skiff) (`eng_noise.c`, Leo Kuroshita, Hügelton Instruments; GPL-3.0; Paul
+Kellet's pink filter); the Tape atmosphere is DUB-1's crackle, after Bahadirhan Kocer's "Using Resonators in Live".
+NACHTFAHRT's way of playing a sequence (the root accented, sparse notes, a dotted-eighth repeat as loud as the
+note, two delays), which AISLING's harps keep, owes much to Synth Seeker's videos on Berlin School sequencing. The
+platform (hardware layer, USB, update loader, storage, installer) is [Felucca](https://github.com/hugelton/Felucca)'s
+by Leo Kuroshita (Hügelton Instruments), by way of [X0X](https://github.com/charlesvestal/fm1-x0x), FoMni-1, AMB-1,
+DUB-1 and NACHTFAHRT. The idea of running FM-1 firmware in the browser comes from
+[Groove OS](https://www.groove-os.com/). GPL-3.0-only; see [LICENSING.md](LICENSING.md).
 
-M-VAVE and FM-1 are trademarks of their owners. NACHTFAHRT is not affiliated with M-VAVE or Hügelton Instruments.
+M-VAVE and FM-1 are trademarks of their owners. AISLING is not affiliated with M-VAVE, Hügelton Instruments or
+NACHTFAHRT's author.

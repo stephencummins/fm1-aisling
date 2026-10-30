@@ -1,7 +1,7 @@
-# the manual's screenshots (BERLIN): Stratosfear playing (straight in: both sequences from the first bar), each page,
+# the manual's screenshots (AISLING; NACHTFAHRT's): Carolan playing (straight in: both harps from the first bar), each page,
 # the Move pages, PERFORM, hold, the effects grid, the launch screen; build/host/amb_host tests/listen/docshots.amb docs/img
 wait 300
-turn PRESET 4
+turn PRESET 3
 wait 20000
 shot screen-main.png
 tap HOME

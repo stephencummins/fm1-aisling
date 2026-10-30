@@ -1,7 +1,7 @@
-# BERLIN's words for the screen reader (from DUB-1's) (fm1-reader): the screen's text <TAB> what to say. "#" a number, "*" a
+# AISLING's words for the screen reader (NACHTFAHRT's, from DUB-1's) (fm1-reader): the screen's text <TAB> what to say. "#" a number, "*" a
 # word left out. tools/gen_words.py makes web/words/<id>.json (published with the site) and the link the
 # FM-1 sends. Change a line and a new file is made: keep the old ones (devices in the wild point at them).
-# url: https://sbegueria.github.io/fm1-dub/words/
+# url: https://stephencummins.github.io/fm1-aisling/words/
 # "A" is the note: not the article (the reader says a capital A before a word as "a")
 A	A
 Eb	E flat
@@ -12,6 +12,8 @@ Mixolyd.	Mixolydian
 Mixolyd	Mixolydian
 Pent maj	pentatonic major
 Pent min	pentatonic minor
+Hex maj	hexatonic major
+Hex min	hexatonic minor
 ECHO, ECHO TIME	echo amount, echo time
 Lights Keys	lights on the keys only
 # BERLIN's short names
@@ -22,7 +24,15 @@ SEQ	sequence
 Seq	sequence
 ATMOS	atmosphere
 Atmos	atmosphere
-Nova	supernova
+# (AISLING) the Irish names, as they're said: the firmware, two pieces, two of the black keys' effects
+AISLING	ashling
+Aisling	ashling
+Samhain	sow-in
+Tir na nOg	teer na nogue
+Ceo	kyoh
+CEO	kyoh
+Macalla	mock-alla
+MACALLA	mock-alla
 # the echo times (the dotted ones first: the longer text wins)
 1/8.	dotted eighth
 1/8	eighth
