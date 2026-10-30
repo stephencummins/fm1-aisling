@@ -27,7 +27,7 @@ enum { V_DUB, V_CHORD, V_TEXTURE, V_BASS, V_DRUMS, V_SPACE, V_SETUP, NPAGES, V_M
        V_DSND, V_CFM, V_PFM, V_BFM, V_CHORDS, V_PAT, V_PERF, V_KEY, V_NSND, V_ESND, V_NSND2, V_ARC, V_SMOVE, V_S2MOVE, V_AMOVE, NVIEWS };
 /* (V_PERF: PERFORM's knobs, the master actions; V_MIX while white 6 is held. V_KEY: HOME again, the key and the
  * tempo, the Dub page's second) */
-static const char *const VIEW_NAME[NVIEWS] = {"Nachtfahrt", "Drone", "Sequence", "Lead", "Sequence 2", "Space", "Setup",
+static const char *const VIEW_NAME[NVIEWS] = {"Aisling", "Drone", "Sequence", "Lead", "Sequence 2", "Space", "Setup",
                                               "Mix", "Drone sound", "Seq sound", "Lead sound", "Seq2 sound",
                                               "Drone move", "Repeats", "Lead move", "Chords", "Pattern", "Perform", "Key",
                                               "Atmosphere", "Echo", "Atmos sound", "Arc", "Seq move", "Seq2 move",
@@ -349,10 +349,10 @@ static const char *mode_name(void)
 }
 
 /* ------------------------------------------------------------ values --- */
-/* the modes as they're stepped through (ALGORITHM, the Key page's Mode): the most common first. (The values kept
- * are the engine's, MODE_*) */
+/* the modes as they're stepped through (ALGORITHM, the Key page's Mode): the most common first; AISLING's two
+ * hexatonics last, so the eight keep their places. (The values kept are the engine's, MODE_*) */
 static const uint8_t MODE_ORDER[EN_NMODES] = {MODE_AEOLIAN, MODE_IONIAN, MODE_DORIAN, MODE_MIXOLYDIAN, MODE_PENT_MIN,
-                                              MODE_PENT_MAJ, MODE_PHRYGIAN, MODE_LYDIAN};
+                                              MODE_PENT_MAJ, MODE_PHRYGIAN, MODE_LYDIAN, MODE_HEX_MAJ, MODE_HEX_MIN};
 static int mode_pos(int m)
 {
     int i;
@@ -1813,7 +1813,7 @@ static void draw_header(void)
  * the echo's level (right), and the two sequences' lanes (below), each with its own step */
 #define CX 120
 #define CY 67                                    /* (the user, 2026-10-28: down from 48, the chord, its orbits and
-                                                  * its ring clear of the top bar, the page's name and CRANKY MAN, the
+                                                  * its ring clear of the top bar, the page's name and the user's name, the
                                                   * meters, ECHO and the lanes: the layout scenario checks it) */
 #define ORB_RX0 28.0f                            /* the orbits: the Sequence's across, Sequence 2's (31, 44 before the
                                                   * ring); their height */
@@ -2237,7 +2237,7 @@ static void draw_card(uint32_t now)
     text_c(CX, y + 28, &FONT_XS, ui.card_text, tc);
 }
 
-#define BERLIN_BY "CRANKY MAN"                   /* (the user's name, on the main screen and the launch screen) */
+#define AISLING_BY "S. CUMMINS"                  /* (the user's name, on the main screen and the launch screen) */
 static void draw_main(void)
 {
     uint32_t now = plat_ms(), h = hash(2166136261u, (uint32_t)en_frozen << 16 | proj.piece << 24 | (uint32_t)en_playing << 17), i;
@@ -2381,7 +2381,7 @@ static void draw_main(void)
             cv_text(x, 14, &FONT_XS, "SOLO", K_CLAP);
         }
     }
-    cv_text(232 - text_w(&FONT_XS, BERLIN_BY), -2, &FONT_XS, BERLIN_BY, K_DIM);   /* (the user's: over the page) */
+    cv_text(232 - text_w(&FONT_XS, AISLING_BY), -2, &FONT_XS, AISLING_BY, K_DIM);   /* (the user's: over the page) */
     {   /* hold and Lock, in red, after the section's name (top left) */
         char t[12];
         int32_t x;
@@ -3107,7 +3107,7 @@ void ui_frame(void)
 
 void ui_input_only(void) { input(); }
 
-/* (BERLIN) the launch screen, the user's: NACHTFAHRT large (BERLIN's new name, the user's), "by CRANKY MAN" under
+/* (AISLING) the launch screen, the user's: AISLING large, "by S. CUMMINS" under
  * it, on black among a few stars, fading in; the version small at the foot. Frame f of UI_SPLASH_N, drawn whole (two
  * bands of 240 x 120) */
 static void splash_band(int f, int32_t oy)
@@ -3119,9 +3119,9 @@ static void splash_band(int f, int32_t oy)
     for (k = 0; k < 14; k++)
         cv_rect(SX[k], SY[k] - oy, 1, 1, mix(K_BG, K_DIM, 3 + (k & 3)));
     if (f >= 1)
-        text_c(120, 92 - oy, &FONT_L, "NACHTFAHRT", mix(K_BG, K_TEXT, f >= 8 ? 16 : 2 * f));
+        text_c(120, 92 - oy, &FONT_L, "AISLING", mix(K_BG, K_TEXT, f >= 8 ? 16 : 2 * f));
     if (f >= 8)
-        text_c(120, 132 - oy, &FONT_S, "by " BERLIN_BY, mix(K_BG, K_BELL, f >= 16 ? 16 : 2 * (f - 7)));
+        text_c(120, 132 - oy, &FONT_S, "by " AISLING_BY, mix(K_BG, K_BELL, f >= 16 ? 16 : 2 * (f - 7)));
     if (f >= 16)
         text_c(120, 224 - oy, &FONT_XS, EN_VERSION, K_DIM);
     cv_blit(0, (uint32_t)oy);

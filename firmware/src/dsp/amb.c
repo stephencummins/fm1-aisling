@@ -15,13 +15,16 @@
 #define BARRIER() __asm__ volatile("" ::: "memory")
 
 const char *const EN_NOTE_NAME[12] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
-/* (Ionian and Aeolian shown as Major and Minor) */
+/* (Ionian and Aeolian shown as Major and Minor. AISLING's hexatonics: each leaves out the one note its two
+ * neighbouring modes disagree on, as so many airs do: Hex maj no seventh (Ionian or Mixolydian), Hex min no sixth
+ * (Dorian or Aeolian)) */
 const char *const EN_MODE_NAME[EN_NMODES] = {"Major", "Dorian", "Phrygian", "Lydian", "Mixolyd.", "Minor",
-                                             "Pent maj", "Pent min"};
+                                             "Pent maj", "Pent min", "Hex maj", "Hex min"};
 #define B(a, b, c, d, e, f, g) (1u << (a) | 1u << (b) | 1u << (c) | 1u << (d) | 1u << (e) | 1u << (f) | 1u << (g))
 const uint16_t EN_MODE_POOL[EN_NMODES] = {
     B(0, 2, 4, 5, 7, 9, 11), B(0, 2, 3, 5, 7, 9, 10), B(0, 1, 3, 5, 7, 8, 10), B(0, 2, 4, 6, 7, 9, 11),
-    B(0, 2, 4, 5, 7, 9, 10), B(0, 2, 3, 5, 7, 8, 10), B(0, 2, 4, 7, 9, 9, 9),  B(0, 3, 5, 7, 10, 10, 10)};
+    B(0, 2, 4, 5, 7, 9, 10), B(0, 2, 3, 5, 7, 8, 10), B(0, 2, 4, 7, 9, 9, 9),  B(0, 3, 5, 7, 10, 10, 10),
+    B(0, 2, 4, 5, 7, 9, 9),  B(0, 2, 3, 5, 7, 10, 10)};
 #undef B
 const uint8_t EN_LOOP_LEN[EN_NLOOP] = {13, 17, 23, 29};
 const uint8_t EN_DRUM_N[EN_NDRUM] = {16, 16, 16, 16, 16};
@@ -71,104 +74,131 @@ static const en_param_t PARAMS[P_NPARAMS] = {
 };
 const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PARAMS[i] : &PARAMS[0]; }
 
-/* (BERLIN) the pieces: eight recipes for the whole machine (the FM-1's PRESETS, the web app's cards), each what it
- * sets over the defaults (PARAMS), in pairs, to -1. Tune and MIDI out are never set here: they belong to the player.
- * Keys and tempos are starting points (spec 6: from analysis sites, to tune by ear); the Lead is dreamy in all of them
- * (its reverb and echo 90, the defaults: the user); an Atmosphere only where it suits, of the four the user likes.
+/* (AISLING) the pieces: eight recipes for the whole machine (the FM-1's PRESETS), each what it sets over the defaults
+ * (PARAMS), in pairs, to -1. Tune and MIDI out are never set here: they belong to the player. Each is a place in the
+ * west and a starting point, to tune by ear: the voices for now NACHTFAHRT's, standing in for AISLING's own to come
+ * (the Pluck for the harp, the Flute for the whistle, the Odyssey bowed for the fiddle, the Theremin for the voice,
+ * the Organ for the pipes). The Irish of it, for now, in four things: the modes (Major, Mixolydian, Dorian, Minor
+ * and the two hexatonics), the drone held under them (Pedal high), the double tonic (the chords' slots, the walk's
+ * degrees in Loop: I and bVII in turn, a long Drift each), and the jig's threes (Sequence lengths 12 and 9, and the
+ * pulse: Accents every third step, played in Auto, seq_pulse). The Lead dreamy in all of them (its reverb and echo
+ * 90, the defaults), the Atmosphere's levels NACHTFAHRT's for the FM-1's speaker (Surf 5, Wind and Rain 7, Tape 10).
  * (Voices: the Sequence's 2600 Moog Synthi Pulse Glass Pluck (0..5), Sequence 2's the five, Sub, Pluck (0..6);
- *  the Drone's Organ Strings Horn Saws Glass Choir; the Lead's Odyssey Mini Flute Theremin Synthi. Modes: 0 Ionian,
- *  1 Dorian, 2 Phrygian, 5 Aeolian. Repeat times: 1/8 1/8. 1/4 1/4. 1/2 1 bar. Drift: 2 4 8 16 32 64 bars, Hold.
- *  Play: the walk Home, Wander, Free. Grid: 8ths, 16ths. Atmosphere: None Wind Surf Space Air Tape Rain. The moves (filter motion spec 9): MW/MT/MR/MI a layer's
- *  Width, Time, Rate and Intro in bars (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2, 4 Atmosphere; the Sequence's Width
- *  is Sweep); the Lead's Width kept low; Bridge the middle section's move. Memory: how much the Lead keeps its ideas,
- *  the Lead's memory spec 3.3's starting values, to tune by ear; every piece's set, Mirage's 50 the default too, so
- *  the table reads whole) */
-static const int16_t PC_TIMEWIND[] = {        /* Schulze, Bayreuth Return: an organ through the phaser; Sequence 2
-                                                * at its default 60 and the reverb at 50, the lengths 16/15 (the user's
-                                                * ear) */
-    P_TEMPO, 96, P_ROOT, 2, P_MODE, MODE_AEOLIAN,
-    P_SVOICE, 0, P_SEQLEN, 16, P_SEQ2LEN, 15, P_SEQGRID, 1, P_DENSITY, 65, P_REVERB, 50,
-    P_TAPB, 50, P_TAPBT, 2,
-    P_CVOICE, 0, P_PHASER, 60, P_DRIFT, 3, P_PMODE, EN_WALK_HOME,
-    P_LVOICE, 0, P_LDIN, 32,
-    P_NCHAR, 1, P_CRACKLE, 7,
-    P_MW0, 30, P_MR0, 25, P_MW2, 15, P_MW4, 30, P_BRIDGE, 45,
-    P_MI1, 32, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
-static const int16_t PC_WAHNFRIED[] = {       /* Schulze, Wahnfried 1883: roots walking with no home, strings, the
-                                                * Sequence a faint heartbeat under them (the user's ear) */
-    P_TEMPO, 80, P_ROOT, 10, P_MODE, MODE_DORIAN,
-    P_SEQ, 30, P_MI1, 16, P_SEQ2, 50, P_SEQ2OCT, -1,
-    P_CHORD, 95, P_CVOICE, 1, P_PEDAL, 85, P_PHASER, 50, P_CRES, -5, P_DRIFT, 2, P_PMODE, EN_WALK_FREE,
-    P_LEAD, 54, P_LVOICE, 3, P_LTONE, 75, P_VIB, 55, P_LDENS, 60, P_LDIN, 8,
-    P_FEEDBACK, 75, P_REVERB, 45,
-    P_MW0, 45, P_MT0, 60, P_MR0, 45, P_MW2, 15, P_BRIDGE, 30,
-    P_ARC, 20, P_MOTION, 55, P_LMEM, 40, -1};
-static const int16_t PC_PHAEDRA[] = {         /* Tangerine Dream, Phaedra: a Moog bass line, Mellotron flutes and choir */
-    P_TEMPO, 149, P_ROOT, 2, P_MODE, MODE_AEOLIAN,
-    P_SVOICE, 1, P_SEQOCT, -1, P_SEQLEN, 16, P_DENSITY, 70, P_SWEEP, 85,
-    P_SEQ2, 40, P_S2VOICE, 1, P_SEQ2OCT, 0, P_SEQ2LEN, 15, P_MI3, 0,
-    P_CHORD, 70, P_CVOICE, 5, P_DRIFT, 4,         /* (the user's ear: the Drone a formant Choir, at 70) */
-    P_LVOICE, 2, P_LDIN, 24,
-    P_NCHAR, 5, P_CRACKLE, 10,
-    P_MW0, 25, P_MW3, 30, P_MR3, 40, P_MW4, 25,
-    P_MI1, 16, P_ARC, 30, P_MOTION, 55, P_LMEM, 75, -1};
-static const int16_t PC_RUBYCON[] = {         /* Tangerine Dream, Rubycon: dark, two sequences out of the drone (the
-                                                * octaves and voices the user's ear: the Sequence -2 on the 2600, Sequence 2 0,
-                                                * the Lead the Synthi) */
-    P_TEMPO, 144, P_ROOT, 5, P_MODE, MODE_AEOLIAN,
-    P_SVOICE, 0, P_SEQOCT, -2, P_SEQLEN, 8, P_CUTOFF, 32, P_SWEEP, 60,
-    P_SEQ2, 55, P_S2VOICE, 5, P_SEQ2OCT, 0, P_SEQ2LEN, 7, P_MI3, 32,
-    P_TAPB, 40, P_TAPBT, 4,
-    P_CHORD, 65, P_CVOICE, 0, P_CCOL, -20, P_PEDAL, 85, P_DRIFT, 4,
-    P_LVOICE, 4, P_LDIN, 32,
-    P_MW0, 35, P_MR0, 25, P_MW3, 30, P_BRIDGE, 50,
-    P_MI1, 16, P_ARC, 40, P_MOTION, 65, P_LMEM, 45, -1};
-static const int16_t PC_STRATOSFEAR[] = {     /* Tangerine Dream, Stratosfear: brighter, driving, the Lead forward */
-    P_TEMPO, 138, P_ROOT, 4, P_MODE, MODE_AEOLIAN,
-    P_SVOICE, 3, P_SEQLEN, 16, P_DENSITY, 70, P_CUTOFF, 55,
-    P_SEQ2, 60, P_S2VOICE, 0, P_SEQ2LEN, 15, P_MI3, 0,
-    P_CVOICE, 1, P_DRIFT, 3,
-    P_LEAD, 52, P_LVOICE, 1, P_LDENS, 65, P_LDIN, 12,
-    P_MR1, 40, P_MW3, 30, P_MR3, 40, P_BRIDGE, 35,
-    P_ARC, 20, P_MOTION, 50, P_LMEM, 85, -1};
-static const int16_t PC_SUNRAIN[] = {         /* Ashra, New Age of Earth: major, the strongest repeats, bright strings;
-                                                * the lengths 8/7 (the user: "works best") */
-    P_TEMPO, 130, P_ROOT, 2, P_MODE, MODE_IONIAN,
-    P_SVOICE, 3, P_SEQLEN, 8, P_CUTOFF, 55,
-    P_SEQ2, 50, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 7, P_MI3, 0,
-    P_TAPA, 100, P_TAPB, 100, P_TAPBT, 3, P_ECHO, 65, P_FEEDBACK, 65,
-    P_CVOICE, 1, P_DRIFT, 3,
-    P_LVOICE, 0, P_LDIN, 16,
+ *  the Drone's Organ Strings Horn Saws Glass Choir; the Lead's Odyssey Mini Flute Theremin Synthi. Repeat times:
+ *  1/8 1/8. 1/4 1/4. 1/2 1 bar. Drift: 2 4 8 16 32 64 bars, Hold. Grid: 8ths, 16ths. Atmosphere: None Wind Surf Space
+ *  Air Tape Rain. A walk slot's root: the scale's degree plus one (a hexatonic's bVII its 6); its type the voicing,
+ *  1 for the voices that like the 9th (Strings, Saws, Glass: regrow). The moves (filter motion spec 9): MW/MT/MR/MI
+ *  a layer's Width, Time, Rate and Intro in bars (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2, 4 Atmosphere; the
+ *  Sequence's Width is Sweep); the Lead's Width kept low; Bridge the middle section's move. Memory: how much the Lead
+ *  keeps its ideas) */
+static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the sea under a drone on D, a harp's slow
+                                                * ostinato in threes (12 sixteenths, every third accented), a whistle;
+                                                * Dm and C in turn, sixteen bars each */
+    P_TEMPO, 76, P_ROOT, 2, P_MODE, MODE_AEOLIAN,
+    P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 55, P_SACC0, 0x249,
+    P_SEQ2, 0,
+    P_CVOICE, 0, P_PEDAL, 90, P_PHASER, 15, P_DRIFT, 3,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
+    P_LVOICE, 2, P_VIB, 30, P_GLIDE, 15, P_LDIN, 16,
+    P_REVERB, 55, P_SIZE, 80,
     P_NCHAR, 2, P_CRACKLE, 5,
-    P_MW3, 25, P_MW4, 25, P_BRIDGE, 35,
-    P_ARC, 25, P_MOTION, 45, P_LMEM, 60, -1};
-static const int16_t PC_MIRAGE[] = {          /* Schulze, Mirage: icy, a glass sequence, sparse, a long reverb; the
-                                                * lengths 12/11 (the user's) */
-    P_TEMPO, 95, P_ROOT, 6, P_MODE, MODE_AEOLIAN,
-    P_SVOICE, 4, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 40, P_SWEEP, 30,
+    P_MW0, 30, P_MR0, 25, P_MW4, 30, P_MR4, 20, P_BRIDGE, 40,
+    P_MI1, 16, P_ARC, 20, P_MOTION, 40, P_LMEM, 60, -1};
+static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limestone, the wind; a choir held over G, glass
+                                                * of 12 and 11 drifting apart, a bowed line; I IV I ii, sixteen bars each */
+    P_TEMPO, 84, P_ROOT, 7, P_MODE, MODE_IONIAN,
+    P_SVOICE, 4, P_SEQLEN, 12, P_DENSITY, 45, P_SWEEP, 35,
+    P_SEQ2, 45, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 11, P_MI3, 16,
+    P_CHORD, 70, P_CVOICE, 5, P_PEDAL, 80, P_DRIFT, 3,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 2,
+    P_LVOICE, 0, P_LTONE, 35, P_VIB, 60, P_GLIDE, 40, P_LDIN, 24,
+    P_NCHAR, 1, P_CRACKLE, 7,
+    P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
+    P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
+static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, plucked strings in a jig's threes over a
+                                                * slip jig's nine an octave down, a nasal square for the chanter, a turf
+                                                * fire (Tape's crackle); Am and G in turn, eight bars each */
+    P_TEMPO, 96, P_ROOT, 9, P_MODE, MODE_DORIAN,
+    P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55,
+    P_SEQ2, 50, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_MI3, 8,
+    P_CHORD, 55, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
+    P_LVOICE, 4, P_LTONE, 60, P_VIB, 15, P_GLIDE, 10, P_LDENS, 60, P_LDIN, 12,
+    P_NCHAR, 5, P_CRACKLE, 10,
+    P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 30, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
+    P_ARC, 25, P_MOTION, 55, P_LMEM, 70, -1};
+static const int16_t PC_CAROLAN[] = {         /* Turlough O'Carolan, the harper (1670-1738): strings, two harps of 16
+                                                * and 15, a whistle, rain; a planxty's chords (I IV I V vi IV V I), eight
+                                                * bars each */
+    P_TEMPO, 88, P_ROOT, 2, P_MODE, MODE_IONIAN,
+    P_SVOICE, 5, P_SEQLEN, 16, P_SEQGRID, 1, P_DENSITY, 60,
+    P_SEQ2, 45, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 15, P_MI3, 16,
+    P_TAPB, 40, P_TAPBT, 2,
+    P_CHORD, 65, P_CVOICE, 1, P_PEDAL, 60, P_DRIFT, 2,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 5, P_CR4, 6, P_CR5, 4, P_CR6, 5, P_CR7, 1,
+    P_CX0, 1, P_CX1, 1, P_CX2, 1, P_CX3, 1, P_CX4, 1, P_CX5, 1, P_CX6, 1, P_CX7, 1,
+    P_LVOICE, 2, P_VIB, 30, P_GLIDE, 15, P_LDIN, 16,
+    P_NCHAR, 6, P_CRACKLE, 7,
+    P_MW0, 20, P_MR0, 25, P_SWEEP, 40, P_MR1, 30, P_MW4, 25, P_MR4, 20,
+    P_ARC, 25, P_MOTION, 50, P_LMEM, 70, -1};
+static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, left in 1953: a choir over E, slow glass
+                                                * bells in threes for the dulcimer, a voice wavering over the surf; Em
+                                                * and D in turn, thirty-two bars each */
+    P_TEMPO, 70, P_ROOT, 4, P_MODE, MODE_DORIAN,
+    P_SVOICE, 4, P_SEQLEN, 12, P_DENSITY, 40, P_SACC0, 0x249,
+    P_SEQ2, 40, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 11, P_MI3, 24,
+    P_TAPB, 50, P_TAPBT, 4,
+    P_CHORD, 75, P_CVOICE, 5, P_PEDAL, 85, P_DRIFT, 4,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
+    P_LEAD, 50, P_LVOICE, 3, P_LTONE, 45, P_VIB, 45, P_GLIDE, 45, P_LDENS, 40, P_LDIN, 16,
+    P_REVERB, 50, P_SIZE, 85,
+    P_NCHAR, 2, P_CRACKLE, 5,
+    P_MW0, 35, P_MT0, 60, P_MR0, 30, P_MW4, 30, P_MR4, 25, P_BRIDGE, 35,
+    P_MI1, 16, P_ARC, 20, P_MOTION, 35, P_LMEM, 65, -1};
+static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: a low drone on B beating, a slow Moog
+                                                * line of eight, a voice an octave down, the wind; Bm, G, A, thirty-two
+                                                * bars each (Sequence 2 silent: the bodhran's place) */
+    P_TEMPO, 64, P_ROOT, 11, P_MODE, MODE_AEOLIAN,
+    P_SVOICE, 1, P_SEQOCT, -1, P_SEQLEN, 8, P_DENSITY, 45, P_CUTOFF, 35, P_SWEEP, 55,
+    P_SEQ2, 0,
+    P_CHORD, 75, P_CVOICE, 0, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6, P_CR2, 7,
+    P_LEAD, 60, P_LVOICE, 3, P_LOCT, -1, P_VIB, 50, P_LDENS, 35, P_LDIN, 16,
+    P_NCHAR, 1, P_CRACKLE, 7,
+    P_MW0, 45, P_MT0, 70, P_MR0, 40, P_MW2, 10, P_BRIDGE, 30,
+    P_MI0, 16, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
+static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; an organ on G in the gapped minor (no
+                                                * sixth), a harp in a slip jig's nine over glass of eight, a bowed line;
+                                                * Gm and F in turn, sixteen bars each */
+    P_TEMPO, 92, P_ROOT, 7, P_MODE, MODE_HEX_MIN,
+    P_SVOICE, 5, P_SEQLEN, 9, P_DENSITY, 60, P_SACC0, 0x49,
+    P_SEQ2, 45, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 8, P_MI3, 16,
+    P_CHORD, 60, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6,
+    P_LVOICE, 0, P_LTONE, 40, P_VIB, 60, P_GLIDE, 40, P_LDIN, 16,
+    P_NCHAR, 6, P_CRACKLE, 7,
+    P_MW0, 30, P_MR0, 30, P_MW3, 30, P_MR3, 35, P_BRIDGE, 40,
+    P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
+static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the young over the western sea: glass for the
+                                                * drone, phased, in the gapped major (no seventh) on D, a harp of 12 over
+                                                * glass of 11, a whistle, a long reverb; D and G in turn, sixteen bars
+                                                * each (no Atmosphere yet: the curlew's place) */
+    P_TEMPO, 80, P_ROOT, 2, P_MODE, MODE_HEX_MAJ,
+    P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 50, P_SACC0, 0x249,
     P_SEQ2, 45, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 11, P_MI3, 24,
     P_TAPB, 60, P_TAPBT, 4,
-    P_CVOICE, 4, P_PHASER, 85, P_DRIFT, 4,
-    P_LVOICE, 3, P_LDIN, 24,
-    P_REVERB, 55, P_SIZE, 90,
-    P_NCHAR, 3, P_CRACKLE, 10,
-    P_MW0, 25, P_MR0, 20, P_MW4, 35, P_MR4, 20,
-    P_MI1, 16, P_ARC, 20, P_MOTION, 40, P_LMEM, 50, -1};
-static const int16_t PC_CYBORG[] = {          /* Schulze, Cyborg: early, raw, deep organ drones beating; a quiet
-                                                * Sequence (20, the user's: at its defaults), no Sequence 2; the Lead
-                                                * up front (70, the user's) */
-    P_TEMPO, 70, P_ROOT, 0, P_MODE, MODE_PHRYGIAN,
-    P_SEQ, 20, P_SEQ2, 0,
-    P_CHORD, 70, P_CVOICE, 0, P_CCOL, 25, P_PEDAL, 90, P_PHASER, 20, P_DRIFT, 4, P_PMODE, EN_WALK_WANDER,
-    P_LEAD, 70, P_LVOICE, 3, P_LDENS, 30, P_LOCT, -1, P_LDIN, 8,
-    P_MW0, 50, P_MT0, 70, P_MR0, 45, P_MW2, 10, P_BRIDGE, 30,
-    P_ARC, 15, P_MOTION, 35, P_LMEM, 35, -1};
+    P_CHORD, 65, P_CVOICE, 4, P_PHASER, 70, P_DRIFT, 3,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CX0, 1, P_CX1, 1,
+    P_LVOICE, 2, P_VIB, 35, P_GLIDE, 20, P_LDIN, 24,
+    P_REVERB, 60, P_SIZE, 90,
+    P_MW0, 25, P_MR0, 20, P_MW3, 35, P_MR3, 20,
+    P_MI1, 16, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
 static const struct {
     const char *name;
     const int16_t *set;
 } PIECES[EN_NPIECES] = {
-    {"Timewind", PC_TIMEWIND}, {"Wahnfried", PC_WAHNFRIED}, {"Phaedra", PC_PHAEDRA},   {"Rubycon", PC_RUBYCON},
-    {"Stratosfear", PC_STRATOSFEAR}, {"Sunrain", PC_SUNRAIN}, {"Mirage", PC_MIRAGE}, {"Cyborg", PC_CYBORG},
+    {"Skellig", PC_SKELLIG}, {"Burren", PC_BURREN},     {"Aran", PC_ARAN},         {"Carolan", PC_CAROLAN},
+    {"Blasket", PC_BLASKET}, {"Samhain", PC_SAMHAIN}, {"Connemara", PC_CONNEMARA}, {"Tir na nOg", PC_TIRNANOG},
 };
 
 const char *en_piece_name(int i) { return PIECES[(unsigned)i < EN_NPIECES ? i : 0].name; }
@@ -1511,17 +1541,25 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
     midi(l ? 0x93u : 0x91u, (uint32_t)n, (uint32_t)vel);
 }
 
+/* (AISLING) a recipe's pulse: in Auto, the accents it sets (a jig's every third step) always play, accented, over
+ * the grown pattern (a step it never grew: the root); not once the keys have written the pattern, nor in Pattern */
+static uint16_t seq_pulse(int l)
+{
+    return par[P_SMODE] || sq_written[l] ? 0u : (uint16_t)par[l ? P_SACC1 : P_SACC0];
+}
 static void seq_publish(void)                    /* the lanes as Auto plays them, for the Pattern page */
 {
     int l, i;
     for (l = 0; l < 2; l++) {
+        const uint16_t pu = seq_pulse(l);
         uint16_t g = 0;
         for (i = 0; i < SEQ_MAX && i < sq[l].len; i++)
-            if ((sq[l].gate >> i & 1u) && (sq_written[l] || sq_prio[l][i] < 25 + 3 * pe(P_DENSITY) / 4))
+            if ((pu >> i & 1u) ||
+                ((sq[l].gate >> i & 1u) && (sq_written[l] || sq_prio[l][i] < 25 + 3 * pe(P_DENSITY) / 4)))
                 g |= (uint16_t)(1u << i);
         en_seq_lane[l] = g;
         en_seq_lane[2 + l] = sq[l].oct;
-        en_seq_acc[l] = sq[l].acc;
+        en_seq_acc[l] = sq[l].acc | pu;
         en_seq_len[l] = sq[l].len;
     }
     en_seq_lane[4] = sq[0].skip;
@@ -1635,6 +1673,7 @@ static void seq_tick(void)                       /* a sixteenth: the sequences' 
         if (on_grid) {
             seq_t q = sq[l];                     /* (Pattern: the lanes' steps, octaves, skips, accents, its length) */
             const int pat = par[P_SMODE] != 0, ch = par[l ? P_SCH1 : P_SCH0];
+            const uint16_t pu = seq_pulse(l);
             int st;
             if (pat) {
                 q.gate = (uint16_t)par[l ? P_SGATE1 : P_SGATE0];
@@ -1643,9 +1682,11 @@ static void seq_tick(void)                       /* a sixteenth: the sequences' 
                 q.skip = l ? 0u : (uint16_t)par[P_SSKIP0];
                 q.len = q.base_len = (uint8_t)par[l ? P_SEQ2LEN : P_SEQLEN];
             }
+            q.acc |= pu;
             st = sq_pos[l] < q.len ? sq_pos[l] : 0;
-            if ((q.gate >> st & 1u) && !(q.skip >> st & 1u) &&
-                (sq_written[l] || pat || sq_prio[l][st] < 25 + 3 * pe(P_DENSITY) / 4) && (ch >= 100 || irand(100) < ch)) {
+            if (((q.gate | pu) >> st & 1u) && !(q.skip >> st & 1u) &&
+                (sq_written[l] || pat || (pu >> st & 1u) || sq_prio[l][st] < 25 + 3 * pe(P_DENSITY) / 4) &&
+                (ch >= 100 || irand(100) < ch)) {
                 played = seq_note(&q, l, st) + (!l && fxm >> EN_FX_OCTAVE & 1u ? 12 : 0);   /* (the grid's Octave) */
                 vel = q.acc >> st & 1u ? 120 : 120 - 86 * par[P_SACCENT] / 100;   /* the root accented (Accent 50: 77,
                                                                                * as Synth Seeker's 121 and 77); nothing

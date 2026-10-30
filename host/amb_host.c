@@ -595,7 +595,7 @@ static int expect(const char *what, const char *val)
     }
     else if (!strcmp(what, "layoutclash")) {      /* (the user, 2026-10-28) the orbits round the chord (and its ring)
                                                   * against what is round them, in the main canvas: the page's name,
-                                                  * its dots and CRANKY MAN (top right, the widest name), the section,
+                                                  * its dots and the user's name (top right), the section,
                                                   * hold and lock (top left), the meters, the ECHO meter and its word,
                                                   * the lanes; the places a dot would touch (0: none) */
         int v, k;
@@ -613,7 +613,7 @@ static int expect(const char *what, const char *val)
                 const int32_t x = CX + (int32_t)lrint(RX[v] * cos(a)), y = CY + (int32_t)lrint(RY[v] * sin(a));
                 const int32_t x0 = x - 2, x1 = x + 2, y0 = y - 2, y1 = y + 2;   /* (a dot, 3 px, and a pixel clear) */
                 int bad = (x1 >= 232 - pw - 6 - text_w(&FONT_XS, "SOLO") && y0 <= 12 + FONT_B.h)   /* the page's name,
-                                                                       * SOLO, CRANKY MAN */
+                                                                       * SOLO, the user's name */
                     || (x1 >= 212 - NROUND * 6 && y0 <= 36)            /* the page's dots */
                     || (x0 <= 8 + text_w(&FONT_XS, "EMERGE") + 6 + text_w(&FONT_XS, "hold") + 6 + text_w(&FONT_XS, "lock")
                         && y0 <= 2 + FONT_XS.h)                        /* the section, hold, lock */

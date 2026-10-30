@@ -35,7 +35,8 @@
 
 /* modes: pools relative to the root (bit i: root + i semitones) */
 enum { MODE_IONIAN, MODE_DORIAN, MODE_PHRYGIAN, MODE_LYDIAN, MODE_MIXOLYDIAN, MODE_AEOLIAN, MODE_PENT_MAJ,
-       MODE_PENT_MIN, EN_NMODES };
+       MODE_PENT_MIN, MODE_HEX_MAJ, MODE_HEX_MIN, EN_NMODES };   /* (AISLING: the two gapped scales of the airs, after
+                                                                   * the eight, so a mode's number keeps its meaning) */
 extern const char *const EN_MODE_NAME[EN_NMODES];
 extern const uint16_t EN_MODE_POOL[EN_NMODES];
 extern const char *const EN_NOTE_NAME[12];

@@ -51,7 +51,7 @@ SDK_SHA256 = {
     "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
 }
 
-PRODUCT = "FM-1_197000000"          # package identity; release builds are FM-1_197XXYYZZ (see main)
+PRODUCT = "FM-1_353000000"          # package identity; release builds are FM-1_353XXYYZZ (see main)
 VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
 
 
@@ -344,21 +344,22 @@ def mmio_check():
 def main():
     global PRODUCT, VERSION
     ap = argparse.ArgumentParser()
-    ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_197XXYYZZ, version string X.Y[.Z]")
+    ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_353XXYYZZ, version string X.Y[.Z]")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
     name = "amb.fwsc"
     if a.release:
-        # identity FM-1_197 ("197x") + major, minor, patch as two digits each (1.0 -> FM-1_197010000): FM-1 is the
-        # model the update tools match on; the number is ours. Nine digits: no other firmware in The Firmware Hub's
-        # catalogue matches it (checked 2026-10-28: FM-1_8... was DUB-1's and others', and every 3-8 digit identity
-        # matches catch-all patterns). Digits only after the underscore, as the tools parse it.
+        # identity FM-1_353 (AISLING's: Ireland's dialling code; NACHTFAHRT's is 197) + major, minor, patch as two
+        # digits each (1.0 -> FM-1_353010000): FM-1 is the model the update tools match on; the number is ours.
+        # Nine digits, as NACHTFAHRT's: its check of The Firmware Hub's catalogue (2026-10-28) found every 3-8 digit
+        # identity matched by catch-all patterns and FM-1_8... taken by DUB-1 and others; 353 was not checked there
+        # (AISLING is installed with tools/fm1_install.py only). Digits only after the underscore, as the tools parse it.
         m = re.fullmatch(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?(-[A-Za-z0-9]+)?", a.release)
         if not m:
             raise SystemExit(f"--release {a.release}: use X.Y[.Z][-suffix], up to two digits each")
-        PRODUCT = "FM-1_197%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
+        PRODUCT = "FM-1_353%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
         VERSION = a.release.upper()
-        name = f"nachtfahrt-{a.release}.fwsc"
+        name = f"aisling-{a.release}.fwsc"
     fm1pkg_make.SDK = a.sdk
     for rel, sha in SDK_SHA256.items():          # fail early without the SDK
         if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:
