@@ -1,10 +1,11 @@
 # (BERLIN) the black keys in normal playing: an effect each while held (Take-off, Supernova, Twitter, Repeat, Shimmer,
 # Freeze, Octave, Return, Rise, Close, Transpose), said, lit; let go, gone, whatever took the keys meanwhile; in PERFORM
-# they still solo (on Stratosfear: both sequences from the first bar)
+# they still solo (on Aran, AISLING's: the Sequence from the first bar, no intro closing its filter, and Sequence 2
+# on)
 wait 300
-turn PRESET 4
+turn PRESET 2
 wait 300
-expect piece 4
+expect piece 2
 listen
 wait 2000
 key b0 down

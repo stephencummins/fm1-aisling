@@ -345,16 +345,130 @@ static int bars_tap_a(uint32_t b0, uint32_t b1, int even, int odd)
     return badbars;
 }
 
-static void piece(int i)                         /* a piece, as the UI changes to one */
+/* (AISLING) NACHTFAHRT's eight pieces, kept as the engine's fixtures (verbatim from fm1-nachtfahrt 4a7ae08): the tests
+ * below were tuned on them (the Lead's numbers, the arc, the sequences, Timewind's first minute to the bit), so they
+ * test the engine and AISLING's own pieces never move them. AISLING's are checked as they ship: test_pieces_*, the
+ * three minutes of each, the golden hashes, the scenarios */
+static const int16_t NF_TIMEWIND[] = {        /* Schulze, Bayreuth Return: an organ through the phaser; Sequence 2
+                                                * at its default 60 and the reverb at 50, the lengths 16/15 (the user's
+                                                * ear) */
+    P_TEMPO, 96, P_ROOT, 2, P_MODE, MODE_AEOLIAN,
+    P_SVOICE, 0, P_SEQLEN, 16, P_SEQ2LEN, 15, P_SEQGRID, 1, P_DENSITY, 65, P_REVERB, 50,
+    P_TAPB, 50, P_TAPBT, 2,
+    P_CVOICE, 0, P_PHASER, 60, P_DRIFT, 3, P_PMODE, EN_WALK_HOME,
+    P_LVOICE, 0, P_LDIN, 32,
+    P_NCHAR, 1, P_CRACKLE, 7,
+    P_MW0, 30, P_MR0, 25, P_MW2, 15, P_MW4, 30, P_BRIDGE, 45,
+    P_MI1, 32, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
+static const int16_t NF_WAHNFRIED[] = {       /* Schulze, Wahnfried 1883: roots walking with no home, strings, the
+                                                * Sequence a faint heartbeat under them (the user's ear) */
+    P_TEMPO, 80, P_ROOT, 10, P_MODE, MODE_DORIAN,
+    P_SEQ, 30, P_MI1, 16, P_SEQ2, 50, P_SEQ2OCT, -1,
+    P_CHORD, 95, P_CVOICE, 1, P_PEDAL, 85, P_PHASER, 50, P_CRES, -5, P_DRIFT, 2, P_PMODE, EN_WALK_FREE,
+    P_LEAD, 54, P_LVOICE, 3, P_LTONE, 75, P_VIB, 55, P_LDENS, 60, P_LDIN, 8,
+    P_FEEDBACK, 75, P_REVERB, 45,
+    P_MW0, 45, P_MT0, 60, P_MR0, 45, P_MW2, 15, P_BRIDGE, 30,
+    P_ARC, 20, P_MOTION, 55, P_LMEM, 40, -1};
+static const int16_t NF_PHAEDRA[] = {         /* Tangerine Dream, Phaedra: a Moog bass line, Mellotron flutes and choir */
+    P_TEMPO, 149, P_ROOT, 2, P_MODE, MODE_AEOLIAN,
+    P_SVOICE, 1, P_SEQOCT, -1, P_SEQLEN, 16, P_DENSITY, 70, P_SWEEP, 85,
+    P_SEQ2, 40, P_S2VOICE, 1, P_SEQ2OCT, 0, P_SEQ2LEN, 15, P_MI3, 0,
+    P_CHORD, 70, P_CVOICE, 5, P_DRIFT, 4,         /* (the user's ear: the Drone a formant Choir, at 70) */
+    P_LVOICE, 2, P_LDIN, 24,
+    P_NCHAR, 5, P_CRACKLE, 10,
+    P_MW0, 25, P_MW3, 30, P_MR3, 40, P_MW4, 25,
+    P_MI1, 16, P_ARC, 30, P_MOTION, 55, P_LMEM, 75, -1};
+static const int16_t NF_RUBYCON[] = {         /* Tangerine Dream, Rubycon: dark, two sequences out of the drone (the
+                                                * octaves and voices the user's ear: the Sequence -2 on the 2600, Sequence 2 0,
+                                                * the Lead the Synthi) */
+    P_TEMPO, 144, P_ROOT, 5, P_MODE, MODE_AEOLIAN,
+    P_SVOICE, 0, P_SEQOCT, -2, P_SEQLEN, 8, P_CUTOFF, 32, P_SWEEP, 60,
+    P_SEQ2, 55, P_S2VOICE, 5, P_SEQ2OCT, 0, P_SEQ2LEN, 7, P_MI3, 32,
+    P_TAPB, 40, P_TAPBT, 4,
+    P_CHORD, 65, P_CVOICE, 0, P_CCOL, -20, P_PEDAL, 85, P_DRIFT, 4,
+    P_LVOICE, 4, P_LDIN, 32,
+    P_MW0, 35, P_MR0, 25, P_MW3, 30, P_BRIDGE, 50,
+    P_MI1, 16, P_ARC, 40, P_MOTION, 65, P_LMEM, 45, -1};
+static const int16_t NF_STRATOSFEAR[] = {     /* Tangerine Dream, Stratosfear: brighter, driving, the Lead forward */
+    P_TEMPO, 138, P_ROOT, 4, P_MODE, MODE_AEOLIAN,
+    P_SVOICE, 3, P_SEQLEN, 16, P_DENSITY, 70, P_CUTOFF, 55,
+    P_SEQ2, 60, P_S2VOICE, 0, P_SEQ2LEN, 15, P_MI3, 0,
+    P_CVOICE, 1, P_DRIFT, 3,
+    P_LEAD, 52, P_LVOICE, 1, P_LDENS, 65, P_LDIN, 12,
+    P_MR1, 40, P_MW3, 30, P_MR3, 40, P_BRIDGE, 35,
+    P_ARC, 20, P_MOTION, 50, P_LMEM, 85, -1};
+static const int16_t NF_SUNRAIN[] = {         /* Ashra, New Age of Earth: major, the strongest repeats, bright strings;
+                                                * the lengths 8/7 (the user: "works best") */
+    P_TEMPO, 130, P_ROOT, 2, P_MODE, MODE_IONIAN,
+    P_SVOICE, 3, P_SEQLEN, 8, P_CUTOFF, 55,
+    P_SEQ2, 50, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 7, P_MI3, 0,
+    P_TAPA, 100, P_TAPB, 100, P_TAPBT, 3, P_ECHO, 65, P_FEEDBACK, 65,
+    P_CVOICE, 1, P_DRIFT, 3,
+    P_LVOICE, 0, P_LDIN, 16,
+    P_NCHAR, 2, P_CRACKLE, 5,
+    P_MW3, 25, P_MW4, 25, P_BRIDGE, 35,
+    P_ARC, 25, P_MOTION, 45, P_LMEM, 60, -1};
+static const int16_t NF_MIRAGE[] = {          /* Schulze, Mirage: icy, a glass sequence, sparse, a long reverb; the
+                                                * lengths 12/11 (the user's) */
+    P_TEMPO, 95, P_ROOT, 6, P_MODE, MODE_AEOLIAN,
+    P_SVOICE, 4, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 40, P_SWEEP, 30,
+    P_SEQ2, 45, P_S2VOICE, 4, P_SEQ2OCT, 0, P_SEQ2LEN, 11, P_MI3, 24,
+    P_TAPB, 60, P_TAPBT, 4,
+    P_CVOICE, 4, P_PHASER, 85, P_DRIFT, 4,
+    P_LVOICE, 3, P_LDIN, 24,
+    P_REVERB, 55, P_SIZE, 90,
+    P_NCHAR, 3, P_CRACKLE, 10,
+    P_MW0, 25, P_MR0, 20, P_MW4, 35, P_MR4, 20,
+    P_MI1, 16, P_ARC, 20, P_MOTION, 40, P_LMEM, 50, -1};
+static const int16_t NF_CYBORG[] = {          /* Schulze, Cyborg: early, raw, deep organ drones beating; a quiet
+                                                * Sequence (20, the user's: at its defaults), no Sequence 2; the Lead
+                                                * up front (70, the user's) */
+    P_TEMPO, 70, P_ROOT, 0, P_MODE, MODE_PHRYGIAN,
+    P_SEQ, 20, P_SEQ2, 0,
+    P_CHORD, 70, P_CVOICE, 0, P_CCOL, 25, P_PEDAL, 90, P_PHASER, 20, P_DRIFT, 4, P_PMODE, EN_WALK_WANDER,
+    P_LEAD, 70, P_LVOICE, 3, P_LDENS, 30, P_LOCT, -1, P_LDIN, 8,
+    P_MW0, 50, P_MT0, 70, P_MR0, 45, P_MW2, 10, P_BRIDGE, 30,
+    P_ARC, 15, P_MOTION, 35, P_LMEM, 35, -1};
+static const struct {
+    const char *name;
+    const int16_t *set;
+} NF[EN_NPIECES] = {
+    {"Timewind", NF_TIMEWIND}, {"Wahnfried", NF_WAHNFRIED}, {"Phaedra", NF_PHAEDRA},   {"Rubycon", NF_RUBYCON},
+    {"Stratosfear", NF_STRATOSFEAR}, {"Sunrain", NF_SUNRAIN}, {"Mirage", NF_MIRAGE}, {"Cyborg", NF_CYBORG},
+};
+static void nf_piece(int i, int16_t *par, uint16_t *pool)   /* a fixture's every parameter, as en_piece */
 {
-    int16_t pp[P_NPARAMS];
-    uint16_t pl;
+    const int16_t *s;
     int p;
-    en_piece(i, pp, &pl);
+    i = (unsigned)i < EN_NPIECES ? i : 0;
+    for (p = 0; p < P_NPARAMS; p++)
+        par[p] = en_param_info(p)->def;
+    for (s = NF[i].set; s[0] >= 0; s += 2)
+        par[s[0]] = s[1];
+    *pool = EN_MODE_POOL[par[P_MODE]];
+}
+
+static void apply(const int16_t *pp, uint16_t pl)   /* every parameter set, as the UI changes piece */
+{
+    int p;
     for (p = 0; p < P_NPARAMS; p++)
         en_set(p, pp[p]);
     en_pool(pl);
     en_regrow();
+}
+static void piece(int i)                         /* a fixture (NACHTFAHRT's piece i), as the UI changes to one */
+{
+    int16_t pp[P_NPARAMS];
+    uint16_t pl;
+    nf_piece(i, pp, &pl);
+    apply(pp, pl);
+}
+static void shipped(int i)                       /* AISLING's piece i, as the UI changes to one */
+{
+    int16_t pp[P_NPARAMS];
+    uint16_t pl;
+    en_piece(i, pp, &pl);
+    apply(pp, pl);
 }
 
 /* (Shimmer, fix round 2) a piece (Size and Reverb 100 if big) played 20 s; then 60 s from that one state three ways
@@ -1688,7 +1802,7 @@ int main(void)
         uint16_t pl;
         int k;
         fresh();
-        en_piece(3, pp, &pl);
+        nf_piece(3, pp, &pl);
         for (k = 0; k < P_NPARAMS; k++)
             en_set(k, pp[k]);
         en_pool(pl);
@@ -1707,7 +1821,7 @@ int main(void)
         uint32_t w0, w1, w2;
         float p_shed;
         fresh();
-        en_piece(6, pp, &pl);                    /* (Mirage: Space, the phaser, the long reverb: a wide load) */
+        nf_piece(6, pp, &pl);                    /* (Mirage: Space, the phaser, the long reverb: a wide load) */
         for (k = 0; k < P_NPARAMS; k++)
             en_set(k, pp[k]);
         en_pool(pl);
@@ -2631,12 +2745,12 @@ int main(void)
         en_macro(EN_MAC_DUB, 30);
         en_macro(EN_MAC_FILTER, -20);
         run(0.05f);
-        en_piece(4, pp, &pl);
+        nf_piece(4, pp, &pl);
         pushed = en_mac[EN_MAC_ENERGY] == 50 && en_mac[EN_MAC_DUB] == 30 && en_mac[EN_MAC_FILTER] == -20 &&
                  en_heard(P_SEQ) != pp[P_SEQ];
         piece(5);
         run(0.05f);
-        en_piece(5, pp, &pl);
+        nf_piece(5, pp, &pl);
         for (k = 0; k < (int)(sizeof P / sizeof P[0]); k++)
             if (en_heard(P[k]) != pp[P[k]]) {
                 printf("  after the piece change: parameter %d heard %d, its recipe %d\n", P[k], en_heard(P[k]), pp[P[k]]);
@@ -3122,7 +3236,7 @@ int main(void)
         lm_t m;
         fresh();
         piece(4);
-        en_piece(4, pp, &pl);
+        nf_piece(4, pp, &pl);
         lg_pool = pl, lg_root = pp[P_ROOT];
         en_set(P_MOTION, 100);
         en_set(P_LMEM, 70);
@@ -3465,7 +3579,7 @@ int main(void)
         br_t br;
         fresh();
         piece(1);
-        en_piece(1, pp, &pl);
+        nf_piece(1, pp, &pl);
         lg_pool = pl, lg_root = pp[P_ROOT];
         en_set(P_MOTION, 70);
         en_set(P_LDIN, 0);
@@ -3523,7 +3637,7 @@ int main(void)
         lm_t m;
         fresh();
         piece(7);
-        en_piece(7, pp, &pl);
+        nf_piece(7, pp, &pl);
         lg_pool = pl, lg_root = pp[P_ROOT];
         en_set(P_MOTION, 100);
         en_set(P_LDIN, 0);
@@ -4809,7 +4923,7 @@ int main(void)
         float atm_worst = 0.0f;
         int16_t tw[P_NPARAMS];
         uint16_t twp;
-        en_piece(0, tw, &twp);
+        nf_piece(0, tw, &twp);
         tw_atm = tw[P_CRACKLE];
         fresh();
         piece(0);
@@ -4996,7 +5110,7 @@ int main(void)
         run(0.1f);
         CHECK(en_fo[1] <= -4.0f && en_section == EN_SEC_EMERGE, "test_fm_restart: Timewind again: the Sequence at %f "
               "(section %d)", (double)en_fo[1], en_section);
-        en_piece(0, pp, &pl);
+        nf_piece(0, pp, &pl);
         run(100.0f);                              /* (past its 32 bars at 96) */
         for (k = 0; k < 1200; k++) {
             run(0.25f);
@@ -5120,21 +5234,70 @@ int main(void)
               silent, peaks);
     }
 
-    /* (BERLIN) the eight pieces: their names; no two alike (at least 4 of Tempo, Root, Mode, the Sequence's voice, the
-     * Drone's, the Lead's, Sequence 2 on, Repeat B on, the Atmosphere differ: the "samey" anti-goal); not every piece
-     * has an Atmosphere (three at least None, the user); the Lead dreamy in all of them (its reverb and echo 90) */
+    /* (AISLING) the jig's pulse (seq_pulse): a recipe's Sequence accents, every third step, play in Auto at any
+     * Density, accented, every pass, and no other step is accented; without them, fewer notes and the grown pattern's
+     * accents alone. A fixture (Timewind) at 12 steps of sixteenths, Density 0, nothing varying it, the chord held */
     {
-        static const char *const NAME[EN_NPIECES] = {"Timewind", "Wahnfried", "Phaedra", "Rubycon", "Stratosfear",
-                                                     "Sunrain", "Mirage", "Cyborg"};
+        int k, acc[2] = {0, 0}, tot[2] = {0, 0}, res = -1, wrong = 0, missed = 0;
+        uint32_t first = 0, last = 0, i, s;
+        for (k = 0; k < 2; k++) {
+            fresh();
+            piece(0);
+            en_set(P_SEQLEN, 12);
+            en_set(P_SEQGRID, 1);
+            en_set(P_DENSITY, 0);
+            en_set(P_MOTION, 0);
+            en_set(P_EVOLVE, 0);
+            en_set(P_DRIFT, 6);
+            en_set(P_MI1, 0);
+            en_set(P_SACC0, k ? 0 : 0x249);
+            en_regrow();
+            en_play(1);
+            run(60.0f);
+            for (i = 0; i < sq_n; i++) {
+                tot[k]++;
+                if (sq_vel[i] < 120)
+                    continue;
+                acc[k]++;
+                if (k)
+                    continue;
+                if (res < 0)
+                    res = (int)(sq_at[i] % 3u), first = sq_at[i];
+                wrong += (int)(sq_at[i] % 3u) != res;
+                last = sq_at[i];
+            }
+            if (!k && res >= 0)                   /* (every third sixteenth from the first accent: one there) */
+                for (s = first; s <= last; s += 3u) {
+                    int n = 0, v = 0;
+                    missed += !seq_at(s, &n, &v) || v < 120;
+                }
+        }
+        printf("  test_seq_pulse: 60 s, accents every third step: %d notes, %d accented (%d off the pulse, %d of the "
+               "pulse missed); without: %d notes, %d accented\n", tot[0], acc[0], wrong, missed, tot[1], acc[1]);
+        CHECK(acc[0] >= 100 && !wrong && !missed, "test_seq_pulse: %d accented, %d off the pulse, %d missed", acc[0],
+              wrong, missed);
+        CHECK(tot[1] < tot[0] && acc[1] < acc[0], "test_seq_pulse: without the accents %d notes (%d accented), with "
+              "them %d (%d)", tot[1], acc[1], tot[0], acc[0]);
+    }
+
+    /* (AISLING) the eight pieces as they ship: their names; no two alike (at least 4 of Tempo, Root, Mode, the
+     * Sequence's voice, the Drone's, the Lead's, Sequence 2 on, Repeat B on, the Atmosphere, the intros differ); the
+     * Lead dreamy in all of them (its reverb and echo 90); Tune and MIDI out the player's, never set; the west's
+     * weather in all but one at most (Tir na nOg's place kept for the Curlew), at its level by type: Surf 5, Wind and
+     * Rain 7 (Rain as loud as Wind at the same level), Tape and Space 10 */
+    {
+        static const char *const NAME[EN_NPIECES] = {"Skellig", "Burren", "Aran",      "Carolan",
+                                                     "Blasket", "Samhain", "Connemara", "Tir na nOg"};
         static const int KEY[] = {P_TEMPO, P_ROOT, P_MODE, P_SVOICE, P_CVOICE, P_LVOICE, P_NCHAR, P_MI1, P_MI3};
         int16_t pa[EN_NPIECES][P_NPARAMS];
         uint16_t pl;
-        int a, b, k, none = 0, worst = 99, wa = 0, wb = 0, dreamy = 1;
+        int a, b, k, none = 0, worst = 99, wa = 0, wb = 0, dreamy = 1, player = 1;
         for (a = 0; a < EN_NPIECES; a++) {
             en_piece(a, pa[a], &pl);
             CHECK(!strcmp(en_piece_name(a), NAME[a]), "test_pieces_names: piece %d is %s", a, en_piece_name(a));
             none += pa[a][P_NCHAR] == 0;
             dreamy &= pa[a][P_LDREV] == 90 && pa[a][P_LDECHO] == 90;
+            player &= pa[a][P_TUNE] == en_param_info(P_TUNE)->def && pa[a][P_MIDI] == en_param_info(P_MIDI)->def;
         }
         for (a = 0; a < EN_NPIECES; a++)
             for (b = a + 1; b < EN_NPIECES; b++) {
@@ -5147,13 +5310,12 @@ int main(void)
             }
         CHECK(worst >= 4, "test_pieces_distinct: %s and %s differ in only %d", en_piece_name(wa), en_piece_name(wb),
               worst);
-        CHECK(none >= 3, "test_pieces_atmos_none: %d pieces without an Atmosphere", none);
+        CHECK(none <= 1, "test_pieces_atmos_none: %d pieces without an Atmosphere", none);
         CHECK(dreamy, "test_pieces_lead_dreamy: a piece's Lead reverb or echo not 90");
-        /* (the user, 2026-10-28: the FM-1's speaker and headphones bright, the noise far too loud) the Atmosphere's
-         * level by its type: Surf 5, Wind 7, Tape and Space 10; none: the default kept */
+        CHECK(player, "test_pieces_player: a piece sets Tune or MIDI out");
         for (a = 0; a < EN_NPIECES; a++) {
-            static const int LV[EN_NNCHAR] = {25, 7, 5, 10, -1, 10, -1};   /* (None Wind Surf Space Air Tape Rain; Air, Rain:
-                                                                           * unused) */
+            static const int LV[EN_NNCHAR] = {25, 7, 5, 10, -1, 10, 7};   /* (None Wind Surf Space Air Tape Rain; Air:
+                                                                          * unused) */
             const int c = pa[a][P_NCHAR];
             CHECK(c >= 0 && c < EN_NNCHAR && LV[c] >= 0 && pa[a][P_CRACKLE] == LV[c],
                   "test_pieces_atmos_levels: %s: %s at %d", en_piece_name(a), c >= 0 && c < EN_NNCHAR ? EN_NCHAR_NAME[c] : "?",
@@ -5161,65 +5323,65 @@ int main(void)
         }
     }
 
-    /* (BERLIN, filter motion spec 9) the pieces' moves: every piece moves some layer (a Width and a Rate above 0);
-     * Timewind's Sequence comes in slowly (Intro 24+), Stratosfear's and Sunrain's straight in; Rubycon's Sequence 2
-     * after its Sequence; Wahnfried and Cyborg (no Sequence 2) move on the Drone (Width and Rate 40+); Timewind's Bridge
-     * moderate (30..60); the Lead's Width low everywhere (30 at most). The echo's default time 1/4. and Repeat A's
-     * elsewhere (1/8.), so A no longer lands on the echo's first repeat (the user; the echo report) */
+    /* (AISLING) the Irish of them: each in a trad mode (Major, Dorian, Mixolydian, Minor, the two hexatonics) on a
+     * pipe or whistle key (D, G, A, E, B), slow (60..100 BPM); its chords in Loop from slot 1, the home, walk slots
+     * only with no gap before the last, two at least, none diminished (its triad's fifth 6 semitones), each held 8
+     * bars or more (Drift 8 bars up, not Hold); the double tonic, the home and the chord a tone below it (bVII) in
+     * turn, in half of them at least; the jig's threes, a Sequence of 12 or 9, in half at least, and the accents a
+     * recipe sets on every third step from the first, within its length (seq_pulse). Every piece moves some layer, the
+     * Lead's Width low (30 at most); its Memory in spec 3.3's range (35..85). The echo's default time 1/4. and Repeat
+     * A's 1/8., so A never lands on the echo's first repeat (NACHTFAHRT's echo report) */
     {
         static const int MW[5] = {P_MW0, P_MW1, P_MW2, P_MW3, P_MW4}, MR[5] = {P_MR0, P_MR1, P_MR2, P_MR3, P_MR4};
         int16_t pa[EN_NPIECES][P_NPARAMS];
         uint16_t pl;
-        int a, l, moves;
+        int a, l, moves, tonic = 0, jig = 0;
         for (a = 0; a < EN_NPIECES; a++) {
+            const char *nm = en_piece_name(a);
+            int st[12], n, m, r, slots = 0, walks = 0, gap, dim = 0, flat7 = 0, home = 0;
             en_piece(a, pa[a], &pl);
+            m = pa[a][P_MODE], r = pa[a][P_ROOT], n = en_scale(pl, st);
+            for (l = 0; l < EN_NPROG; l++) {      /* (Loop plays to the last slot not a gap) */
+                const int cr = pa[a][P_CR0 + l], d = cr > 0 && n ? (cr - 1) % n : 0;
+                if (pa[a][P_CQ0 + l] || cr > 0)
+                    slots = l + 1;
+                if (pa[a][P_CQ0 + l] || cr <= 0)
+                    continue;
+                walks++;
+                dim += (st[(d + 4) % n] - st[d] + 12) % 12 == 6;
+                flat7 += st[d] == 10;
+                home += !l && d == 0;
+            }
+            gap = walks != slots;                 /* (a gap, or a chord not the walk's, before the last) */
+            CHECK(m == MODE_IONIAN || m == MODE_DORIAN || m == MODE_MIXOLYDIAN || m == MODE_AEOLIAN ||
+                      m == MODE_HEX_MAJ || m == MODE_HEX_MIN,
+                  "test_pieces_modes: %s in %s", nm, EN_MODE_NAME[m]);
+            CHECK(r == 2 || r == 7 || r == 9 || r == 4 || r == 11, "test_pieces_keys: %s on root %d", nm, r);
+            CHECK(pa[a][P_TEMPO] >= 60 && pa[a][P_TEMPO] <= 100, "test_pieces_tempo: %s at %d", nm, pa[a][P_TEMPO]);
+            CHECK((pa[a][P_PMODE] & EN_PLOOP) && home && slots >= 2 && !gap && !dim,
+                  "test_pieces_chords: %s Loop %d, home %d, slots %d, a gap %d, diminished %d", nm,
+                  pa[a][P_PMODE] & EN_PLOOP, home, slots, gap, dim);
+            CHECK(pa[a][P_DRIFT] >= 2 && en_drift_bars(pa[a][P_DRIFT]) > 0, "test_pieces_drift: %s every %d bars", nm,
+                  en_drift_bars(pa[a][P_DRIFT]));
+            tonic += flat7 > 0;
+            jig += pa[a][P_SEQLEN] == 12 || pa[a][P_SEQLEN] == 9;
+            for (l = 0; l < 2; l++) {
+                const int len = pa[a][l ? P_SEQ2LEN : P_SEQLEN], acc = pa[a][l ? P_SACC1 : P_SACC0];
+                int three = 0, i;
+                for (i = 0; i < len && i < 16; i += 3)
+                    three |= 1 << i;
+                CHECK(!acc || acc == three, "test_pieces_pulse: %s Sequence %d's accents %x, not every third of %d (%x)",
+                      nm, l + 1, acc, len, three);
+            }
             for (moves = 0, l = 0; l < 5; l++)
                 moves += pa[a][MW[l]] > 0 && pa[a][MR[l]] > 0;
-            CHECK(moves, "test_pieces_move: %s moves no layer", en_piece_name(a));
-            CHECK(pa[a][P_MW2] <= 30, "test_pieces_move: %s Lead width %d", en_piece_name(a), pa[a][P_MW2]);
+            CHECK(moves, "test_pieces_move: %s moves no layer", nm);
+            CHECK(pa[a][P_MW2] <= 30, "test_pieces_move: %s Lead width %d", nm, pa[a][P_MW2]);
+            CHECK(pa[a][P_LMEM] >= 35 && pa[a][P_LMEM] <= 85, "test_pieces_memory: %s Memory %d (35..85)", nm,
+                  pa[a][P_LMEM]);
         }
-        CHECK(pa[0][P_MI1] >= 24, "test_pieces_move: Timewind Seq intro %d", pa[0][P_MI1]);
-        CHECK(pa[0][P_SEQ2] == 60 && pa[0][P_REVERB] == 50, "test_pieces_timewind: Seq 2 %d, Reverb %d (the user: 60, 50)",
-              pa[0][P_SEQ2], pa[0][P_REVERB]);
-        CHECK(pa[0][P_BRIDGE] >= 30 && pa[0][P_BRIDGE] <= 60, "test_pieces_move: Timewind Bridge %d", pa[0][P_BRIDGE]);
-        CHECK(!pa[4][P_MI1] && !pa[4][P_MI3] && !pa[5][P_MI1] && !pa[5][P_MI3],
-              "test_pieces_move: Stratosfear/Sunrain intros %d %d / %d %d", pa[4][P_MI1], pa[4][P_MI3], pa[5][P_MI1],
-              pa[5][P_MI3]);
-        CHECK(pa[3][P_MI3] > pa[3][P_MI1], "test_pieces_move: Rubycon Seq2 intro %d, Seq %d", pa[3][P_MI3], pa[3][P_MI1]);
-        /* (the user, 2026-10-28) the lengths, Sequence / Sequence 2: Sunrain 8/7 ("works best"), Timewind 16/15, Mirage
-         * 12/11; Rubycon's octaves, Sequence -2, Sequence 2 0; Cyborg's Sequence at 20, Sequence 2 still silent */
-        CHECK(pa[5][P_SEQLEN] == 8 && pa[5][P_SEQ2LEN] == 7, "test_pieces_lengths: Sunrain %d/%d", pa[5][P_SEQLEN],
-              pa[5][P_SEQ2LEN]);
-        CHECK(pa[0][P_SEQLEN] == 16 && pa[0][P_SEQ2LEN] == 15, "test_pieces_lengths: Timewind %d/%d", pa[0][P_SEQLEN],
-              pa[0][P_SEQ2LEN]);
-        CHECK(pa[6][P_SEQLEN] == 12 && pa[6][P_SEQ2LEN] == 11, "test_pieces_lengths: Mirage %d/%d", pa[6][P_SEQLEN],
-              pa[6][P_SEQ2LEN]);
-        CHECK(pa[3][P_SEQOCT] == -2 && pa[3][P_SEQ2OCT] == 0, "test_pieces_octaves: Rubycon %d/%d", pa[3][P_SEQOCT],
-              pa[3][P_SEQ2OCT]);
-        CHECK(pa[1][P_SEQ] == 30 && pa[1][P_MI1] == 16 && pa[1][P_SEQ2] == 50 && pa[1][P_SEQ2OCT] == -1 &&
-                  pa[1][P_LVOICE] == 3 && pa[1][P_LEAD] == 54 && pa[1][P_CVOICE] == 1 && pa[1][P_CHORD] == 95 &&
-                  pa[1][P_CRES] == -5,
-              "test_pieces_wahnfried: Seq %d intro %d, Seq 2 %d oct %d, Lead voice %d level %d, Drone voice %d level %d "
-              "reso %d (the user's: 30 16, 50 -1, Theremin 54, Strings 95 -5)", pa[1][P_SEQ], pa[1][P_MI1],
-              pa[1][P_SEQ2], pa[1][P_SEQ2OCT], pa[1][P_LVOICE], pa[1][P_LEAD], pa[1][P_CVOICE], pa[1][P_CHORD],
-              pa[1][P_CRES]);
-        CHECK(pa[3][P_SVOICE] == 0 && pa[3][P_LVOICE] == 4, "test_pieces_voices: Rubycon Sequence %d (2600: 0), Lead %d "
-              "(Synthi: 4) (the user's ear)", pa[3][P_SVOICE], pa[3][P_LVOICE]);
-        CHECK(pa[7][P_SEQ] == 20 && pa[7][P_SEQ2] == 0 && pa[7][P_LEAD] == 70,
-              "test_pieces_cyborg: Sequence %d, Sequence 2 %d, Lead %d (the user's: 20, 0, 70)", pa[7][P_SEQ],
-              pa[7][P_SEQ2], pa[7][P_LEAD]);
-        CHECK(pa[2][P_CVOICE] == 5 && pa[2][P_CHORD] == 70,
-              "test_pieces_phaedra: Drone voice %d, level %d (the user's: Choir 5, 70)", pa[2][P_CVOICE], pa[2][P_CHORD]);
-        /* (the Lead's memory, spec 3.3) each piece's Memory (the Arc page's fourth knob): the report's starting
-         * values, to tune by ear */
-        for (a = 0; a < EN_NPIECES; a++) {
-            static const int LMEM[EN_NPIECES] = {55, 40, 75, 45, 85, 60, 50, 35};
-            CHECK(pa[a][P_LMEM] == LMEM[a], "test_pieces_memory: %s Memory %d (spec 3.3: %d)", en_piece_name(a),
-                  pa[a][P_LMEM], LMEM[a]);
-        }
-        for (a = 1; a < EN_NPIECES; a += 6)
-            CHECK(pa[a][P_MW0] >= 40 && pa[a][P_MR0] >= 40, "test_pieces_move: %s Drone width %d rate %d",
-                  en_piece_name(a), pa[a][P_MW0], pa[a][P_MR0]);
+        CHECK(tonic >= EN_NPIECES / 2, "test_pieces_double_tonic: %d pieces", tonic);
+        CHECK(jig >= EN_NPIECES / 2, "test_pieces_jig: %d pieces at 12 or 9", jig);
         CHECK(en_param_info(P_ETIME)->def == 3 && en_param_info(P_TAPAT)->def == 1,
               "test_echo_defaults: Echo time %d, Repeat A time %d", en_param_info(P_ETIME)->def,
               en_param_info(P_TAPAT)->def);
@@ -5232,7 +5394,7 @@ int main(void)
         for (i = 0; i < EN_NPIECES; i++) {
             float rms;
             fresh();
-            piece(i);
+            shipped(i);
             en_play(1);
             peak = 0.0f, sum2 = 0.0f, bad = 0;
             run(180.0f);

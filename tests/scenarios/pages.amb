@@ -1,19 +1,19 @@
-# NACHTFAHRT's pages: every button and its presses, each page's knobs as the reader says them (one layout: a layer's main
+# AISLING's pages (NACHTFAHRT's), on Skellig: every button and its presses, each page's knobs as the reader says them (one layout: a layer's main
 # page K1 how much, K2 octave (the Drone: Reso; the Atmosphere: Width), K3 and K4 its own; its sound page brightness,
 # envelope, Reverb, Echo), the voices on ALGORITHM, a knob turned, a layer's level on SELECT
 wait 200
 listen
 wait 300
 expect view 0
-said Aisling page: Filter Off, Evolve 40, Motion 45, Drift
+said Aisling page: Filter Off, Evolve 40, Motion 40, Drift 16 bars
 tap HOME
 wait 300
 expect view 18
-said Key page: Tempo 96, Root D, Mode Minor, Transpose Parallel
+said Key page: Tempo 76, Root D, Mode Minor, Transpose Parallel
 tap ENV
 wait 300
 expect view 1
-said Drone page, voice Organ: Pedal 70, Reso 0, Phaser 60, Attack 40
+said Drone page, voice Organ: Pedal 90, Reso 0, Phaser 15, Attack 40
 tap ENV
 wait 300
 expect view 8
@@ -26,38 +26,38 @@ said Drone move page, voice Organ: Width
 tap ARP
 wait 300
 expect view 2
-said Sequence page, voice 2600: Density 65, Octave 0, Length 16, Grid 16ths
+said Sequence page, voice Pluck: Density 55, Octave 0, Length 12, Grid 16ths
 tap ARP
 wait 300
 expect view 9
-said Seq sound page, voice 2600: Cutoff 45, Decay 35, Reverb 50, Echo 50
+said Seq sound page, voice Pluck: Cutoff 45, Decay 35, Reverb 50, Echo 50
 tap ARP
 wait 300
 expect view 13
-said Repeats page, voice 2600: Repeat A 100, A time 1/8., Repeat B 50, B time 1/4
+said Repeats page, voice Pluck: Repeat A 100, A time 1/8., Repeat B 0, B time 1/4
 tap ARP
 wait 300
 expect view 23
-said Seq move page, voice 2600: Width
+said Seq move page, voice Pluck: Width
 tap ARP
 wait 300
 expect view 2
 tap LFO
 wait 300
 expect view 3
-said Lead page, voice Odyssey: Phrases 50, Octave 0, Glide 25, Vibrato 40
+said Lead page, voice Flute: Phrases 50, Octave 0, Glide 15, Vibrato 30
 tap LFO
 wait 300
 expect view 10
-said Lead sound page, voice Odyssey: Tone 50, Attack 10, Reverb 90, Echo 90
+said Lead sound page, voice Flute: Tone 50, Attack 10, Reverb 90, Echo 90
 tap LFO
 wait 300
 expect view 14
-said Lead move page, voice Odyssey: Width
+said Lead move page, voice Flute: Width
 tap SEQ
 wait 300
 expect view 4
-said Sequence 2 page, voice Moog: Chance 100, Octave -1, Length 15, Level 60
+said Sequence 2 page, voice Moog: Chance 100, Octave -1, Length 7, Level 0
 tap SEQ
 wait 300
 expect view 11
@@ -72,15 +72,15 @@ said Seq2 move page, voice Moog: Width
 tap SAVE
 wait 300
 expect view 19
-said Atmosphere page, character Wind: Density 0, Width 50, Drift 0, Air 0
+said Atmosphere page, character Surf: Density 0, Width 50, Drift 0, Air 0
 tap SAVE
 wait 300
 expect view 21
-said Atmos sound page, character Wind: Colour 0, Ring 50, Reverb 50, Echo 50
+said Atmos sound page, character Surf: Colour 0, Ring 50, Reverb 50, Echo 50
 tap SAVE
 wait 300
 expect view 25
-said Atmos move page, character Wind: Width
+said Atmos move page, character Surf: Width
 tap FX
 wait 300
 expect view 5
@@ -96,21 +96,21 @@ said Setup page: Tune 0, MIDI out On
 tap GLO
 wait 300
 expect view 22
-said Arc page: Lead in 32, Bridge 45, Arc 25, Memory 55
+said Arc page: Lead in 16, Bridge 40, Arc 20, Memory 60
 # a knob on the Arc page: its help line shown as it turns (the review: the Arc's row was missing, NULL)
 turn K1 1
 wait 300
-said Lead in 33
+said Lead in 17
 turn K1 -1
 wait 300
-# (the Lead's memory) the fourth knob: Memory, Timewind's 55, the Lead's own parameter (130)
+# (the Lead's memory) the fourth knob: Memory, Skellig's 60, the Lead's own parameter (130)
 turn K4 1
 wait 300
-said Memory 56
-expect par130 56
+said Memory 61
+expect par130 61
 turn K4 -1
 wait 300
-expect par130 55
+expect par130 60
 # the voices: ALGORITHM on a layer's page
 tap ENV
 wait 300
@@ -122,14 +122,14 @@ tap LFO
 wait 300
 turn ALGO 1
 wait 300
-said VOICE Mini
+said VOICE Theremin
 # a knob: its value said once it settles
 tap ARP
 wait 300
 spin K3 -4
 wait 300
-said Length 12
-expect par28 12
+said Length 8
+expect par28 8
 # a layer's level: SELECT (1 a detent; octsel.amb has the rest)
 expect par1 70
 spin SELECT 5

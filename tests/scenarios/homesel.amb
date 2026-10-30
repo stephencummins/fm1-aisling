@@ -1,6 +1,7 @@
-# (the user, 2026-10-28) SELECT on the Nachtfahrt page (HOME) is Energy, PERFORM's: 1 a detent (the screen shows
+# (the user, 2026-10-28) SELECT on the Aisling page (HOME) is Energy, PERFORM's: 1 a detent (the screen shows
 # twice), its value and a bar on the knobs' rule while it turns, said; not the tempo, not a level; the keys still
-# play the Lead meanwhile; PERFORM's Energy knob shows the same value. Timewind (the tempo 96, the levels 60 70 40 60)
+# play the Lead meanwhile; PERFORM's Energy knob shows the same value. Skellig (the tempo 76, the levels 60 70 40 and
+# Sequence 2 off, 0)
 wait 300
 listen
 expect view 0
@@ -12,11 +13,11 @@ wait 200
 expect mac2 6
 expect emac2 6
 said ENERGY +12
-expect par18 96
+expect par18 76
 expect par0 60
 expect par1 70
 expect par2 40
-expect par3 60
+expect par3 0
 expect view 0
 shot home_energy.png
 wait 400

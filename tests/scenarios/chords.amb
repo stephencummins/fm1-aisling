@@ -11,8 +11,14 @@ expect view 15
 tap EDIT
 wait 200
 expect view 15
-# slot 1: the walk's home chord, Dm7 in D Aeolian (Timewind), as it would be written
-said Chords page, walk Home: Slot 1, Chord Minor, Type 7, Play Endless
+# slot 1: the walk's home chord, Dm7 in D Aeolian (Skellig), as it would be written; (AISLING) Skellig plays its slots
+# in Loop (the double tonic, Dm and C), so Play to Endless first, the walk's eight as NACHTFAHRT's pieces had them
+said Chords page, walk Home: Slot 1, Chord Minor, Type 7, Play Loop
+expect par88 4
+spin K4 -1
+wait 200
+said Play Endless
+expect par88 0
 expect par64 1
 expect par72 0
 expect progpos 0

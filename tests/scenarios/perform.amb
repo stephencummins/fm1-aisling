@@ -1,6 +1,6 @@
 # PERFORM (SEL): white 1-5 mute the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere (their levels kept);
 # white 7-11 held: Sweep, Open, Shut, Drop (both sequences out), Push; SEL or a page's button leaves
-# (on Stratosfear: no Emerge, both sequences from the first bar)
+# (on Blasket, AISLING's: both sequences on, Sequence 2 a quieter echo of the first)
 wait 500
 turn PRESET 4
 wait 300
@@ -39,11 +39,12 @@ tap ENV
 wait 300
 expect view 1
 # (BERLIN) the keys follow the meters, left to right: white 4 Sequence 2 (the 4th meter), white 5 the Atmosphere (the
-# 5th), the other untouched; a solo (black 4: Sequence 2) leaves the Atmosphere out too (Sunrain: Surf, both
-# sequences; Sequence 2 heard: its meter above 2, a moment's reading, which Sunrain's 8/7 caught at 4)
-turn PRESET 1
+# 5th), the other untouched; a solo (black 4: Sequence 2) leaves the Atmosphere out too (Aran, AISLING's: Tape,
+# both sequences, Sequence 2 opening over its first 8 bars; Sequence 2 heard: its meter above 2, a moment's reading,
+# which caught it at 6 and 9)
+turn PRESET -2
 wait 6000
-expect piece 5
+expect piece 2
 tap SEL
 wait 300
 expect view 17

@@ -1,39 +1,39 @@
 # (BERLIN, the Lead's memory, spec 3.5 and 7.3; Part 3, the user: "it basically repeats what I played") the white keys
-# write the theme, and the Lead answers it: Timewind (D Aeolian, 96 BPM: a beat 625 ms) in Emerge, its long intro, the
+# write the theme, and the Lead answers it: Skellig (D Aeolian, 76 BPM: a beat 789 ms) in Emerge, its long intro, the
 # generated Lead silent. Four white keys in a bar, a quarter each (w4 w5 w3 w2: A4 Bb4 G4 F4); two beats after the last
 # is let go the figure is the theme, and a beat or two later (3-4 beats after the last key) the Lead answers it, not
 # playing it back: its rhythm (four quarters), its own notes related to the figure's (review 1: A4 F4 F4 D4, its first
 # a third above the figure's last, three of the four not the figure's in their place), closing on the root, held as the
-# figure's last. Pinned from the MIDI log (the answer at +2033 ms)
+# figure's last. Pinned from the MIDI log (the answer at +2549 ms, 3.2 beats, as Timewind's +2033 at 96 BPM)
 wait 300
 expect pool 1453
 bar 2
 peakreset
 key w4 down
-wait 620
+wait 789
 key w4 up
 key w5 down
-wait 620
+wait 789
 key w5 up
 key w3 down
-wait 620
+wait 789
 key w3 up
 key w2 down
-wait 620
+wait 789
 key w2 up
 expect notes_ch3 4
 expect lastnote_ch3 65
-wait 1800
+wait 2300
 expect notes_ch3 4
-wait 300
+wait 400
 expect notes_ch3 5
 expect lastnote_ch3 69
-wait 625
+wait 789
 expect lastnote_ch3 65
-wait 625
+wait 789
 expect notes_ch3 7
 expect lastnote_ch3 65
-wait 625
+wait 789
 expect lastnote_ch3 62
 expect notes_ch3 8
 # nothing more from the Lead in Emerge

@@ -1,12 +1,18 @@
 # (the voices batch, item 2) Pluck, a plucked string, on both sequences' ALGORITHM: the Sequence's sixth voice (after
 # Glass: one turn back from 2600), Sequence 2's seventh (after Sub, which keeps its place); said, kept in the project,
-# its page shown with it, heard (its strings struck as Timewind plays), and kept over a restart
+# its page shown with it, heard (its strings struck as Skellig plays), and kept over a restart
 wait 300
 listen
 tap ARP
 wait 300
 expect view 2
+# (AISLING) Skellig's harp is Pluck already: one turn back is Glass, one on Pluck again
+expect par33 5
 turn ALGO -1
+wait 300
+said VOICE Glass
+expect par33 4
+turn ALGO 1
 wait 300
 said VOICE Pluck
 expect par33 5
@@ -47,7 +53,7 @@ wait 300
 expect par35 6
 wait 8000
 expect ksstruck >0
-# kept: stopped, it saves itself; the same after a restart (the save's format as it was: 8; Pluck appended, nothing
+# kept: stopped, it saves itself; the same after a restart (the save's format as it was: AISLING's 1; Pluck appended, nothing
 # moved)
 tap PLAY
 wait 6000
@@ -55,6 +61,6 @@ expect dirty 0
 expect store_writes >0
 reboot
 wait 500
-expect format 8
+expect format 1
 expect par33 5
 expect par35 6

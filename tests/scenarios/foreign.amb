@@ -1,10 +1,10 @@
-# a project from another firmware in the flash (DUB-1 1.2.0's, Basic's Stabs set by hand to 77): BERLIN boots on
+# a project from another firmware in the flash (DUB-1 1.2.0's, Basic's Stabs set by hand to 77): AISLING boots on
 # its own recipes and never reads another firmware's values as its own
 storefile tests/host/proj-1.2.0-basic-changed.bin
 reboot
 wait 500
-expect format 8
+expect format 1
 expect piece 0
-# piece 0's value (Length, Timewind's 16), not the 77 that was saved there
-expect par28 16
+# piece 0's value (Length, Skellig's 12), not the 77 that was saved there
+expect par28 12
 expect playing 1

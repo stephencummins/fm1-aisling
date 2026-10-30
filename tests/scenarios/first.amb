@@ -6,11 +6,11 @@ expect piece 0
 expect pool 0x5AD
 wait 6000
 shot dub.png
-# the grid runs (122 BPM is about 8 sixteenths a second; any tempo of 90..140 is over 6)
-expect sixteenths >36
+# the grid runs (Skellig's 76 BPM is about 5 sixteenths a second; any of AISLING's tempos, 60..100, 4 or more)
+expect sixteenths >24
 wait 30000
 shot dub30.png
-expect sixteenths >216
+expect sixteenths >144
 wavstop
 expect peak_db_max -0.5
 expect peak_db_min -30
