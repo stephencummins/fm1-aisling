@@ -407,17 +407,17 @@ are starting points, to be tuned by ear.
 
 Each piece's Lead opens on an air, its first theme: the opening of a public-domain tune, traditional or O'Carolan's,
 from Captain Francis O'Neill's *O'Neill's Music of Ireland* (Chicago, 1903; its number there), in the piece's key
-and mode. Most are in 3/4 or 6/8; the Lead plays them in their own time, so they float across the pieces' 4/4.
+and mode. Most are in 3/4; the Lead plays them in their own time, so they float across the pieces' 4/4.
 
 | # | Piece | Air | O'Neill's |
 |---|---|---|---|
 | 1 | Skellig | O'Carolan's Lament | 69 |
 | 2 | Burren | The Coolin (An Chúileann) | 89 |
-| 3 | Aran | Rory Dall's Sister's Lament | 47 |
-| 4 | Carolan | Planxty Irwin (O'Carolan) | 677 |
+| 3 | Aran | The Dear Irish Boy, from D minor | 73 |
+| 4 | Carolan | Blind Mary (O'Carolan) | 655 |
 | 5 | Blasket | Have You Seen My Valentine? (bars 2 to 4) | 592 |
 | 6 | Samhain | The Little Black Rose (Róisín Dubh), from C minor | 70 |
-| 7 | Connemara | The Pearl of the Flowing Tresses | 284 |
+| 7 | Connemara | Shule Aroon (Siúil a Rún), from A minor | 60 |
 | 8 | Tir na nOg | Ossian's Lament, from G | 132 |
 
 The air is kept with the piece's settings (**Lead air**, on no page). A figure on the keys takes its place, and

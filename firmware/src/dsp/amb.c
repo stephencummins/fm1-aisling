@@ -2061,8 +2061,8 @@ static void ld_reseed(void)                      /* a new piece, or FORGET: new 
 static uint32_t ld_cmask(void);
 /* (AISLING, step 6) the airs: each piece's theme the opening of an air, traditional or O'Carolan's (no arrangement),
  * as printed in O'Neill's Music of Ireland (Chicago, 1903: its number there); in semitones over the piece's root (in
- * its key: every note in the piece's mode, amb_test) and sixteenths (a bar of 3/4 or 6/8 twelve: the air's own time,
- * over the pieces' 4/4). Written into slot 0 as a piece begins (C_REGROW, or at power-on the Lead's first draw,
+ * its key: every note in the piece's mode, amb_test) and sixteenths (a bar of 3/4 twelve, of 2/4 eight: the air's own
+ * time, over the pieces' 4/4). Written into slot 0 as a piece begins (C_REGROW, or at power-on the Lead's first draw,
  * ld_airq; FORGET lets it go) and played as the keys' theme is (LD_PLAYED: the first block, back at the arc's moments
  * at any Memory, the line's ideas its offspring for a while after the Lead comes in), but as written: in the scale's
  * frame, not the chord's (over the bVII as over the I), its notes never varied (a return in a quiet stretch may come
@@ -2078,21 +2078,22 @@ static const struct {
     {{7, 9, 10, 12, 12, 16, 16, 14, 12, 10, 12, 7}, {2, 1, 1, 4, 3, 1, 1, 1, 1, 1, 4, 8}, 12},   /* Burren: The
                                                   * Coolin (89, G, its F naturals: Mixolydian): its pickup and two bars,
                                                   * the D held through the triplet after it */
-    {{0, 2, 0, 2, -2, 0, 2, 5, 7, -5}, {6, 2, 2, 2, 6, 2, 2, 2, 4, 8}, 10},   /* Aran: Rory Dall's Sister's Lament
-                                                  * (47, A Dorian): three bars, the octave down to the fifth */
-    {{7, 12, 11, 9, 11, 12, 7, 5, 4, 2, 0, 5, 2, 4, 5, 7}, {2, 4, 2, 2, 2, 2, 4, 2, 2, 2, 2, 4, 2, 2, 2, 6}, 16},
-                                                 /* Carolan: Planxty Irwin (677, Carolan's, D, 6/8): its pickup and
-                                                  * three bars, the last A held */
+    {{0, 2, 3, 3, 2, 0, 7, 5, 2, 0, 0, 2, 0}, {3, 1, 6, 2, 2, 2, 4, 6, 2, 4, 4, 2, 8}, 13},   /* Aran: The Dear
+                                                  * Irish Boy (73, D minor, here in A, no sixth in these bars): its
+                                                  * pickup and three bars, the last D held */
+    {{7, 12, 12, 11, 9, 7, 4, 5, 7, 9, 7, 4, 2, 4, 5, 7}, {2, 4, 3, 1, 4, 2, 1, 1, 3, 1, 2, 2, 6, 1, 1, 8}, 16},
+                                                 /* Carolan: Blind Mary (655, Carolan's, D, 2/4): its pickup, four
+                                                  * bars and the fifth's first A, held */
     {{0, 0, 2, 3, 2, 0, 0, -2, -5, -5}, {8, 2, 2, 8, 2, 2, 2, 2, 4, 4}, 10},   /* Blasket: Have You Seen My
                                                   * Valentine? (592, E minor, its C sharps Dorian's): its second to
                                                   * fourth bars (the first's D sharp, a leading note, not Dorian's) */
     {{10, 7, 15, 12, 14, 12, 10, 7, 5, 2, 2, 0, 0}, {4, 4, 3, 1, 3, 1, 2, 2, 2, 2, 4, 4, 4}, 13},   /* Samhain: The
                                                   * Little Black Rose, Roisin Dubh (70, C minor, here in B): three bars
                                                   * after its pickup (an A natural) */
-    {{-5, 0, 0, 0, 2, 0, 10, 7, 5, 2, 2, 0, -2}, {4, 4, 4, 3, 1, 8, 2, 2, 4, 4, 3, 1, 8}, 13},   /* Connemara: The
-                                                  * Pearl of the Flowing Tresses (284, G minor): its pickup, three bars
-                                                  * and the fourth's F, no E flat in them (the Hex min's sixth, left
-                                                  * out) */
+    {{0, 2, 3, 3, 2, 2, 0, 2, 0, -2, -5, -2, -2, 0}, {2, 2, 4, 4, 4, 4, 3, 1, 2, 2, 6, 2, 4, 8}, 14},   /* Connemara:
+                                                  * Shule Aroon, Siuil a Run (60, A minor, here in G): its pickup, two
+                                                  * bars and the third's G and A, the A held, no F in them (the Hex
+                                                  * min's sixth, left out) */
     {{0, 2, 4, 2, 4, 2, 0, 2, 0, 0, 2, 4}, {3, 1, 6, 2, 2, 1, 1, 4, 4, 3, 1, 8}, 12},   /* Tir na nOg: Ossian's
                                                   * Lament (132, G, here in D: Oisin back from Tir na nOg): its pickup,
                                                   * two bars, the third's B held */
