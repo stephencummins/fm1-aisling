@@ -1600,8 +1600,11 @@ int main(void)
         CHECK(!strcmp(t, "Organ"), "ctone 0: %s", t);
         en_param_text(P_CVOICE, 1, t);
         CHECK(!strcmp(t, "Strings"), "ctone 1: %s", t);
-        en_param_text(P_CVOICE, 2, t);           /* (the voices batch: the saw through two formants is a Horn now) */
-        CHECK(!strcmp(t, "Horn"), "ctone 2: %s", t);
+        en_param_text(P_CVOICE, 2, t);           /* (the voices batch: the saw through two formants a Horn; AISLING:
+                                                  * the pipes in its place, and the reeds in Saws') */
+        CHECK(!strcmp(t, "Pipes"), "ctone 2: %s", t);
+        en_param_text(P_CVOICE, 3, t);
+        CHECK(!strcmp(t, "Harmonium"), "ctone 3: %s", t);
         /* (the voices batch, item 3) Choir appended as the Drone's sixth voice (after Glass): every voice before it
          * keeps its number, so the pieces and the saves keep their sound */
         en_param_text(P_CVOICE, 4, t);
@@ -2590,6 +2593,66 @@ int main(void)
         en_play(0);
         run(30.0f);
         CHECK(en_ch_ok() && !bad, "test_choir_state: after 30 s stopped not finite, or denormal (bad %d)", bad);
+    }
+
+    /* (AISLING, step 4) Pipes and Harmonium, the Drone's third and fourth voices:
+     * (i) as loud as what each took over from in the pieces, so the Chord levels tuned by ear in step 3 still hold:
+     *     the A-weighted level at Colour -25, 0 and +25, over 8 s of chords changing every two bars, within 1.5 dB of
+     *     Organ's (Pipes: Organ stood in for the pipes under Skellig and Samhain) and of Saws' as shipped in v0.1
+     *     (Harmonium: Saws was Aran's reeds; measured here with the same helper: CV_SAWS);
+     * (ii) Pipes' pedal, its three drones, heard under the chord: at Pedal 100 their A-weighted power 6 to 20 dB below
+     *     the chord's (the chord's four notes the same in both runs, taken away by the difference);
+     * (iii) the state finite, no denormals, the phases in [0, 1), after a minute playing, half a minute at level 0 and
+     *     half a minute stopped */
+    {
+        static const double CV_SAWS[3] = {-37.6, -36.2, -35.6};   /* (v0.1's Saws, dB(A), Colour -25, 0, +25) */
+        static const int VS[3] = {0, 2, 3};
+        static const char *const VN[3] = {"Organ", "Pipes", "Harmonium"};
+        double lv[3][3], a[2];
+        int k, v, p;
+        for (k = 0; k < 3; k++)
+            for (v = 0; v < 3; v++) {
+                ch_solo(VS[v], 25 * (k - 1));
+                en_set(P_DRIFT, 0), en_set(P_ROOT, 5);
+                run(1.5f);
+                at_cap(8.0f);
+                at_spec();
+                lv[k][v] = at_alevel();
+            }
+        for (k = 0; k < 3; k++) {
+            printf("  pipes: Colour %+d: Organ %.1f dB(A), Pipes %.1f, Harmonium %.1f (v0.1's Saws %.1f)\n",
+                   25 * (k - 1), lv[k][0], lv[k][1], lv[k][2], CV_SAWS[k]);
+            CHECK(fabs(lv[k][1] - lv[k][0]) < 1.5 && !bad, "test_pipes_level: Colour %d Pipes %.1f dB(A), Organ %.1f",
+                  25 * (k - 1), lv[k][1], lv[k][0]);
+            CHECK(fabs(lv[k][2] - CV_SAWS[k]) < 1.5 && !bad, "test_harmonium_level: Colour %d %.1f dB(A), Saws %.1f",
+                  25 * (k - 1), lv[k][2], CV_SAWS[k]);
+        }
+        for (p = 0; p < 2; p++) {
+            ch_solo(2, 0);
+            en_set(P_PEDAL, p ? 100 : 0);
+            run(1.5f);
+            at_cap(6.0f);
+            at_spec();
+            a[p] = pow(10.0, at_alevel() / 10.0);
+        }
+        a[1] = 10.0 * log10(fabs(a[1] - a[0]) + 1e-30), a[0] = 10.0 * log10(a[0] + 1e-30);
+        printf("  pipes: at Pedal 100 the drones %.1f dB(A), the chord %.1f\n", a[1], a[0]);
+        CHECK(a[1] < a[0] - 6.0 && a[1] > a[0] - 20.0, "test_pipes_drones: the drones %.1f dB(A), the chord %.1f", a[1],
+              a[0]);
+        for (v = 1; v < 3; v++) {
+            ch_solo(VS[v], 0);
+            run(60.0f);
+            CHECK(en_dr_ok(), "test_pipes_state: %s not finite, or denormal, or a phase out of [0, 1), while playing",
+                  VN[v]);
+            en_set(P_CHORD, 0);
+            run(30.0f);
+            CHECK(en_dr_ok(), "test_pipes_state: %s after 30 s at level 0", VN[v]);
+            en_set(P_CHORD, 80);
+            run(1.0f);
+            en_play(0);
+            run(30.0f);
+            CHECK(en_dr_ok() && !bad, "test_pipes_state: %s after 30 s stopped (bad %d)", VN[v], bad);
+        }
     }
 
     /* (BERLIN) the black keys' Transpose: a written pattern played with Transpose held is the same pattern written three

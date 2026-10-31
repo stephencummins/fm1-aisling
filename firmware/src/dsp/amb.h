@@ -218,6 +218,7 @@ int en_ks_ok(void);                              /* 1: Pluck's strings' float st
 extern volatile float en_ch_vowel;               /* (Choir) the vowel heard: 0 'oo', 1 'oh', 2 'ah', 3 'eh', 4 'ee' */
 extern volatile uint32_t en_ch_work;             /* (Choir) its samples rendered so far */
 int en_ch_ok(void);                              /* 1: Choir's float state finite, no denormals */
+int en_dr_ok(void);                              /* 1: the Drone's voices' float state finite, no denormals */
 float en_ch_gain(float hz);                      /* (Choir) its three formants' gain at hz, as last set */
 int en_atm_ok(void);                             /* 1: the Atmosphere's float state finite, no denormals */
 int en_lead_cap(void);

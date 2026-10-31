@@ -215,7 +215,7 @@ Octave knob shows where it is, and OCT+ or OCT− lights. Turn its Octave knob o
 what you set is its octave again, the move gone; what's saved is always the octave you set.
 
 **The Drone** (ENV; channel 1) holds the chord on two banks of five voices: the chord's four notes and the
-root an octave under (the **Pedal**). Voices: **Organ**, **Strings** (through an ensemble), **Horn** (a saw through two fixed formants), **Saws**,
+root an octave under (the **Pedal**). Voices: **Organ**, **Strings** (through an ensemble), **Pipes** (a piper's chord: each note a narrow double reed through a nasal formant, and the Pedal three drones, bass, baritone and tenor, an octave apart and a few cents out, so they beat slowly), **Harmonium** (two free-reed ranks, one a few cents sharp, on a slow bellows that swells and brightens them),
 **Glass**, **Choir**. The Choir sings a vowel: each note is two voices a little apart, through three formants
 (as a voice's mouth shapes it) and the Strings' ensemble. The vowel moves with the Drone's brightness: **Colour**
 chooses it ('oo' at −25, 'ah' at 0, 'ee' at +25, 'oh' and 'eh' between; past ±25 it only gets darker or
@@ -366,12 +366,12 @@ tonic (the chords swinging between two, a long while each: the Chords page in Lo
 
 | # | Piece | The place | Key, tempo | Harps | Drone | Atmosphere | Chords |
 |---|---|---|---|---|---|---|---|
-| 1 | **Skellig** | Skellig Michael, the rock off Kerry | D minor, 76 | One: 12 sixteenths in threes, every third accented, opening over 8 bars; no Sequence 2 | Organ | Surf | Dm and C in turn, 16 bars each |
+| 1 | **Skellig** | Skellig Michael, the rock off Kerry | D minor, 76 | One: 12 sixteenths in threes, every third accented, opening over 8 bars; no Sequence 2 | Pipes | Surf | Dm and C in turn, 16 bars each |
 | 2 | **Burren** | The Burren, Clare: bare limestone | G major, 84 | Two, of 12 and 11 steps, drifting apart | Choir | Wind | I IV I ii, 16 bars each |
-| 3 | **Aran** | Inis Mór | A Dorian, 96 | A jig's 12 over a slip jig's 9, an octave down; the first straight in | Saws, a reed drone | Tape: a turf fire's crackle | Am and G in turn, 8 bars each |
+| 3 | **Aran** | Inis Mór | A Dorian, 96 | A jig's 12 over a slip jig's 9, an octave down; the first straight in | Harmonium | Tape: a turf fire's crackle | Am and G in turn, 8 bars each |
 | 4 | **Carolan** | Turlough O'Carolan, the blind harper (1670–1738) | D major, 88 | Two, of 16 and 15 sixteenths; the first straight in | Strings | Rain | A planxty's: I IV I V vi IV V I, 8 bars each |
 | 5 | **Blasket** | The Blasket Islands, Kerry, left in 1953 | E Dorian, 70 | Two slow harps of 12 and 11; the second opens over 12 bars, after the first | Choir | Surf | Em and D in turn, 32 bars each |
-| 6 | **Samhain** | The year's dark turn | B minor, 64 | One low harp of 8; Sequence 2 silent | Organ, low, opening over 8 bars | Wind | Bm, G, A, 32 bars each |
+| 6 | **Samhain** | The year's dark turn | B minor, 64 | One low harp of 8; Sequence 2 silent | Pipes, dark, opening over 8 bars | Wind | Bm, G, A, 32 bars each |
 | 7 | **Connemara** | Bog, lake and rain | G hexatonic minor (no sixth), 92 | A slip jig's 9 over 8, an octave down | Organ | Rain | Gm and F in turn, 16 bars each |
 | 8 | **Tir na nOg** | Tír na nÓg, the land of the young over the western sea | D hexatonic major (no seventh), 80 | Two, of 12 and 11 sixteenths | Glass, phased; a long reverb | None | D and G in turn, 16 bars each |
 

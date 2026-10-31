@@ -1,10 +1,15 @@
 # (the voices batch, item 3) Choir, the Drone's formant choir, on its page's ALGORITHM: the Drone's sixth voice (after
-# Glass: one turn back from Organ), Horn still its third; said, kept in the project, heard (its vowel moving as Skellig
-# plays: the Drone's Move page), and kept over a restart
+# Glass: one turn back from Organ), Pipes its third (AISLING: in Horn's place, and Skellig's); said, kept in the
+# project, heard (its vowel moving as Skellig plays: the Drone's Move page), and kept over a restart
 wait 300
 listen
 tap ENV
 wait 300
+expect par22 2
+spin ALGO -2
+wait 300
+said VOICE Organ
+expect par22 0
 turn ALGO -1
 wait 300
 said VOICE Choir
@@ -15,7 +20,19 @@ said VOICE Organ
 expect par22 0
 spin ALGO 2
 wait 300
-said VOICE Horn
+said VOICE Pipes
+expect par22 2
+spin ALGO 1
+wait 300
+said VOICE Harmonium
+expect par22 3
+spin ALGO 2
+wait 300
+said VOICE Choir
+expect par22 5
+spin ALGO -3
+wait 300
+said VOICE Pipes
 expect par22 2
 spin ALGO 3
 wait 300

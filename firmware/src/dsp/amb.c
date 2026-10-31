@@ -81,7 +81,8 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
  * where it plays, as the harper's other hand, an octave down; the Flute (breath, a chiff, overtones low) leading in
  * all eight, louder and busier than NACHTFAHRT's Lead (Lead 76: ~2 dB over the harp; Phrases 90-95 and Lead in 4-8
  * bars, the Intros 8-12 (it waits out Emerge), so it is heard from the first half-minute), its vibrato light; the Drone
- * held under them (~15 dB under the Lead), still standing in for the pipes (the Organ) and the reeds. Every layer's
+ * held under them (~15 dB under the Lead): the pipes' drones (Pipes) under Skellig and Samhain, the reeds (Harmonium)
+ * under Aran (step 4, the Drone's voices: Organ stood in for the pipes, Saws for the reeds). Every layer's
  * level 3 dB under where that balance was first set (Lead 90): the harp's strikes rang into the soft clip, and the
  * effects grid's Reverb on a full piece reached -0.2 dBFS. The Irish of it, besides, in four things: the modes
  * (Major, Mixolydian, Dorian, Minor and the two hexatonics), the drone held under them (Pedal high), the double tonic
@@ -90,10 +91,10 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
  * The Lead dreamy in all of them (its reverb and echo 90, the defaults), the Atmosphere's levels NACHTFAHRT's for the
  * FM-1's speaker (Surf 5, Wind and Rain 7, Tape 10), kept when the layers came 3 dB down (set for the speaker).
  * (Voices: the Sequence's 2600 Moog Synthi Pulse Glass Harp (0..5), Sequence 2's the five, Sub, Harp (0..6);
- *  the Drone's Organ Strings Horn Saws Glass Choir; the Lead's Odyssey Mini Flute Theremin Synthi. Repeat times:
+ *  the Drone's Organ Strings Pipes Harmonium Glass Choir; the Lead's Odyssey Mini Flute Theremin Synthi. Repeat times:
  *  1/8 1/8. 1/4 1/4. 1/2 1 bar. Drift: 2 4 8 16 32 64 bars, Hold. Grid: 8ths, 16ths. Atmosphere: None Wind Surf Space
  *  Air Tape Rain. A walk slot's root: the scale's degree plus one (a hexatonic's bVII its 6); its type the voicing,
- *  1 for the voices that like the 9th (Strings, Saws, Glass: regrow). The moves (filter motion spec 9): MW/MT/MR/MI
+ *  1 for the voices that like the 9th (Strings, Harmonium, Glass: regrow). The moves (filter motion spec 9): MW/MT/MR/MI
  *  a layer's Width, Time, Rate and Intro in bars (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2, 4 Atmosphere; the
  *  Sequence's Width is Sweep); the Lead's Width kept low; Bridge the middle section's move. Memory: how much the Lead
  *  keeps its ideas) */
@@ -103,7 +104,7 @@ static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the
     P_TEMPO, 76, P_ROOT, 2, P_MODE, MODE_AEOLIAN,
     P_SEQ, 44, P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 55, P_SACC0, 0x249, P_DECAY, 80, P_CUTOFF, 55,
     P_SEQ2, 0,
-    P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 90, P_PHASER, 15, P_DRIFT, 3,
+    P_CHORD, 38, P_CVOICE, 2, P_PEDAL, 90, P_PHASER, 15, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
     P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4,
     P_REVERB, 55, P_SIZE, 80,
@@ -168,7 +169,7 @@ static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: 
     P_TEMPO, 64, P_ROOT, 11, P_MODE, MODE_AEOLIAN,
     P_SVOICE, 5, P_SEQOCT, -1, P_SEQLEN, 8, P_DENSITY, 45, P_CUTOFF, 40, P_SWEEP, 55, P_DECAY, 95,
     P_SEQ, 59, P_SEQ2, 0,
-    P_CHORD, 42, P_CVOICE, 0, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
+    P_CHORD, 42, P_CVOICE, 2, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6, P_CR2, 7,
     P_LEAD, 76, P_LVOICE, 2, P_LOCT, -1, P_VIB, 15, P_LDENS, 90, P_LDIN, 8,
     P_NCHAR, 1, P_CRACKLE, 7,
@@ -221,9 +222,9 @@ void en_piece(int i, int16_t *par, uint16_t *pool)
     *pool = EN_MODE_POOL[par[P_MODE]];
 }
 
-const char *const EN_CV_NAME[EN_NCV] = {"Organ", "Strings", "Horn", "Saws", "Glass", "Choir"};   /* (BERLIN: the Drone's;
-                                                 * the voices batch: Horn was Choir, its place kept; the formant Choir
-                                                 * appended: pieces and saves sound the same) */
+const char *const EN_CV_NAME[EN_NCV] = {"Organ", "Strings", "Pipes", "Harmonium", "Glass", "Choir"};   /* (BERLIN: the
+                                                 * Drone's; the voices batch: Horn was Choir, its place kept; the formant
+                                                 * Choir appended; AISLING: Pipes in Horn's place, Harmonium in Saws') */
 const char *const EN_BV_NAME[EN_NBV] = {"Odyssey", "Mini", "Flute", "Theremin", "Synthi"};   /* (BERLIN: the Lead's) */
 const char *const EN_CQ_NAME[EN_NCQ] = {"Empty", "Major", "Minor", "Sus2", "Sus4", "Dim", "Aug"};
 const char *const EN_CX_NAME[EN_NCX] = {"Triad", "6", "7", "Maj7", "9", "11", "Add9"};
@@ -665,6 +666,14 @@ static inline float blep_saw(float t, float dt)
     }
     return y;
 }
+static inline float blep_pulse(float t, float dt, float w)   /* (AISLING) a pulse w of a turn wide, no DC: a saw
+                                                              * less one w on (t in [0, 1)) */
+{
+    float u = t + w;
+    if (u >= 1.0f)
+        u -= 1.0f;
+    return blep_saw(t, dt) - blep_saw(u, dt);
+}
 
 static void svf_coefs(float *c, float f, float k)   /* TPT SVF (Zavalishin): a1, a2, a3, k */
 {
@@ -747,19 +756,22 @@ static int chord_slot = -1;                     /* the slot whose chord sounds (
 /* ------------------------------------------------------------------ the drone --- */
 /* (BERLIN) the Drone: the chord held, its four notes and the root an octave under (a pedal), swelling in over Attack
  * and away over Release; a new chord swells in on the other bank while the old one dies. Its voices: Organ
- * (drawbars), Strings (a saw, into the ensemble), Horn (a saw through two fixed formants, an 'ah': was Choir),
- * Saws (two, apart), Glass (FM), Choir (two saws a note through three moving formants, a vowel, into the ensemble:
- * choir(), below); the bus through the phaser. MIDI channel 1: a chord's notes on as it starts, off as it goes */
+ * (drawbars), Strings (a saw, into the ensemble), Pipes (AISLING, in Horn's place: the chord's notes regulators, a
+ * narrow pulse through a nasal formant; the pedal the three drones, bass, baritone and tenor in octaves, beating),
+ * Harmonium (AISLING, in Saws': two ranks of free reeds, the second a few cents sharp, on a slow bellows), Glass
+ * (FM), Choir (two saws a note through three moving formants, a vowel, into the ensemble: choir(), below); the bus
+ * through the phaser. MIDI channel 1: a chord's notes on as it starts, off as it goes */
 #define NDR 5
 typedef struct {
     uint8_t note;
-    float ph, ph2, dt, gl, gr, s[2], f1[2], f2[2], vp;   /* (vp: Choir's slow drift, its phase) */
+    float ph, ph2, dt, gl, gr, s[2], f1[2], f2[2], vp;   /* (vp: Choir's slow drift, its phase; Pipes' tenor drone's) */
 } drv_t;
 static drv_t drv[2][NDR];
 static uint8_t dr_bank, dr_on[2];
 static uint8_t ch_live;                          /* (Choir, below) 0: from rest (its states cleared, its vowel where it
                                                   * should be) */
 static float dr_lvl[2], dr_up = 0.0001f, dr_down = 0.00005f, ph_depth, ph_lfo, phz[2][6], ph_last[2];
+static float hm_ph, hm_ph2;                      /* (Harmonium) the bellows: two slow turns, a swell from both */
 static uint32_t dr_rng = 0x6A09E667u;
 static float dr_pedal = 0.7f, dr_rev = 1.0f, dr_echo = 1.0f;   /* (the pedal's level; the sends, x1 at 50) */          /* (its own: the voices' phases leave the music's draws alone) */
 
@@ -3856,6 +3868,7 @@ void en_init(void)
     dr_on[0] = dr_on[1] = dr_midi[0] = dr_midi[1] = 0;
     dr_lvl[0] = dr_lvl[1] = 0.0f;
     ch_live = 0;                                 /* (Choir from rest) */
+    hm_ph = hm_ph2 = 0.0f;                       /* (AISLING: the Harmonium's bellows from the top) */
     plate_init();
     for (i = 0; i < TAPE_N; i++)
         tape[i] = 0;
@@ -5099,6 +5112,19 @@ int en_ch_ok(void)                               /* (host tests) Choir's float s
             ok &= ks_fine(ch_s[i][k]);
     return ok;
 }
+int en_dr_ok(void)                               /* (host tests) the Drone's voices' float state: finite, no denormals,
+                                                  * the phases in [0, 1) */
+{
+    int b, i, ok = ks_fine(hm_ph) & ks_fine(hm_ph2) & (hm_ph >= 0.0f && hm_ph < 1.0f) & (hm_ph2 >= 0.0f && hm_ph2 < 1.0f);
+    for (b = 0; b < 2; b++)
+        for (i = 0; i < NDR; i++) {
+            const drv_t *v = &drv[b][i];
+            ok &= ks_fine(v->ph) & ks_fine(v->ph2) & ks_fine(v->vp) & ks_fine(v->s[0]) & ks_fine(v->s[1]) &
+                  ks_fine(v->f1[0]) & ks_fine(v->f1[1]) & (v->ph >= 0.0f && v->ph < 1.0f) &
+                  (v->ph2 >= 0.0f && v->ph2 < 1.0f) & (v->vp >= 0.0f && v->vp < 1.0f);
+        }
+    return ok;
+}
 #endif
 static void ch_gt_init(void)                     /* (once) the level estimate's steps */
 {
@@ -5234,8 +5260,11 @@ static void choir(uint32_t n, float g, const float *c)   /* both banks into drl/
 
 static void render_drone(uint32_t n)
 {
+    static const float P2[EN_NCV] = {1.006f, 1.006f, 2.0016f, 1.003f, 3.5f, 1.006f};   /* (ph2's rate: Pipes' baritone
+                                                  * drone an octave up and a hair sharp, Harmonium's celeste rank) */
     const int cv = cvoice < EN_NCV ? cvoice : 0;
-    const float g = mutes & EN_M_CHORD ? 0.0f : chord_vol * 0.072f, fc = 1800.0f * fm_exp2f(2.0f * rel(P_CCOL)) * fo_mul(FO_DRONE), k = fm_clampf(1.2f - 0.9f * rel(P_CRES), 0.2f, 2.0f);
+    float g = mutes & EN_M_CHORD ? 0.0f : chord_vol * 0.072f, fc = 1800.0f * fm_exp2f(2.0f * rel(P_CCOL)) * fo_mul(FO_DRONE);
+    const float k = fm_clampf(1.2f - 0.9f * rel(P_CRES), 0.2f, 2.0f);
     float c[4], cf1[4], cf2[4];
     uint32_t j;
     int b, i;
@@ -5243,9 +5272,20 @@ static void render_drone(uint32_t n)
         ch_live = 0;                             /* (Choir from rest when it next sounds) */
         return;
     }
+    if (cv == 3) {                               /* Harmonium: the bellows, pumped: the reeds louder and brighter */
+        const float bw = 1.0f + 0.1f * sine(hm_ph) + 0.05f * sine(hm_ph2);
+        g *= bw;
+        fc *= bw * bw;
+        hm_ph += (float)n * (0.13f / EN_SR);      /* (a push in ~8 s, against one in ~21) */
+        if (hm_ph >= 1.0f)
+            hm_ph -= 1.0f;
+        hm_ph2 += (float)n * (0.047f / EN_SR);
+        if (hm_ph2 >= 1.0f)
+            hm_ph2 -= 1.0f;
+    }
     svf_coefs(c, fc, k);
-    svf_coefs(cf1, 650.0f, 0.3f);                /* (Horn: two formants, an 'ah') */
-    svf_coefs(cf2, 1080.0f, 0.35f);
+    svf_coefs(cf1, 1300.0f, 0.7f);               /* (Pipes: the regulators' nasal formant, the drones' buzz) */
+    svf_coefs(cf2, 700.0f, 0.8f);
     for (j = 0; j < n; j++)
         drl[j] = drr[j] = 0.0f;
     if (cv == CV_CHOIR)
@@ -5267,20 +5307,40 @@ static void render_drone(uint32_t n)
                 switch (cv) {
                 case 0: x = organ(v->ph); break;
                 case 1: x = blep_saw(v->ph, v->dt); break;
-                case 2: {
-                    float f1, f2, s0 = blep_saw(v->ph, v->dt);
-                    svf_lp(cf1, v->f1, s0, &f1);
-                    svf_lp(cf2, v->f2, s0, &f2);
-                    x = 1.6f * f1 + 1.2f * f2;
+                case 2: {                        /* Pipes */
+                    float f, s0;
+                    if (i < EN_NPAD) {           /* (a regulator: a double reed, narrow and nasal) */
+                        s0 = blep_pulse(v->ph, v->dt, 0.2f);
+                        svf_lp(cf1, v->f1, s0, &f);
+                        x = 0.62f * (s0 + 0.9f * f);
+                    } else {                     /* (the drones: near-square, cylindrical, bass, baritone, tenor) */
+                        s0 = blep_pulse(v->ph, v->dt, 0.42f) + 0.7f * blep_pulse(v->ph2, 2.0016f * v->dt, 0.42f) +
+                             0.5f * blep_pulse(v->vp, 3.9976f * v->dt, 0.42f);
+                        svf_lp(cf2, v->f1, s0, &f);
+                        x = 0.4f * (s0 + 0.8f * f);
+                        v->vp += 3.9976f * v->dt;
+                        if (v->vp >= 1.0f)
+                            v->vp -= 1.0f;
+                    }
                     break;
                 }
-                case 3: x = 0.6f * (blep_saw(v->ph, v->dt) + blep_saw(v->ph2, v->dt * 1.006f)); break;
+                case 3: {                        /* Harmonium: a free reed, a saw and a pulse in one, two ranks */
+                    float u = v->ph + 0.3f, u2 = v->ph2 + 0.3f;
+                    const float d2 = v->dt * 1.003f;
+                    if (u >= 1.0f)
+                        u -= 1.0f;
+                    if (u2 >= 1.0f)
+                        u2 -= 1.0f;
+                    x = 0.5f * (blep_saw(v->ph, v->dt) - 0.7f * blep_saw(u, v->dt) +
+                                0.7f * (blep_saw(v->ph2, d2) - 0.7f * blep_saw(u2, d2)));
+                    break;
+                }
                 default: x = sine(v->ph + 2.0f + 0.7f * sine(v->ph2)); break;
                 }
                 v->ph += v->dt;
                 if (v->ph >= 1.0f)
                     v->ph -= 1.0f;
-                v->ph2 += cv == 4 ? 3.5f * v->dt : 1.006f * v->dt;
+                v->ph2 += P2[cv] * v->dt;
                 if (v->ph2 >= 1.0f)
                     v->ph2 -= (float)(int)v->ph2;
                 x = svf_lp(c, v->s, x, &bp) * a * (i == EN_NPAD ? dr_pedal : 1.0f);

@@ -13,16 +13,16 @@ said Key page: Tempo 76, Root D, Mode Minor, Transpose Parallel
 tap ENV
 wait 300
 expect view 1
-said Drone page, voice Organ: Pedal 90, Reso 0, Phaser 15, Attack 40
+said Drone page, voice Pipes: Pedal 90, Reso 0, Phaser 15, Attack 40
 tap ENV
 wait 300
 expect view 8
-said Drone sound page, voice Organ: Colour 0, Release 50, Reverb 50, Echo 50
+said Drone sound page, voice Pipes: Colour 0, Release 50, Reverb 50, Echo 50
 # (the filter motion) the layer's button once more: its Move page (Width, Time, Rate, Intro)
 tap ENV
 wait 300
 expect view 12
-said Drone move page, voice Organ: Width
+said Drone move page, voice Pipes: Width
 tap ARP
 wait 300
 expect view 2
@@ -115,7 +115,8 @@ expect par130 60
 # the voices: ALGORITHM on a layer's page
 tap ENV
 wait 300
-turn ALGO 1
+# (AISLING: Skellig's Drone is Pipes, third; Strings is one back)
+turn ALGO -1
 wait 300
 said VOICE Strings
 expect par22 1
