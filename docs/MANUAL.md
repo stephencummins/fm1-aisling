@@ -530,7 +530,7 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
 ### The visualiser
 
 [aisling.stephen8n.com](https://aisling.stephen8n.com) turns the MIDI out into a painting of the west of Ireland: the
-Lead's notes fall into the sky, the Sequence's into the hills, the Drone's into the fields and Sequence 2's into the bog.
+Lead's notes fall into the sky, Sequence 2's into the hills, the Sequence's into the fields and the Drone's into the bog.
 A note's pitch sets how far across it lands, how hard it's played how much paint, and the tempo the wind. Connect the FM-1 by USB, open the
 page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
 **Demo** paints without an FM-1. Paint into it with a finger or the mouse; **Save picture** keeps a still, and
