@@ -1,0 +1,28 @@
+# (AISLING, step 4) the Sequences' new voices in their pieces: Aran (Bouzouki, a Bodhran under it), Blasket
+# (Dulcimers), Samhain (the Bodhran's heartbeat), three minutes of each from its start, no clipping
+wait 300
+expect piece 0
+turn PRESET 2
+wait 300
+expect piece 2
+peakreset
+wav pieces_2_aran.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 2
+wait 300
+expect piece 4
+peakreset
+wav pieces_4_blasket.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 5
+peakreset
+wav pieces_5_samhain.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5

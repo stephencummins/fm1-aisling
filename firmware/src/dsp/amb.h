@@ -177,11 +177,14 @@ void en_midi_out(uint32_t st, uint32_t d1, uint32_t d2);
 /* the voices: each layer's sounds (ALGORITHM on the layer's page) */
 #define EN_NCV 6                         /* (BERLIN) the Drone's voices: Organ, Strings, Horn, Saws, Glass, Choir */
 #define EN_NBV 5
-#define EN_NSV 6                        /* (BERLIN) the Sequence's voices: 2600, Moog, Synthi, Pulse, Glass, Pluck */
-#define EN_NS2V 7                       /* Sequence 2's: the same five, Sub, Pluck (the voices batch: Pluck appended to
-                                         * both, so every saved value keeps its voice; the Sequence's 5 is Pluck,
-                                         * Sequence 2's 5 Sub and 6 Pluck) */
-extern const char *const EN_SV_NAME[EN_NS2V];   /* all seven: 2600 .. Glass, Sub, Pluck (the engine's own numbers) */
+#define EN_NSV 8                        /* (BERLIN) the Sequence's voices: 2600, Moog, Synthi, Pulse, Glass, Harp
+                                         * (Pluck), Bouzouki, Dulcimer */
+#define EN_NS2V 10                      /* Sequence 2's: the same five, Sub, Harp, Bouzouki, Dulcimer, Bodhran (the
+                                         * voices batch: Pluck appended to both, so every saved value keeps its voice;
+                                         * AISLING's step 4 the same: the Sequence's 5..7 are Harp, Bouzouki,
+                                         * Dulcimer, Sequence 2's 5 Sub and 6..9 the Harp .. Bodhran) */
+extern const char *const EN_SV_NAME[EN_NS2V];   /* all ten: 2600 .. Glass, Sub, Harp, Bouzouki, Dulcimer, Bodhran (the
+                                                 * engine's own numbers) */
 extern volatile uint8_t en_seq_len[2];          /* each sequence's return point as it plays (the performer's moves) */
 extern volatile int8_t en_s2oct_shift;          /* Sequence 2's octave away from its knob's (home): -1, 0, 1 (Motion's,
                                                  * at the section changes; the UI shows the knob as home + it) */

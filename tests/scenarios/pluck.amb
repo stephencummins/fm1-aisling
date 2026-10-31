@@ -1,6 +1,7 @@
 # (the voices batch, item 2) Pluck, a plucked string, on both sequences' ALGORITHM: the Sequence's sixth voice (after
-# Glass: one turn back from 2600), Sequence 2's seventh (after Sub, which keeps its place); said, kept in the project,
-# its page shown with it, heard (its strings struck as Skellig plays), and kept over a restart
+# Glass), Sequence 2's seventh (after Sub, which keeps its place); said, kept in the project, its page shown with it,
+# heard (its strings struck as Skellig plays), and kept over a restart. (AISLING, step 4) The voices appended after it:
+# the Sequence's Bouzouki and Dulcimer (one turn back from 2600), Sequence 2's Bouzouki, Dulcimer and Bodhran
 wait 300
 listen
 tap ARP
@@ -24,9 +25,21 @@ said Seq sound page, voice Harp: Cutoff 55, Decay 80, Reverb 50, Echo 50
 shot seqpluck.png
 turn ALGO 1
 wait 300
+said VOICE Bouzouki
+expect par33 6
+turn ALGO 1
+wait 300
+said VOICE Dulcimer
+expect par33 7
+turn ALGO 1
+wait 300
 said VOICE 2600
 expect par33 0
 turn ALGO -1
+wait 300
+said VOICE Dulcimer
+expect par33 7
+turn ALGO -2
 wait 300
 said VOICE Harp
 expect par33 5
@@ -34,6 +47,18 @@ tap SEQ
 wait 300
 expect view 4
 spin ALGO -2
+wait 300
+said VOICE Bodhran
+expect par35 9
+spin ALGO 1
+wait 300
+said VOICE 2600
+expect par35 0
+spin ALGO -1
+wait 300
+said VOICE Bodhran
+expect par35 9
+spin ALGO -3
 wait 300
 said VOICE Harp
 expect par35 6
@@ -45,17 +70,10 @@ spin ALGO 1
 wait 300
 said VOICE Harp
 expect par35 6
-spin ALGO 1
-wait 300
-said VOICE 2600
-expect par35 0
-spin ALGO -1
-wait 300
-expect par35 6
 wait 8000
 expect ksstruck >0
-# kept: stopped, it saves itself; the same after a restart (the save's format as it was: AISLING's 1; Pluck appended, nothing
-# moved)
+# kept: stopped, it saves itself; the same after a restart (the save's format as it was: AISLING's 1; Pluck and step 4's
+# voices appended, nothing moved)
 tap PLAY
 wait 6000
 expect dirty 0

@@ -75,8 +75,9 @@ AISLING starts playing as soon as it's on. A few minutes with it:
    echo, and within the first minute the flute comes in. Nothing is hidden: no layer is turned down behind your back, only filters move. Turn
    MASTER for the volume.
 2. **Try another piece.** Turn PRESETS. Each of the eight has its own key, tempo, voices, sequences and
-   arc. Aran and Carolan start their harps at once; Skellig and Samhain have one harp only, and in
-   Samhain even the drone opens slowly out of the dark.
+   arc. Aran and Carolan start their strings at once (Aran's a bouzouki over a bodhrán); Skellig and Samhain
+   have one harp only (Samhain's over a bodhrán's heartbeat), and in Samhain even the drone opens slowly out of
+   the dark.
 3. **Play the lead.** Press a white key: the lead plays that step of the scale, from the root up, and its
    key lights while it sounds. It glides from note to note, deep in the reverb and the echo. Play three notes or more
    and pause: the lead takes them as its theme, answers you a beat or two later in your rhythm, and brings your
@@ -187,12 +188,15 @@ www.stephen8n.com, and the version at the foot, for a moment. The music starts a
 
 ## 5. The layers
 
-**The Sequence** (ARP; MIDI channel 2) is the heart: in all eight pieces, a harp. Up to 16 steps in the scale, eighths or sixteenths,
+**The Sequence** (ARP; MIDI channel 2) is the heart: in six of the eight pieces a harp (Aran's a bouzouki, Blasket's a dulcimer). Up to 16 steps in the scale, eighths or sixteenths,
 played on a plucked voice: **2600** (a saw), **Moog** (two saws a little apart), **Synthi** (a square),
 **Pulse** (a narrow pulse), **Glass** (an FM bell), each through two low-passes, the second resonant,
 swept down by a short envelope; or **Harp**, a plucked wire string, as on the old Irish harp (Karplus-Strong: a burst of noise ringing round a
 delay line a period long), whose Cutoff is how bright the string is struck and Decay how long it rings (long: a wire string rings on) (in the
-highest octaves, from about C7, a string rings short whatever Decay is set to, as a real one does). The
+highest octaves, from about C7, a string rings short whatever Decay is set to, as a real one does); or **Bouzouki**,
+picked pairs of strings a hair apart, beating slowly as a course does, darker and shorter than the Harp; or
+**Dulcimer**, hammered pairs, bright, with a short clang at the strike (both ring as the Harp does, Cutoff and Decay
+the same; the lowest notes, under about C2, on one string). The
 root step is accented and the others quieter (Accent, on the Pattern page). Density decides how many of the steps sound, the least important dropping out first. Now and then
 (Evolve, Motion) a step changes, a note moves, an octave jumps, the sequence comes round early; it follows the Drone's chord
 (Transpose, on the Key page). Its cutoff wanders slowly over minutes, around the Cutoff you set (its Move page, below; its Width is the
@@ -206,7 +210,9 @@ quarter (1/4.), so Repeat A, a dotted eighth, doesn't land on the echo's first r
 
 **Sequence 2** (SEQ; channel 4) is a second line, by default an octave down and a step shorter (7 against
 8), so the two drift apart and come back together. It has the same voices and **Sub** (a sine and its
-octave below); on ALGORITHM, Harp comes after Sub. Chance thins it at random. Its **Intro** (Move page) opens its filter, from closed, over that many bars: in Blasket
+octave below), and **Bodhran**, the frame drum: each note folded down into the drum's tone (65 to 130 Hz, so the line
+plays the drum's patterns), a slap over it (Cutoff 2 how bright), Decay 2 how long the skin sounds; on ALGORITHM,
+Harp, Bouzouki, Dulcimer and Bodhran come after Sub. Chance thins it at random. Its **Intro** (Move page) opens its filter, from closed, over that many bars: in Blasket
 it comes out of the drone after the Sequence. Motion changes its steps and octave jumps but never its length:
 an 8 against a 7 stays 8 against 7. And with **Motion**, at a change of section, Sequence 2 may move an octave up
 or down from where its Octave knob is set (at the range's ends, the other way), and back at the next change of
@@ -336,7 +342,7 @@ With Motion, PERFORM's **Filter**, **Wet** and **Energy** move on their own, slo
 Motion sets how far: at 100 the full ranges above, at 50 half of them, at 0 none of them moves. Turn one of the
 three knobs (or SELECT on the Aisling page, for Energy) and your value holds until the next change of
 section; then the motion takes over again from your value, gliding back over eight bars, without a jump. Lock
-holds all three where they are. A sequence whose level is 0 (Skellig's and Samhain's Sequence 2) stays silent whatever
+holds all three where they are. A sequence whose level is 0 (Skellig's Sequence 2) stays silent whatever
 Energy does. A new piece, or PLAY from the top, starts the motion from its beginning.
 
 ### The Arc page
@@ -368,14 +374,14 @@ tonic (the chords swinging between two, a long while each: the Chords page in Lo
 |---|---|---|---|---|---|---|---|
 | 1 | **Skellig** | Skellig Michael, the rock off Kerry | D minor, 76 | One: 12 sixteenths in threes, every third accented, opening over 8 bars; no Sequence 2 | Pipes | Surf | Dm and C in turn, 16 bars each |
 | 2 | **Burren** | The Burren, Clare: bare limestone | G major, 84 | Two, of 12 and 11 steps, drifting apart | Choir | Wind | I IV I ii, 16 bars each |
-| 3 | **Aran** | Inis Mór | A Dorian, 96 | A jig's 12 over a slip jig's 9, an octave down; the first straight in | Harmonium | Tape: a turf fire's crackle | Am and G in turn, 8 bars each |
+| 3 | **Aran** | Inis Mór | A Dorian, 96 | A bouzouki's jig of 12 over a bodhrán's slip jig of 9; the bouzouki straight in | Harmonium | Tape: a turf fire's crackle | Am and G in turn, 8 bars each |
 | 4 | **Carolan** | Turlough O'Carolan, the blind harper (1670–1738) | D major, 88 | Two, of 16 and 15 sixteenths; the first straight in | Strings | Rain | A planxty's: I IV I V vi IV V I, 8 bars each |
-| 5 | **Blasket** | The Blasket Islands, Kerry, left in 1953 | E Dorian, 70 | Two slow harps of 12 and 11; the second opens over 12 bars, after the first | Choir | Surf | Em and D in turn, 32 bars each |
-| 6 | **Samhain** | The year's dark turn | B minor, 64 | One low harp of 8; Sequence 2 silent | Pipes, dark, opening over 8 bars | Wind | Bm, G, A, 32 bars each |
+| 5 | **Blasket** | The Blasket Islands, Kerry, left in 1953 | E Dorian, 70 | Two slow dulcimers of 12 and 11; the second opens over 12 bars, after the first | Choir | Surf | Em and D in turn, 32 bars each |
+| 6 | **Samhain** | The year's dark turn | B minor, 64 | One low harp of 8 over a bodhrán's heartbeat of 8 (its first two steps, the rest ghosts) | Pipes, dark, opening over 8 bars | Wind | Bm, G, A, 32 bars each |
 | 7 | **Connemara** | Bog, lake and rain | G hexatonic minor (no sixth), 92 | A slip jig's 9 over 8, an octave down | Organ | Rain | Gm and F in turn, 16 bars each |
 | 8 | **Tir na nOg** | Tír na nÓg, the land of the young over the western sea | D hexatonic major (no seventh), 80 | Two, of 12 and 11 sixteenths | Glass, phased; a long reverb | None | D and G in turn, 16 bars each |
 
-In every piece the Sequence plays the Harp and the Lead is the Flute, coming in within the first minute (Lead in
+In every piece but Aran (Bouzouki) and Blasket (Dulcimer) the Sequence plays the Harp, and the Lead is the Flute, coming in within the first minute (Lead in
 4 to 8 bars); its Width is low, so it stays gentle. Its **Memory** (the Arc page): Skellig 60, Burren 55, Aran 70,
 Carolan 70, Blasket 65, Samhain 40, Connemara 50, Tir na nOg 55 (Aran's and Carolan's flutes hold on to their
 ideas, Samhain's wanders). The keys are the pipes' and the whistle's (D, G, A, E, B). The keys, modes and tempos

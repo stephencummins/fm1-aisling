@@ -293,7 +293,9 @@ static void fresh(void)
 
 /* (BERLIN) a pattern written into the Sequence: len steps, gate bits, the degrees; nothing varies it (Motion and
  * Evolve 0), the chord held (Drift Hold), so every pass is the same */
-static void seq_write(int len, uint16_t gate, const int8_t *degs)
+static void seq_write_l(int l, int len, uint16_t gate, const int8_t *degs);
+static void seq_write(int len, uint16_t gate, const int8_t *degs) { seq_write_l(0, len, gate, degs); }
+static void seq_write_l(int l, int len, uint16_t gate, const int8_t *degs)   /* (l: 1, Sequence 2's) */
 {
     seq_t s;
     int i;
@@ -306,7 +308,7 @@ static void seq_write(int len, uint16_t gate, const int8_t *degs)
     en_set(P_MOTION, 0);
     en_set(P_EVOLVE, 0);
     en_set(P_DRIFT, 6);
-    en_seq_set(0, &s);
+    en_seq_set(l, &s);
 }
 
 /* the sequence's note-ons in sixteenth s: how many, and the first's note and velocity */
@@ -1050,6 +1052,35 @@ static void ks_solo(int v, int oct, int deg, int tune, int decay)
     en_play(1);
 }
 
+/* (AISLING, step 4) ks_solo on either sequence: l 1, Sequence 2 alone (at the Sequence's default level, its filter's
+ * move still: Seq2 width 0), its voice knob v, its octave and Decay 2 */
+static void sq_solo(int l, int v, int oct, int deg, int tune, int decay)
+{
+    int8_t d[16];
+    int k;
+    if (!l) {
+        ks_solo(v, oct, deg, tune, decay);
+        return;
+    }
+    memset(d, 0, sizeof d);
+    d[0] = (int8_t)deg;
+    fresh();
+    en_set(P_CHORD, 0), en_set(P_LEAD, 0), en_set(P_SEQ, 0), en_set(P_CRACKLE, 0);
+    en_set(P_SEQ2, en_param_info(P_SEQ)->def);
+    en_set(P_ECHO, 0), en_set(P_REVERB, 0), en_set(P_CLOUD, 0), en_set(P_TAPA, 0), en_set(P_TAPB, 0);
+    en_set(P_MW3, 0), en_set(P_MI3, 0), en_set(P_TEMPO, 120), en_set(P_ROOT, 0), en_set(P_TRANS, 2);
+    en_set(P_EWIDTH, 0);
+    en_set(P_SEQ2OCT, oct), en_set(P_TUNE, tune), en_set(P_S2DEC, decay), en_set(P_S2VOICE, v);
+    seq_write_l(1, 16, 1u, d);
+    for (k = 0; k < 40; k++) {
+        peak = 0.0f;
+        run(0.5f);
+        if (peak < 1e-5f)
+            break;
+    }
+    en_play(1);
+}
+
 /* secs played, the output (mono, the two sides' mean) into x (at most max samples): how many */
 static int run_cap(float secs, float *x, int max)
 {
@@ -1365,6 +1396,20 @@ static double at_alevel(void)                    /* the level heard: the two sid
         a += at_pw[i] * aw2((double)i * 44100.0 / AT_FN), all += at_pw[i];
     return 10.0 * log10(at_ms + 1e-300) + 10.0 * log10(a / (all + 1e-300) + 1e-300);
 }
+/* (AISLING, step 4) a note's first 186 ms (x from its onset, AT_FN samples; the ear's integration) heard: dB(A), and
+ * its unweighted level into *flat */
+static double at_strike(const float *x, double *flat)
+{
+    double s = 0.0;
+    int i;
+    for (i = 0; i < AT_FN; i++)
+        at_x[i] = x[i], s += (double)x[i] * (double)x[i];
+    at_n = AT_FN;
+    at_ms = s / AT_FN;
+    at_spec();
+    *flat = 10.0 * log10(at_ms + 1e-300);
+    return at_alevel();
+}
 static double at_corr(const double *a, const double *b, int n)   /* (Pearson's) */
 {
     double ma = 0.0, mb = 0.0, sab = 0.0, saa = 0.0, sbb = 0.0;
@@ -1630,13 +1675,29 @@ int main(void)
         en_param_text(P_SVOICE, 4, t);
         CHECK(!strcmp(t, "Glass"), "seq voice 4: %s", t);
         en_param_text(P_SVOICE, 5, t);
-        CHECK(!strcmp(t, "Harp") && en_param_info(P_SVOICE)->hi == 5, "test_pluck_listed: seq voice 5 %s, hi %d", t,
-              en_param_info(P_SVOICE)->hi);
+        CHECK(!strcmp(t, "Harp"), "test_pluck_listed: seq voice 5 %s", t);
         en_param_text(P_S2VOICE, 5, t);
         CHECK(!strcmp(t, "Sub"), "seq2 voice 5: %s", t);
         en_param_text(P_S2VOICE, 6, t);
-        CHECK(!strcmp(t, "Harp") && en_param_info(P_S2VOICE)->hi == 6, "test_pluck_listed: seq2 voice 6 %s, hi %d", t,
-              en_param_info(P_S2VOICE)->hi);
+        CHECK(!strcmp(t, "Harp"), "test_pluck_listed: seq2 voice 6 %s", t);
+        {                                        /* (AISLING, step 4) Bouzouki and Dulcimer appended to both, Bodhran
+                                                  * to Sequence 2's: the voices before them keep their numbers */
+            static const char *const S[3] = {"Harp", "Bouzouki", "Dulcimer"};
+            static const char *const S2[4] = {"Harp", "Bouzouki", "Dulcimer", "Bodhran"};
+            int i;
+            for (i = 0; i < 3; i++) {
+                en_param_text(P_SVOICE, 5 + i, t);
+                CHECK(!strcmp(t, S[i]), "test_voices_listed: seq voice %d %s (%s)", 5 + i, t, S[i]);
+            }
+            for (i = 0; i < 4; i++) {
+                en_param_text(P_S2VOICE, 6 + i, t);
+                CHECK(!strcmp(t, S2[i]), "test_voices_listed: seq2 voice %d %s (%s)", 6 + i, t, S2[i]);
+            }
+            CHECK(en_param_info(P_SVOICE)->hi == 7 && en_param_info(P_S2VOICE)->hi == 9,
+                  "test_voices_listed: hi %d, %d (7, 9)", en_param_info(P_SVOICE)->hi, en_param_info(P_S2VOICE)->hi);
+            en_param_text(P_SVOICE, 3, t);
+            CHECK(!strcmp(t, "Pulse"), "test_voices_listed: seq voice 3 %s (Pulse, kept)", t);
+        }
         en_param_text(P_CATT, 40, t);
         CHECK(!strcmp(t, "40"), "attack 40, unsigned: %s", t);
         en_param_text(P_LOCT, 1, t);
@@ -2423,6 +2484,225 @@ int main(void)
               (double)sl[1][0], (double)sl[0][2], (double)sl[1][2]);
         CHECK(st[0] <= 1.5f * st[1] + 0.002f, "test_pluck_steal: a voice taken at %.5f (the oscillators' %.5f)",
               (double)st[0], (double)st[1]);
+    }
+
+    /* (AISLING, step 4) the Sequences' new voices, appended (Synthi and Pulse kept: NACHTFAHRT's pieces, and the saves,
+     * play them): Bouzouki and Dulcimer, two strings a note (ks2_strike), Bodhran, Sequence 2's frame drum. The strings
+     * as the Harp: (i) in tune, 24 .. 108 (the two strings either side of the note: the ear hears their middle, so
+     * within 3 cents, over 20 periods or 100 ms, the longer: up high a longer window parts the two, and finds the
+     * louder); (ii) Decay their ring (amb.c's KS2_RING, 2.5 and 4, times the other voices' T60 at note 48); (iii)
+     * heard as loud as the Harp in its first 186 ms (dB(A)), within 2 dB, and its power (the Harp's measure) never
+     * more than 3 dB over (the mix's room: a bright voice heard as loud has less); (iv) the state finite after the
+     * lowest notes and 30 s of silence. The drum: (v) the note folded into its
+     * 65 .. 130 Hz, in tune once its strike's pitch has fallen, higher at the strike; (vi) Decay 2 how long the skin
+     * sounds (the other voices' T60: the slap on top of it shortens what's measured); (vii) heard about as loud as the
+     * Harp on Sequence 2 (186 ms, within 3 dB(A) of the Harp's middle over the four octaves: the drum's pitch folds,
+     * so it doesn't follow them; unweighted, never more than 4 dB over); its state finite. Then
+     * (viii) both sequences crowded as the Harp's test: the notes paired, the mix within -3 / +6 dB of the
+     * oscillators', no voice taken with a step the oscillators' don't leave */
+    {
+        static float x[4 * 44100];
+        static const int OCT[10] = {-2, -2, -1, -1, 1, 1, 2, 2, 2, 2}, DEG[10] = {0, 0, 0, 5, 0, 5, 0, 7, 14, 21},
+                         TUNE[10] = {-50, 0, 0, 0, 0, 50, 0, 0, 0, 0};
+        static const char *const VN[3] = {"Harp", "Bouzouki", "Dulcimer"};
+        static const float RING[3] = {6.0f, 2.5f, 4.0f};
+        float lv[5][3], t60[2];
+        double ha[5][3], hf;
+        int k, n, on, v;
+        for (v = 1; v < 3; v++)                  /* (i) */
+            for (k = 0; k < 10; k++) {
+                const uint32_t s0 = en_ks_struck;
+                float f, p, c;
+                int note;
+                ks_solo(5 + v, OCT[k], DEG[k], TUNE[k], 100);
+                n = run_cap(1.2f, x, 2 * 44100);
+                on = ks_onset(x, n);
+                note = sq_n ? sq_note[0] : -1;
+                f = 440.0f * powf(2.0f, ((float)note - 69.0f) / 12.0f + (float)TUNE[k] / 1200.0f);
+                p = on >= 0 ? dft_pitch(x + on, (int)fminf((float)(n - on), fmaxf(4410.0f, 20.0f * 44100.0f / f)), f)
+                            : 0.0f;
+                c = p > 0.0f ? 1200.0f * log2f(p / f) : 999.0f;
+                printf("  %s: note %d%+d cents (%.3f Hz): heard at %.3f Hz, %+.2f cents\n", VN[v], note, TUNE[k],
+                       (double)f, (double)p, (double)c);
+                CHECK(en_ks_struck > s0 && fabsf(c) < 3.0f && !bad,
+                      "test_strings_pitch: %s note %d%+d cents %+.2f cents off (struck %u, bad %d)", VN[v], note,
+                      TUNE[k], (double)c, en_ks_struck - s0, bad);
+            }
+        for (v = 1; v < 3; v++) {                /* (ii) */
+            for (k = 0; k < 2; k++) {
+                const float nom = RING[v] * 1.5f * 0.08f * powf(2.0f, 0.0164f * (float)(k ? 100 : 0));
+                ks_solo(5 + v, 0, 0, 0, k ? 100 : 0);
+                n = run_cap(3.0f, x, 4 * 44100);
+                on = ks_onset(x, n);
+                t60[k] = on >= 0 ? ks_t60(x + on, n - on) : 0.0f;
+                printf("  %s: Decay %d: T60 %.3f s (the other voices' x%.1f: %.3f)\n", VN[v], k ? 100 : 0,
+                       (double)t60[k], (double)RING[v], (double)nom);
+                CHECK(t60[k] > 0.6f * nom && t60[k] < 1.25f * nom, "test_strings_decay: %s Decay %d T60 %.3f s (%.3f)",
+                      VN[v], k ? 100 : 0, (double)t60[k], (double)nom);
+            }
+            CHECK(t60[1] > 2.3f * t60[0] && t60[1] < 4.0f * t60[0], "test_strings_decay: %s 100 over 0 x%.2f (x3.1)",
+                  VN[v], (double)(t60[1] / fmaxf(t60[0], 1e-6f)));
+        }
+        for (k = 0; k < 5; k++) {                /* (iii) notes 24 .. 72 */
+            for (v = 0; v < 3; v++) {
+                double e = 0.0;
+                float t;
+                int i;
+                ks_solo(5 + v, k - 2, 0, 0, 35);
+                n = run_cap(3.0f, x, 4 * 44100);
+                on = ks_onset(x, n);
+                for (i = on; on >= 0 && i < n; i++)
+                    e += (double)x[i] * (double)x[i];
+                t = on >= 0 ? ks_t60(x + on, n - on) : 0.0f;
+                lv[k][v] = (float)(10.0 * log10(e / (double)fmaxf(t, 1e-3f) + 1e-30));
+                ha[k][v] = on >= 0 && on + AT_FN <= n ? at_strike(x + on, &hf) : -999.0;
+            }
+            printf("  strings: note %d, the strike's power: Harp %.1f dB, Bouzouki %.1f, Dulcimer %.1f; heard Harp "
+                   "%.1f dB(A), Bouzouki %.1f, Dulcimer %.1f\n", 48 + 12 * (k - 2), (double)lv[k][0],
+                   (double)lv[k][1], (double)lv[k][2], ha[k][0], ha[k][1], ha[k][2]);
+            for (v = 1; v < 3; v++) {
+                CHECK(lv[k][v] < lv[k][0] + 3.0f, "test_strings_level: note %d %s %.1f dB, Harp %.1f dB",
+                      48 + 12 * (k - 2), VN[v], (double)lv[k][v], (double)lv[k][0]);
+                CHECK(fabs(ha[k][v] - ha[k][0]) < 2.0, "test_strings_heard: note %d %s %.1f dB(A), Harp %.1f",
+                      48 + 12 * (k - 2), VN[v], ha[k][v], ha[k][0]);
+            }
+        }
+        for (v = 1; v < 3; v++) {                /* (iv) */
+            ks_solo(5 + v, -2, 0, 0, 100);
+            en_set(P_DENSITY, 100);
+            run(3.0f);
+            CHECK(en_ks_ok(), "test_strings_state: %s not finite, or denormal, while playing", VN[v]);
+            en_play(0);
+            run(30.0f);
+            CHECK(en_ks_ok() && !bad, "test_strings_state: %s after 30 s of silence (bad %d)", VN[v], bad);
+        }
+    }
+    /* (AISLING, step 4) the strings in their pieces as loud as the Harp there: Aran's Bouzouki and Blasket's Dulcimer,
+     * the piece's first 16 s A-weighted within 2 dB of the same piece with the Harp on the Sequence. The notes above
+     * are at the knob's Cutoff; a piece's filter motion closes it far under the knob's range (Blasket's opens from
+     * ~10 Hz), where a narrow hammer's burst, mostly harmonics, lost 7 dB that the Harp's triangle didn't (ks2_fill) */
+    {
+        static const int PC[2] = {2, 4}, SV[2] = {6, 7};
+        static const char *const PN[2] = {"Aran's Bouzouki", "Blasket's Dulcimer"};
+        double a[2];
+        int k, v;
+        for (k = 0; k < 2; k++) {
+            for (v = 0; v < 2; v++) {
+                int16_t pp[P_NPARAMS];
+                uint16_t pl;
+                fresh();
+                en_piece(PC[k], pp, &pl);
+                pp[P_SVOICE] = (int16_t)(v ? SV[k] : 5);
+                apply(pp, pl);
+                en_play(1);
+                at_cap(16.0f);
+                at_spec();
+                a[v] = at_alevel();
+            }
+            printf("  strings: %s, the first 16 s %.1f dB(A), with the Harp %.1f\n", PN[k], a[1], a[0]);
+            CHECK(fabs(a[1] - a[0]) < 2.0 && !bad, "test_strings_pieces: %s %.1f dB(A), with the Harp %.1f", PN[k],
+                  a[1], a[0]);
+        }
+    }
+    {
+        static float x[2 * 44100];
+        static const int OCT[5] = {-2, -1, 0, 1, 1}, DEG[5] = {0, 3, 1, 4, 6};
+        float t60[2];
+        double ha[4][2], hf[4][2], ma = 0.0, mf = 0.0;
+        int k, n, on, v;
+        for (k = 0; k < 5; k++) {                /* (v) */
+            float f, p, c;
+            int note, early, late, i;
+            sq_solo(1, 9, OCT[k], DEG[k], 0, 35);
+            n = run_cap(1.0f, x, 2 * 44100);
+            on = ks_onset(x, n);
+            note = s2_n ? s2_note[0] : -1;
+            f = 440.0f * powf(2.0f, ((float)note - 69.0f) / 12.0f);
+            while (f >= 130.0f)
+                f *= 0.5f;
+            while (f < 65.0f)
+                f *= 2.0f;
+            p = on >= 0 ? dft_pitch(x + on + 2646, 8820, f) : 0.0f;   /* (60 .. 260 ms: the pitch fallen) */
+            c = p > 0.0f ? 1200.0f * log2f(p / f) : 999.0f;
+            for (i = 1, early = late = 0; on >= 0 && i < 882; i++) {   /* (the first 20 ms against 100 .. 120 ms) */
+                early += (x[on + i] > 0.0f) != (x[on + i - 1] > 0.0f);
+                late += (x[on + 4410 + i] > 0.0f) != (x[on + 4410 + i - 1] > 0.0f);
+            }
+            printf("  bodhran: note %d (%.2f Hz folded): heard at %.2f Hz, %+.1f cents; crossings %d in its first 20 "
+                   "ms, %d at 100 ms\n", note, (double)f, (double)p, (double)c, early, late);
+            CHECK(fabsf(c) < 10.0f && !bad, "test_bodhran_pitch: note %d %+.1f cents off %.2f Hz (bad %d)", note,
+                  (double)c, (double)f, bad);
+        }
+        for (k = 0; k < 2; k++) {                /* (vi) */
+            const float nom = 1.5f * 0.08f * powf(2.0f, 0.0164f * (float)(k ? 100 : 0));
+            sq_solo(1, 9, 0, 0, 0, k ? 100 : 0);
+            n = run_cap(1.5f, x, 2 * 44100);
+            on = ks_onset(x, n);
+            t60[k] = on >= 0 ? ks_t60(x + on, n - on) : 0.0f;
+            printf("  bodhran: Decay 2 %d: T60 %.3f s (the other voices' %.3f)\n", k ? 100 : 0, (double)t60[k],
+                   (double)nom);
+            CHECK(t60[k] > 0.6f * nom && t60[k] < 1.25f * nom, "test_bodhran_decay: Decay 2 %d T60 %.3f s (%.3f)",
+                  k ? 100 : 0, (double)t60[k], (double)nom);
+        }
+        for (k = 0; k < 4; k++) {                /* (vii) the Seq2 octaves */
+            for (v = 0; v < 2; v++) {
+                sq_solo(1, v ? 9 : 6, k - 2, 0, 0, 35);
+                n = run_cap(1.0f, x, 2 * 44100);
+                on = ks_onset(x, n);
+                ha[k][v] = on >= 0 && on + AT_FN <= n ? at_strike(x + on, &hf[k][v]) : -999.0;
+            }
+            ma += 0.25 * ha[k][0];
+            mf += 0.25 * hf[k][0];
+            printf("  bodhran: Seq2 oct %+d: heard %.1f dB(A), %.1f dB (the Harp's %.1f dB(A), %.1f dB)\n", k - 2,
+                   ha[k][1], hf[k][1], ha[k][0], hf[k][0]);
+        }
+        for (k = 0; k < 4; k++)
+            CHECK(fabs(ha[k][1] - ma) < 3.0 && hf[k][1] < mf + 4.0,
+                  "test_bodhran_level: Seq2 oct %+d %.1f dB(A), %.1f dB; the Harp's middle %.1f dB(A), %.1f dB", k - 2,
+                  ha[k][1], hf[k][1], ma, mf);
+        sq_solo(1, 9, -2, 0, 0, 100);
+        en_set(P_DENSITY, 100);
+        run(3.0f);
+        CHECK(en_ks_ok(), "test_bodhran_state: not finite, or denormal, while playing");
+        en_play(0);
+        run(30.0f);
+        CHECK(en_ks_ok() && !bad, "test_bodhran_state: after 30 s of silence (bad %d)", bad);
+    }
+    {                                            /* (viii) */
+        static const int SV[3] = {0, 6, 7}, S2V[3] = {1, 9, 8};
+        static const char *const KN[3] = {"2600/Moog", "Bouzouki/Bodhran", "Dulcimer/Dulcimer"};
+        float st[3], sl[3][3];
+        int k;
+        for (k = 0; k < 3; k++) {
+            static int was[2][128];
+            int c, nt, stuck = 0;
+            fresh();
+            memcpy(was[0], sounding[1], sizeof was[0]);
+            memcpy(was[1], sounding[3], sizeof was[1]);
+            en_set(P_SVOICE, SV[k]), en_set(P_S2VOICE, S2V[k]);
+            en_set(P_SEQ, 70), en_set(P_SEQ2, 60), en_set(P_DENSITY, 100), en_set(P_TAPA, 100), en_set(P_TAPB, 100);
+            en_set(P_TAPAT, 0), en_set(P_TEMPO, 160), en_set(P_DECAY, 100), en_set(P_S2DEC, 100);
+            en_set(P_SEQOCT, 1);
+            en_pl_steal = 0.0f;
+            en_play(1);
+            run_lvl(10.0f, &sl[k][0], &sl[k][1], &sl[k][2]);
+            st[k] = en_pl_steal;
+            en_play(0);
+            run(6.0f);
+            for (c = 1; c < 4; c += 2)
+                for (nt = 0; nt < 128; nt++)
+                    stuck += sounding[c][nt] != was[c >> 1][nt];
+            printf("  step 4 voices crowded, %s: a voice taken at %.5f at most; the mix %.1f dB, peak %.3f, over 0.9 "
+                   "%.5f\n", KN[k], (double)st[k], (double)sl[k][0], (double)sl[k][1], (double)sl[k][2]);
+            CHECK(!stuck && !bad, "test_strings_notes (%s): %d notes not paired (bad %d)", KN[k], stuck, bad);
+            if (k) {
+                CHECK(sl[k][0] > sl[0][0] - 3.0f && sl[k][0] < sl[0][0] + 6.0f && sl[k][2] <= sl[0][2] + 0.001f,
+                      "test_strings_crowded: %s the mix %.1f dB (oscillators %.1f), over 0.9 %.5f (%.5f)", KN[k],
+                      (double)sl[k][0], (double)sl[0][0], (double)sl[k][2], (double)sl[0][2]);
+                CHECK(st[k] <= 1.5f * st[0] + 0.002f, "test_strings_steal: %s a voice taken at %.5f (the oscillators' "
+                      "%.5f)", KN[k], (double)st[k], (double)st[0]);
+            }
+        }
     }
 
     /* (the voices batch, item 3) Choir: the Drone's formant choir, the Drone alone, about two and a half minutes of
@@ -5474,8 +5754,10 @@ int main(void)
                 int three = 0, i;
                 for (i = 0; i < len && i < 16; i += 3)
                     three |= 1 << i;
-                CHECK(!acc || acc == three, "test_pieces_pulse: %s Sequence %d's accents %x, not every third of %d (%x)",
-                      nm, l + 1, acc, len, three);
+                CHECK(!acc || acc == three || (l && pa[a][P_S2VOICE] == 9 && acc == 0x03),   /* (or the Bodhran's
+                                                  * heartbeat, its first two steps, AISLING's step 4) */
+                      "test_pieces_pulse: %s Sequence %d's accents %x, not every third of %d (%x)", nm, l + 1, acc, len,
+                      three);
             }
             for (moves = 0, l = 0; l < 5; l++)
                 moves += pa[a][MW[l]] > 0 && pa[a][MR[l]] > 0;

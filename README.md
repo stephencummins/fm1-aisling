@@ -57,10 +57,10 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 |---|---|---|---|---|
 | 1 | Skellig | Skellig Michael, off Kerry | D minor, 76 | An organ drone, one harp in a jig's threes, the surf; Dm and C in turn |
 | 2 | Burren | The Burren, Clare | G major, 84 | A choir, two harps of 12 and 11 drifting apart, the wind |
-| 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a jig's 12 over a slip jig's 9, a turf fire's crackle; Am and G in turn |
+| 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a bouzouki's jig of 12 over a bodhrán's slip jig of 9, a turf fire's crackle; Am and G in turn |
 | 4 | Carolan | Turlough O'Carolan, the harper | D major, 88 | Strings, two harps of 16 and 15, rain, a planxty's chords |
-| 5 | Blasket | The Blasket Islands, Kerry | E Dorian, 70 | A choir, slow harps, the flute's slow air over the surf; Em and D in turn |
-| 6 | Samhain | The year's dark turn | B minor, 64 | A low, beating organ, one low harp, a low flute, the wind |
+| 5 | Blasket | The Blasket Islands, Kerry | E Dorian, 70 | A choir, slow dulcimers, the flute's slow air over the surf; Em and D in turn |
+| 6 | Samhain | The year's dark turn | B minor, 64 | A low, beating organ, one low harp over a bodhrán's heartbeat, a low flute, the wind |
 | 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a slip jig's 9 over 8, rain; Gm and F in turn |
 | 8 | Tir na nOg | The land of the young, over the western sea | D hexatonic major, 80 | A phased glass drone, two harps, a long reverb; D and G in turn |
 

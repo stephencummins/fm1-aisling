@@ -90,7 +90,8 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
  * (Sequence lengths 12 and 9, and the pulse: Accents every third step, played in Auto, seq_pulse).
  * The Lead dreamy in all of them (its reverb and echo 90, the defaults), the Atmosphere's levels NACHTFAHRT's for the
  * FM-1's speaker (Surf 5, Wind and Rain 7, Tape 10), kept when the layers came 3 dB down (set for the speaker).
- * (Voices: the Sequence's 2600 Moog Synthi Pulse Glass Harp (0..5), Sequence 2's the five, Sub, Harp (0..6);
+ * (Voices: the Sequence's 2600 Moog Synthi Pulse Glass Harp Bouzouki Dulcimer (0..7), Sequence 2's the five, Sub,
+ *  Harp, Bouzouki, Dulcimer, Bodhran (0..9);
  *  the Drone's Organ Strings Pipes Harmonium Glass Choir; the Lead's Odyssey Mini Flute Theremin Synthi. Repeat times:
  *  1/8 1/8. 1/4 1/4. 1/2 1 bar. Drift: 2 4 8 16 32 64 bars, Hold. Grid: 8ths, 16ths. Atmosphere: None Wind Surf Space
  *  Air Tape Rain. A walk slot's root: the scale's degree plus one (a hexatonic's bVII its 6); its type the voicing,
@@ -123,12 +124,12 @@ static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limesto
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
     P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
-static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a harp in a jig's threes over a slip
-                                                * jig's nine an octave down, a bright flute, a turf fire (Tape's
+static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a bouzouki in a jig's threes over a
+                                                * bodhran's slip jig of nine, a bright flute, a turf fire (Tape's
                                                 * crackle); Am and G in turn, eight bars each */
     P_TEMPO, 96, P_ROOT, 9, P_MODE, MODE_DORIAN,
-    P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
-    P_SEQ, 59, P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 80, P_MI3, 8,
+    P_SVOICE, 6, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
+    P_SEQ, 59, P_SEQ2, 35, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 80, P_MI3, 8,
     P_CHORD, 46, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
     P_LEAD, 76, P_LVOICE, 2, P_LTONE, 60, P_VIB, 10, P_GLIDE, 10, P_LDENS, 95, P_LDIN, 4,
@@ -149,12 +150,12 @@ static const int16_t PC_CAROLAN[] = {         /* Turlough O'Carolan, the harper 
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 20, P_MR0, 25, P_SWEEP, 40, P_MR1, 30, P_MW4, 25, P_MR4, 20,
     P_ARC, 25, P_MOTION, 50, P_LMEM, 70, -1};
-static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, left in 1953: a choir over E, slow harps
-                                                * in threes, a flute's slow air over the surf; Em and D in turn,
-                                                * thirty-two bars each */
+static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, left in 1953: a choir over E, slow
+                                                * dulcimers in threes, a flute's slow air over the surf; Em and D in
+                                                * turn, thirty-two bars each */
     P_TEMPO, 70, P_ROOT, 4, P_MODE, MODE_DORIAN,
-    P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 40, P_SACC0, 0x249, P_DECAY, 90,
-    P_SEQ, 59, P_SEQ2, 46, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 90, P_MI3, 12,
+    P_SVOICE, 7, P_SEQLEN, 12, P_DENSITY, 40, P_SACC0, 0x249, P_DECAY, 90,
+    P_SEQ, 59, P_SEQ2, 46, P_S2VOICE, 8, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 90, P_MI3, 12,
     P_TAPB, 50, P_TAPBT, 4,
     P_CHORD, 50, P_CVOICE, 5, P_PEDAL, 85, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
@@ -164,11 +165,12 @@ static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, lef
     P_MW0, 35, P_MT0, 60, P_MR0, 30, P_MW4, 30, P_MR4, 25, P_BRIDGE, 35,
     P_MI1, 8, P_ARC, 20, P_MOTION, 35, P_LMEM, 65, -1};
 static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: a low drone on B beating, a low harp of
-                                                * eight, a low whistle an octave down, the wind; Bm, G, A, thirty-two
-                                                * bars each (Sequence 2 silent: the bodhran's place) */
+                                                * eight over a bodhran's heartbeat (its first two steps of eight, the
+                                                * rest ghosts), a low whistle an octave down, the wind; Bm, G, A,
+                                                * thirty-two bars each */
     P_TEMPO, 64, P_ROOT, 11, P_MODE, MODE_AEOLIAN,
     P_SVOICE, 5, P_SEQOCT, -1, P_SEQLEN, 8, P_DENSITY, 45, P_CUTOFF, 40, P_SWEEP, 55, P_DECAY, 95,
-    P_SEQ, 59, P_SEQ2, 0,
+    P_SEQ, 59, P_SEQ2, 40, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_SACC1, 0x03, P_S2DEC, 60,
     P_CHORD, 42, P_CVOICE, 2, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6, P_CR2, 7,
     P_LEAD, 76, P_LVOICE, 2, P_LOCT, -1, P_VIB, 15, P_LDENS, 90, P_LDIN, 8,
@@ -253,14 +255,18 @@ static char *itoa_s(int v, char *b)
 }
 
 /* (the voices batch) a sequence's voice knob (l: 0 the Sequence, 1 Sequence 2) as the engine's voice, EN_SV_NAME's
- * index: Pluck was appended to both lists, so the Sequence's 5 is Pluck (6 here) where Sequence 2's 5 is Sub; a value
- * out of range: 2600 */
-#define SV_PLUCK 6
+ * index: Pluck was appended to both lists, so the Sequence's 5 is Pluck (6 here) where Sequence 2's 5 is Sub; (AISLING,
+ * step 4) Bouzouki and Dulcimer appended to both after it, Bodhran to Sequence 2's: the Sequence's 5..7 are 6..8 here;
+ * a value out of range: 2600. From SV_PLUCK on, the voices with no oscillator (render_plucks) */
+#define SV_PLUCK 6                               /* (the Harp) */
+#define SV_BOUZ 7
+#define SV_DULC 8
+#define SV_BODH 9
 static int sv_of(int l, int v)
 {
     if (l)
         return (unsigned)v < EN_NS2V ? v : 0;
-    return (unsigned)v < EN_NSV ? (v == EN_NSV - 1 ? SV_PLUCK : v) : 0;
+    return (unsigned)v < EN_NSV ? (v >= 5 ? v + 1 : v) : 0;
 }
 
 void en_param_text(int i, int v, char *b)
@@ -1368,6 +1374,9 @@ typedef struct {
                                                   * read and the last read between two (the average's); the output's
                                                   * gain (the velocity's, from the line's units) */
     float ks_dk;                                 /* (Harp) the voice it took over: its last sample, fading out */
+    uint16_t ks_r2, ks_h;                        /* (AISLING, step 4: Bouzouki, Dulcimer) the second string's read;
+                                                  * the half of the line each string has (0: one string, the whole) */
+    float ks_fr2, ks_fb2, ks_a2, ks_x2, ks_s;    /* the second string's, as the first's; the loop's weight (the voice's) */
 } pluck_t;
 static pluck_t pluck[NPLUCK];
 
@@ -1423,7 +1432,8 @@ volatile uint8_t en_seq_len[2];
 volatile int8_t en_s2oct_shift;
 volatile uint16_t en_seq_lane[5], en_seq_acc[2];   /* (the Pattern page's lanes as Auto plays them: each sequence's
                                                   * steps (as Density thins them), octaves; the Sequence's skips; accents) */
-const char *const EN_SV_NAME[EN_NS2V] = {"2600", "Moog", "Synthi", "Pulse", "Glass", "Sub", "Harp"};
+const char *const EN_SV_NAME[EN_NS2V] = {"2600", "Moog",     "Synthi",   "Pulse",  "Glass",
+                                         "Sub",  "Harp", "Bouzouki", "Dulcimer", "Bodhran"};
 
 /* a piece's patterns, kept (en_seq_get, en_seq: EN_SEQ_N bytes): each one's degrees (16 + 16), steps, octaves and
  * accents (two bytes each, low first) and Density's order (16 + 16) */
@@ -1475,6 +1485,9 @@ int en_ks_ok(void)                               /* (host tests) the strings' fl
         const pluck_t *v = &pluck[i];
         ok &= ks_fine(v->ks_fr) & ks_fine(v->ks_fb) & ks_fine(v->ks_a1) & ks_fine(v->ks_x1) & ks_fine(v->ks_g) &
               ks_fine(v->amp) & ks_fine(v->att) & ks_fine(v->last) & ks_fine(v->ks_dk);
+        ok &= ks_fine(v->ks_fr2) & ks_fine(v->ks_fb2) & ks_fine(v->ks_a2) & ks_fine(v->ks_x2) & ks_fine(v->ks_s);
+        if (v->voice > SV_PLUCK)                 /* (step 4: the Dulcimer's clang, the Bodhran's slap and its filter) */
+            ok &= ks_fine(v->env) & ks_fine(v->ph) & ks_fine(v->ph2) & ks_fine(v->s1[0]) & ks_fine(v->s1[1]);
     }
     return ok;
 }
@@ -1527,6 +1540,141 @@ static void ks_strike(pluck_t *v, int16_t *line)
 #endif
 }
 
+/* (AISLING, step 4) Bouzouki and Dulcimer: two strings a note (a course: the bouzouki's pairs, the dulcimer's
+ * unisons), KS2_CENTS either side of it, so they beat slowly as a course does (the second a little quieter, so they
+ * never quite cancel); each string half the line, a note too low for a half (under ~63 Hz) one string, the whole line.
+ * The Harp's loop (ks_strike, render_ks), its weight the voice's: the Bouzouki's under the average's, darker than the
+ * Harp's, the Dulcimer's brighter. The burst the voice's too: a plectrum near the bridge (a sharp triangle, more noise:
+ * the pick), or a hammer (a narrow raised cosine near the end, little noise) and over it a clang, two inharmonic
+ * partials (x2.76, x5.4: a struck bar's) dying in ~12 ms (render_ks2). Cutoff the burst's brightness, Decay how long
+ * it rings (KS2_RING times the other voices' at 48, longer low, shorter high), Accent its level, as the Harp's */
+static const float KS2_S[2] = {0.42f, 0.27f}, KS2_RING[2] = {2.5f, 4.0f}, KS2_CENTS[2] = {2.0f, 1.25f},
+                   KS2_GAIN[2] = {1.42f, 0.8f},   /* (heard as loud as the Harp at 48, its first 186 ms in dB(A),
+                                                  * the tests: the Dulcimer's hammer bright, so less power) */
+                   KS2_ONE[2] = {1.3f, 3.2f},      /* (one string, low: heard as loud as the two) */
+                   KS2_TILT[2] = {1.8f, 2.6f};     /* (dB an octave, 36 .. 72: the Harp's dark, heard louder up
+                                                  * high; theirs brighter, less so) */
+#define KS2_B 0.7f                               /* (the second string's level) */
+#define KS2_CLANG 0.3f                           /* (the clang, of the burst's +-1) */
+#define KS2_BREF 0.6269f                         /* (the burst's one-pole at Cutoff's default, 45, no sweep: 6.9 kHz,
+                                                  * where the levels above were heard) */
+static float ks2_string(float dt, float s, float lad, int nl, uint16_t *r, float *fr)   /* one string's delay, read
+                                                  * (nl - its whole samples) and fraction; its loop's gain */
+{
+    const float p = 1.0f / dt, w = FM_TWO_PI * dt, cw = 1.0f - fm_cosf(w),
+                d = fm_clampf(p - s * (1.0f - w * w * (1.0f - s) * (1.0f - 2.0f * s) * (1.0f / 6.0f)), 2.0f,
+                              (float)(nl - 3));
+    const int len = (int)d;
+    *fr = d - (float)len;
+    *r = (uint16_t)(nl - len);
+    return fm_minf(fm_expf(p * lad) /
+                       fm_sqrtf((1.0f - 2.0f * s * (1.0f - s) * cw) * (1.0f - 2.0f * *fr * (1.0f - *fr) * cw)),
+                   0.9995f);
+}
+/* the burst through the one-pole b, its dice from *rng: into the nb samples under top, less m, times g (the line's
+ * units); or top NULL, its mean into *m and its variance back */
+static float ks2_burst(int16_t *top, int nb, float b, int hammer, uint32_t *rng, float g, float *m)
+{
+    const float apex = 0.13f * (float)nb, h0 = 0.03f * (float)nb, hw = fm_maxf(0.12f * (float)nb, 3.0f);
+    float lp = 0.0f, s = 0.0f, s2 = 0.0f;
+    uint32_t r = *rng;
+    int i;
+    for (i = 0; i < nb; i++) {
+        const float u = ((float)i - h0) / hw;
+        float x;
+        r = r * 1664525u + 1013904223u;
+        x = (float)(int32_t)r * (1.0f / 2147483648.0f);
+        if (hammer)
+            x = 0.92f * (u >= 0.0f && u < 1.0f ? 0.5f - 0.5f * fm_cosf(FM_TWO_PI * u) : 0.0f) + 0.08f * x;
+        else
+            x = 0.7f * ((float)i < apex ? (float)i / apex : (float)(nb - i) / ((float)nb - apex)) + 0.3f * x;
+        lp += b * (x - lp);
+        if (top)
+            top[-1 - i] = (int16_t)((lp - *m) * g);
+        else
+            s += lp, s2 += lp * lp;
+    }
+    *rng = r;
+    if (top)
+        return 0.0f;
+    *m = s / (float)nb;
+    return s2 / (float)nb - *m * *m;
+}
+/* the burst, into the nb samples under top: its level as at KS2_BREF whatever its brightness (b), so Cutoff and the
+ * filter's motion change its tone, not how loud it is, as the Harp's (whose triangle is mostly fundamental: a narrow
+ * hammer's is mostly harmonics, and the motion's closed filter, far under the knob's, took it 7 dB down) */
+static void ks2_fill(int16_t *top, int nb, float b, int hammer)
+{
+    uint32_t r = ks_rng;
+    float m, vr = ks2_burst(0, nb, KS2_BREF, hammer, &r, 0.0f, &m), v;
+    r = ks_rng;
+    v = ks2_burst(0, nb, b, hammer, &r, 0.0f, &m);
+    r = ks_rng;
+    (void)ks2_burst(top, nb, b, hammer, &r, KS_Q * fm_sqrtf(vr / fm_maxf(v, vr * (1.0f / 64.0f))), &m);   /* (at
+                                                  * most 8 times: the darkest, as the Harp's darkest, dark) */
+    ks_rng = r;
+}
+static void ks2_strike(pluck_t *v, int16_t *line)
+{
+    const int k = v->voice - SV_BOUZ, h = KS_N / 2;
+    const float s = KS2_S[k], c = fm_exp2f(KS2_CENTS[k] * (1.0f / 1200.0f)),
+                b = 1.0f - fm_expf(-FM_TWO_PI * fm_minf(v->cut * 11.3137085f * fx_swm, 0.45f * EN_SR) * (1.0f / EN_SR)),
+                ring = KS2_RING[k] * fm_exp2f(fm_clampf(48.0f - (float)v->note, -36.0f, 24.0f) * (1.0f / 24.0f));
+    const int two = c / v->dt < (float)(h - 3);  /* (the lower string's period in a half) */
+    float lad;
+    v->adec = fm_expf(fm_logf(v->adec) / ring);
+    lad = fm_logf(v->adec);
+    v->ks_s = s;
+    v->ks_w = 0;
+    v->ks_h = (uint16_t)(two ? h : 0);
+    v->ks_a2 = v->ks_x2 = v->ks_fr2 = v->ks_fb2 = 0.0f;
+    v->ks_r2 = 0;
+    if (two) {
+        v->ks_fb = ks2_string(v->dt / c, s, lad, h, &v->ks_r, &v->ks_fr);
+        v->ks_fb2 = ks2_string(v->dt * c, s, lad, h, &v->ks_r2, &v->ks_fr2);
+        ks2_fill(line + h, h - v->ks_r + 2, b, k);
+        ks2_fill(line + 2 * h, h - v->ks_r2 + 2, b, k);
+        v->ks_a2 = (float)line[h + v->ks_r2 - 1];
+        v->ks_x2 = v->ks_a2 + v->ks_fr2 * ((float)line[h + v->ks_r2 - 2] - v->ks_a2);
+    } else {
+        v->ks_fb = ks2_string(v->dt, s, lad, KS_N, &v->ks_r, &v->ks_fr);
+        ks2_fill(line + KS_N, KS_N - v->ks_r + 2, b, k);
+    }
+    v->ks_a1 = (float)line[v->ks_r - 1];
+    v->ks_x1 = v->ks_a1 + v->ks_fr * ((float)line[v->ks_r - 2] - v->ks_a1);
+    v->ks_g = v->amp * (KS2_GAIN[k] / KS_Q) * (two ? 1.0f : KS2_ONE[k]) *
+              fm_exp2f(KS2_TILT[k] * fm_clampf((float)v->note - 48.0f, -12.0f, 24.0f) * (1.0f / 72.2472f));
+    v->env = k ? KS2_CLANG * KS_Q * fm_clampf(v->cut * fx_swm * (1.0f / 1200.0f), 0.25f, 1.5f) : 0.0f;
+    v->edec = 0.9981f;                           /* (the clang's ~12 ms) */
+    v->ph = v->ph2 = 0.0f;
+    v->dt2 = fm_minf(5.4f * v->dt, 0.45f);
+#ifdef EN_HOST
+    en_ks_struck++;
+#endif
+}
+
+/* (AISLING, step 4) Bodhran, Sequence 2's frame drum: the skin a sine low in the drum's range, the step's note folded
+ * into 65 .. 130 Hz (where the tipper strikes: the tone, so the line plays the drum's patterns), its pitch falling from
+ * x1.7 as the strike's energy goes (~20 ms); the slap over it, noise through a band-pass (Cutoff's x3, 300 Hz .. 5 kHz),
+ * dying three times as fast; Decay how long the skin sounds, as the other voices' amplitude; Accent its level; little
+ * into the echo (a drum's repeats muddy the line: render_plucks) */
+#define BR_GAIN 1.8f
+#define BR_SLAP 15.0f                             /* (the slap, over the skin's) */
+static uint32_t br_rng = 0x41C64E6Du;            /* (its own dice: the voice changes the sound, never the piece) */
+static void br_strike(pluck_t *v)
+{
+    float f = v->dt * EN_SR;
+    while (f >= 130.0f)
+        f *= 0.5f;
+    while (f < 65.0f)
+        f *= 2.0f;
+    v->dt = f * (1.0f / EN_SR);
+    v->env = 1.0f;
+    v->edec = 0.998867f;                         /* (exp(-1 / 20 ms)) */
+    v->ks_g = v->amp;                            /* (the strike's level: the slap's) */
+    svf_coefs(v->c1, fm_clampf(3.0f * v->cut * fx_swm, 300.0f, 5000.0f), 1.2f);
+}
+
 static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, panned across from the note */
 {
     int i, best = 0, sv;
@@ -1544,15 +1692,16 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
     if (v->on) {
         midi(v->layer ? 0x83u : 0x81u, v->note, 0);
 #ifdef EN_HOST
-        if (sv != SV_PLUCK && fm_fabsf(v->last) > en_pl_steal)   /* (the step a take leaves: an oscillator's
-                                                                   * last sample; a string's, render_ks) */
+        if (sv < SV_PLUCK && fm_fabsf(v->last) > en_pl_steal)    /* (the step a take leaves: an oscillator's
+                                                                   * last sample; a string's or the drum's,
+                                                                   * render_ks's) */
             en_pl_steal = fm_fabsf(v->last);
 #endif
     }
     /* (Harp) a string rings long, so it is often taken while still heard: what was sounding fades out under it
-     * (render_ks: ~2 ms from its last sample), no step */
-    v->ks_dk = v->on && sv == SV_PLUCK ? v->last : 0.0f;
-    v->tk = (uint8_t)(v->on && sv == SV_PLUCK);
+     * (render_ks: ~2 ms from its last sample), no step; (step 4) the other strings and the drum the same */
+    v->ks_dk = v->on && sv >= SV_PLUCK ? v->last : 0.0f;
+    v->tk = (uint8_t)(v->on && sv >= SV_PLUCK);
     v->on = 1;
     v->note = (uint8_t)n;
     v->layer = (uint8_t)l;
@@ -1574,6 +1723,10 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
     v->last = 0.0f;
     if (v->voice == SV_PLUCK)
         ks_strike(v, ks_line[best]);
+    else if (v->voice == SV_BODH)
+        br_strike(v);
+    else if (v->voice > SV_PLUCK)
+        ks2_strike(v, ks_line[best]);
     p = ((l ? 0.0f : rep ? 0.35f : -0.25f) + 1.0f) * (FM_PI / 4.0f);
     v->gl = fm_cosf(p);
     v->gr = fm_sinf(p);
@@ -3850,6 +4003,7 @@ void en_init(void)
     dr_rng = 0x6A09E667u;
     ld_rng = 0x3C6EF372u;
     ks_rng = 0x6C078965u;                        /* (Pluck's bursts) */
+    br_rng = 0x41C64E6Du;                        /* (AISLING: the Bodhran's) */
     atm_rng = 0xBB67AE85u;
     atm_reset();                                 /* (the voices batch: its wanderings and filters too) */
     ar_rng = 0x510E527Fu;
@@ -4982,6 +5136,109 @@ static void render_ks(pluck_t *v, int16_t *line, uint32_t n, float g, float es, 
     }
 }
 
+/* (AISLING, step 4) Bouzouki's and Dulcimer's n samples (ks2_strike): render_ks's loop on each string, the second
+ * in the half of the line after the first's (h; 0: one string, the whole line), the two out together; the Dulcimer's
+ * clang over them until it has gone (env: its level, in the line's units) */
+static void render_ks2(pluck_t *v, int16_t *line, uint32_t n, float g, float es, float rv)
+{
+    const uint32_t h = v->ks_h, nl = h ? h : KS_N;
+    const float adec = v->adec, fr = v->ks_fr, fb = v->ks_fb, fr2 = v->ks_fr2, fb2 = v->ks_fb2, ls = v->ks_s,
+                kg = v->ks_g * g, gl = v->gl, gr = v->gr, edec = v->edec, dt = fm_minf(2.76f * v->dt, 0.45f),
+                dt2 = v->dt2;
+    float amp = v->amp, att = v->att, a1 = v->ks_a1, x1 = v->ks_x1, a2 = v->ks_a2, x2 = v->ks_x2, dk = v->ks_dk,
+          env = v->env, ph = v->ph, ph2 = v->ph2, y = 0.0f;
+    int16_t *const l2 = line + h;
+    uint32_t w = v->ks_w, r = v->ks_r, r2 = v->ks_r2, j;
+    for (j = 0; j < n; j++) {
+        const float a = (float)line[r], x = a + fr * (a1 - a), s = x + ls * (x1 - x);
+        float o = s;
+        line[w] = (int16_t)(s * fb);
+        a1 = a, x1 = x;
+        if (h) {                                 /* (the second string) */
+            const float b = (float)l2[r2], xb = b + fr2 * (a2 - b), sb = xb + ls * (x2 - xb);
+            l2[w] = (int16_t)(sb * fb2);
+            a2 = b, x2 = xb;
+            o += KS2_B * sb;
+            if (++r2 >= nl)
+                r2 = 0;
+        }
+        if (++w >= nl)
+            w = 0;
+        if (++r >= nl)
+            r = 0;
+        if (env > 0.5f) {                        /* (the clang, the Dulcimer's: under half the line's step, gone) */
+            o += env * (sine(ph) + 0.5f * sine(ph2));
+            ph += dt;
+            if (ph >= 1.0f)
+                ph -= 1.0f;
+            ph2 += dt2;
+            if (ph2 >= 1.0f)
+                ph2 -= 1.0f;
+            env *= edec;
+        }
+        y = o * kg * att + dk;
+        dk *= 0.98f;
+#ifdef EN_HOST
+        if (!j && v->tk && fm_fabsf(y - v->ks_dk) > en_pl_steal)
+            en_pl_steal = fm_fabsf(y - v->ks_dk);
+#endif
+        mixl[j] += y * gl;
+        mixr[j] += y * gr;
+        rsend[j] += y * rv;
+        esend[j] += y * es;
+        amp *= adec;
+        att += (1.0f - att) * 0.03f;
+    }
+    v->amp = amp, v->att = att, v->ks_a1 = a1, v->ks_x1 = x1, v->ks_a2 = a2, v->ks_x2 = x2, v->last = y;
+    v->env = env, v->ph = ph, v->ph2 = ph2;
+    v->ks_dk = fm_fabsf(dk) < 1e-6f ? 0.0f : dk, v->tk = 0;
+    v->ks_w = (uint16_t)w, v->ks_r = (uint16_t)r, v->ks_r2 = (uint16_t)r2;
+    if (amp < 0.0008f) {
+        v->on = 0;
+        midi(v->layer ? 0x83u : 0x81u, v->note, 0);
+    }
+}
+
+/* (AISLING, step 4) the Bodhran's n samples (br_strike): the skin, its pitch falling as env goes, amp its level
+ * (Decay's); the slap, the noise through the band-pass, env cubed */
+static void render_bodhran(pluck_t *v, uint32_t n, float g, float es, float rv)
+{
+    const float adec = v->adec, edec = v->edec, dt = v->dt, sg = v->ks_g * BR_SLAP, bg = g * BR_GAIN, gl = v->gl,
+                gr = v->gr;
+    float amp = v->amp, env = v->env, att = v->att, ph = v->ph, dk = v->ks_dk, y = 0.0f;
+    uint32_t rng = br_rng, j;
+    for (j = 0; j < n; j++) {
+        const float e2 = env * env;
+        float bp;
+        rng = rng * 1664525u + 1013904223u;
+        (void)svf_lp(v->c1, v->s1, (float)(int32_t)rng * (1.0f / 2147483648.0f), &bp);
+        y = (amp * sine(ph) + sg * e2 * env * bp) * bg * att + dk;
+        dk *= 0.98f;
+#ifdef EN_HOST
+        if (!j && v->tk && fm_fabsf(y - v->ks_dk) > en_pl_steal)
+            en_pl_steal = fm_fabsf(y - v->ks_dk);
+#endif
+        ph += dt * (1.0f + 0.7f * e2);
+        if (ph >= 1.0f)
+            ph -= 1.0f;
+        mixl[j] += y * gl;
+        mixr[j] += y * gr;
+        rsend[j] += y * rv;
+        esend[j] += y * es;
+        amp *= adec;
+        env *= edec;
+        att += (1.0f - att) * 0.03f;
+    }
+    br_rng = rng;
+    v->amp = amp, v->att = att, v->ph = ph, v->last = y;
+    v->env = env < 1e-6f ? 0.0f : env;
+    v->ks_dk = fm_fabsf(dk) < 1e-6f ? 0.0f : dk, v->tk = 0;
+    if (amp < 0.0008f) {
+        v->on = 0;
+        midi(v->layer ? 0x83u : 0x81u, v->note, 0);
+    }
+}
+
 static void render_plucks(uint32_t n)           /* (and Pluck's strings: render_ks) */
 {
     int i;
@@ -4996,8 +5253,13 @@ static void render_plucks(uint32_t n)           /* (and Pluck's strings: render_
         float y = 0.0f;
         if (!v->on)
             continue;
-        if (v->voice == SV_PLUCK) {              /* (a string: no oscillator, no filter) */
-            render_ks(v, ks_line[i], n, g, es, 0.35f * sq_rev[v->layer]);
+        if (v->voice >= SV_PLUCK) {              /* (a string or the drum: no oscillator, not these filters) */
+            if (v->voice == SV_PLUCK)
+                render_ks(v, ks_line[i], n, g, es, 0.35f * sq_rev[v->layer]);
+            else if (v->voice == SV_BODH)        /* (a drum's repeats muddy the line: a little) */
+                render_bodhran(v, n, g, 0.3f * es, 0.35f * sq_rev[v->layer]);
+            else
+                render_ks2(v, ks_line[i], n, g, es, 0.35f * sq_rev[v->layer]);
             continue;
         }
         for (j = 0; j < n; j++) {
