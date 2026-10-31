@@ -109,8 +109,14 @@ int plat_midi_in(uint32_t *pkt)
     *pkt = min_q[mi_r++ % MQ];
     return 1;
 }
+#ifdef EN_WEB
+static void web_midi(uint32_t pkt);
+#endif
 void plat_midi_out(uint32_t pkt)
 {
+#ifdef EN_WEB
+    web_midi(pkt);
+#endif
     midi_out_count++;
     if (((pkt >> 8) & 0xFF) == 0xF8) {
         clock_out_count++;

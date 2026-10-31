@@ -1,7 +1,8 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
 # DUB-1 in the browser: the host simulator compiled to WebAssembly (Emscripten), plus its page.
-#   [EN_VERSION=0.1] web/emu/build.sh  ->  build/emu/{index.html, worklet.js, amb.wasm, reader/}
+#   [EN_VERSION=0.1] web/emu/build.sh  ->  build/emu/{index.html, worklet.js, amb.wasm, visualiser.html, reader/}
+# visualiser.html: AISLING's visualiser (web/visualiser/), the page's drawer, painting what the emulator plays.
 # reader/: the screen reader's words and voice (words.js, tts.js, tts_worker.js, espeak/), copied from
 # fm1-reader (github.com/charlesvestal/fm1-reader, GPL-3.0; a sibling checkout, or FM1_READER=its web/ folder).
 # Without it the emulator still works: its screen is said in the screen's own text, to the page's live region.
@@ -17,6 +18,7 @@ emcc -O2 -ffp-contract=off -std=gnu99 -Wall -Wno-unused-function -Wno-unused-par
     -o build/emu/amb.wasm web/emu/amb_web.c firmware/src/dsp/amb.c
 cp web/emu/index.html web/emu/worklet.js build/emu/
 cp docs/card.png build/emu/card.png    # the header's harp and the tab's icon
+cp web/visualiser/index.html build/emu/visualiser.html
 READER="${FM1_READER:-../fm1-reader/web}"
 rm -rf build/emu/reader
 if [ -f "$READER/words.js" ] && [ -f "$READER/espeak/espeak.wasm" ]; then

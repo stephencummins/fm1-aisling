@@ -46,6 +46,26 @@ __attribute__((used, visibility("default"))) void web_render(uint32_t n)
     }
 }
 
+/* the FM-1's MIDI out (the USB-MIDI packets plat_midi_out sends, the clock too), for the page's visualiser: each
+ * packet with the output frame it sounds at (the start of the block being rendered). web_midi_buf holds web_midi_len
+ * pairs (packet, frame), web_midi_clear when read; web_frames is the frames web_render has handed out. Full: dropped */
+#define MO 512u
+static uint32_t mo_buf[MO * 2], mo_n;
+static void web_midi(uint32_t pkt)
+{
+    if (mo_n < MO) {
+        mo_buf[2 * mo_n] = pkt;
+        mo_buf[2 * mo_n + 1] = ring_w;
+        mo_n++;
+    }
+}
+__attribute__((used, visibility("default"))) uint32_t *web_midi_buf(void) { return mo_buf; }
+__attribute__((used, visibility("default"))) uint32_t web_midi_len(void) { return mo_n; }
+__attribute__((used, visibility("default"))) void web_midi_clear(void) { mo_n = 0; }
+__attribute__((used, visibility("default"))) uint32_t web_frames(void) { return ring_r; }
+__attribute__((used, visibility("default"))) int web_piece(void) { return proj.piece; }
+__attribute__((used, visibility("default"))) const char *web_piece_name(int i) { return en_piece_name(i); }
+
 /* a screen reader (fm1-reader): the page writes a SysEx frame (the bytes between F0 and F7) to web_sysex_buf and
  * calls web_sysex(n); what the firmware says back, whole F0..F7 frames, from web_said_buf (web_said_len bytes;
  * web_said_clear when read) */

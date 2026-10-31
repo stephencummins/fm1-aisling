@@ -68,6 +68,11 @@ summary { cursor: pointer; color: var(--muted); }
 details p { font-size: .92rem; }
 a { color: var(--ink); text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-radius: 4px; padding: 0 5px; }
+/* in the emulator's drawer: the emulator is the MIDI, so only the ground, the picture and full screen, top right */
+body.embed #ui { top: 10px; right: 10px; left: auto; width: auto; padding: 6px; }
+body.embed #ui > :not(#buttons), body.embed #buttons > :not(#ground, #colours, #save, #full) { display: none; }
+body.embed #buttons { margin: 0; gap: 6px; }
+body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
 </style>
 </head>
 <body>
@@ -77,11 +82,12 @@ kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-rad
   <h1>AISLING<span>Visualiser</span></h1>
   <p>The FM-1's four layers painted as a west-coast evening.</p>
   <ul class="legend" id="legend"></ul>
-  <div class="row">
+  <div class="row" id="buttons">
     <button id="listen" type="button">Listen to the FM-1</button>
     <select id="input" aria-label="MIDI input" hidden></select>
     <button id="demo" type="button" aria-pressed="false">Demo</button>
     <button id="ground" type="button" aria-pressed="false" title="Change the ground (M)">Mist</button>
+    <button id="colours" type="button" title="Change the colours (C)">Colours</button>
     <button id="full" type="button" title="Full screen (F)">Full screen</button>
     <button id="save" type="button" title="Save the picture (S)">Save picture</button>
     <button id="record" type="button" aria-pressed="false" title="Record a video, with the FM-1's sound (R)">Record</button>
@@ -116,7 +122,8 @@ kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-rad
     <p>It works in Chrome, Edge and Opera, on a computer or an Android phone. Firefox asks you to allow a site permission
        first. Safari, and every browser on an iPhone or iPad, has no Web MIDI: watch the demo there.</p>
     <p>Any MIDI source works: channels 1 to 4 are the Drone, the Sequence, the Lead and Sequence 2, as the FM-1 sends them.</p>
-    <p>Keys: <kbd>F</kbd> full screen, <kbd>M</kbd> the ground (vellum, mist or night), <kbd>D</kbd> demo, <kbd>S</kbd> save picture,
+    <p>Keys: <kbd>F</kbd> full screen, <kbd>M</kbd> the ground (vellum, mist or night), <kbd>C</kbd> the colours (Evening,
+       Heather, Atlantic or Kells: what is painted keeps its own, the next notes take the new), <kbd>D</kbd> demo, <kbd>S</kbd> save picture,
        <kbd>R</kbd> record, <kbd>A</kbd> add a sample, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel at all
        (a projector, or a browser source in OBS).</p>
     <p>Part of <a href="https://github.com/stephencummins/fm1-aisling">AISLING</a> (GPL-3.0). No FM-1? Hear it in the
@@ -131,6 +138,8 @@ const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
 let seed = 0x9e3779b9
 const rand = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
   t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 }
+// in the browser emulator's drawer (?embed, in a frame): its MIDI comes from the page around it, not Web MIDI
+const EMBED = new URLSearchParams(location.search).has('embed') && window.parent !== window
 const store = { get: (k) => { try { return localStorage.getItem(k) } catch { return null } },
                 set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } }
 
@@ -150,6 +159,20 @@ const LAYERS = [
     stops: ['#25272d', '#454952', '#737882', '#a4a8ac'] },
 ]
 for (const L of LAYERS) L.rgb = L.stops.map(hex)
+/* the colours, a choice (C, or ?palette=): each the four layers' stops in channel order, low note to high. Evening,
+   bright as the oil paintings it began from; Heather, those paintings' own pigments muted, the bog's peat and heather
+   over blue-black water; Atlantic, the coast as it is, slate, moss and sea-grey under a pale sky; Kells, an illuminated
+   page, gold, lapis and verdigris */
+const PALETTES = {
+  evening: LAYERS.slice(0, 4).map((L) => L.stops),
+  heather: [['#1d2230', '#3e2a22', '#6a2a3c', '#9a4a63'], ['#2e3b20', '#536a2a', '#7f8a35', '#b0ab55'],
+            ['#7a3a1c', '#b8622a', '#d99b5a', '#e8cfa0'], ['#262a4a', '#4a4272', '#7a7898', '#a7a6b0']],
+  atlantic: [['#1b2029', '#3d2a22', '#5e3238', '#8a4d5c'], ['#2f3d22', '#4f5e2c', '#7a7c3a', '#a39a5a'],
+             ['#56606e', '#8e8f8c', '#c9a46a', '#e3c58e'], ['#2e3448', '#4d5470', '#7d7f99']],
+  kells: [['#3b1f3e', '#5e2e5c', '#86497a', '#ad6f8f'], ['#163f37', '#245f52', '#3f8270', '#7fae96'],
+          ['#9a3f1c', '#c0782a', '#d8ac3e'], ['#1c2550', '#2f4683', '#6a80b0']],
+}
+const NEXT_PALETTE = { evening: 'heather', heather: 'atlantic', atlantic: 'kells', kells: 'evening' }
 // vellum first: the default, a page of old calfskin, warm and darkening to its foot
 const GROUNDS = {
   vellum: { top: '#f5edda', bottom: '#d8c9a8', mottle: 9, vignette: 0.16, theme: '#ece2cb' },
@@ -216,10 +239,17 @@ function allocate() {
   buf = new Uint32Array(img.data.buffer)
 }
 
+let sizeW = 0, sizeH = 0, sizeAt = 0
 function layout() {
   const w = window.innerWidth, h = window.innerHeight
   // not laid out yet (a hidden frame, a tab still loading): a sliver would make every drop huge
   if (w < 64 || h < 64 || (w === W && h === H)) return
+  // a size still changing (the emulator's drawer dragged, a window resized): the canvas stretches until it settles
+  if (A) {
+    const now = performance.now()
+    if (w !== sizeW || h !== sizeH) { sizeW = w; sizeH = h; sizeAt = now; return }
+    if (now - sizeAt < 150) return
+  }
   const old = A ? { A, CR, CG, CB, DX, DY } : null
   W = w; H = h
   small = Math.min(w, h) < 600
@@ -838,6 +868,29 @@ function say(text) {
                          : `Listening to ${name}.`
 }
 
+/* ---------------- the emulator: its MIDI out, from the page around this one ----------------
+   The emulator's page posts what the FM-1 sends, each message with the time it is heard (ms since the epoch): the
+   sound is rendered ahead of the speakers, so each waits here for its moment. Only from the page around this one. */
+const queue = []
+let paused = false
+function flush(now) {
+  let k = 0
+  while (k < queue.length && queue[k][0] <= now) { onMessage(queue[k][1], queue[k][0]); k++ }
+  if (k) queue.splice(0, k)
+}
+if (EMBED) addEventListener('message', (e) => {
+  const m = e.data
+  if (e.source !== window.parent || !m || typeof m !== 'object') return
+  if (m.type === 'aisling-midi' && !paused && Array.isArray(m.data) && Array.isArray(m.at)) {
+    for (let i = 0; i < m.data.length && i < m.at.length; i++) queue.push([m.at[i] - performance.timeOrigin, m.data[i]])
+    if (queue.length > 4096) flush(Infinity)
+  } else if (m.type === 'aisling-pause') {
+    // the drawer shut: nothing comes until it opens, and what was held is let go
+    paused = !!m.on
+    if (paused) { queue.length = 0; allOff(-1) } else lastMsgAt = performance.now()
+  }
+})
+
 /* ---------------- the brush: paint with a finger or the mouse ---------------- */
 const brushes = new Map()
 function layerAt(fy) {
@@ -1323,6 +1376,25 @@ function setGround(g, picked) {
   if (picked) store.set('aisling-vis-ground-picked', g)
 }
 
+let palette = 'evening'
+function setPalette(name, picked) {
+  palette = name
+  PALETTES[name].forEach((st, i) => { LAYERS[i].stops = st; LAYERS[i].rgb = st.map(hex) })
+  legend()
+  if (picked) { store.set('aisling-vis-palette', name); say(`The colours: ${name[0].toUpperCase()}${name.slice(1)}.`) }
+}
+function legend() {
+  const ul = $('legend'), sample = $('slegend')
+  ul.replaceChildren()
+  for (const L of LAYERS.slice().sort((a, b) => !!a.extra - !!b.extra || a.band[0] - b.band[0])) {
+    const li = document.createElement('li'), sw = document.createElement('i')
+    sw.style.setProperty('--c', `linear-gradient(90deg, ${L.stops.join(', ')})`)
+    li.append(sw, `${L.name}: ${L.place}`)
+    if (L.extra) { li.id = 'slegend'; li.hidden = sample ? sample.hidden : true }
+    ul.append(li)
+  }
+}
+
 function toggleFull() {
   if (document.fullscreenElement) document.exitFullscreen?.()
   else document.documentElement.requestFullscreen?.().catch(() => {})
@@ -1335,6 +1407,7 @@ for (const ev of ['pointermove', 'pointerdown', 'keydown', 'focusin']) addEventL
 $('listen').addEventListener('click', listen)
 $('demo').addEventListener('click', () => setDemo(!demo.on))
 $('ground').addEventListener('click', () => setGround(NEXT_GROUND[ground], true))
+$('colours').addEventListener('click', () => setPalette(NEXT_PALETTE[palette], true))
 $('full').addEventListener('click', toggleFull)
 $('save').addEventListener('click', savePicture)
 $('record').addEventListener('click', record)
@@ -1354,6 +1427,7 @@ addEventListener('keydown', (e) => {
   const k = e.key.toLowerCase()
   if (k === 'f') toggleFull()
   else if (k === 'm') setGround(NEXT_GROUND[ground], true)
+  else if (k === 'c') setPalette(NEXT_PALETTE[palette], true)
   else if (k === 'd') setDemo(!demo.on)
   else if (k === 's') savePicture()
   else if (k === 'r') record()
@@ -1361,22 +1435,17 @@ addEventListener('keydown', (e) => {
   else if (k === 'h') { hidden = !hidden; document.body.classList.toggle('quiet', hidden) }
 })
 
-for (const L of LAYERS.slice().sort((a, b) => !!a.extra - !!b.extra || a.band[0] - b.band[0])) {
-  const li = document.createElement('li'), sw = document.createElement('i')
-  sw.style.setProperty('--c', `linear-gradient(90deg, ${L.stops.join(', ')})`)
-  li.append(sw, `${L.name}: ${L.place}`)
-  if (L.extra) { li.id = 'slegend'; li.hidden = true }
-  $('legend').append(li)
-}
-
 const params = new URLSearchParams(location.search)
 const isGround = (g) => Object.hasOwn(GROUNDS, g ?? '')
 setGround(isGround(params.get('ground')) ? params.get('ground') : isGround(store.get('aisling-vis-ground-picked')) ? store.get('aisling-vis-ground-picked') : 'vellum')
+const isPalette = (n) => Object.hasOwn(PALETTES, n ?? '')
+setPalette(isPalette(params.get('palette')) ? params.get('palette') : isPalette(store.get('aisling-vis-palette')) ? store.get('aisling-vis-palette') : 'evening')
 layout()
 paintGrain()
 say()
 if (params.has('demo')) setDemo(true)
 if (params.has('clean')) { hidden = true; document.body.classList.add('quiet') }
+if (EMBED) document.body.classList.add('embed')
 // an opening, so the page is never bare: one drop for each layer, once there is a canvas to drop them on
 let opened = false
 function opening() {
@@ -1392,11 +1461,13 @@ function frame(now) {
   layout()
   if (!A) { last = now; requestAnimationFrame(frame); return }
   if (!opened) opening()
+  if (paused) { last = now; requestAnimationFrame(frame); return }   // the emulator's drawer shut: no work
   const dt = Math.min(2.5, (now - last) / 16.667) * (reduced.matches ? 0.5 : 1)
   last = now
   layout()
   clock.running = now - clock.last < 700
   demoTick(now)
+  if (queue.length) flush(now)
   sampleFrame(now, dt)
   const t0 = performance.now()
   step(dt)
@@ -1405,7 +1476,7 @@ function frame(now) {
   if (sharp && costMs > 12 && now > 8000) sharp = false
   listenSound()
   recordTick(now)
-  if ((listening || demo.on || rec.mr) && !hidden && now - idleAt > 4000) document.body.classList.add('quiet')
+  if ((listening || demo.on || rec.mr || EMBED) && !hidden && now - idleAt > 4000) document.body.classList.add('quiet')
   if (listening && now - sayTimer > 1000) { sayTimer = now; if (!demo.on) say() }
   requestAnimationFrame(frame)
 }

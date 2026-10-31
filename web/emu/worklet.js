@@ -4,7 +4,8 @@
 // input goes in and, about 30 times a second, the screen, the lights, any saved objects and what the
 // screen reader was told (fm1-reader's SysEx frames, from announce.c) go out. While the page's reader is
 // on, the HELLO that keeps the firmware talking is sent from here, every 2 s of audio time, so a page in
-// a background tab (its timers slowed) does not lose it.
+// a background tab (its timers slowed) does not lose it. While the page's visualiser is open, the FM-1's MIDI out goes
+// to it as it is made, each event with the audio time it will be heard at.
 const RD_HELLO = [0x7d, 0x53, 0x52, 1, 1], RD_BYE = [0x7d, 0x53, 0x52, 2], RD_WHERE = [0x7d, 0x53, 0x52, 3];
 
 const clock = globalThis.performance ? () => globalThis.performance.now() : () => Date.now();
@@ -21,6 +22,8 @@ class Amb extends AudioWorkletProcessor {
     this.frames = 0;
     this.reader = false;
     this.lastHello = 0;
+    this.midi = false;
+    this.piece = -1;
     this.port.onmessage = (e) => this.onMessage(e.data);
   }
 
@@ -67,6 +70,9 @@ class Amb extends AudioWorkletProcessor {
       this.lastHello = currentTime;
     } else if (m.type === "where") {                // say the whole screen
       if (this.reader) this.sysex(RD_WHERE);
+    } else if (m.type === "midi") {                 // the visualiser open (the MIDI out and the piece) or closed
+      this.midi = !!m.on;
+      this.piece = -1;
     }
   }
 
@@ -107,6 +113,31 @@ class Amb extends AudioWorkletProcessor {
     this.port.postMessage(msg, transfer);
   }
 
+  // the MIDI made while rendering this quantum: each packet's frame from the quantum's first, which plays at currentTime
+  midiOut(n) {
+    const ex = this.ex, len = ex.web_midi_len(), piece = ex.web_piece();
+    if (!len && piece === this.piece) return;
+    const msg = { type: "midi", piece };
+    if (piece !== this.piece) {                     // its name, from the firmware's table
+      const u8 = new Uint8Array(this.mem.buffer), at = ex.web_piece_name(piece);
+      let name = "";
+      for (let i = at; at && u8[i] && name.length < 32; i++) name += String.fromCharCode(u8[i]);
+      msg.name = name;
+    }
+    this.piece = piece;
+    if (len) {
+      const raw = new Uint32Array(this.mem.buffer, ex.web_midi_buf(), 2 * len), first = (ex.web_frames() - n) >>> 0;
+      msg.ev = new Uint32Array(len);
+      msg.t = new Float64Array(len);
+      for (let i = 0; i < len; i++) {
+        msg.ev[i] = raw[2 * i];
+        msg.t[i] = currentTime + ((raw[2 * i + 1] - first) | 0) / sampleRate;
+      }
+      ex.web_midi_clear();
+    }
+    this.port.postMessage(msg);
+  }
+
   process(inputs, outputs) {
     if (!this.ex) return true;
     const out = outputs[0];
@@ -117,6 +148,8 @@ class Amb extends AudioWorkletProcessor {
     this.frames += n;
     out[0].set(new Float32Array(this.mem.buffer, this.ex.web_out_l(), n));
     if (out[1]) out[1].set(new Float32Array(this.mem.buffer, this.ex.web_out_r(), n));
+    if (this.midi) this.midiOut(n);
+    else if (this.ex.web_midi_len()) this.ex.web_midi_clear();
     if (this.reader && currentTime - this.lastHello >= 2) {
       this.lastHello = currentTime;
       this.sysex(RD_HELLO);
