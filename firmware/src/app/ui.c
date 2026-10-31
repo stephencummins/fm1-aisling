@@ -24,25 +24,26 @@
 /* (past NPAGES, on no button of their own: V_MIX, PERFORM's knobs, the four layers' levels; the layers' sound
  * pages, the layer's button pressed again) */
 enum { V_DUB, V_CHORD, V_TEXTURE, V_BASS, V_DRUMS, V_SPACE, V_SETUP, NPAGES, V_MIX = NPAGES, V_CSND, V_PSND, V_BSND,
-       V_DSND, V_CFM, V_PFM, V_BFM, V_CHORDS, V_PAT, V_PERF, V_KEY, V_NSND, V_ESND, V_NSND2, V_ARC, V_SMOVE, V_S2MOVE, V_AMOVE, NVIEWS };
+       V_DSND, V_CFM, V_PFM, V_BFM, V_CHORDS, V_PAT, V_PERF, V_KEY, V_NSND, V_ESND, V_NSND2, V_ARC, V_SMOVE, V_S2MOVE, V_AMOVE,
+       V_LSTYLE, NVIEWS };
 /* (V_PERF: PERFORM's knobs, the master actions; V_MIX while white 6 is held. V_KEY: HOME again, the key and the
  * tempo, the Dub page's second) */
 static const char *const VIEW_NAME[NVIEWS] = {"Aisling", "Drone", "Sequence", "Lead", "Sequence 2", "Space", "Setup",
                                               "Mix", "Drone sound", "Seq sound", "Lead sound", "Seq2 sound",
                                               "Drone move", "Repeats", "Lead move", "Chords", "Pattern", "Perform", "Key",
                                               "Atmosphere", "Echo", "Atmos sound", "Arc", "Seq move", "Seq2 move",
-                                              "Atmos move"};
+                                              "Atmos move", "Lead style"};
 #define B_NONE 0xFFu
 static const uint8_t VIEW_BTN[NVIEWS] = {B_HOME, B_ENV, B_ARP, B_LFO, B_SEQ, B_FX, B_GLO, B_NONE, B_NONE, B_NONE, B_NONE,
                                          B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_SAVE, B_NONE, B_NONE,
-                                         B_NONE, B_NONE, B_NONE, B_NONE};
+                                         B_NONE, B_NONE, B_NONE, B_NONE, B_NONE};
 static int sound_of(int v) { return v == V_CHORD ? V_CSND : v == V_TEXTURE ? V_PSND : v == V_BASS ? V_BSND : v == V_DRUMS ? V_DSND : -1; }
 static int fm_of(int v) { return v == V_TEXTURE ? V_PFM : -1; }   /* (BERLIN: no FM pages; the Sequence's third, its
                                                                    * Repeats, in the Ping FM page's place) */
 static int parent_of(int v)
 {
     return v == V_CSND || v == V_CFM ? V_CHORD : v == V_PSND || v == V_PFM || v == V_SMOVE ? V_TEXTURE
-         : v == V_BSND || v == V_BFM ? V_BASS : v == V_DSND || v == V_PAT || v == V_S2MOVE ? V_DRUMS : -1;
+         : v == V_BSND || v == V_LSTYLE || v == V_BFM ? V_BASS : v == V_DSND || v == V_PAT || v == V_S2MOVE ? V_DRUMS : -1;
 }
 static int next_page(int v)                      /* (BERLIN) a layer's button again: its next page, the last back to the
                                                   * first (the Move page, the filter motion's, last) */
@@ -51,7 +52,8 @@ static int next_page(int v)                      /* (BERLIN) a layer's button ag
     case V_CSND: return V_CFM;
     case V_PSND: return V_PFM;
     case V_PFM: return V_SMOVE;
-    case V_BSND: return V_BFM;
+    case V_BSND: return V_LSTYLE;                /* (AISLING: how it plays, Ornament's page, before its Move) */
+    case V_LSTYLE: return V_BFM;
     case V_DSND: return V_PAT;
     case V_PAT: return V_S2MOVE;
     default: return parent_of(v);
@@ -89,7 +91,7 @@ static const uint16_t VIEW_KNOB[NVIEWS][4] = {
     {K_FILTER, P_EVOLVE, P_MOTION, P_DRIFT},
     {P_PEDAL, P_CRES, P_PHASER, P_CATT},          /* (BERLIN) the Drone */
     {P_DENSITY, P_SEQOCT, P_SEQLEN, P_SEQGRID},  /* the Sequence */
-    {P_LDENS, P_LOCT, P_GLIDE, P_VIB},           /* (the Lead) */
+    {P_LDENS, P_LOCT, P_ORN, P_VIB},             /* (the Lead; AISLING: Ornament for Glide, on Lead style) */
     {P_SCH1, P_SEQ2OCT, P_SEQ2LEN, P_SEQ2},      /* (Sequence 2) */
     {P_ECHO, P_ETIME, P_FEEDBACK, P_REVERB},
     {P_TUNE, P_MIDI, K_LEDS, K_SAVE},
@@ -113,12 +115,14 @@ static const uint16_t VIEW_KNOB[NVIEWS][4] = {
     {P_MW1, P_MT1, P_MR1, P_MI1},                /* the Sequence's Move (ARP, a fourth time; its Width is Sweep) */
     {P_MW3, P_MT3, P_MR3, P_MI3},                /* Sequence 2's Move (SEQ, a fourth time) */
     {P_MW4, P_MT4, P_MR4, P_MI4},                /* the Atmosphere's Move (SAVE, a third time) */
+    {P_ORN, P_GLIDE, P_VIB, P_LMEM},             /* (AISLING) Lead style (LFO, a third time): how it plays; Memory
+                                                  * as on the Arc page */
 };
 static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Filter", "Evolve", "Motion", "Drift"},
     {"Pedal", "Reso", "Phaser", "Attack"},
     {"Density", "Octave", "Length", "Grid"},
-    {"Phrases", "Octave", "Glide", "Vibrato"},
+    {"Phrases", "Octave", "Ornament", "Vibrato"},
     {"Chance", "Octave", "Length", "Level"},
     {"Echo", "Echo time", "Feedback", "Reverb"},
     {"Tune", "MIDI out", "Lights", "Save"},
@@ -141,15 +145,16 @@ static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Width", "Time", "Rate", "Intro"},
     {"Width", "Time", "Rate", "Intro"},
     {"Width", "Time", "Rate", "Intro"},
+    {"Ornament", "Glide", "Vibrato", "Memory"},
 };
 /* what each knob does, a line: on the rule above the knobs while it's being turned (in capitals; each fits the
  * rule's 228 px, and every view has its row: the host's expect helpfit) */
-_Static_assert(NVIEWS == 26, "a view added: its KNOB_HELP row too");
+_Static_assert(NVIEWS == 27, "a view added: its KNOB_HELP row too");
 static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, V_DUB .. V_ARC) */
     {"Down shuts, up opens; Off mid", "How often a step changes", "How much, and the sections' pace", "Bars before the chord moves on"},
     {"The root an octave under", "The filter's resonance", "The slow phaser's depth", "How slowly the chord swells in"},
     {"How many of the steps sound", "Two octaves down to two up", "Steps before it returns", "Eighths, or sixteenths"},
-    {"How often it plays a phrase", "Two octaves down to one up", "How long it slides, note to note", "How deep the late vibrato"},
+    {"How often it plays a phrase", "Two octaves down to one up", "Cuts, rolls, slides: how often", "How deep the late vibrato"},
     {"How likely each note plays", "Its octave (Motion moves it a while)", "Steps: a step short, it drifts", "Its level"},
     {"How much goes into the echo", "The echo's time: 1/8 to a bar", "How long the repeats go on", "How much goes into the plate"},
     {"Fine tuning, in cents", "Notes and clock out over MIDI", "The keys' and buttons' lights", "A turn saves all eight pieces"},
@@ -172,6 +177,7 @@ static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, 
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
+    {"Cuts, rolls, slides: how often", "How long it slides, note to note", "How deep the late vibrato", "How much the Lead keeps its ideas"},
 };
 
 /* (BERLIN) the screen's colours: Cosmic, on black (spec 15): lavender text, a cyan accent; the layers in their own
@@ -1851,7 +1857,7 @@ static struct {
 static uint8_t epk_w;
 static int scr_layer(int v)                      /* a layer's own page (and the Noise page): the screen that layer's */
 {
-    return v == V_CHORD || v == V_TEXTURE || v == V_BASS || v == V_DRUMS || atm_view(v) || (v >= V_CSND && v <= V_DSND) || v == V_CFM || v == V_BFM || v == V_SMOVE || v == V_S2MOVE
+    return v == V_CHORD || v == V_TEXTURE || v == V_BASS || v == V_DRUMS || atm_view(v) || (v >= V_CSND && v <= V_DSND) || v == V_CFM || v == V_BFM || v == V_LSTYLE || v == V_SMOVE || v == V_S2MOVE
          ? oct_layer(v) : -1;                    /* (1.3.0: the sound pages too, live, not the envelope) */
 }
 

@@ -109,6 +109,9 @@ enum {
     P_BRIDGE,                                      /* (format 7) the bridge's move on every filter, 0..100 (+-3 octaves) */
     P_LMEM,                                        /* (format 8) Memory: how much the Lead keeps its ideas, 0..100 (the
                                                     * chance a block's motif is kept; 0 a fresh one every pair) */
+    P_ORN,                                         /* (AISLING, format 2) Ornament: the chance a Lead note an eighth or
+                                                    * longer is ornamented (a cut, a tap, a roll, a cran, a slide, a
+                                                    * turn), 0..100 */
     P_NPARAMS
 };
 #define P_MW1 P_SWEEP                              /* (the Sequence's Width is its Sweep: one parameter) */
@@ -236,7 +239,15 @@ int en_lead_kin(void);
 extern volatile uint8_t en_lead_ideas, en_lead_kind;
 int en_lead_idea(int8_t *off, uint8_t *dur);
 void en_lead_vary(int slot);                     /* (between renders: motif slot `slot` varied once, as a pass may) */
+/* (host tests only, AISLING's Ornament) called for each grace a Lead note is given as it begins: its kind (OR_*), its
+ * pitch (a slide's: where it starts), when it starts and how long it lasts (samples from the note's start; a slide's
+ * length 0), the note's length (samples); NULL: none */
+extern void (*en_grace_fn)(int kind, int grace, uint32_t at, uint32_t len, uint32_t nlen);
 #endif
+/* (AISLING, the Lead's ornaments) a cut (a step above, ~30 ms), a tap (from below), a roll (note, cut, note, tap,
+ * note), a cran (the Chanter's low notes: three cuts), a slide (from a semitone below), a turn (the Voice: a neighbour
+ * sung, ~0.1 s) */
+enum { OR_CUT, OR_TAP, OR_ROLL, OR_CRAN, OR_SLIDE, OR_TURN };
 /* (the Lead's offspring) how a fresh idea was made: the generator's own; from a theme the keys played, its head (2-4
  * notes) continued; its head and the head again on another chord tone (a sequence); its contour mirrored; its notes
  * backwards; its tail continued; its rhythm with new notes */

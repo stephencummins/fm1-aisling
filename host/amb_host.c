@@ -925,7 +925,8 @@ int main(int argc, char **argv)
                                                   * scenario: it leaves the engine reset) */
             static const uint8_t REACH[] = {V_DUB, V_KEY, V_CHORD, V_CSND, V_TEXTURE, V_PSND, V_PFM, V_BASS, V_BSND,
                                             V_DRUMS, V_DSND, V_PAT, V_SPACE, V_ESND, V_SETUP, V_MIX, V_PERF, V_NSND,
-                                            V_NSND2, V_ARC, V_CFM, V_BFM, V_SMOVE, V_S2MOVE, V_AMOVE};
+                                            V_NSND2, V_ARC, V_CFM, V_BFM, V_SMOVE, V_S2MOVE, V_AMOVE,
+                                            V_LSTYLE};
             float e0[16], e1[16];
             uint32_t m0, m1;
             unsigned k;

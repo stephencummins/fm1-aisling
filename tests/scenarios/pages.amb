@@ -45,11 +45,15 @@ expect view 2
 tap LFO
 wait 300
 expect view 3
-said Lead page, voice Flute: Phrases 95, Octave 0, Glide 15, Vibrato 12
+said Lead page, voice Flute: Phrases 95, Octave 0, Ornament 35, Vibrato 12
 tap LFO
 wait 300
 expect view 10
 said Lead sound page, voice Flute: Tone 50, Attack 10, Reverb 90, Echo 90
+tap LFO
+wait 300
+expect view 26
+said Lead style page, voice Flute: Ornament 35, Glide 15, Vibrato 12, Memory 60
 tap LFO
 wait 300
 expect view 14

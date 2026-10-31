@@ -1,0 +1,82 @@
+# (AISLING, step 5) Ornament: the eight pieces at their recipes' Ornament (Skellig 35, Burren 40, Aran 50, Carolan 30,
+# Blasket 45, Samhain 30, Connemara 35, Tir na nOg 25), three minutes of each from its start; then Aran's Chanter at
+# Ornament 100, every note an eighth or longer ornamented (its crans on the foot of the range). No clipping
+wait 300
+expect piece 0
+peakreset
+wav orn_0_skellig.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 1
+peakreset
+wav orn_1_burren.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 2
+peakreset
+wav orn_2_aran.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 3
+peakreset
+wav orn_3_carolan.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 4
+peakreset
+wav orn_4_blasket.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 5
+peakreset
+wav orn_5_samhain.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 6
+peakreset
+wav orn_6_connemara.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 7
+peakreset
+wav orn_7_tirnanog.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET -5
+wait 300
+expect piece 2
+listen
+tap LFO
+wait 300
+expect view 3
+said Ornament 50
+spin K3 100
+wait 300
+said Ornament 100
+peakreset
+wav orn_2_aran_100.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5

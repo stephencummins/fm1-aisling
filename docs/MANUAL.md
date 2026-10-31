@@ -237,10 +237,19 @@ breath, and a chiff as each note starts; the **Chanter** a nasal reed, bright as
 and opened again, and let go short; the **Fiddle** a bowed string through its body, the bow's hiss loudest as each
 note starts; the **Voice** a singer's, its vowel easing from note to note (Tone opens it). The four are matched in
 loudness. Skellig, Carolan and Tir na nOg play the Flute, Burren and Connemara the Fiddle, Aran the Chanter,
-Blasket and Samhain the Voice. It plays
-in pairs: a call that ends open, then, a beat or two later, its answer, the same rhythm ending on the chord's root or
+Blasket and Samhain the Voice.
+
+Its notes are ornamented, as trad players do. **Ornament** (0–100) is the chance that a note an eighth or longer
+gets one: a **cut** (a grace note a step above, about 30 ms), a **tap** (the same from below), a **roll** on a long
+note (the note, a cut, the note, a tap, the note), a **slide** up into it from a semitone under, or, sung, a **turn**
+(a step away and back). Each voice has its own: the Flute and the Chanter cut and roll (the Chanter's lowest notes
+get crans, three cuts in a roll's time), the Fiddle slides and rolls, the Voice slides and turns, the Theremin only
+slides. An ornament lives inside a note: the notes, their timing and the Lead's ideas are the same whatever
+Ornament is, and more Ornament graces the same notes and more, not others.
+
+It plays in pairs: a call that ends open, then, a beat or two later, its answer, the same rhythm ending on the chord's root or
 fifth, held longer. It remembers its motifs: it plays one for a few pairs, then keeps it, varies it a little (a note
-moved, a new tail, its first half twice, slower) or finds a new one. How much it keeps is **Memory** (the Arc page):
+moved, a new tail, its first half twice, slower) or finds a new one. How much it keeps is **Memory** (the Arc page, and the Lead's style page):
 the chance that after those few pairs it keeps the motif; at 100 it holds on to an idea, at 0 it changes it nearly
 every pair. Its first idea is the piece's theme, and the theme comes back when Solo begins, after the
 arc's rise peaks, when a Bridge begins, and when it hasn't been heard for a while (with Memory under 20 the theme it
@@ -391,7 +400,8 @@ In every piece but Aran (Bouzouki) and Blasket (Dulcimer) the Sequence plays the
 Connemara, the Chanter in Aran and the Voice in Blasket and Samhain, coming in within the first minute (Lead in
 4 to 8 bars); its Width is low, so it stays gentle. Its **Memory** (the Arc page): Skellig 60, Burren 55, Aran 70,
 Carolan 70, Blasket 65, Samhain 40, Connemara 50, Tir na nOg 55 (Aran's chanter and Carolan's flute hold on to
-their ideas, Samhain's voice wanders). The keys are the pipes' and the whistle's (D, G, A, E, B). The keys, modes and tempos
+their ideas, Samhain's voice wanders). Its **Ornament**: Aran 50 (the chanter is the most graced), Blasket 45, Burren
+40, Skellig and Connemara 35, Carolan and Samhain 30, Tir na nOg 25. The keys are the pipes' and the whistle's (D, G, A, E, B). The keys, modes and tempos
 are starting points, to be tuned by ear. The Lead's themes are its own: no air is quoted.
 
 ---
@@ -423,8 +433,9 @@ Echo. **Its Move page:** Width, Time, Rate, Intro (on Choir they move its vowel)
 Reverb, Echo. **Repeats:** Repeat A, A time, Repeat B, B time (1/8, dotted 1/8, 1/4, dotted 1/4, 1/2, a bar).
 **Its Move page** (a fourth press): Width (this is Sweep), Time, Rate, Intro.
 
-**LFO: Lead:** Phrases, Octave (−2 to +1), Glide (1–150 ms), Vibrato. **Its sound:** Tone, Attack, Reverb,
-Echo. **Its Move page:** Width, Time, Rate, Intro (the tone's wander is kept gentle).
+**LFO: Lead:** Phrases, Octave (−2 to +1), Ornament, Vibrato. **Its sound:** Tone, Attack, Reverb, Echo. **Its
+style** (a third press), how it plays: Ornament, Glide (1–150 ms), Vibrato, Memory (the same as the Arc page's).
+**Its Move page** (a fourth): Width, Time, Rate, Intro (the tone's wander is kept gentle).
 
 **SEQ: Sequence 2:** Chance, Octave, Length, Level. **Its sound:** Cutoff, Decay, Reverb, Echo. **SEQ a third
 time: Pattern:** write the sequences yourself. KNOB 1 picks a lane: Steps (which of the Sequence's steps

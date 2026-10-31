@@ -71,6 +71,7 @@ static const en_param_t PARAMS[P_NPARAMS] = {
     {"Noise width", 0, 100, 50}, {"Noise plate", 0, 100, 50}, {"Noise echo", 0, 100, 50}, {"Atmos width", 0, 100, 20},
     {"Noise LFO", 0, 100, 0}, {"Arc", 0, 100, 0},
     {"Atmos rate", 0, 100, 30}, {"Atmos intro", 0, 64, 0}, {"Bridge", 0, 100, 40}, {"Memory", 0, 100, 50},
+    {"Ornament", 0, 100, 30},
 };
 const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PARAMS[i] : &PARAMS[0]; }
 
@@ -98,7 +99,7 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
  *  1 for the voices that like the 9th (Strings, Harmonium, Glass: regrow). The moves (filter motion spec 9): MW/MT/MR/MI
  *  a layer's Width, Time, Rate and Intro in bars (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2, 4 Atmosphere; the
  *  Sequence's Width is Sweep); the Lead's Width kept low; Bridge the middle section's move. Memory: how much the Lead
- *  keeps its ideas) */
+ *  keeps its ideas; Ornament: how often its notes are graced, Aran's Chanter most, Tir na nOg's least) */
 static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the sea under a drone on D, a harp's slow
                                                 * ostinato in threes (12 sixteenths, every third accented), a whistle;
                                                 * Dm and C in turn, sixteen bars each */
@@ -107,7 +108,7 @@ static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the
     P_SEQ2, 0,
     P_CHORD, 38, P_CVOICE, 2, P_PEDAL, 90, P_PHASER, 15, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4, P_ORN, 35,
     P_REVERB, 55, P_SIZE, 80,
     P_NCHAR, 2, P_CRACKLE, 5,
     P_MW0, 30, P_MR0, 25, P_MW4, 30, P_MR4, 20, P_BRIDGE, 40,
@@ -120,7 +121,7 @@ static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limesto
     P_SEQ2, 46, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 85, P_MI3, 8,
     P_CHORD, 55, P_CVOICE, 5, P_PEDAL, 80, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 2,
-    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 18, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 8,
+    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 18, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 8, P_ORN, 40,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
     P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
@@ -132,7 +133,7 @@ static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a 
     P_SEQ, 59, P_SEQ2, 35, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 80, P_MI3, 8,
     P_CHORD, 46, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
-    P_LEAD, 76, P_LVOICE, 5, P_LTONE, 55, P_VIB, 5, P_GLIDE, 5, P_LDENS, 95, P_LDIN, 4,
+    P_LEAD, 76, P_LVOICE, 5, P_LTONE, 55, P_VIB, 5, P_GLIDE, 5, P_LDENS, 95, P_LDIN, 4, P_ORN, 50,
     P_NCHAR, 5, P_CRACKLE, 10,
     P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 30, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
     P_ARC, 25, P_MOTION, 55, P_LMEM, 70, -1};
@@ -146,7 +147,7 @@ static const int16_t PC_CAROLAN[] = {         /* Turlough O'Carolan, the harper 
     P_CHORD, 50, P_CVOICE, 1, P_PEDAL, 60, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 5, P_CR4, 6, P_CR5, 4, P_CR6, 5, P_CR7, 1,
     P_CX0, 1, P_CX1, 1, P_CX2, 1, P_CX3, 1, P_CX4, 1, P_CX5, 1, P_CX6, 1, P_CX7, 1,
-    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4, P_ORN, 30,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 20, P_MR0, 25, P_SWEEP, 40, P_MR1, 30, P_MW4, 25, P_MR4, 20,
     P_ARC, 25, P_MOTION, 50, P_LMEM, 70, -1};
@@ -159,7 +160,7 @@ static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, lef
     P_TAPB, 50, P_TAPBT, 4,
     P_CHORD, 50, P_CVOICE, 5, P_PEDAL, 85, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LEAD, 76, P_LVOICE, 7, P_LTONE, 45, P_VIB, 10, P_GLIDE, 40, P_LDENS, 90, P_LDIN, 8,
+    P_LEAD, 76, P_LVOICE, 7, P_LTONE, 45, P_VIB, 10, P_GLIDE, 40, P_LDENS, 90, P_LDIN, 8, P_ORN, 45,
     P_REVERB, 50, P_SIZE, 85,
     P_NCHAR, 2, P_CRACKLE, 5,
     P_MW0, 35, P_MT0, 60, P_MR0, 30, P_MW4, 30, P_MR4, 25, P_BRIDGE, 35,
@@ -173,7 +174,7 @@ static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: 
     P_SEQ, 59, P_SEQ2, 40, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_SACC1, 0x03, P_S2DEC, 60,
     P_CHORD, 42, P_CVOICE, 2, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6, P_CR2, 7,
-    P_LEAD, 76, P_LVOICE, 7, P_LOCT, -1, P_VIB, 10, P_GLIDE, 30, P_LDENS, 90, P_LDIN, 8,
+    P_LEAD, 76, P_LVOICE, 7, P_LOCT, -1, P_VIB, 10, P_GLIDE, 30, P_LDENS, 90, P_LDIN, 8, P_ORN, 30,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 45, P_MT0, 70, P_MR0, 40, P_MW2, 10, P_BRIDGE, 30,
     P_MI0, 8, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
@@ -185,7 +186,7 @@ static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; 
     P_SEQ, 59, P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_S2DEC, 85, P_MI3, 8,
     P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6,
-    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4,
+    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4, P_ORN, 35,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 30, P_MR0, 30, P_MW3, 30, P_MR3, 35, P_BRIDGE, 40,
     P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
@@ -199,7 +200,7 @@ static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the you
     P_TAPB, 60, P_TAPBT, 4,
     P_CHORD, 42, P_CVOICE, 4, P_PHASER, 70, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CX0, 1, P_CX1, 1,
-    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4, P_ORN, 25,
     P_REVERB, 60, P_SIZE, 90,
     P_MW0, 25, P_MR0, 20, P_MW3, 35, P_MR3, 20,
     P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
@@ -1933,6 +1934,18 @@ static float lv_noise(void)                      /* (-0.5 .. 0.5) */
     lv_rng = lv_rng * 1664525u + 1013904223u;
     return (float)(lv_rng >> 8) * (1.0f / 16777216.0f) - 0.5f;
 }
+/* (AISLING, Ornament) the note sounding's ornament: its events, each at a time from the note's start (samples), the
+ * pitch it jumps to (< 0: none) and the one it glides toward, at its rate; the glide now (toward, its rate) */
+#define OR_MAX 6
+static struct {
+    uint32_t t, at[OR_MAX];
+    float cu[OR_MAX], to[OR_MAX], k[OR_MAX], tg, gk;
+    uint8_t n, i;
+} orn;
+static uint32_t or_rng = 0x5BE0CD19u;            /* (its own dice: Ornament changes the notes' grace, never the notes) */
+#ifdef EN_HOST
+void (*en_grace_fn)(int kind, int grace, uint32_t at, uint32_t len, uint32_t nlen);
+#endif
 #define CP_MAX EN_LEAD_CPMAX                     /* (the keys' figure: the most entries kept, amb.h) */
 #define LD_MOTN (((CP_MAX > 8 ? CP_MAX : 8) + 1) & ~1)   /* (a motif's room: the keys' theme's, or the generator's
                                                   * 8; even, for its first half twice: ld_frag) */
@@ -2090,8 +2103,11 @@ int en_lead_idea(int8_t *off, uint8_t *dur)
 
 static int ld_audible(void) { return lead_vol > 0.0f && !(mutes & EN_M_BASS); }
 
-static void lead_off(void)                       /* the note let go */
+static void lead_off(void)                       /* the note let go (a grace sounding: the note's pitch again) */
 {
+    if (orn.n && orn.tg != (float)lead.note)
+        lead.cur = (float)lead.note;
+    orn.n = 0;
     if (lead.on) {
         lead.on = 0;
         midi(0x82, lead.note, 0);
@@ -3145,6 +3161,97 @@ static void lead_note(int n)                     /* the next note: legato (it gl
     midi(0x92, (uint32_t)n, 90);
 }
 
+/* (AISLING, Ornament) the note just begun on degree dg, dur sixteenths: its ornament, Ornament's chance of it, if
+ * an eighth or longer. Each voice its own (of 100: a cut, a tap, a roll, a slide, a turn): the Flute and the
+ * Chanter cuts and rolls (the Chanter's roll a cran on its lowest notes, the root an octave up, the step over it,
+ * and under), the Fiddle slides and rolls, the Voice slides and turns, the Theremin slides, the synths a little of
+ * each. A cut (a step above) or a tap (below) on the note's start, ~25..35 ms, no glide (never more than a third of
+ * the note); a roll (4 sixteenths or more): the cut a third of the way in (of the note, or of its first 6
+ * sixteenths), the tap two thirds; a cran: three cuts in the time of a roll, a fifth, a fourth and a third above
+ * (on bottom D: A, G, F#); a slide: from a semitone below (or lower, gliding up there already), its glide ~25 ms
+ * (the Fiddle's 30, the Voice's 45; Glide's if slower); a turn: a quarter of the way in, a step above (a quarter of
+ * the time below) sung, 80..110 ms (no more than a third of the note), its glide ~18 ms. A grace off the Lead's
+ * range (36..100): no ornament. Three draws a note an eighth or longer, whatever Ornament is (more Ornament: more
+ * notes ornamented, the same ones and more, not others) */
+static void orn_ev(uint32_t at, float cu, float to, float k)
+{
+    orn.at[orn.n] = at, orn.cu[orn.n] = cu, orn.to[orn.n] = to, orn.k[orn.n] = k;
+    orn.n++;
+}
+static void orn_plan(int dg, int dur)
+{
+    static const uint8_t W[EN_NBV][5] = {        /* (cut, tap, roll, slide, turn) */
+        {40, 10, 20, 30, 0}, {40, 10, 20, 30, 0}, {50, 10, 35, 5, 0}, {0, 0, 0, 100, 0},
+        {40, 10, 20, 30, 0}, {45, 15, 40, 0, 0},  {20, 5, 35, 40, 0}, {0, 0, 0, 60, 40}};
+    const uint32_t r0 = seq_rand(&or_rng), r1 = seq_rand(&or_rng), r2 = seq_rand(&or_rng);
+    const int lv = (unsigned)par[P_LVOICE] < EN_NBV ? par[P_LVOICE] : 0, nt = lead.note;
+    const float note = (float)nt, u = (float)(r2 >> 8) * (1.0f / 16777216.0f), nl = (float)dur * step_len;
+    static const int8_t GO[6][3] = {{1}, {-1}, {1, -1}, {0}, {0}, {4, 3, 2}};   /* (the graces' degrees, by kind) */
+    static const uint8_t GN[6] = {1, 1, 2, 0, 0, 3};
+    int kind = 0, c = (int)(r1 % 100u), g[3], i;
+    uint32_t len = (uint32_t)((0.025f + 0.010f * u) * EN_SR);
+    orn.n = orn.i = 0;
+    orn.t = 0;
+    orn.tg = note, orn.gk = ld_gk;
+    if (!lead.on || r0 % 100u >= (uint32_t)par[P_ORN] || ld_deg_raw(dg) != nt)
+        return;                                  /* (none; nor on a note held in the range from off it) */
+    while (kind < 4 && c >= W[lv][kind])         /* (0 cut, 1 tap, 2 roll, 3 slide, 4 turn; 5 cran) */
+        c -= W[lv][kind++];
+    if (kind == 2 && dur < 4)                    /* (a roll too long for the note: a cut) */
+        kind = 0;
+    if (kind == 2 && lv == 5 && dg <= (nsteps ? nsteps : 7) + 1)
+        kind = 5;                                /* (the Chanter's lowest, the foot of the Lead's range (its centre an
+                                                  * octave and a half up): a cran) */
+    for (i = 0; i < GN[kind]; i++)
+        if ((g[i] = ld_deg_raw(dg + GO[kind][i])) < 36 || g[i] > 100)
+            return;
+    if (kind < 2) {                              /* a cut, a tap */
+        const float gp = (float)g[0];
+        if ((float)len > nl * (1.0f / 3.0f))
+            len = (uint32_t)(nl * (1.0f / 3.0f));
+        orn_ev(0, gp, gp, ld_gk);
+        orn_ev(len, note, note, ld_gk);
+    } else if (kind == 2 || kind == 5) {         /* a roll, a cran */
+        const int parts = kind == 2 ? 3 : 4;
+        const float sp = (float)(dur < 6 ? dur : 6) * step_len / (float)parts;
+        if ((float)len > 0.5f * sp)
+            len = (uint32_t)(0.5f * sp);
+        for (i = 0; i < parts - 1; i++) {
+            const uint32_t at = (uint32_t)(sp * (float)(i + 1));
+            const float gp = (float)g[i];
+            orn_ev(at, gp, gp, ld_gk);
+            orn_ev(at + len, note, note, ld_gk);
+        }
+    } else if (kind == 3) {                      /* a slide */
+        const float tau = lv == 6 ? 0.030f : lv == 7 ? 0.045f : 0.025f,
+                    k = fm_minf(1.0f - fm_expf(-1.0f / (tau * EN_SR)), ld_gk);
+        orn_ev(0, fm_minf(lead.cur, note - 1.0f), note, k);
+        len = 0;
+    } else {                                     /* a turn */
+        const float k = 1.0f - fm_expf(-1.0f / (0.018f * EN_SR));
+        const int gt = ld_deg_raw(dg + ((r2 & 3u) ? 1 : -1));
+        const uint32_t at = (uint32_t)(0.25f * nl);
+        if (gt < 36 || gt > 100)
+            return;
+        len = (uint32_t)((0.080f + 0.030f * u) * EN_SR);
+        if ((float)len > nl * (1.0f / 3.0f))
+            len = (uint32_t)(nl * (1.0f / 3.0f));
+        orn_ev(at, -1.0f, (float)gt, k);
+        orn_ev(at + len, -1.0f, note, k);
+    }
+#ifdef EN_HOST
+    if (en_grace_fn) {
+        const int kk = kind == 0 ? OR_CUT : kind == 1 ? OR_TAP : kind == 2 ? OR_ROLL : kind == 5 ? OR_CRAN :
+                       kind == 3 ? OR_SLIDE : OR_TURN;
+        if (kk == OR_SLIDE)
+            en_grace_fn(kk, nt - 1, 0, 0, (uint32_t)nl);
+        else
+            for (i = 0; i < orn.n; i += 2)
+                en_grace_fn(kk, (int)orn.to[i], orn.at[i], orn.at[i + 1] - orn.at[i], (uint32_t)nl);
+    }
+#endif
+}
+
 static void lead_tick(void)                      /* a sixteenth: the phrase goes on, or the breath */
 {
     int planned = 0;
@@ -3202,6 +3309,8 @@ static void lead_tick(void)                      /* a sixteenth: the phrase goes
         } else {
             lead_note(ld_note[ld_i]);
             en_lead_deg = lead.on ? ld_dg[ld_i] : -1;
+            if (ld_dur[ld_i] >= 2)
+                orn_plan(ld_dg[ld_i], ld_dur[ld_i]);   /* (AISLING: its ornament, if any) */
         }
         ld_left = ld_dur[ld_i++];
         return;
@@ -4041,6 +4150,8 @@ void en_init(void)
     walk_prev = 0;
     memset(pluck, 0, sizeof pluck);              /* (BERLIN's voices from rest: none sounding, none to let go) */
     memset(&lead, 0, sizeof lead);
+    memset(&orn, 0, sizeof orn);                 /* (AISLING: the Lead's ornament, and its dice) */
+    or_rng = 0x5BE0CD19u;
     ld_key = -1;
     ld_reseed();
     dr_on[0] = dr_on[1] = dr_midi[0] = dr_midi[1] = 0;
@@ -5411,7 +5522,10 @@ int en_ld_ok(void)                               /* (host tests, AISLING) the Le
                                                   * denormals, the phases in [0, 1) */
 {
     int i, k, ok = ks_fine(lead.cur) & ks_fine(lead.env) & ks_fine(lead.fenv) & ks_fine(lead.vt) & ks_fine(lead.art) &
-                   ks_fine(lead.vw) & ks_fine(lead.vwt) & ks_fine(lead.vg) & ks_fine(lead.tl);
+                   ks_fine(lead.vw) & ks_fine(lead.vwt) & ks_fine(lead.vg) & ks_fine(lead.tl) & ks_fine(orn.tg) &
+                   ks_fine(orn.gk);
+    for (i = 0; i < OR_MAX; i++)                 /* (the ornament's events: a pitch, or -1 for "from where it is") */
+        ok &= ks_fine(orn.cu[i]) & ks_fine(orn.to[i]) & ks_fine(orn.k[i]);
     ok &= (lead.ph >= 0.0f && lead.ph < 1.0f) & (lead.ph2 >= 0.0f && lead.ph2 < 1.0f) &
           (lead.ph3 >= 0.0f && lead.ph3 < 1.0f) & (lead.vph >= 0.0f && lead.vph < 1.0f);
     for (i = 0; i < 2; i++) {
@@ -5746,7 +5860,7 @@ static void render_lead(uint32_t n)
                 rel = lv == 5 ? 0.0009f : 0.00008f;   /* (~300 ms out; the Chanter stopped in ~25 ms) */
     uint32_t j;
     float dt = 0.0f, h2 = 0.0f, h3 = 0.0f, br = 0.0f, ck = 0.0f, stop = 1.0f, trim = 1.0f, vdg = 0.0f,
-          rc[3][3] = {{0.0f}};
+          rc[3][3] = {{0.0f}}, tg = orn.n ? orn.tg : (float)lead.note, gk = orn.n ? orn.gk : ld_gk;
     if (!lead.on && lead.env < 1e-5f) {
         en_bass_level = 0.0f;                    /* (the meter, at rest) */
         return;
@@ -5815,7 +5929,13 @@ static void render_lead(uint32_t n)
                                                   * it's in, so the voices' sound is the same to the bit) */
                 lead.fenv = 0.0f;
         }
-        lead.cur += ((float)lead.note - lead.cur) * ld_gk;
+        if (orn.i < orn.n && orn.t++ >= orn.at[orn.i]) {   /* (AISLING) the ornament's next: a grace, the note */
+            const int e = orn.i++;
+            if (orn.cu[e] >= 0.0f)
+                lead.cur = orn.cu[e];
+            tg = orn.to[e], gk = orn.k[e];
+        }
+        lead.cur += (tg - lead.cur) * gk;
         switch (lv) {
         case 0: x = 0.6f * blep_saw(lead.ph, dt) + 0.4f * (blep_saw(lead.ph, dt) - blep_saw(frac1(lead.ph + 0.35f), dt)); break;
         case 1: x = 0.45f * (blep_saw(lead.ph, dt) + blep_saw(lead.ph2, dt * 1.004f) + blep_saw(lead.ph3, dt * 0.996f)); break;
@@ -5878,6 +5998,8 @@ static void render_lead(uint32_t n)
         rsend[j] += 0.45f * ld_rev * a;
         esend[j] += 0.6f * ld_echo * a;
     }
+    if (orn.n)
+        orn.tg = tg, orn.gk = gk;
     en_bass_level = lead.env;
 }
 

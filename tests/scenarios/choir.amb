@@ -40,7 +40,7 @@ said VOICE Choir
 expect par22 5
 wait 8000
 expect chwork >0
-# kept: stopped, it saves itself; the same after a restart (the save's format as it was: AISLING's 1; Choir appended, nothing
+# kept: stopped, it saves itself; the same after a restart (the save's format AISLING's own, now 2; Choir appended, nothing
 # moved)
 tap PLAY
 wait 6000
@@ -48,5 +48,5 @@ expect dirty 0
 expect store_writes >0
 reboot
 wait 500
-expect format 1
+expect format 2
 expect par22 5

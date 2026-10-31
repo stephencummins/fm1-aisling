@@ -1559,6 +1559,19 @@ static void test_atmospheres(void)
     }
 }
 
+/* (AISLING, Ornament) each grace the Lead plans (amb.c's en_grace_fn), counted by kind; over its budget (a cut, a tap,
+ * a roll's or a cran's grace over 35 ms, a turn over 110 ms or a third of its note, any ending past its note); off the
+ * scale or the Lead's range (36..100), a slide's semitone below excepted */
+static uint32_t gr_n[6], gr_over, gr_out, gr_pool, gr_root;
+static void grace_seen(int kind, int grace, uint32_t at, uint32_t len, uint32_t nlen)
+{
+    gr_n[kind]++;
+    gr_over += at + len > nlen || (kind == OR_TURN && (len > 4851u || 3u * len > nlen)) ||
+               (kind != OR_SLIDE && kind != OR_TURN && len > 1543u);
+    if (kind != OR_SLIDE)
+        gr_out += grace < 36 || grace > 100 || !(gr_pool >> ((uint32_t)(grace + 120) - gr_root) % 12u & 1u);
+}
+
 int main(void)
 {
     int pcs[4], n, i;
@@ -3061,6 +3074,73 @@ int main(void)
             CHECK(fabs(a[1] - a[0]) < 2.0 && !bad, "test_lead_voices_pieces: %s's %s %.1f dB(A), with the Flute %.1f",
                   PN[k], VN[PV[k]], a[1], a[0]);
         }
+    }
+
+    /* (AISLING, step 5) Ornament, every piece 180 s at Ornament 0 and at 100 (and Skellig's Lead on the Theremin). (i)
+     * The Lead's notes the same, note for note: their sixteenths, their phrases and motif slots, every MIDI message
+     * (the scale, the motifs, the memory untouched: an ornament lives inside a note); (ii) at 0, none; at 100, every
+     * grace within its budget, in the scale and the Lead's range (grace_seen); (iii) each voice its own: the Flute
+     * cuts and rolls, the Chanter cuts, rolls and crans and never a slide, the Fiddle slides and rolls, the Voice
+     * only slides and turns, the Theremin only slides; no turn but the Voice's; (iv) the state finite (en_ld_ok) */
+    {
+        static const char *const PN[9] = {"Skellig", "Burren", "Aran", "Carolan", "Blasket", "Samhain", "Connemara",
+                                          "Tir na nOg", "Skellig, Theremin"};
+        int k, v, lv = 0;
+        uint32_t i, h[2], m[2], nn[2], out = 0, tot;
+        for (k = 0; k < 9; k++) {
+            for (v = 0; v < 2; v++) {
+                int16_t pp[P_NPARAMS];
+                uint16_t pl;
+                fresh();
+                en_piece(k < 8 ? k : 0, pp, &pl);
+                if (k == 8)
+                    pp[P_LVOICE] = 3;
+                pp[P_ORN] = (int16_t)(v ? 100 : 0);
+                lv = pp[P_LVOICE];
+                apply(pp, pl);
+                memset(gr_n, 0, sizeof gr_n);
+                gr_over = gr_out = 0, gr_pool = pl, gr_root = (uint32_t)pp[P_ROOT];
+                lg_n = 0, lg_open = -1, m[v] = midi_count;
+                en_grace_fn = grace_seen;
+                en_play(1);
+                run(180.0f);
+                en_grace_fn = 0;
+                CHECK(en_ld_ok(), "test_ornament_state: %s at Ornament %d, the Lead's state not finite, or denormal",
+                      PN[k], v ? 100 : 0);
+                m[v] = midi_count - m[v], nn[v] = lg_n, h[v] = 2166136261u;
+                for (i = 0; i < lg_n; i++) {
+                    h[v] = (h[v] ^ lg[i].on ^ lg[i].off * 31u ^ (uint32_t)lg[i].note << 24) * 16777619u;
+                    h[v] = (h[v] ^ (uint8_t)(lg[i].phr - lg[0].phr) ^ (uint32_t)lg[i].slot << 8 ^   /* (the counts */
+                            (uint32_t)(uint8_t)(lg[i].blk - lg[0].blk) << 16) * 16777619u;   /* run on: from the first) */
+                    out += !v && !(pl >> ((uint32_t)lg[i].note + 120u - gr_root) % 12u & 1u);
+                }
+                tot = gr_n[0] + gr_n[1] + gr_n[2] + gr_n[3] + gr_n[4] + gr_n[5];
+                if (!v)
+                    CHECK(!tot, "test_ornament_off: %s at Ornament 0, %u graces", PN[k], tot);
+            }
+            printf("  ornament: %s, %s: %u notes; at 100, cut %u, tap %u, roll %u, cran %u, slide %u, turn %u\n", PN[k],
+                   EN_BV_NAME[lv], nn[1], gr_n[OR_CUT], gr_n[OR_TAP], gr_n[OR_ROLL], gr_n[OR_CRAN], gr_n[OR_SLIDE],
+                   gr_n[OR_TURN]);
+            CHECK(h[0] == h[1] && nn[0] == nn[1] && m[0] == m[1] && nn[1] >= 10u,
+                  "test_ornament_notes: %s, the Lead's notes changed by Ornament (%u notes, %u messages; at 100, %u, "
+                  "%u)", PN[k], nn[0], m[0], nn[1], m[1]);
+            CHECK(tot >= 5u && !gr_over && !gr_out, "test_ornament_budget: %s, %u graces, %u over budget, %u off the "
+                  "scale", PN[k], tot, gr_over, gr_out);
+            CHECK(lv == 7 || !gr_n[OR_TURN], "test_ornament_voices: %s's %s turned", PN[k], EN_BV_NAME[lv]);
+            if (lv == 2)
+                CHECK(gr_n[OR_CUT] && gr_n[OR_ROLL] && !gr_n[OR_CRAN], "test_ornament_voices: %s's Flute", PN[k]);
+            if (lv == 5)
+                CHECK(gr_n[OR_CUT] && gr_n[OR_ROLL] && gr_n[OR_CRAN] && !gr_n[OR_SLIDE],
+                      "test_ornament_voices: %s's Chanter", PN[k]);
+            if (lv == 6)
+                CHECK(gr_n[OR_SLIDE] && gr_n[OR_ROLL] && !gr_n[OR_CRAN], "test_ornament_voices: %s's Fiddle", PN[k]);
+            if (lv == 7)
+                CHECK(gr_n[OR_SLIDE] && gr_n[OR_TURN] && tot == gr_n[OR_SLIDE] + gr_n[OR_TURN],
+                      "test_ornament_voices: %s's Voice", PN[k]);
+            if (lv == 3)
+                CHECK(gr_n[OR_SLIDE] && tot == gr_n[OR_SLIDE], "test_ornament_voices: %s's Theremin", PN[k]);
+        }
+        CHECK(!out, "test_ornament_budget: %u of the Lead's own notes off its scale (the test's scale wrong)", out);
     }
 
     /* (BERLIN) the black keys' Transpose: a written pattern played with Transpose held is the same pattern written three
