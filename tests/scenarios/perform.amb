@@ -39,7 +39,7 @@ tap ENV
 wait 300
 expect view 1
 # (BERLIN) the keys follow the meters, left to right: white 4 Sequence 2 (the 4th meter), white 5 the Atmosphere (the
-# 5th), the other untouched; a solo (black 4: Sequence 2) leaves the Atmosphere out too (Aran, AISLING's: Tape,
+# 5th), the other untouched; a solo (black 4: Sequence 2) leaves the Atmosphere out too (Aran, AISLING's: Fire,
 # both sequences, Sequence 2 opening over its first 8 bars; Sequence 2 heard: its meter above 2, a moment's reading,
 # which caught it at 6 and 9)
 turn PRESET -2

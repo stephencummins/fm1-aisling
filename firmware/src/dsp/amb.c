@@ -90,12 +90,13 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
  * (the chords' slots, the walk's degrees in Loop: I and bVII in turn, a long Drift each), and the jig's threes
  * (Sequence lengths 12 and 9, and the pulse: Accents every third step, played in Auto, seq_pulse).
  * The Lead dreamy in all of them (its reverb and echo 90, the defaults), the Atmosphere's levels NACHTFAHRT's for the
- * FM-1's speaker (Surf 5, Wind and Rain 7, Tape 10), kept when the layers came 3 dB down (set for the speaker).
+ * FM-1's speaker (Surf 5, Wind and Rain 7), kept when the layers came 3 dB down (set for the speaker), and Fire's and
+ * Curlew's 7 with them (matched to Wind by their A-weighted loudness, as NACHTFAHRT matched Rain).
  * (Voices: the Sequence's 2600 Moog Synthi Pulse Glass Harp Bouzouki Dulcimer (0..7), Sequence 2's the five, Sub,
  *  Harp, Bouzouki, Dulcimer, Bodhran (0..9);
  *  the Drone's Organ Strings Pipes Harmonium Glass Choir; the Lead's Odyssey Mini Flute Theremin Synthi. Repeat times:
  *  1/8 1/8. 1/4 1/4. 1/2 1 bar. Drift: 2 4 8 16 32 64 bars, Hold. Grid: 8ths, 16ths. Atmosphere: None Wind Surf Space
- *  Air Tape Rain. A walk slot's root: the scale's degree plus one (a hexatonic's bVII its 6); its type the voicing,
+ *  Air Tape Rain Fire Curlew. A walk slot's root: the scale's degree plus one (a hexatonic's bVII its 6); its type the voicing,
  *  1 for the voices that like the 9th (Strings, Harmonium, Glass: regrow). The moves (filter motion spec 9): MW/MT/MR/MI
  *  a layer's Width, Time, Rate and Intro in bars (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2, 4 Atmosphere; the
  *  Sequence's Width is Sweep); the Lead's Width kept low; Bridge the middle section's move. Memory: how much the Lead
@@ -128,7 +129,7 @@ static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limesto
     P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
     P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
 static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a bouzouki in a jig's threes over a
-                                                * bodhran's slip jig of nine, a chanter, a turf fire (Tape's crackle);
+                                                * bodhran's slip jig of nine, a chanter, a turf fire;
                                                 * Am and G in turn, eight bars each */
     P_TEMPO, 96, P_ROOT, 9, P_MODE, MODE_DORIAN,
     P_SVOICE, 6, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
@@ -136,7 +137,7 @@ static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a 
     P_CHORD, 46, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
     P_LEAD, 76, P_LVOICE, 5, P_LTONE, 55, P_VIB, 5, P_GLIDE, 5, P_LDENS, 95, P_LDIN, 4, P_ORN, 50, P_AIR, 3,
-    P_NCHAR, 5, P_CRACKLE, 10,
+    P_NCHAR, 7, P_CRACKLE, 7,
     P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 30, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
     P_ARC, 25, P_MOTION, 55, P_LMEM, 70, -1};
 static const int16_t PC_CAROLAN[] = {         /* Turlough O'Carolan, the harper (1670-1738): strings, two harps of 16
@@ -194,8 +195,8 @@ static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; 
     P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
 static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the young over the western sea: glass for the
                                                 * drone, phased, in the gapped major (no seventh) on D, two harps of 12
-                                                * and 11, a whistle, a long reverb; D and G in turn, sixteen bars each
-                                                * (no Atmosphere yet: the curlew's place) */
+                                                * and 11, a whistle, a long reverb, a curlew far out over the bog; D
+                                                * and G in turn, sixteen bars each */
     P_TEMPO, 80, P_ROOT, 2, P_MODE, MODE_HEX_MAJ,
     P_SEQ, 47, P_SVOICE, 5, P_SEQLEN, 12, P_SEQGRID, 1, P_DENSITY, 50, P_SACC0, 0x249, P_DECAY, 90,
     P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 90, P_MI3, 12,
@@ -204,6 +205,7 @@ static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the you
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CX0, 1, P_CX1, 1,
     P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4, P_ORN, 25, P_AIR, 8,
     P_REVERB, 60, P_SIZE, 90,
+    P_NCHAR, 8, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 35, P_MR3, 20,
     P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
 static const struct {
@@ -4615,9 +4617,10 @@ static void widen(uint32_t n)
  * a second; a little of it into the plate.
  * Four controls shape it, each -1..+1 around the piece's own (0), and a character (a preset of the mix): ready
  * on ARP's Noise page (P_NCOL .. P_NCHAR, into nctl) */
-const char *const EN_NCHAR_NAME[EN_NNCHAR] = {"None", "Wind", "Surf", "Space", "Air", "Tape", "Rain"};   /* (BERLIN: the
-                                                  * Atmosphere's; the voices batch: Rain appended, so every one before it
-                                                  * keeps its number in the pieces and the saves;
+const char *const EN_NCHAR_NAME[EN_NNCHAR] = {"None", "Wind", "Surf", "Space", "Air", "Tape", "Rain", "Fire",
+                                              "Curlew"};   /* (BERLIN: the Atmosphere's; the voices batch: Rain
+                                                  * appended, so every one before it keeps its number in the pieces and
+                                                  * the saves; AISLING: Fire and Curlew after it, the same way;
                                                   * NCHAR below is the dub's noise machine, heard as Tape) */
 #define NZCH 5                                  /* (the dub's noise machine's characters: Tape is its 1) */
 /* 1.3.0's noise machine (build/research/dubtechno/REPORT4-noise.md, after Bahadirhan Kocer's "Using Resonators in
@@ -4748,7 +4751,7 @@ static void noise_step(int s)
  * poles, Paul Kellet's "economy" filter) -> brown (a leaky integrator), its DRFT (the cutoff wandering, the level
  * following it) and its DUST (sparse impulses through a resonance); written again in float. The user: the FM-1's
  * speaker is bright, the noise was hissy; each level is matched by its A-weighted loudness to the one he tuned.) */
-enum { ATM_NONE, ATM_WIND, ATM_SURF, ATM_SPACE, ATM_AIR, ATM_TAPE, ATM_RAIN };
+enum { ATM_NONE, ATM_WIND, ATM_SURF, ATM_SPACE, ATM_AIR, ATM_TAPE, ATM_RAIN, ATM_FIRE, ATM_CURLEW };
 static inline float svf_lp(const float *c, float *s, float x, float *bp);
 static float atm_gate, atm_w[2] = {0.3f, 0.6f}, atm_wt[2] = {0.5f, 0.5f}, atm_gu = 0.5f, atm_gt = 0.5f, atm_s[2][2],
              atm_c[2][4], atm_sw[2] = {0.0f, 0.4f}, atm_swr[2] = {0.11f, 0.13f}, atm_lp[2], bl_ph, bl_dt, bl_env,
@@ -4774,6 +4777,41 @@ static float atm_pk[2][3], atm_lv[2], atm_lq[2], rn_ph[RN_N], rn_dt[RN_N], rn_dt
 #define RN_RATE 8.0f                             /* its drops a second at Density 0, the shower at its middle */
 #define RN_DF 0.9492f                            /* (a drop's onset: the quick decay, -60 dB in 3 ms) */
 #define RN_GLK 0.004f                            /* (a drop's rise onto its pitch, from 3 semitones under: ~6 ms) */
+/* (AISLING) Fire, a turf fire in the hearth: its glow (a low band of noise, 120 .. 600 Hz, breathing with the gusts
+ * and a quicker flicker; atm_lp, atm_lq), its hiss (a band of the same noise, 0.7 .. 2.5 kHz, flaring and settling
+ * with the flicker) with the fizz's ticks through it (mostly tiny), and its pops: FR_N resonances, each a soft burst
+ * of noise through a band-pass low in the turf's range, some followed by one to three more, higher and quicker (a
+ * cluster); the waits to the next pop, the next follower and the next tick (samples), the followers left, the last
+ * pop's level, the flicker and its aim. The hiss and the glow carry its loudness (A-weighted: Wind's at the same
+ * level, within a dB over minutes), the pops standing some 15 dB over them; a pop's peak twice Rain's drop's */
+#define FR_N 3
+static float fr_s[FR_N][2], fr_c[FR_N][4], fr_e[FR_N], fr_dk[FR_N], fr_gl[FR_N], fr_gr[FR_N], fr_hp[2], fr_hs[2],
+             fr_wait, fr_cw, fr_fz, fr_ca, fr_fl, fr_ft;
+static int fr_cl;
+#define FR_G 38.0f                               /* Fire's pops' level */
+#define FR_BED 1.8f                              /* its glow's */
+#define FR_HISS 0.9f                             /* its hiss's */
+#define FR_TICK 4.0f                             /* its fizz's ticks' */
+#define FR_LO 200.0f                             /* its pops' lowest pitch at Colour 0 (Hz; two octaves up from it) */
+#define FR_GLOW 120.0f                           /* its glow's band at Colour 0: from here to 5x (Hz) */
+#define FR_RATE 3.0f                             /* its pops a second at Density 0, the fire at its middle */
+#define FR_FIZZ 30.0f                            /* its ticks a second */
+/* (AISLING) Curlew, the whaup over the bog: its calls, each a few syllables (CW_NS at most) of a near-sine whistle
+ * (an octave's FM: Colour's brightness), each gliding (a ratio a sample) under a half-sine swell (from ua to its
+ * end), some with a warble (vd: depth, vdt: rate) and its level beating with it (am): the cour-li, one to three
+ * rising whistles, or the bubbling song, long notes into a warbling trill that climbs to a crescendo and falls away;
+ * here or there, near or far; the call's syllables (the next, how many), the one sounding (samples left), the wait
+ * to the next (samples) and after the call's last */
+#define CW_NS 8
+static struct {
+    float dt, rat, ua, du, amp, vd, vdt, am, n, gap;
+} cw_sy[CW_NS];
+static float cw_ph, cw_dt, cw_rat, cw_u, cw_du, cw_amp, cw_vph, cw_vdt, cw_vd, cw_am, cw_idx, cw_gl, cw_gr, cw_n,
+             cw_wait, cw_rest;
+static int cw_q, cw_qn;
+#define CW_G 0.65f                               /* its level */
+#define CW_IDX 0.05f                             /* its brightness at Colour 0, near (far: less; turns) */
+#define CW_GAP 9.0f                              /* the mean wait between its calls at Density 0 (s) */
 /* (the voices batch) the Atmosphere from the top, as en_init's dice (a reset plays the same again): its wanderings,
  * waves and filters as the program starts them (so a piece played alone sounds as it did); its gate, the transport's,
  * kept. Wind's level now follows its wander: without this its loudness in the first minutes hung on where the piece
@@ -4793,6 +4831,13 @@ static void atm_reset(void)
     for (k = 0; k < RN_N; k++)
         rn_ph[k] = rn_dt[k] = rn_dt1[k] = rn_es[k] = rn_ef[k] = rn_ds[k] = rn_gl[k] = rn_gr[k] = 0.0f;
     rn_wait = 0.0f;
+    for (k = 0; k < FR_N; k++)                   /* (AISLING: Fire's and Curlew's) */
+        fr_s[k][0] = fr_s[k][1] = fr_e[k] = fr_dk[k] = fr_gl[k] = fr_gr[k] = 0.0f;
+    fr_hp[0] = fr_hp[1] = fr_hs[0] = fr_hs[1] = fr_wait = fr_cw = fr_fz = fr_ca = fr_fl = fr_ft = 0.0f;
+    fr_cl = 0;
+    cw_ph = cw_dt = cw_rat = cw_u = cw_du = cw_amp = cw_vph = cw_vdt = cw_vd = cw_am = cw_idx = cw_gl = cw_gr = 0.0f;
+    cw_n = cw_wait = cw_rest = 0.0f;
+    cw_q = cw_qn = 0;
 }
 static float atm_u(void) { return (float)(seq_rand(&atm_rng) >> 8) * (1.0f / 16777216.0f); }
 static float atm_noise(void) { return (float)(int32_t)seq_rand(&atm_rng) * (1.0f / 2147483648.0f); }
@@ -4814,6 +4859,90 @@ static void rain_drop(float col, float ring, float rate)
     rn_gl[k] = fm_cosf(p), rn_gr[k] = fm_sinf(p);
     rn_wait += -fm_logf(fm_maxf(w, 1e-6f)) * EN_SR / rate;
 }
+/* (AISLING) a pop on the quietest of Fire's resonances: a burst of noise a (its level) loud, gone in Ring's 6 .. 20%
+ * (to -60 dB: 8 .. 28 ms at its middle; up times quicker), through a band-pass two octaves from FR_LO (Colour moves
+ * them; up times higher: a follower), its resonance soft (Q 1.7 .. 4), here or there */
+static void fire_pop(float col, float ring, float a, float up)
+{
+    const float u = atm_u(), v = atm_u(), w = atm_u(), p = (0.1f + 0.8f * atm_u()) * (FM_PI / 2.0f);
+    int k = 0, i;
+    for (i = 1; i < FR_N; i++)
+        if (fr_e[i] < fr_e[k])
+            k = i;
+    svf_coefs(fr_c[k], FR_LO * up * fm_exp2f(2.0f * u) * col, 0.25f + 0.35f * v);   /* (its state kept: a tail still
+                                                  * ringing rings on through the new band, no click) */
+    fr_e[k] = a;
+    fr_dk[k] = fm_expf(-6.9f * up / (ring * (0.06f + 0.14f * w) * EN_SR));
+    fr_gl[k] = fm_cosf(p), fr_gr[k] = fm_sinf(p);
+}
+/* (AISLING) the lowest note of the scale at or above a (MIDI) */
+static int cw_note(int a)
+{
+    int o, i, best = a + 12;
+    for (o = 0; o <= 5; o++)
+        for (i = 0; i < (nsteps ? nsteps : 1); i++) {
+            const int x = 48 + par[P_ROOT] % 12 + 12 * o + (nsteps ? steps[i] : 0);
+            if (x >= a && x < best)
+                best = x;
+        }
+    return best;
+}
+/* a syllable onto the call: gap (s) after the one before, from f0 (Hz; 0: on from where that one ended) by semis
+ * over dur (s), its swell from ua to ub (a half-sine: 0 .. 1 the whole), its level, its warble (depth, Hz) and its
+ * level's beat with it */
+static void cw_syl(float gap, float f0, float semis, float dur, float ua, float ub, float amp, float vd, float vhz,
+                   float am)
+{
+    if (cw_qn < CW_NS) {
+        const float n = fm_maxf((float)(int)(dur * EN_SR), 1.0f);
+        cw_sy[cw_qn].gap = gap * EN_SR, cw_sy[cw_qn].n = n;
+        cw_sy[cw_qn].dt = f0 * (1.0f / EN_SR), cw_sy[cw_qn].rat = fm_exp2f(semis * (1.0f / 12.0f) / n);
+        cw_sy[cw_qn].ua = ua, cw_sy[cw_qn].du = (ub - ua) / n, cw_sy[cw_qn].amp = amp;
+        cw_sy[cw_qn].vd = vd, cw_sy[cw_qn].vdt = vhz * (1.0f / EN_SR), cw_sy[cw_qn].am = am;
+        cw_qn++;
+    }
+}
+static void cw_start(void)                       /* the call's next syllable sounding */
+{
+    const int q = cw_q++;
+    if (cw_sy[q].dt > 0.0f)
+        cw_dt = cw_sy[q].dt;
+    cw_rat = cw_sy[q].rat, cw_u = cw_sy[q].ua, cw_du = cw_sy[q].du, cw_amp = cw_sy[q].amp;
+    cw_vd = cw_sy[q].vd, cw_vdt = cw_sy[q].vdt, cw_am = cw_sy[q].am, cw_n = cw_sy[q].n;
+}
+/* (AISLING) a call (after the curlew's, its recordings: the whistles 1.7 .. 2.9 kHz): from a note of the scale
+ * at 1.7 .. 2 kHz, the cour-li rising onto the scale's next a third or a fourth up, one to three times, each
+ * 0.35 .. 0.6 s; or a third of the time the bubbling song: two or three long notes, barely rising, a trill of
+ * 2 .. 3 s (warbling 18 .. 24 times a second) that climbs five semitones to its loudest and falls six, then a cour-li
+ * or two. Ring stretches it all (x0.6 .. x1.4, x1 at its middle), Colour brightens it; here or there, near or far
+ * (far: softer, rounder); the next call in 4 .. 14 s (Density: sooner) */
+static void curlew_call(float col, float ring, float busy)
+{
+    const float rs = 0.5f + ring * (1.0f / 0.28f), d = atm_u(), p = (0.1f + 0.8f * atm_u()) * (FM_PI / 2.0f),
+                amp = 1.0f - 0.5f * d;
+    const int a = cw_note(92 + (int)(seq_rand(&atm_rng) % 3u)), up = cw_note(a + 3) - a;
+    const float f0 = mtof((float)a);
+    int i, nc = 1 + (int)(seq_rand(&atm_rng) % 3u);
+    cw_q = cw_qn = 0;
+    if (atm_u() < 0.35f) {
+        const int nl = 2 + (int)(seq_rand(&atm_rng) % 2u);
+        const float t = (2.0f + atm_u()) * rs, hz = 18.0f + 6.0f * atm_u();
+        for (i = 0; i < nl; i++)
+            cw_syl(i ? (0.15f + 0.15f * atm_u()) * rs : 0.0f, f0, 0.5f + atm_u(), (0.6f + 0.3f * atm_u()) * rs, 0.0f,
+                   1.0f, amp * (0.7f + 0.1f * (float)i), 0.0f, 0.0f, 0.0f);
+        cw_syl((0.2f + 0.15f * atm_u()) * rs, mtof((float)(a + 2)), 5.0f, 0.55f * t, 0.0f, 0.5f, amp, 0.05f, hz, 0.6f);
+        cw_syl(0.0f, 0.0f, -6.0f, 0.45f * t, 0.5f, 1.0f, amp, 0.05f, hz, 0.6f);
+        nc = 1 + (int)(seq_rand(&atm_rng) % 2u);
+    }
+    for (i = 0; i < nc; i++)
+        cw_syl(cw_qn ? (cw_qn > 1 && !i ? 0.3f + 0.2f * atm_u() : 0.12f + 0.18f * atm_u()) * rs : 0.0f, f0,
+               (float)up, (0.35f + 0.25f * atm_u()) * rs, 0.0f, 1.0f, amp * (0.85f + 0.15f * atm_u()), 0.0f, 0.0f,
+               0.0f);
+    cw_rest = (CW_GAP - 5.0f + 10.0f * atm_u()) * EN_SR / busy;
+    cw_idx = CW_IDX * col * (1.0f - 0.6f * d);
+    cw_gl = fm_cosf(p), cw_gr = fm_sinf(p);
+    cw_start();
+}
 static void render_atmos(uint32_t n)
 {
     const int c = atm_char;
@@ -4822,7 +4951,8 @@ static void render_atmos(uint32_t n)
                 rv = (float)par[P_NPLATE] * 0.02f, ec = (float)par[P_NECHO] * 0.02f,
                 col = fm_exp2f(fm_clampf(nctl.colour + fo[FO_ATM], -1.0f, 1.0f)), busy = fm_exp2f(fm_clampf(nctl.grain, -1.0f, 1.0f)),
                 spd = fm_exp2f(fm_clampf(nctl.drift, -1.0f, 1.0f)), sec_n = (float)n * (1.0f / EN_SR);
-    float g, sa[2] = {0.0f, 0.0f}, sd[2] = {0.0f, 0.0f}, kb = 0.0f, kt = 0.0f, bed = 0.0f, rate = 1.0f;
+    float g, sa[2] = {0.0f, 0.0f}, sd[2] = {0.0f, 0.0f}, kb = 0.0f, kt = 0.0f, bed = 0.0f, rate = 1.0f, kh = 0.0f,
+          kq = 0.0f, hz = 0.0f, fz = 1.0f;
     uint32_t j;
     int ch, k;
     atm_gate += ((en_playing ? 1.0f : 0.0f) - atm_gate) * fm_minf((float)n / (0.5f * EN_SR), 1.0f);
@@ -4860,6 +4990,19 @@ static void render_atmos(uint32_t n)
         kb = fm_minf(800.0f * col * (FM_TWO_PI / EN_SR), 1.0f);
         rate = RN_RATE * busy * (0.3f + 1.4f * atm_gu);
         bed = RN_BED * (0.5f + atm_gu);
+    } else if (c == ATM_FIRE) {                  /* (the fire breathing: the gusts; and flickering, quicker: a new aim
+                                                  * some 8 times a second, eased to; Density its pops and ticks) */
+        if (atm_u() < sec_n * 8.0f * spd)
+            fr_ft = atm_u();
+        fr_fl += (fr_ft - fr_fl) * fm_minf(sec_n * 12.0f * spd, 1.0f);
+        kb = fm_minf(FR_GLOW * col * (FM_TWO_PI / EN_SR), 1.0f);
+        kt = fm_minf(5.0f * FR_GLOW * col * (FM_TWO_PI / EN_SR), 1.0f);
+        kh = fm_minf(700.0f * col * (FM_TWO_PI / EN_SR), 1.0f);
+        kq = fm_minf(2500.0f * col * (FM_TWO_PI / EN_SR), 1.0f);
+        rate = FR_RATE * busy * (0.3f + 1.4f * atm_gu);
+        bed = FR_BED * (0.6f + 0.4f * atm_gu) * (0.75f + 0.25f * fr_fl);
+        hz = FR_HISS * (0.5f + atm_gu) * (0.2f + 0.8f * fr_fl * fr_fl);
+        fz = FR_FIZZ * busy * (0.5f + atm_gu);
     }
     for (j = 0; j < n; j++) {
         float l = 0.0f, r = 0.0f, bp, xl = 0.0f, xr = 0.0f;
@@ -4961,6 +5104,92 @@ static void render_atmos(uint32_t n)
                 }
             break;
         }
+        case ATM_FIRE: {                         /* (one draw, two noises, as Wind's: the glow's, the hiss's, the
+                                                  * pops') */
+            const uint32_t rr = seq_rand(&atm_rng);
+            float tk = 0.0f, tw = 0.5f;
+            xl = (float)(int32_t)(rr << 16) * (1.0f / 2147483648.0f);
+            xr = (float)(int32_t)(rr & 0xFFFF0000u) * (1.0f / 2147483648.0f);
+            if ((fr_fz -= 1.0f) <= 0.0f) {       /* a tick of the fizz: mostly tiny, now and then a snap, here or
+                                                  * there */
+                const float a = atm_u();
+                tk = FR_TICK * a * a * a * (atm_u() < 0.5f ? -1.0f : 1.0f);
+                tw = atm_u();
+                fr_fz += -fm_logf(fm_maxf(atm_u(), 1e-6f)) * EN_SR / fz;
+            }
+            for (ch = 0; ch < 2; ch++) {
+                const float x = ch ? xr : xl, t = hz * x + tk * (ch ? 1.0f - tw : tw);
+                atm_lp[ch] += kb * (x - atm_lp[ch]);   /* the glow: a band, FR_GLOW to 5x (two poles' difference) */
+                atm_lq[ch] += kt * (x - atm_lq[ch]);
+                fr_hp[ch] += kh * (t - fr_hp[ch]);   /* the hiss and its ticks: over 0.7 kHz, under 2.5 */
+                fr_hs[ch] += kq * (t - fr_hp[ch] - fr_hs[ch]);
+                if (ch)
+                    r = bed * (atm_lq[1] - atm_lp[1]) + fr_hs[1];
+                else
+                    l = bed * (atm_lq[0] - atm_lp[0]) + fr_hs[0];
+            }
+            if ((fr_wait -= 1.0f) <= 0.0f) {
+                if (SHED)                        /* (shedding: no new pop; the ones sounding die) */
+                    fr_wait = 0.0f, fr_cl = 0;
+                else {                           /* a pop (Poisson, as the drops), now and then a cluster: one to
+                                                  * three followers 5 .. 60 ms apart */
+                    const float u = atm_u();
+                    fr_ca = 0.35f + 0.45f * u * u * u;   /* (mostly soft, now and then a crack) */
+                    fire_pop(col, ring, fr_ca, 1.0f);
+                    fr_cl = atm_u() < 0.45f ? 1 + (int)(seq_rand(&atm_rng) % 3u) : 0;
+                    fr_cw = (0.005f + 0.055f * atm_u()) * EN_SR;
+                    fr_wait += -fm_logf(fm_maxf(atm_u(), 1e-6f)) * EN_SR / rate;
+                }
+            }
+            if (fr_cl > 0 && (fr_cw -= 1.0f) <= 0.0f) {   /* a follower: softer, higher, quicker */
+                fr_cl--;
+                fr_ca *= 0.35f + 0.35f * atm_u();
+                fire_pop(col, ring, fr_ca, 1.5f + 1.5f * atm_u());
+                fr_cw = (0.005f + 0.055f * atm_u()) * EN_SR;
+            }
+            for (k = 0; k < FR_N; k++)          /* (each burst, and its resonance ringing on after it) */
+                if (fr_e[k] > 0.0f || fm_fabsf(fr_s[k][0]) + fm_fabsf(fr_s[k][1]) > 1e-6f) {
+                    float bp;
+                    svf_lp(fr_c[k], fr_s[k], xl * fr_e[k] * fr_c[k][3], &bp);   /* (x k: the band's peak 1) */
+                    l += FR_G * bp * fr_gl[k], r += FR_G * bp * fr_gr[k];
+                    fr_e[k] *= fr_dk[k];
+                    if (fr_e[k] < 1e-5f)
+                        fr_e[k] = 0.0f;
+                }
+            break;
+        }
+        case ATM_CURLEW:                         /* (a whistle: Space's FM, an octave's, nearly round) */
+            if (cw_n > 0.0f) {
+                const float v = sine(cw_vph), e = sine(0.5f * cw_u) * cw_amp,
+                            x = CW_G * e * (1.0f - cw_am * (0.5f - 0.5f * v)) *
+                                sine(cw_ph + 2.0f + cw_idx * e * sine(2.0f * cw_ph));
+                l = x * cw_gl, r = x * cw_gr;
+                cw_u += cw_du;
+                cw_ph += cw_dt * (1.0f + cw_vd * v);
+                if (cw_ph >= 1.0f)
+                    cw_ph -= 1.0f;
+                cw_vph += cw_vdt;
+                if (cw_vph >= 1.0f)
+                    cw_vph -= 1.0f;
+                cw_dt *= cw_rat;
+                if ((cw_n -= 1.0f) <= 0.0f) {    /* (its end: the next straight on, the trill's fall, or after its
+                                                  * gap; after the call's last, the wait to the next call) */
+                    cw_n = 0.0f;
+                    if (cw_q < cw_qn && cw_sy[cw_q].gap <= 0.0f)
+                        cw_start();
+                    else
+                        cw_wait = cw_q < cw_qn ? cw_sy[cw_q].gap : cw_rest;
+                }
+            } else if ((cw_wait -= 1.0f) <= 0.0f) {
+                if (cw_q < cw_qn)
+                    cw_start();
+                else if (SHED)                   /* (shedding: no new call) */
+                    cw_wait = 0.0f;
+                else
+                    curlew_call(col, ring, busy);
+            }
+            esend[j] += 0.9f * ec * (l + r) * g;  /* (into the echo, over the bog) */
+            break;
         default:                                 /* Air: what a low-pass leaves, breathing with the gusts */
             for (ch = 0; ch < 2; ch++) {
                 const float x = atm_noise();
@@ -4972,10 +5201,10 @@ static void render_atmos(uint32_t n)
             }
             break;
         }
-        if (c != ATM_AIR) {                      /* Air: a hiss under the others (Wind's and Rain's from their own
-                                                  * noise: a draw saved) */
-            const float hl = c == ATM_WIND || c == ATM_RAIN ? xl : atm_noise(),
-                        hr = c == ATM_WIND || c == ATM_RAIN ? xr : atm_noise();
+        if (c != ATM_AIR) {                      /* Air: a hiss under the others (Wind's, Rain's and Fire's from
+                                                  * their own noise: a draw saved) */
+            const float hl = c == ATM_WIND || c == ATM_RAIN || c == ATM_FIRE ? xl : atm_noise(),
+                        hr = c == ATM_WIND || c == ATM_RAIN || c == ATM_FIRE ? xr : atm_noise();
             atm_hl += 0.35f * (hl - atm_hl), atm_hr += 0.35f * (hr - atm_hr);
             l += 0.12f * air * (hl - atm_hl), r += 0.12f * air * (hr - atm_hr);
         }
@@ -4986,14 +5215,17 @@ static void render_atmos(uint32_t n)
         crl[j] = l * g;
         crr[j] = r * g;
         rsend[j] += 0.5f * rv * (l + r) * g;
-        if (c != ATM_SPACE)
-            esend[j] += 0.15f * ec * (l + r) * g;   /* (a little into the echo; the bleeps, more: above) */
+        if (c != ATM_SPACE && c != ATM_CURLEW)
+            esend[j] += 0.15f * ec * (l + r) * g;   /* (a little into the echo; the bleeps and the calls, more:
+                                                     * above) */
     }
     for (ch = 0; ch < 2; ch++)                   /* (the poles' and the onsets' tails: never into denormals; a block
                                                   * takes a quick onset down by 1e-6 at most) */
         atm_lq[ch] = fm_flush(atm_lq[ch]);
     for (k = 0; k < RN_N; k++)
         rn_ef[k] = fm_flush(rn_ef[k]);
+    for (k = 0; k < FR_N; k++)
+        fr_s[k][0] = fm_flush(fr_s[k][0]), fr_s[k][1] = fm_flush(fr_s[k][1]);
 }
 #ifdef EN_HOST
 static int atm_fine(float x) { return x == x && fm_fabsf(x) < 1e30f && (x == 0.0f || fm_fabsf(x) > 1.2e-38f); }
@@ -5007,6 +5239,12 @@ int en_atm_ok(void)                              /* (host tests) the Atmosphere'
               atm_fine(atm_pk[ch][2]);
     for (k = 0; k < RN_N; k++)
         ok &= atm_fine(rn_es[k]) && atm_fine(rn_ef[k]) && atm_fine(rn_ph[k]) && atm_fine(rn_dt[k]);
+    for (k = 0; k < FR_N; k++)                   /* (AISLING: Fire's, Curlew's) */
+        ok &= atm_fine(fr_s[k][0]) && atm_fine(fr_s[k][1]) && atm_fine(fr_e[k]);
+    for (ch = 0; ch < 2; ch++)
+        ok &= atm_fine(fr_hp[ch]) && atm_fine(fr_hs[ch]);
+    ok &= atm_fine(fr_wait) && atm_fine(fr_cw) && atm_fine(fr_fz) && atm_fine(fr_fl) && atm_fine(cw_ph) &&
+          atm_fine(cw_dt) && atm_fine(cw_u) && atm_fine(cw_vph) && atm_fine(cw_wait) && atm_fine(cw_n);
     return ok;
 }
 #endif

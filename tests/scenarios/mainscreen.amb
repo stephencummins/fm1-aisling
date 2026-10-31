@@ -1,6 +1,6 @@
 # (BERLIN) the main screen: five meters, each its own layer's (Drone, Seq, Lead, Seq 2, Atmos), and two lanes, each
-# sequence at its own step (Tir na nOg: 12 against 11, so they part and meet; AISLING's one piece without an
-# Atmosphere, its meter still)
+# sequence at its own step (Tir na nOg: 12 against 11, so they part and meet; its Atmosphere the Curlew, its meter
+# up while it calls: a moment's reading, 15 at 10 s. A muted layer's meter still: perform.amb)
 wait 300
 turn PRESET 7
 wait 300
@@ -10,7 +10,7 @@ wait 10000
 expect act0 >5
 expect act1 >5
 expect act3 >5
-expect act4 0
+expect act4 >5
 expect seqapart >100
 shot main.png
 # Skellig (round from the last): Surf, the Atmosphere's meter up

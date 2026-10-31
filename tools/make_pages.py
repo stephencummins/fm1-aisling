@@ -140,7 +140,7 @@ mutes and solos the layers and pushes Filter, Wet and Energy.</p>
   <li class="s"><b>Sequence.</b> The harp: a wire-strung harp's ostinato, often twelve notes in a jig's threes, repeated by the echo, its filter wandering.</li>
   <li class="t"><b>Sequence 2.</b> A second harp, a step shorter and often an octave down, so the two drift apart and meet again.</li>
   <li class="l"><b>Lead.</b> The flute, far back in the reverb, phrasing in calls and answers; or your own melody on the keys.</li>
-  <li class="a"><b>Atmosphere.</b> Surf, wind, rain or a turf fire's crackle, where a piece wants it.</li>
+  <li class="a"><b>Atmosphere.</b> Surf, wind, rain, a turf fire or a curlew, where a piece wants it.</li>
 </ul>
 <p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain, Connemara and Tir na nOg, in the old modes and the
 pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders

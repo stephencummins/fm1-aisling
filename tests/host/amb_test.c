@@ -1519,6 +1519,51 @@ static void at_drops(int *ons, double *fall, double *over, double *inr)
     *inr = pitched ? (double)inside / (double)pitched : 0.0;
 }
 
+/* (AISLING, step 7) Curlew's calls in at_x: 2048-sample frames (46 ms) 8 dB over the median frame calling, a call
+ * a run of them with no gap of a second; the share of the calling frames whose loudest bin is within 1.4 .. 3.2 kHz
+ * (the whistles' range, a little either side); the calls' level heard, as at_alevel but over the calling frames
+ * (the mono's mean square there, A-weighted by their spectrum, the sides' over the mono's from all of it) */
+static void at_calls(int *calls, double *inr, double *lvl)
+{
+    static double fr[AT_MAX / 2048], srt[AT_MAX / 2048], re[2048], im[2048];
+    const int nfr = at_n / 2048;
+    int k, i, last = -100, nc = 0, nin = 0;
+    double med, ms = 0.0, msall = 0.0, all = 0.0, a = 0.0;
+    for (k = 0; k < nfr; k++) {
+        double e = 0.0;
+        for (i = 0; i < 2048; i++)
+            e += (double)at_x[2048 * k + i] * (double)at_x[2048 * k + i];
+        msall += e;
+        srt[k] = fr[k] = 10.0 * log10(e / 2048.0 + 1e-30);
+    }
+    med = at_pct(srt, nfr, 50);
+    *calls = 0;
+    for (k = 0; k < nfr; k++) {
+        int b = 1;
+        double bp = 0.0;
+        if (fr[k] < med + 8.0)
+            continue;
+        *calls += k - last > 22;                 /* (22 frames: a second) */
+        last = k;
+        nc++;
+        for (i = 0; i < 2048; i++) {
+            ms += (double)at_x[2048 * k + i] * (double)at_x[2048 * k + i];
+            re[i] = (0.5 - 0.5 * cos(6.283185307179586 * (double)i / 2048.0)) * (double)at_x[2048 * k + i], im[i] = 0.0;
+        }
+        at_fft(re, im, 2048);
+        for (i = 2; i < 1024; i++) {
+            const double p = re[i] * re[i] + im[i] * im[i];
+            all += p, a += p * aw2((double)i * 44100.0 / 2048.0);
+            if (p > bp)
+                bp = p, b = i;
+        }
+        nin += (double)b * 44100.0 / 2048.0 >= 1400.0 && (double)b * 44100.0 / 2048.0 <= 3200.0;
+    }
+    *inr = nc ? (double)nin / (double)nc : 0.0;
+    *lvl = 10.0 * log10(ms / (2048.0 * (double)(nc ? nc : 1)) + 1e-300) + 10.0 * log10(a / (all + 1e-300) + 1e-300) +
+           10.0 * log10(at_ms / (msall / (2048.0 * (double)(nfr ? nfr : 1)) + 1e-300) + 1e-300);
+}
+
 /* (the voices batch, item 4: the Atmospheres, after Skiff's NOISE) about three minutes, each alone:
  * - Wind (Timewind's, at its 7): pink noise into the drifting band-pass. Below the band (50 .. 150 Hz) its skirt
  *   rises +3 dB an octave on pink, +6 on white; its centre (the frames' centroid) wanders, 10th to 90th percentile
@@ -1530,6 +1575,10 @@ static void at_drops(int *ons, double *fall, double *over, double *inr)
  * - Rain, after Tape (every character before it keeps its number): drops (sparse onsets standing well over the
  *   bed, each ringing tens of ms, pitched within 300 Hz .. 6 kHz) over a quiet bed; as loud as Wind at the same
  *   level (within 3 dB);
+ * - (AISLING, step 7) Fire and Curlew after Rain, the same way. Fire: soft pops (a few dozen in 30 s, standing over
+ *   its glow and hiss, each falling 20 dB in a few tens of ms at most), warm (its 200 Hz .. 1.5 kHz over its
+ *   3 .. 8 kHz), and as loud as Wind (within 3 dB, over 45 s: it breathes); Curlew: sparse calls (2 to 12 in 45 s,
+ *   at_calls), whistled within 1.4 .. 3.2 kHz, and as loud as Wind while it calls (within 3 dB);
  * - the float state (en_atm_ok: finite, no denormals) after each has played and stopped */
 static void test_atmospheres(void)
 {
@@ -1541,7 +1590,11 @@ static void test_atmospheres(void)
     en_param_text(P_NCHAR, 5, t);
     CHECK(!strcmp(t, "Tape"), "test_rain_listed: atmosphere 5 %s", t);
     en_param_text(P_NCHAR, 6, t);
-    CHECK(en_param_info(P_NCHAR)->hi == 6 && !strcmp(t, "Rain"), "test_rain_listed: atmosphere 6 %s, hi %d", t,
+    CHECK(!strcmp(t, "Rain"), "test_rain_listed: atmosphere 6 %s", t);
+    en_param_text(P_NCHAR, 7, t);
+    CHECK(!strcmp(t, "Fire"), "test_fire_listed: atmosphere 7 %s", t);
+    en_param_text(P_NCHAR, 8, t);
+    CHECK(en_param_info(P_NCHAR)->hi == 8 && !strcmp(t, "Curlew"), "test_curlew_listed: atmosphere 8 %s, hi %d", t,
           en_param_info(P_NCHAR)->hi);
     at_solo(0, 1, 7, 0);                         /* Wind, Timewind's */
     at_cap(45.0f);
@@ -1568,7 +1621,7 @@ static void test_atmospheres(void)
     at_cap(20.0f);
     at_spec();
     wind25 = at_alevel();
-    at_solo(-1, EN_NNCHAR - 1, 25, 1);           /* Rain, dry: its drops as they are */
+    at_solo(-1, 6, 25, 1);                       /* Rain, dry: its drops as they are */
     peak = 0.0f;
     bad = 0;
     at_cap(30.0f);
@@ -1583,6 +1636,33 @@ static void test_atmospheres(void)
     CHECK(inr > 0.9, "test_rain_range: %.0f%% of the drops pitched within 300 Hz .. 6 kHz", 100.0 * inr);
     CHECK(peak > 0.005f && peak < 0.5f, "test_rain_range: peak %.3f", (double)peak);
     CHECK(fabs(al - wind25) < 3.0, "test_rain_level: %.1f dB(A), Wind at the same level %.1f", al, wind25);
+    at_solo(-1, 7, 25, 1);                       /* (AISLING) Fire, dry */
+    peak = 0.0f;
+    bad = 0;
+    at_cap(45.0f);
+    at_spec();
+    al = at_alevel();
+    lo = at_band(200.0, 1500.0) - at_band(3000.0, 8000.0);
+    at_drops(&ons, &fall, &over, &inr);
+    printf("  fire: %d pops in 45 s, falling 20 dB in %.0f ms, %.1f dB over the bed, 200 Hz..1.5 kHz %.1f dB over "
+           "3..8 kHz, peak %.3f, %.1f dB(A) (Wind %.1f)\n", ons, fall, over, lo, (double)peak, al, wind25);
+    CHECK(!bad && ons >= 18 && ons <= 450, "test_fire_pops: %d pops in 45 s", ons);
+    CHECK(over > 12.0, "test_fire_pops: the pops %.1f dB over the bed", over);
+    CHECK(fall > 3.0 && fall < 60.0, "test_fire_soft: a pop falls 20 dB in %.0f ms", fall);
+    CHECK(lo > 3.0, "test_fire_warm: 200 Hz .. 1.5 kHz %.1f dB over 3 .. 8 kHz", lo);
+    CHECK(peak > 0.005f && peak < 0.5f, "test_fire_range: peak %.3f", (double)peak);
+    CHECK(fabs(al - wind25) < 3.0, "test_fire_level: %.1f dB(A), Wind at the same level %.1f", al, wind25);
+    at_solo(-1, 8, 25, 1);                       /* (AISLING) Curlew, dry */
+    peak = 0.0f;
+    bad = 0;
+    at_cap(45.0f);
+    at_calls(&ons, &inr, &al);
+    printf("  curlew: %d calls in 45 s, %.0f%% of the calling whistled within 1.4 .. 3.2 kHz, peak %.3f, "
+           "%.1f dB(A) calling (Wind %.1f)\n", ons, 100.0 * inr, (double)peak, al, wind25);
+    CHECK(!bad && ons >= 2 && ons <= 12, "test_curlew_sparse: %d calls in 45 s", ons);
+    CHECK(inr > 0.9, "test_curlew_range: %.0f%% of the calling within 1.4 .. 3.2 kHz", 100.0 * inr);
+    CHECK(peak > 0.005f && peak < 0.5f, "test_curlew_range: peak %.3f", (double)peak);
+    CHECK(fabs(al - wind25) < 3.0, "test_curlew_level: %.1f dB(A) calling, Wind at the same level %.1f", al, wind25);
     for (c = 1; c < EN_NNCHAR; c++) {            /* (each character played, stopped, the gate shut) */
         at_solo(-1, c, 60, 0);
         run(3.0f);
@@ -6014,8 +6094,8 @@ int main(void)
         CHECK(dreamy, "test_pieces_lead_dreamy: a piece's Lead reverb or echo not 90");
         CHECK(player, "test_pieces_player: a piece sets Tune or MIDI out");
         for (a = 0; a < EN_NPIECES; a++) {
-            static const int LV[EN_NNCHAR] = {25, 7, 5, 10, -1, 10, 7};   /* (None Wind Surf Space Air Tape Rain; Air:
-                                                                          * unused) */
+            static const int LV[EN_NNCHAR] = {25, 7, 5, 10, -1, 10, 7, 7, 7};   /* (None Wind Surf Space Air Tape Rain
+                                                                                * Fire Curlew; Air: unused) */
             const int c = pa[a][P_NCHAR];
             CHECK(c >= 0 && c < EN_NNCHAR && LV[c] >= 0 && pa[a][P_CRACKLE] == LV[c],
                   "test_pieces_atmos_levels: %s: %s at %d", en_piece_name(a), c >= 0 && c < EN_NNCHAR ? EN_NCHAR_NAME[c] : "?",

@@ -4,7 +4,7 @@ AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps 
 fiddle, a chanter or a voice leading, in the old modes, with the weather of the west coast behind them. It plays
 itself from the moment it's switched on. A harp's ostinato runs over the drone, often in a jig's threes, its notes
 repeated by the echo; a second harp, a step shorter and an octave down, drifts against it like the harper's other
-hand; the Lead plays long phrases far back in the reverb; surf, wind, rain or a turf fire pass behind. The chords
+hand; the Lead plays long phrases far back in the reverb; surf, wind, rain, a turf fire or a curlew pass behind. The chords
 swing between two tonics, D and C or E minor and D, as the old tunes do. Each piece opens from the drone, flows,
 gives the Lead its turn, crosses a bridge, and goes on for ever; every layer's filter moves slowly on its own.
 Listen, and play: let it run, or join in. Play a melody on the white keys and the Lead answers it, takes it as its
@@ -282,14 +282,19 @@ back where the theme does, and a new figure on the keys starts it all again from
 
 **The Atmosphere** (SAVE) is a background: **None**, **Wind** (a breath of soft, pink noise through a narrow
 band, swept slowly, louder as it climbs: gusts), **Surf** (waves of dark, deep noise, each brighter as it breaks),
-**Space** (chirps and bursts, far away), **Air**, **Tape** (a crackle ringing on the chord, DUB-1's), or **Rain**
-(soft drops, each a short ring at its own pitch, over a quiet hush). Wind and Surf are dark, their top end soft
-(the FM-1's speaker is bright).
+**Space** (chirps and bursts, far away), **Air**, **Tape** (a crackle ringing on the chord, DUB-1's), **Rain**
+(soft drops, each a short ring at its own pitch, over a quiet hush), **Fire** (a turf fire in the hearth: a warm
+glow and a hiss that flares and settles, soft pops low in the turf, now and then a few together), or **Curlew** (the
+whaup over the bog: now and then a call, whistled, the "cour-li" rising, sometimes the bubbling song, near or far,
+here or there, into the echo). Wind and Surf are dark, their top end soft (the FM-1's speaker is bright). Rain, Fire
+and Curlew sound as loud as Wind at the same level (A-weighted; Curlew while it calls).
 
 Its knobs keep their jobs whatever it is: Density, how busy (on Wind, how often its band turns; on Rain, how many
-drops); Drift, how quickly it changes (Wind's band, Surf's waves, Rain's showers coming and going); Colour, darker
-or brighter (where Wind's band wanders, the drops' pitch); Ring, how much it rings (how narrow Wind's band, how
-long each drop); Air, the hiss under it; Width, Reverb and Echo as everywhere.
+drops; on Fire, how many pops; on Curlew, how often it calls); Drift, how quickly it changes (Wind's band, Surf's
+waves, Rain's showers coming and going, Fire's breathing and flicker); Colour, darker or brighter (where Wind's band
+wanders, the drops' pitch, the fire's glow, hiss and pops, how reedy the curlew's whistle); Ring, how much it rings
+(how narrow Wind's band, how long each drop and each pop, how slow the curlew's calls); Air, the hiss under it; Width,
+Reverb and Echo as everywhere.
 
 ---
 
@@ -390,12 +395,12 @@ tonic (the chords swinging between two, a long while each: the Chords page in Lo
 |---|---|---|---|---|---|---|---|
 | 1 | **Skellig** | Skellig Michael, the rock off Kerry | D minor, 76 | One: 12 sixteenths in threes, every third accented, opening over 8 bars; no Sequence 2 | Pipes | Surf | Dm and C in turn, 16 bars each |
 | 2 | **Burren** | The Burren, Clare: bare limestone | G Mixolydian, 84 | Two, of 12 and 11 steps, drifting apart | Choir | Wind | I IV I ii, 16 bars each |
-| 3 | **Aran** | Inis Mór | A Dorian, 96 | A bouzouki's jig of 12 over a bodhrán's slip jig of 9; the bouzouki straight in | Harmonium | Tape: a turf fire's crackle | Am and G in turn, 8 bars each |
+| 3 | **Aran** | Inis Mór | A Dorian, 96 | A bouzouki's jig of 12 over a bodhrán's slip jig of 9; the bouzouki straight in | Harmonium | Fire: a turf fire | Am and G in turn, 8 bars each |
 | 4 | **Carolan** | Turlough O'Carolan, the blind harper (1670–1738) | D major, 88 | Two, of 16 and 15 sixteenths; the first straight in | Strings | Rain | A planxty's: I IV I V vi IV V I, 8 bars each |
 | 5 | **Blasket** | The Blasket Islands, Kerry, left in 1953 | E Dorian, 70 | Two slow dulcimers of 12 and 11; the second opens over 12 bars, after the first | Choir | Surf | Em and D in turn, 32 bars each |
 | 6 | **Samhain** | The year's dark turn | B minor, 64 | One low harp of 8 over a bodhrán's heartbeat of 8 (its first two steps, the rest ghosts) | Pipes, dark, opening over 8 bars | Wind | Bm, G, A, 32 bars each |
 | 7 | **Connemara** | Bog, lake and rain | G hexatonic minor (no sixth), 92 | A slip jig's 9 over 8, an octave down | Organ | Rain | Gm and F in turn, 16 bars each |
-| 8 | **Tir na nOg** | Tír na nÓg, the land of the young over the western sea | D hexatonic major (no seventh), 80 | Two, of 12 and 11 sixteenths | Glass, phased; a long reverb | None | D and G in turn, 16 bars each |
+| 8 | **Tir na nOg** | Tír na nÓg, the land of the young over the western sea | D hexatonic major (no seventh), 80 | Two, of 12 and 11 sixteenths | Glass, phased; a long reverb | Curlew, far out over the bog | D and G in turn, 16 bars each |
 
 In every piece but Aran (Bouzouki) and Blasket (Dulcimer) the Sequence plays the Harp. The Lead is the Flute in Skellig, Carolan and Tir na nOg, the Fiddle in Burren and
 Connemara, the Chanter in Aran and the Voice in Blasket and Samhain, coming in within the first minute (Lead in
@@ -681,10 +686,10 @@ must also share its source code.
 - The granular cloud (Freeze) follows the design of CLOUD in [JIANT](https://github.com/juanjiant-bit/JIANT)
   (GPL-3.0), another FM-1 firmware.
 - The Tape atmosphere is DUB-1's crackle, after Bahadirhan Kocer's "Using Resonators in Live".
-- Wind's pink noise and its band whose level follows its wandering, Surf's brown noise and Rain's drops follow
-  NOISE in [Skiff](https://github.com/illuminus5/skiff) (`eng_noise.c`, Leo Kuroshita, Hügelton Instruments,
-  GPL-3.0): its colour from white to pink (Paul Kellet's filter) to brown, its drift and its dust; written again
-  in floating point.
+- Wind's pink noise and its band whose level follows its wandering, Surf's brown noise and Rain's drops (and Fire's
+  pops, timed as they are) follow NOISE in [Skiff](https://github.com/illuminus5/skiff) (`eng_noise.c`, Leo
+  Kuroshita, Hügelton Instruments, GPL-3.0): its colour from white to pink (Paul Kellet's filter) to brown, its drift
+  and its dust; written again in floating point.
 - The chord walk is a weighted random walk over the scale's degrees, from AMB-1's `chord_change`.
 - The platform (hardware layer, USB, update loader, installer and storage) is from **Felucca** by Leo
   Kuroshita, Hügelton Instruments, by way of [X0X](https://github.com/charlesvestal/fm1-x0x), FoMni-1,

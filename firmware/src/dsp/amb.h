@@ -357,8 +357,9 @@ void en_prog_rewalk(void);                     /* the walk's character turned (b
                                                 * the one playing (yours and the gaps kept) */
 enum { EN_WALK_HOME, EN_WALK_WANDER, EN_WALK_FREE, EN_NWALK, EN_PLOOP = 4 };
 extern const char *const EN_WALK_NAME[EN_NWALK];
-#define EN_NNCHAR 7                      /* (BERLIN) the Atmosphere's: None, Wind, Surf, Space, Air, Tape, Rain (the voices
-                                          * batch: appended, so the saves keep their meaning) */
+#define EN_NNCHAR 9                      /* (BERLIN) the Atmosphere's: None, Wind, Surf, Space, Air, Tape, Rain (the voices
+                                          * batch: appended, so the saves keep their meaning), Fire, Curlew (AISLING:
+                                          * appended the same way) */
 extern const char *const EN_NCHAR_NAME[EN_NNCHAR];   /* the noise's characters */
 extern volatile int8_t en_chord_slot;          /* the slot whose chord sounds, -1: a chord of the scale */
 int en_deg_of(uint32_t pool, int rel);         /* the scale degree for a note above the root (nearest in the pool) */
