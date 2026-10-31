@@ -535,8 +535,11 @@ A note's pitch sets how far across it lands, how hard it's played how much paint
 page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
 **Demo** paints without an FM-1. Paint into it with a finger or the mouse; **Save picture** keeps a still, and
 **Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
-USB audio appears). Everything stays on your computer. Add `?clean` to the address for the painting alone, for a
-projector or a stream.
+USB audio appears). Drop a sound file on the page (or press **Add a sample**) to mix it in: a WAV, AIFF, FLAC or MP3
+loops out of the computer and paints as the weather, low sounds low and high sounds high. While the FM-1 plays (or the
+demo) **In time** fits it to the tempo like tape, to the nearest 1, 2, 4 … 64 beats, starting on the FM-1's Start and
+stopping with it; a sample longer than 30 seconds plays at its own speed. **Record** takes it too, mixed with the FM-1.
+Everything stays on your computer. Add `?clean` to the address for the painting alone, for a projector or a stream.
 
 ### Screen reader
 

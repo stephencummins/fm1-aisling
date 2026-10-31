@@ -42,6 +42,13 @@ h1 span { font-weight: 400; font-size: .8rem; letter-spacing: .12em; text-transf
 p { margin: .5rem 0; }
 #status { color: var(--muted); min-height: 1.5em; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; margin: .7rem 0 .5rem; }
+.row[hidden], ul.legend li[hidden] { display: none; }
+label.level { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); }
+input[type="range"] { accent-color: var(--accent); width: 7.5rem; margin: 0; }
+#sinfo { color: var(--muted); font-size: .92rem; margin-top: 0; }
+body.dropping::after { content: "Drop a sound to mix it in"; position: fixed; inset: 12px; display: grid; place-items: center;
+                 border: 2px dashed var(--accent); border-radius: 12px; background: rgba(128, 120, 110, .14); color: var(--ink);
+                 font-size: 1.25rem; letter-spacing: .04em; pointer-events: none; }
 button, select { font: inherit; color: var(--ink); background: var(--btn); border: 1px solid var(--rule); border-radius: 6px;
                  padding: 7px 12px; min-height: 36px; cursor: pointer; }
 select { max-width: 100%; }
@@ -78,7 +85,16 @@ kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-rad
     <button id="full" type="button" title="Full screen (F)">Full screen</button>
     <button id="save" type="button" title="Save the picture (S)">Save picture</button>
     <button id="record" type="button" aria-pressed="false" title="Record a video, with the FM-1's sound (R)">Record</button>
+    <button id="sample" type="button" title="Mix in a sound file, or drop one on the page (A)">Add a sample</button>
   </div>
+  <div class="row" id="srow" hidden>
+    <button id="splay" type="button">Pause</button>
+    <button id="ssync" type="button" aria-pressed="true" title="Fit it to the FM-1's tempo and keep it on the beat">In time</button>
+    <button id="sremove" type="button">Remove</button>
+    <label class="level">Level <input id="slevel" type="range" min="0" max="100" value="70"></label>
+  </div>
+  <p id="sinfo" hidden></p>
+  <input id="sfile" type="file" accept="audio/*,.wav,.wave,.aif,.aiff,.flac,.mp3,.m4a,.ogg,.opus" hidden>
   <p id="status" role="status" aria-live="polite"></p>
   <details>
     <summary>How it works</summary>
@@ -91,11 +107,17 @@ kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-rad
     <p>Save picture keeps the painting as it is now. Record makes a video of it; with the FM-1 plugged in it records the
        FM-1's own sound as well, which comes over the same USB cable (the browser asks to use it as a microphone).
        While it records, the sound moves the wind. Both are saved to this computer and go nowhere else.</p>
+    <p>Drop a sound file on the page, or press Add a sample, to mix it in: a WAV, AIFF, FLAC or MP3. It loops out of this
+       computer's speakers and paints as the weather, low sounds low and high sounds high, each hit a drop where a slow
+       sweep across the page has reached. While the FM-1 plays (or the demo), In time fits it to the tempo: sped up or
+       slowed like tape, pitch and all, to the nearest 1, 2, 4, 8, 16, 32 or 64 beats, and kept on the beat. A sample
+       longer than 30 seconds plays at its own speed. Record takes it too, mixed with the FM-1. The file is read in this
+       tab and goes nowhere.</p>
     <p>It works in Chrome, Edge and Opera, on a computer or an Android phone. Firefox asks you to allow a site permission
        first. Safari, and every browser on an iPhone or iPad, has no Web MIDI: watch the demo there.</p>
     <p>Any MIDI source works: channels 1 to 4 are the Drone, the Sequence, the Lead and Sequence 2, as the FM-1 sends them.</p>
     <p>Keys: <kbd>F</kbd> full screen, <kbd>M</kbd> the ground (vellum, mist or night), <kbd>D</kbd> demo, <kbd>S</kbd> save picture,
-       <kbd>R</kbd> record, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel at all
+       <kbd>R</kbd> record, <kbd>A</kbd> add a sample, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel at all
        (a projector, or a browser source in OBS).</p>
     <p>Part of <a href="https://github.com/stephencummins/fm1-aisling">AISLING</a> (GPL-3.0). No FM-1? Hear it in the
        <a href="https://stephencummins.github.io/fm1-aisling/emu/">browser emulator</a>.</p>
@@ -123,6 +145,9 @@ const LAYERS = [
     stops: ['#7a3414', '#c05a1e', '#d98a3c'] },
   { name: 'Sequence 2', place: 'the hills', band: [0.28, 0.45], range: [40, 86], held: false, size: 0.85, conc: 1.0,
     stops: ['#2a2456', '#4a3f7a', '#8a86a6'] },
+  // not a channel: a sample dropped on the page, across every band (its "notes" are its six bands, low to high)
+  { name: 'Sample', place: 'the weather', band: [0.07, 0.93], range: [0, 5], held: false, size: 0.6, conc: 1.0, extra: true,
+    stops: ['#25272d', '#454952', '#737882', '#a4a8ac'] },
 ]
 for (const L of LAYERS) L.rgb = L.stops.map(hex)
 // vellum first: the default, a page of old calfskin, warm and darkening to its foot
@@ -246,7 +271,8 @@ function bnd(b, x) {
 
 function windGoal() {
   const bpm = clock.running ? clock.bpm : demo.on ? demo.bpm : 0
-  return (bpm ? 0.012 + 0.08 * clamp(bpm / 100, 0.3, 1.6) : 0.01) * (sound.an ? 0.7 + 1.6 * sound.level : 1)
+  const lv = Math.max(sound.an ? sound.level : -1, smp.buf ? smp.level : -1)
+  return (bpm ? 0.012 + 0.08 * clamp(bpm / 100, 0.3, 1.6) : 0.01) * (lv >= 0 ? 0.7 + 1.6 * lv : 1)
 }
 
 function wind(dt) {
@@ -682,8 +708,9 @@ function release(key) {
 function noteOff(ch, note) { release((ch & 3) * 128 + note) }
 function allOff(ch) { for (const key of [...held.keys()]) if (ch < 0 || ((key >> 7) & 3) === (ch & 3)) release(key) }
 
-// MIDI clock: 24 a beat; its rate is the wind
-const clock = { last: 0, iv: 0, bpm: 0, running: false }
+// MIDI clock: 24 a beat; its rate is the wind. The FM-1 sends it only while it plays, after a Start (from the top:
+// the next tick is the first beat) or a Continue, and a Stop when it stops.
+const clock = { last: 0, iv: 0, bpm: 0, running: false, ticks: -1 }
 function onClock(ts) {
   if (clock.last && ts - clock.last < 200) {
     const d = ts - clock.last
@@ -691,6 +718,8 @@ function onClock(ts) {
     clock.bpm = 60000 / (clock.iv * 24)
   }
   clock.last = ts
+  clock.ticks++
+  if (clock.iv) sampleTick(clock.ticks, ts, clock.iv, 'midi')
 }
 
 let lastMsgAt = 0
@@ -698,7 +727,8 @@ function onMessage(data, ts) {
   const st = data[0], now = performance.now()
   lastMsgAt = now
   if (st === 0xf8) { onClock(ts || now); return }
-  if (st === 0xfc) { allOff(-1); return }
+  if (st === 0xfa) { clock.ticks = -1; sampleRestart(); return }
+  if (st === 0xfc) { allOff(-1); if (smp.timed) smp.held = true; sampleRestart(); return }
   if (st >= 0xf0) return
   const ty = st & 0xf0, ch = st & 0x0f
   if (ty === 0x90 || ty === 0x80) {
@@ -718,8 +748,9 @@ function demoTick(now) {
   const six = 60000 / demo.bpm / 4
   if (now - demo.next > 1000) demo.next = now
   while (now >= demo.next) {
-    const s = demo.step++
+    const s = demo.step++, at = demo.next
     demo.next += six
+    if (!clock.running) sampleTick(s * 6, at, six / 6, 'demo')
     // the drone, D then C under it, four bars each: the double tonic
     if (s % 64 === 0) {
       for (const n of demo.drone) noteOff(0, n)
@@ -754,6 +785,7 @@ function setDemo(on) {
   $('demo').setAttribute('aria-pressed', String(on))
   if (on) { demo.next = performance.now(); demo.step = 0; wake(true) }
   else { allOff(-1); demo.drone = []; demo.lead = -1; demo.leadLeft = 0; demo.phrase = 0 }
+  if (smp.from === 'demo') sampleRestart()   // not the FM-1's: its first note ends the demo
   say()
 }
 
@@ -796,7 +828,7 @@ let sayTimer = 0
 function say(text) {
   const el = $('status')
   if (text) { el.textContent = text; return }
-  if (demo.on) { el.textContent = 'Demo: a little of what the FM-1 plays, without sound.'; return }
+  if (demo.on) { el.textContent = smp.buf ? 'Demo: a little of what the FM-1 plays, without its sound, and the sample in time with it.' : 'Demo: a little of what the FM-1 plays, without sound.'; return }
   if (!listening) { el.textContent = 'Plug in the FM-1 by USB, then press Listen.'; return }
   const all = inputs()
   if (!all.length) { el.textContent = 'No MIDI devices. Plug in the FM-1: it shows up as DUB-1 FM-1.'; return }
@@ -810,7 +842,7 @@ function say(text) {
 const brushes = new Map()
 function layerAt(fy) {
   let best = 0, bd = 9
-  LAYERS.forEach((L, i) => { const d = Math.abs(fy - (L.band[0] + L.band[1]) / 2) - (L.band[1] - L.band[0]) / 2; if (d < bd) { bd = d; best = i } })
+  LAYERS.forEach((L, i) => { const d = Math.abs(fy - (L.band[0] + L.band[1]) / 2) - (L.band[1] - L.band[0]) / 2; if (!L.extra && d < bd) { bd = d; best = i } })
   return best
 }
 function push(x, y, du, dv, rad) {
@@ -896,8 +928,20 @@ function savePicture() {
   c.toBlob((blob) => { if (blob) { download(blob, fileName('jpg')); say('Saved the picture.') } }, 'image/jpeg', 0.92)
 }
 
+// one sound card for the page: the sample plays through it, the FM-1's sound is read through it, and the recording's
+// sound is mixed in it. A page dropped on before any click starts it held, and the first click or key lets it go.
+const audio = { ac: null }
+function audioCtx() {
+  if (!audio.ac) { try { audio.ac = new AudioContext() } catch { return null } }
+  if (audio.ac.state === 'suspended') audio.ac.resume().catch(() => {})
+  return audio.ac
+}
+for (const ev of ['pointerdown', 'keydown']) {
+  addEventListener(ev, () => { if (audio.ac && audio.ac.state === 'suspended') audio.ac.resume().catch(() => {}) }, { passive: true })
+}
+
 // the FM-1's sound: its USB audio is an input like a microphone, named for it
-const sound = { stream: null, ac: null, an: null, data: null, level: 0, name: '' }
+const sound = { stream: null, src: null, an: null, data: null, level: 0, name: '' }
 async function fm1Sound() {
   const md = navigator.mediaDevices
   if (!md || !md.getUserMedia) return null
@@ -913,18 +957,21 @@ async function fm1Sound() {
 }
 function hearSound(s) {
   sound.stream = s.stream; sound.name = s.name
+  const ac = audioCtx()
+  if (!ac) return
   try {
-    sound.ac = new AudioContext()
-    sound.an = sound.ac.createAnalyser()
+    sound.an = ac.createAnalyser()
     sound.an.fftSize = 1024
     sound.data = new Float32Array(sound.an.fftSize)
-    sound.ac.createMediaStreamSource(s.stream).connect(sound.an)   // to the analyser only: nothing is played back
+    sound.src = ac.createMediaStreamSource(s.stream)
+    sound.src.connect(sound.an)   // to the analyser and the recording only: the FM-1 is heard from its own outputs
+    if (rec.mix) sound.src.connect(rec.mix)
   } catch { sound.an = null }
 }
 function dropSound() {
   if (sound.stream) sound.stream.getTracks().forEach((t) => t.stop())
-  if (sound.ac) sound.ac.close().catch(() => {})
-  Object.assign(sound, { stream: null, ac: null, an: null, data: null, level: 0, name: '' })
+  if (sound.src) try { sound.src.disconnect() } catch {}
+  Object.assign(sound, { stream: null, src: null, an: null, data: null, level: 0, name: '' })
 }
 function listenSound() {
   if (!sound.an) return
@@ -935,7 +982,263 @@ function listenSound() {
   sound.level += (clamp((db + 60) / 45, 0, 1) - sound.level) * 0.08
 }
 
-const rec = { mr: null, chunks: [], c: null, g: null, t0: 0, shown: -1, asking: false }
+/* ---------------- a sample: a sound file dropped on the page, heard and painted as the weather ----------------
+   It plays out of this computer, looped. While a clock arrives (the FM-1's, or the demo's) In time fits it to the
+   tempo, sped up or slowed like tape to the nearest 1, 2, 4 ... 64 beats, and plays it a beat at a time, each beat
+   booked a beat ahead for when the count says it falls, so it can't drift from the FM-1. Each beat starts where the
+   last one has got to and the two cross in 3 ms, so the joins aren't heard. It paints by what it sounds like: six
+   bands, low to high, the bog to the sky, each dropping its colour where it hits, at the point a slow sweep across the
+   page has reached (four bars a sweep in time, ten and a half seconds out of it), and drawing a thin line while it
+   holds. */
+const SL = LAYERS.length - 1, SWEEP = 16 * 24, FREE_SWEEP = 10.5, FADE = 0.003, LONGEST = 30
+const BANDS = [[40, 150], [150, 400], [400, 1000], [1000, 2500], [2500, 6000], [6000, 16000]]
+const BAND_Y = BANDS.map((_, k) => 0.86 - (0.74 * k) / (BANDS.length - 1))
+const smp = {
+  buf: null, name: '', playing: false, sync: true, vol: 0.49, bus: null, gain: null, an: null, spec: null, td: null,
+  bands: [], rgb: [], parts: [], free: null, freeT0: 0, until: 0,
+  from: '', endTick: -1, lastTick: -1, lastEnd: 0, beats: 1, hit: false, timed: false, held: false,
+  head: 0, hTicks: 0, hAt: 0, hIv: 0, level: 0, gap: 0, infoAt: 0,
+}
+
+// a time on the page's clock (ms) as the moment the sound card plays it (s)
+function toCtx(t) {
+  const ac = audio.ac, o = ac.getOutputTimestamp ? ac.getOutputTimestamp() : null
+  if (o && o.performanceTime > 0) return o.contextTime + (t - o.performanceTime) / 1000
+  return ac.currentTime + (t - performance.now()) / 1000 - (ac.outputLatency || 0) - (ac.baseLatency || 0)
+}
+
+// a stretch of the sample from off (s into the file) at when, at rate, to end (none: to the file's end, or round
+// and round for a loop)
+function part(when, off, rate, end, loop, free) {
+  const ac = audio.ac, src = ac.createBufferSource(), env = ac.createGain(), d = smp.buf.duration
+  src.buffer = smp.buf
+  src.playbackRate.value = rate
+  src.loop = loop
+  src.connect(env).connect(smp.bus)
+  env.gain.setValueAtTime(0, when)
+  env.gain.linearRampToValueAtTime(1, when + FADE)
+  src.start(when, off % d)
+  if (end) {
+    env.gain.setValueAtTime(1, end)
+    env.gain.linearRampToValueAtTime(0, end + FADE)
+    src.stop(end + FADE + 0.01)
+  }
+  const p = { src, env, when, end: end || (loop ? Infinity : when + (d - off) / rate), free }
+  src.onended = () => { const i = smp.parts.indexOf(p); if (i >= 0) smp.parts.splice(i, 1); try { env.disconnect() } catch {} }
+  smp.parts.push(p)
+  return p
+}
+
+// fade out what is sounding from at: the beats played in time, the free loop, or all of it
+function hush(at, which) {
+  for (const p of smp.parts) {
+    if (p.end <= at || (which === 'free' && !p.free) || (which === 'timed' && p.free)) continue
+    if (p.when >= at) { try { p.src.stop() } catch {} p.end = at; continue }   // booked, not begun: it never plays
+    const g = p.env.gain
+    if (g.cancelAndHoldAtTime) g.cancelAndHoldAtTime(at); else g.cancelScheduledValues(at)
+    g.setTargetAtTime(0, at, 0.006)
+    try { p.src.stop(at + 0.06) } catch {}
+    p.end = at
+  }
+  if (which !== 'timed') smp.free = null
+}
+
+// beat b of the sample (in clock ticks, 24 a beat), heard from t0 to t1 (ms on the page's clock)
+function sampleBeat(b, t0, t1) {
+  const ac = audio.ac, d = smp.buf.duration
+  let when = smp.lastTick === b ? smp.lastEnd : toCtx(t0), off, rate, end
+  if (smp.hit) {
+    if (((b % 96) + 96) % 96) return              // shorter than a beat: once a bar, as it is
+    off = 0; rate = 1; end = 0
+  } else {
+    end = toCtx(t1)
+    if (end - when < 0.05) { smp.lastTick = -1; return }
+    const n = (((b / 24) % smp.beats) + smp.beats) % smp.beats
+    rate = clamp(d / smp.beats / (end - when), 0.25, 4)
+    off = (n * d) / smp.beats
+    smp.lastTick = b + 24; smp.lastEnd = end
+  }
+  const now = ac.currentTime + 0.002
+  if (when < now) {                               // late (the first beat, or a tab that slept): join it as it goes
+    if (end ? end <= now + 0.005 : (now - when) * rate >= d) return
+    off += (now - when) * rate; when = now
+  }
+  if (smp.free) hush(when, 'free')
+  part(when, off, rate, end, !smp.hit, false)
+  smp.until = Math.max(smp.until, end || when + (d - off))
+}
+
+// a clock tick, from the FM-1 or the demo: keep the sample's next beat booked a beat ahead
+function sampleTick(ticks, ts, iv, from) {
+  smp.hTicks = ticks; smp.hAt = ts; smp.hIv = iv
+  smp.held = false
+  const ac = audio.ac
+  if (!smp.buf || !smp.playing || !smp.sync || smp.buf.duration > LONGEST || !ac || ac.state !== 'running') return
+  if (from !== smp.from || smp.endTick < ticks || smp.endTick - ticks > 48) {
+    // nothing booked (just loaded, a Start, the demo begun): fit it to the tempo, and join at this beat or the next
+    const nat = smp.buf.duration / ((24 * iv) / 1000)
+    smp.from = from
+    smp.hit = nat < 0.71
+    smp.beats = smp.hit ? 1 : clamp(2 ** Math.round(Math.log2(nat)), 1, 64)
+    smp.endTick = ticks % 24 <= 2 ? ticks - (ticks % 24) : Math.ceil(ticks / 24) * 24
+    smp.lastTick = -1
+    hush(Math.max(ac.currentTime, toCtx(ts + (smp.endTick - ticks) * iv)), 'timed')
+  }
+  while (smp.endTick - ticks <= 24) {
+    const b = smp.endTick
+    sampleBeat(b, ts + (b - ticks) * iv, ts + (b + 24 - ticks) * iv)
+    smp.endTick += 24
+  }
+}
+
+// the clock started again from the top, stopped, or changed hands: what was booked goes, and the next tick books afresh
+function sampleRestart() {
+  if (audio.ac) hush(audio.ac.currentTime, 'timed')
+  smp.endTick = -1; smp.lastTick = -1; smp.until = 0
+}
+
+function sampleFrame(now, dt) {
+  const ac = audio.ac
+  if (!smp.buf || !ac) return
+  const fits = smp.buf.duration <= LONGEST
+  smp.timed = smp.playing && smp.sync && fits && (clock.running || demo.on)
+  const waiting = smp.held && !demo.on   // stopped with the FM-1: it starts again with it
+  if (!smp.timed) smp.endTick = -1
+  if (smp.playing && !smp.timed && !waiting && !smp.free && ac.state === 'running' && ac.currentTime >= smp.until - 0.02) {
+    const at = Math.max(ac.currentTime + 0.01, smp.until)
+    smp.free = part(at, 0, 1, 0, true, true)
+    smp.freeT0 = at
+  }
+  if (smp.timed && smp.hIv > 0) smp.head = ((smp.hTicks + Math.min(48, Math.max(0, now - smp.hAt) / smp.hIv)) % SWEEP) / SWEEP
+  else if (smp.free) smp.head = (Math.max(0, ac.currentTime - smp.freeT0) / FREE_SWEEP) % 1
+  if (now - smp.infoAt > 500) { smp.infoAt = now; sampleInfo() }
+  if (!A) return
+  // how loud, for the wind (at its level in the mix)
+  smp.an.getFloatTimeDomainData(smp.td)
+  let e = 0
+  for (let i = 0; i < smp.td.length; i++) e += smp.td[i] * smp.td[i]
+  const loud = Math.min(1, smp.vol * 2)
+  smp.level += (clamp((10 * Math.log10(e / smp.td.length + 1e-12) + 60) / 45, 0, 1) * loud - smp.level) * 0.08
+  // and what it sounds like, band by band: a sudden rise is a hit
+  smp.an.getFloatFrequencyData(smp.spec)
+  smp.gap -= dt
+  const x = smp.head * NX
+  for (let k = 0; k < BANDS.length; k++) {
+    const st = smp.bands[k]
+    let p = 0
+    for (let i = st.lo; i <= st.hi; i++) p += Math.pow(10, smp.spec[i] / 10)
+    const db = 10 * Math.log10(p / (st.hi - st.lo + 1) + 1e-20), rise = db - st.slow
+    st.slow += (db - st.slow) * Math.min(1, 0.04 * dt)
+    st.peak = Math.max(db, st.peak - 0.01 * dt)
+    st.wait -= dt
+    const over = db - Math.max(st.peak - 36, -95)
+    // (no more than eight drops at once, so it can't take the FM-1's)
+    if (rise > 6 && over > 0 && st.wait <= 0 && smp.gap <= 0 && loud > 0.02 && blooms.filter((b) => b.on && b.li === SL).length < 8) {
+      st.wait = 11; smp.gap = 4
+      const at = [(((x + (rand() - 0.5) * 1.5) % NX) + NX) % NX, (BAND_Y[k] + (rand() - 0.5) * 0.06) * NY]
+      spawn(SL, k, clamp(45 + 3 * rise + 0.8 * over, 30, 127) * (0.45 + 0.55 * loud), at)
+    }
+    // what it holds: a thin line the sweep draws and the wind carries off
+    const hold = clamp(over / 30, 0, 1) * loud
+    if (hold > 0.2) stamp(x, (BAND_Y[k] + (rand() - 0.5) * 0.03) * NY, (0.5 + 0.5 * hold) * scale, smp.rgb[k], 0.05 * dt * hold * hold, st.tx, st.ty)
+  }
+}
+
+function sampleInfo() {
+  const d = smp.buf.duration, bpm = clock.running ? clock.bpm : demo.bpm
+  let how
+  if (audio.ac.state !== 'running') how = 'Click the page to hear it.'
+  else if (!smp.playing) how = 'Paused.'
+  else if (!smp.sync) how = 'At its own speed.'
+  else if (d > LONGEST) how = `Longer than ${LONGEST} seconds, so it plays at its own speed.`
+  else if (smp.timed && smp.hit) how = `Shorter than a beat, so once a bar at ${Math.round(bpm)} BPM, as it is.`
+  else if (smp.timed) {
+    const r = (d * bpm) / 60 / smp.beats, pc = Math.round(Math.abs(r - 1) * 100)
+    how = `${smp.beats} beat${smp.beats > 1 ? 's' : ''} at ${Math.round(bpm)} BPM, ` +
+          (pc ? `${pc}% ${r > 1 ? 'faster' : 'slower'} than it was recorded.` : 'as it was recorded.')
+  } else if (smp.held && !demo.on) how = 'Stopped with the FM-1: it starts again with it, or press Pause and Play to hear it now.'
+  else how = 'At its own speed until a clock arrives: the FM-1 playing, or the demo.'
+  $('sinfo').textContent = `${smp.name} (${d < 10 ? d.toFixed(1) : Math.round(d)} s). ${how}`
+}
+
+async function loadSample(file) {
+  if (!file) return
+  if (file.size > 150e6) { say('That file is too big to mix in here: keep a sample under 150 MB.'); return }
+  const ac = audioCtx()
+  if (!ac) { say('This browser cannot play a sample.'); return }
+  say(`Reading ${file.name}…`)
+  let buf = null
+  try { buf = await ac.decodeAudioData(await file.arrayBuffer()) } catch {}
+  if (!buf || buf.duration < 0.02) { say(`${file.name} is not a sound this browser can read. Try a WAV.`); return }
+  removeSample()
+  if (!smp.bus) {
+    smp.bus = ac.createGain(); smp.gain = ac.createGain(); smp.an = ac.createAnalyser()
+    smp.an.fftSize = 2048
+    smp.an.smoothingTimeConstant = 0
+    smp.spec = new Float32Array(smp.an.frequencyBinCount); smp.td = new Float32Array(smp.an.fftSize)
+    smp.gain.gain.value = smp.vol
+    smp.bus.connect(smp.an)   // read before the level, so a quiet sample is read as well as a loud one
+    smp.bus.connect(smp.gain).connect(ac.destination)
+    if (rec.mix) smp.gain.connect(rec.mix)
+  }
+  const hz = ac.sampleRate / smp.an.fftSize
+  smp.bands = BANDS.map(([lo, hi]) => ({ lo: Math.max(1, Math.round(lo / hz)), hi: Math.min(smp.spec.length - 1, Math.round(hi / hz)),
+                                         slow: -100, peak: -100, wait: 0, tx: rand() * 500, ty: rand() * 500 }))
+  smp.rgb = BANDS.map((_, k) => colourOf(LAYERS[SL], k))
+  Object.assign(smp, { buf, name: file.name, playing: true, held: false, until: 0, endTick: -1, lastTick: -1, from: '', level: 0, gap: 0 })
+  $('splay').textContent = 'Pause'
+  for (const id of ['srow', 'sinfo', 'slegend']) $(id).hidden = false
+  $('sample').textContent = 'Another sample'
+  wake(true)
+  sampleInfo()
+  say()
+}
+function removeSample() {
+  if (audio.ac) hush(audio.ac.currentTime, 'all')
+  Object.assign(smp, { buf: null, playing: false, until: 0, endTick: -1, lastTick: -1, level: 0 })
+  for (const id of ['srow', 'sinfo', 'slegend']) $(id).hidden = true
+  $('sample').textContent = 'Add a sample'
+}
+function playSample(on) {
+  if (!smp.buf) return
+  audioCtx()
+  smp.playing = on
+  if (!on) hush(audio.ac.currentTime, 'all')
+  Object.assign(smp, { until: 0, endTick: -1, lastTick: -1, held: false })
+  $('splay').textContent = on ? 'Pause' : 'Play'
+  sampleInfo()
+}
+function syncSample(on) {
+  smp.sync = on
+  $('ssync').setAttribute('aria-pressed', String(on))
+  if (audio.ac) hush(audio.ac.currentTime, 'all')
+  Object.assign(smp, { until: 0, endTick: -1, lastTick: -1, held: false })
+  if (smp.buf) sampleInfo()
+}
+function pickSample() { audioCtx(); $('sfile').click() }
+
+// a file dragged over the page: the whole page takes it
+let dragDepth = 0
+const carriesFiles = (e) => [...(e.dataTransfer?.types || [])].includes('Files')
+const isSound = (f) => /^audio\//.test(f.type) || /\.(wav|wave|aif|aiff|aifc|flac|mp3|m4a|aac|ogg|oga|opus|caf)$/i.test(f.name)
+addEventListener('dragenter', (e) => { if (!carriesFiles(e)) return; e.preventDefault(); dragDepth++; document.body.classList.add('dropping') })
+addEventListener('dragover', (e) => { if (!carriesFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy' })
+addEventListener('dragleave', () => { if (dragDepth && --dragDepth === 0) document.body.classList.remove('dropping') })
+addEventListener('drop', (e) => {
+  if (!carriesFiles(e)) return
+  e.preventDefault()
+  dragDepth = 0
+  document.body.classList.remove('dropping')
+  const f = [...e.dataTransfer.files].find(isSound)
+  if (f) loadSample(f)
+  else say('Drop a sound file: a WAV, AIFF, FLAC or MP3.')
+})
+
+const rec = { mr: null, chunks: [], c: null, g: null, t0: 0, shown: -1, asking: false, mix: null }
+function endMix() {
+  if (rec.mix && smp.gain) try { smp.gain.disconnect(rec.mix) } catch {}
+  rec.mix = null
+}
 async function record() {
   if (rec.mr) { rec.mr.stop(); return }
   if (rec.asking) return
@@ -948,19 +1251,24 @@ async function record() {
   rec.c.width = w; rec.c.height = Math.round((w * H) / W) & ~1
   rec.g = rec.c.getContext('2d')
   compose(rec.g, rec.c.width, rec.c.height)
+  const ac = audioCtx()
   say('Looking for the FM-1\'s sound (allow the microphone: the FM-1 arrives as one)…')
   let s = null
   rec.asking = true
   try { s = await fm1Sound() } catch {}
   rec.asking = false
+  // the FM-1 and the sample, mixed into one sound for the file (a recorder keeps only the first of two)
+  try { rec.mix = ac ? ac.createMediaStreamDestination() : null } catch { rec.mix = null }
   if (s) hearSound(s)
-  const tracks = [...rec.c.captureStream(30).getVideoTracks(), ...(s ? s.stream.getAudioTracks() : [])]
+  if (rec.mix && smp.gain) smp.gain.connect(rec.mix)
+  const heard = rec.mix ? rec.mix.stream.getAudioTracks() : s ? s.stream.getAudioTracks() : []
+  const tracks = [...rec.c.captureStream(30).getVideoTracks(), ...heard]
   const type = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
     .find((t) => MediaRecorder.isTypeSupported(t))
   try {
     rec.mr = new MediaRecorder(new MediaStream(tracks), { ...(type ? { mimeType: type } : {}), videoBitsPerSecond: 8e6, audioBitsPerSecond: 192e3 })
   } catch {
-    dropSound(); say('This browser cannot record the page. Use Chrome or Edge, or save a picture.'); return
+    endMix(); dropSound(); say('This browser cannot record the page. Use Chrome or Edge, or save a picture.'); return
   }
   rec.chunks = []
   rec.mr.ondataavailable = (e) => { if (e.data && e.data.size) rec.chunks.push(e.data) }
@@ -968,6 +1276,7 @@ async function record() {
     const mime = rec.mr.mimeType || type || 'video/webm'
     download(new Blob(rec.chunks, { type: mime }), fileName(/mp4/.test(mime) ? 'mp4' : 'webm'))
     rec.mr = null; rec.chunks = []; rec.c = rec.g = null
+    endMix()
     dropSound()
     $('record').setAttribute('aria-pressed', 'false')
     $('record').textContent = 'Record'
@@ -977,7 +1286,10 @@ async function record() {
   rec.t0 = performance.now(); rec.shown = -1
   $('record').setAttribute('aria-pressed', 'true')
   wake(true)
-  say(s ? `Recording, with the sound from ${s.name}.` : 'Recording without sound: no FM-1 audio input was found (or the microphone was not allowed).')
+  const also = smp.buf && rec.mix ? ` and ${smp.name}` : ''
+  say(s ? `Recording, with the sound from ${s.name}${also}.`
+        : also ? `Recording, with ${smp.name} but not the FM-1: no FM-1 audio input was found (or the microphone was not allowed).`
+        : 'Recording without the FM-1\'s sound: no FM-1 audio input was found (or the microphone was not allowed). A sample added now is recorded.')
 }
 function recordTick(now) {
   if (!rec.mr) return
@@ -1027,6 +1339,15 @@ $('full').addEventListener('click', toggleFull)
 $('save').addEventListener('click', savePicture)
 $('record').addEventListener('click', record)
 $('input').addEventListener('change', (e) => { chosen = e.target.value; bindInputs() })
+$('sample').addEventListener('click', pickSample)
+$('sfile').addEventListener('change', (e) => { loadSample(e.target.files[0]); e.target.value = '' })
+$('splay').addEventListener('click', () => playSample(!smp.playing))
+$('ssync').addEventListener('click', () => syncSample(!smp.sync))
+$('sremove').addEventListener('click', removeSample)
+$('slevel').addEventListener('input', (e) => {
+  smp.vol = (e.target.value / 100) ** 2
+  if (smp.gain) smp.gain.gain.setTargetAtTime(smp.vol, audio.ac.currentTime, 0.02)
+})
 if (!document.fullscreenEnabled) $('full').hidden = true
 addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return
@@ -1036,13 +1357,15 @@ addEventListener('keydown', (e) => {
   else if (k === 'd') setDemo(!demo.on)
   else if (k === 's') savePicture()
   else if (k === 'r') record()
+  else if (k === 'a') pickSample()
   else if (k === 'h') { hidden = !hidden; document.body.classList.toggle('quiet', hidden) }
 })
 
-for (const L of LAYERS.slice().sort((a, b) => a.band[0] - b.band[0])) {
+for (const L of LAYERS.slice().sort((a, b) => !!a.extra - !!b.extra || a.band[0] - b.band[0])) {
   const li = document.createElement('li'), sw = document.createElement('i')
   sw.style.setProperty('--c', `linear-gradient(90deg, ${L.stops.join(', ')})`)
   li.append(sw, `${L.name}: ${L.place}`)
+  if (L.extra) { li.id = 'slegend'; li.hidden = true }
   $('legend').append(li)
 }
 
@@ -1072,8 +1395,9 @@ function frame(now) {
   const dt = Math.min(2.5, (now - last) / 16.667) * (reduced.matches ? 0.5 : 1)
   last = now
   layout()
-  demoTick(now)
   clock.running = now - clock.last < 700
+  demoTick(now)
+  sampleFrame(now, dt)
   const t0 = performance.now()
   step(dt)
   render()
