@@ -97,6 +97,7 @@ always in the piece's scale, and it answers you.</p>
 <nav class="ways" aria-label="Get AISLING">
   <a href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge (also Chrome on Android), with the FM-1 connected by USB. Nothing to install.</span></a>
   <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed.</span></a>
+  <a href="https://aisling.stephen8n.com"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI, in Chrome or Edge. Nothing leaves your computer.</span></a>
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
   <a href="cheat/"><strong>Cheat sheet</strong><span>Every control and the eight pieces on one page, to print.</span></a>
   <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>For the command-line installer: <code>python3 tools/fm1_install.py __PKG__</code></span></a>

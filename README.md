@@ -6,6 +6,7 @@
 Chromebook; the FM-1 on USB) · **[Try it in the browser](https://stephencummins.github.io/fm1-aisling/emu/)** ·
 **[Manual](https://stephencummins.github.io/fm1-aisling/manual/)** ·
 **[Cheat sheet](https://stephencummins.github.io/fm1-aisling/cheat/)** ·
+**[Visualiser](https://aisling.stephen8n.com)** ·
 **[Website](https://stephencummins.github.io/fm1-aisling/)**
 
 By CU_STE · [www.stephen8n.com](https://www.stephen8n.com)
@@ -37,6 +38,13 @@ remembers and answers) and changes what it plays:
 **Status: 0.1, a first test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://stephencummins.github.io/fm1-aisling/install/), and
 in the [browser emulator](https://stephencummins.github.io/fm1-aisling/emu/), from the same code.
+
+**The visualiser.** [aisling.stephen8n.com](https://aisling.stephen8n.com) paints what the FM-1 plays as a west-coast
+landscape in oils: the Lead is the sky, the Sequence the hills, the Drone the fields, Sequence 2 the bog. Plug the FM-1
+into a computer or Android phone, open the page in Chrome or Edge and press Listen; it reads the FM-1's MIDI out
+(on by default) in your browser, and nothing is sent anywhere. You can paint into it with a finger or the mouse, save a
+picture, and record a video with the FM-1's own sound from its USB audio. It is one file,
+[web/visualiser/index.html](web/visualiser/index.html), which also works opened straight from disk, offline.
 
 **Saved pieces.** AISLING saves its eight pieces in the same place in the FM-1's memory as NACHTFAHRT, DUB-1 and
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
@@ -89,6 +97,7 @@ The toolchain is the same as NACHTFAHRT's and DUB-1's (see [BUILDING.md](BUILDIN
 ```
 tests/run_tests.sh      # the engine, the platform pieces, the app in a simulator, the web builds
 web/emu/build.sh        # the browser emulator: build/emu (serve it, open index.html)
+web/visualiser/         # the visualiser: one file, no build (Cloudflare Pages: wrangler pages deploy web/visualiser --project-name aisling)
 ./build.sh              # build/amb.fwsc, for the FM-1
 python3 tools/fm1_install.py build/amb.fwsc     # install it over USB
 ```
