@@ -1,0 +1,1081 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only
+     AISLING's visualiser: the FM-1's MIDI out (Drone, Sequence, Lead, Sequence 2 on channels 1 to 4, and its clock)
+     painted as a west-coast landscape. One file, no build and nothing fetched but the page itself, so it also runs
+     from a downloaded copy (file:// is a secure context in Chrome, which Web MIDI needs). -->
+<html lang="en" data-ground="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visualiser · AISLING</title>
+<meta name="description" content="Plug in an FM-1 running AISLING and watch its four layers paint an Irish landscape: the Lead the sky, the hills, the fields, the bog. Web MIDI, in your browser; nothing leaves your computer.">
+<meta name="theme-color" content="#120f17">
+<!-- for link previews only: the page itself fetches nothing -->
+<meta property="og:title" content="AISLING's visualiser">
+<meta property="og:description" content="An FM-1 running AISLING paints an Irish landscape from its MIDI: the Lead the sky, the hills, the fields, the bog.">
+<meta property="og:image" content="https://aisling.stephen8n.com/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://aisling.stephen8n.com/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23120f17'/%3E%3Crect x='4' y='6' width='24' height='5' rx='2' fill='%23c05a1e'/%3E%3Crect x='4' y='11' width='24' height='4' rx='2' fill='%234a3f7a'/%3E%3Crect x='4' y='15' width='24' height='6' rx='2' fill='%234b8240'/%3E%3Crect x='4' y='21' width='24' height='5' rx='2' fill='%239a1c3a'/%3E%3C/svg%3E">
+<style>
+:root { --panel: rgba(16, 13, 21, .74); --ink: #ece8f0; --muted: #b3abbd; --rule: rgba(236, 232, 240, .16);
+        --accent: #d98a3c; --btn: rgba(236, 232, 240, .08); --btn-on: rgba(217, 138, 60, .26); color-scheme: dark; }
+:root[data-ground="mist"] { --panel: rgba(236, 234, 229, .8); --ink: #1c1a21; --muted: #4c4854; --rule: rgba(28, 26, 33, .18);
+        --accent: #8c3510; --btn: rgba(28, 26, 33, .07); --btn-on: rgba(192, 90, 30, .22); color-scheme: light; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #120f17; }
+:root[data-ground="mist"] body { background: #bdbab3; }
+body { color: var(--ink); font: 400 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+#pool { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+#grain { position: fixed; inset: 0; pointer-events: none; mix-blend-mode: overlay; opacity: .55; }
+#ui { position: fixed; top: 16px; left: 16px; width: min(25rem, calc(100% - 32px)); max-height: calc(100% - 32px);
+      overflow: auto; box-sizing: border-box; padding: 14px 16px 12px; background: var(--panel); border: 1px solid var(--rule);
+      border-radius: 8px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity .6s; }
+body.quiet #ui { opacity: 0; pointer-events: none; }
+body.quiet { cursor: none; }
+h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: .14em; margin: 0; line-height: 1.1; }
+h1 span { font-weight: 400; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-left: .6em; }
+p { margin: .5rem 0; }
+#status { color: var(--muted); min-height: 1.5em; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; margin: .7rem 0 .5rem; }
+button, select { font: inherit; color: var(--ink); background: var(--btn); border: 1px solid var(--rule); border-radius: 6px;
+                 padding: 7px 12px; min-height: 36px; cursor: pointer; }
+select { max-width: 100%; }
+select option { color: #1c1a21; background: #fff; }
+button#listen { border-color: var(--accent); }
+button[aria-pressed="true"] { background: var(--btn-on); border-color: var(--accent); }
+button#record[aria-pressed="true"]::before { content: ""; display: inline-block; width: .6em; height: .6em; border-radius: 50%;
+                 background: #e0452f; margin-right: .45em; vertical-align: .05em; animation: blink 1.2s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { button#record[aria-pressed="true"]::before { animation: none; } }
+button:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+ul.legend { list-style: none; padding: 0; margin: .6rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; font-size: .9rem; }
+ul.legend li { display: flex; align-items: center; gap: 8px; }
+ul.legend i { width: 30px; height: 10px; border-radius: 3px; flex: none; background: var(--c); }
+details { margin-top: .4rem; border-top: 1px solid var(--rule); padding-top: .4rem; }
+summary { cursor: pointer; color: var(--muted); }
+details p { font-size: .92rem; }
+a { color: var(--ink); text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-radius: 4px; padding: 0 5px; }
+</style>
+</head>
+<body>
+<canvas id="pool" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+<section id="ui" aria-label="Visualiser">
+  <h1>AISLING<span>Visualiser</span></h1>
+  <p>The FM-1's four layers painted as a west-coast evening.</p>
+  <ul class="legend" id="legend"></ul>
+  <div class="row">
+    <button id="listen" type="button">Listen to the FM-1</button>
+    <select id="input" aria-label="MIDI input" hidden></select>
+    <button id="demo" type="button" aria-pressed="false">Demo</button>
+    <button id="ground" type="button" aria-pressed="false" title="Change the ground (M)">Mist</button>
+    <button id="full" type="button" title="Full screen (F)">Full screen</button>
+    <button id="save" type="button" title="Save the picture (S)">Save picture</button>
+    <button id="record" type="button" aria-pressed="false" title="Record a video, with the FM-1's sound (R)">Record</button>
+  </div>
+  <p id="status" role="status" aria-live="polite"></p>
+  <details>
+    <summary>How it works</summary>
+    <p>Plug the FM-1 into this computer with USB, press Listen to the FM-1 and allow MIDI when the browser asks. MIDI
+       out is on unless you turned it off (GLO, Setup).</p>
+    <p>The notes go from the FM-1 to this tab and no further: the page sends nothing anywhere.</p>
+    <p>Pitch sets how far across a note lands, how hard it is played sets how much paint, and the FM-1's tempo sets the
+       wind. The Drone and the Lead keep painting while their notes are held, so the wind draws them out into strokes.</p>
+    <p>Paint with a finger or the mouse too: the band you touch picks the colour.</p>
+    <p>Save picture keeps the painting as it is now. Record makes a video of it; with the FM-1 plugged in it records the
+       FM-1's own sound as well, which comes over the same USB cable (the browser asks to use it as a microphone).
+       While it records, the sound moves the wind. Both are saved to this computer and go nowhere else.</p>
+    <p>It works in Chrome, Edge and Opera, on a computer or an Android phone. Firefox asks you to allow a site permission
+       first. Safari, and every browser on an iPhone or iPad, has no Web MIDI: watch the demo there.</p>
+    <p>Any MIDI source works: channels 1 to 4 are the Drone, the Sequence, the Lead and Sequence 2, as the FM-1 sends them.</p>
+    <p>Keys: <kbd>F</kbd> full screen, <kbd>M</kbd> mist or night, <kbd>D</kbd> demo, <kbd>S</kbd> save picture,
+       <kbd>R</kbd> record, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel at all
+       (a projector, or a browser source in OBS).</p>
+    <p>Part of <a href="https://github.com/stephencummins/fm1-aisling">AISLING</a> (GPL-3.0). No FM-1? Hear it in the
+       <a href="https://stephencummins.github.io/fm1-aisling/emu/">browser emulator</a>.</p>
+  </details>
+</section>
+<script>
+'use strict'
+const $ = (id) => document.getElementById(id)
+const clamp = (x, a, b) => (x < a ? a : x > b ? b : x)
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
+let seed = 0x9e3779b9
+const rand = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296 }
+const store = { get: (k) => { try { return localStorage.getItem(k) } catch { return null } },
+                set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } }
+
+/* The layers, in the engine's channel order. Each paints a band of the landscape, top to bottom: the Lead the sky,
+   Sequence 2 the hills, the Sequence the fields, the Drone the bog. The colours run low note to high. */
+const LAYERS = [
+  { name: 'Drone', place: 'the bog', band: [0.66, 0.93], range: [33, 69], held: true, size: 1.45, conc: 0.95,
+    stops: ['#4e1a4e', '#7a1030', '#a3264a', '#b24a78'] },
+  { name: 'Sequence', place: 'the fields', band: [0.42, 0.66], range: [45, 86], held: false, size: 0.85, conc: 1.1,
+    stops: ['#1e4a30', '#3a6a36', '#5c8a3a', '#a6b03e'] },
+  { name: 'Lead', place: 'the sky', band: [0.07, 0.30], range: [57, 93], held: true, size: 1.05, conc: 1.0,
+    stops: ['#7a3414', '#c05a1e', '#d98a3c'] },
+  { name: 'Sequence 2', place: 'the hills', band: [0.28, 0.45], range: [40, 86], held: false, size: 0.85, conc: 1.0,
+    stops: ['#2a2456', '#4a3f7a', '#8a86a6'] },
+]
+for (const L of LAYERS) L.rgb = L.stops.map(hex)
+const GROUNDS = {
+  night: { top: '#17131d', bottom: '#0d0b11', mottle: 8, vignette: 0.4, theme: '#120f17' },
+  mist: { top: '#d9d6cf', bottom: '#8e8b85', mottle: 7, vignette: 0.12, theme: '#bdbab3' },
+}
+
+function colourOf(L, note) {
+  const t = clamp((note - L.range[0]) / (L.range[1] - L.range[0]), 0, 1) * (L.rgb.length - 1)
+  const i = Math.min(L.rgb.length - 2, t | 0), f = t - i, a = L.rgb[i], b = L.rgb[i + 1]
+  const s = 0.9 + 0.2 * rand()
+  return [0, 1, 2].map((c) => clamp((a[c] + (b[c] - a[c]) * f) * s, 0, 255))
+}
+
+function hash2(x, y) {
+  let h = Math.imul(x | 0, 374761393) ^ Math.imul(y | 0, 668265263)
+  h = Math.imul(h ^ (h >>> 13), 1274126177)
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296
+}
+function vnoise(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi
+  const sx = xf * xf * (3 - 2 * xf), sy = yf * yf * (3 - 2 * yf)
+  const a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1)
+  return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy
+}
+
+/* ---------------- the water ----------------
+   Stable fluids (Stam, 1999) on a coarse velocity grid that wraps left to right (the wind carries the landscape off
+   one side and back on the other) between a floor and a ceiling. Paint rides a grid twice as fine: an amount and an
+   amount-weighted colour, so where two layers meet they blend like wet oil rather than glow. A note is a drop that
+   spreads in fingers and sheds eddies at its edge; vertical motion is damped harder than horizontal, so the paint
+   settles into bands the way the landscape's do. */
+const canvas = $('pool'), ctx = canvas.getContext('2d', { alpha: false })
+let R = 2
+const ITER = 18, AMAX = 3.2, PN = 64, PK = PN / (2 * Math.PI)
+let W = 0, H = 0, NX = 0, NY = 0, SX = 0, cell = 10, scale = 1, small = false
+let DX = 0, DY = 0
+let u, v, u0, v0, p, dv, cw, eu, ev
+let A, CR, CG, CB, TA, TR, TG, TB, UA, UR, UG, UB, VX, VY, G0, G1, G2, colI, colF, rowJ, rowF, img, buf
+let simT = 0, windNow = 0.01
+let ground = 'night'
+const COV = new Float32Array(1100)
+// opaque past a thin film, so the paint has an edge
+for (let i = 0; i < COV.length; i++) { const t = clamp((i / 256 - 0.03) / 0.42, 0, 1); COV[i] = t * t * (3 - 2 * t) }
+
+function allocate() {
+  SX = NX + 2
+  const n = SX * (NY + 2)
+  u = new Float32Array(n); v = new Float32Array(n); u0 = new Float32Array(n); v0 = new Float32Array(n)
+  p = new Float32Array(n); dv = new Float32Array(n); cw = new Float32Array(n); eu = new Float32Array(n); ev = new Float32Array(n)
+  DX = NX * R; DY = NY * R
+  const m = DX * DY
+  A = new Float32Array(m); CR = new Float32Array(m); CG = new Float32Array(m); CB = new Float32Array(m)
+  TA = new Float32Array(m); TR = new Float32Array(m); TG = new Float32Array(m); TB = new Float32Array(m)
+  UA = new Float32Array(m); UR = new Float32Array(m); UG = new Float32Array(m); UB = new Float32Array(m)
+  VX = new Float32Array(m); VY = new Float32Array(m)
+  G0 = new Float32Array(m); G1 = new Float32Array(m); G2 = new Float32Array(m)
+  // where each paint cell sits on the velocity grid (index space: cell c's centre is at c + 1)
+  colI = new Int32Array(DX); colF = new Float32Array(DX); rowJ = new Int32Array(DY); rowF = new Float32Array(DY)
+  for (let a = 0; a < DX; a++) { const g = (a + 0.5) / R + 0.5; colI[a] = g | 0; colF[a] = g - (g | 0) }
+  for (let b = 0; b < DY; b++) { const g = (b + 0.5) / R + 0.5; rowJ[b] = g | 0; rowF[b] = g - (g | 0) }
+  canvas.width = DX; canvas.height = DY
+  img = ctx.createImageData(DX, DY)
+  buf = new Uint32Array(img.data.buffer)
+}
+
+function layout() {
+  const w = window.innerWidth, h = window.innerHeight
+  // not laid out yet (a hidden frame, a tab still loading): a sliver would make every drop huge
+  if (w < 64 || h < 64 || (w === W && h === H)) return
+  const old = A ? { A, CR, CG, CB, DX, DY } : null
+  W = w; H = h
+  small = Math.min(w, h) < 600
+  R = small ? 2 : 3
+  NX = clamp(Math.round(w / (small ? 8 : 10)), 40, 160)
+  cell = w / NX
+  NY = clamp(Math.round(h / cell), 24, 130)
+  // a drop covers about the same share of any screen, so a phone isn't flooded by one note
+  scale = (10 / cell) * clamp(Math.sqrt((w * h) / 1.2e6), 0.5, 1.4)
+  allocate()
+  if (old) {
+    // carry the paint across a resize (full screen, a turned phone)
+    for (let b = 0; b < DY; b++) {
+      const ob = Math.min(old.DY - 1, ((b + 0.5) * old.DY / DY) | 0)
+      for (let a = 0; a < DX; a++) {
+        const oa = Math.min(old.DX - 1, ((a + 0.5) * old.DX / DX) | 0), o = oa + old.DX * ob, k = a + DX * b
+        A[k] = old.A[o]; CR[k] = old.CR[o]; CG[k] = old.CG[o]; CB[k] = old.CB[o]
+      }
+    }
+  }
+  for (const b of blooms) b.on = false
+  drips.length = 0
+  paintGround()
+}
+
+function paintGround() {
+  const g = GROUNDS[ground], t = hex(g.top), bo = hex(g.bottom)
+  for (let b = 0, k = 0; b < DY; b++) {
+    const fy = b / Math.max(1, DY - 1), py = (b * H) / DY
+    for (let a = 0; a < DX; a++, k++) {
+      const px = (a * W) / DX
+      // brushed: the ground's own strokes run across, like the paintings'
+      const n = 0.6 * vnoise(px / 150, py / 24) + 0.4 * vnoise(px / 46 + 31, py / 8 - 7) - 0.5
+      const ex = (a + 0.5) / DX - 0.5, ey = (b + 0.5) / DY - 0.5
+      const vig = 1 - g.vignette * clamp((ex * ex + ey * ey) * 2.2, 0, 1)
+      G0[k] = clamp((t[0] + (bo[0] - t[0]) * fy + n * g.mottle) * vig, 0, 255)
+      G1[k] = clamp((t[1] + (bo[1] - t[1]) * fy + n * g.mottle) * vig, 0, 255)
+      G2[k] = clamp((t[2] + (bo[2] - t[2]) * fy + n * g.mottle * 1.2) * vig, 0, 255)
+    }
+  }
+}
+
+// ghost cells: periodic across, walls above and below (b 2: the vertical velocity reverses there)
+function bnd(b, x) {
+  for (let j = 1; j <= NY; j++) { const r = SX * j; x[r] = x[r + NX]; x[r + NX + 1] = x[r + 1] }
+  const top = SX * (NY + 1), s = b === 2 ? -1 : 1
+  for (let i = 0; i < SX; i++) { x[i] = s * x[i + SX]; x[top + i] = s * x[top - SX + i] }
+}
+
+function windGoal() {
+  const bpm = clock.running ? clock.bpm : demo.on ? demo.bpm : 0
+  return (bpm ? 0.012 + 0.08 * clamp(bpm / 100, 0.3, 1.6) : 0.01) * (sound.an ? 0.7 + 1.6 * sound.level : 1)
+}
+
+function wind(dt) {
+  windNow += (windGoal() - windNow) * Math.min(1, 0.008 * dt)
+  const relax = Math.min(1, 0.006 * dt)
+  for (let j = 1; j <= NY; j++) {
+    const y = (j - 0.5) / NY
+    // strongest across the sky, least down in the bog, and never the same speed in two bands
+    const prof = (1 - 0.55 * y) * (0.62 + 0.38 * Math.sin(j * 0.23 + simT * 0.0041) * Math.cos(j * 0.071 - simT * 0.0023))
+    const goal = windNow * prof
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) u[k] += (goal - u[k]) * relax
+  }
+  // and a slow swirl, so still water still breathes
+  const amp = 0.0011 * dt, kx = (2 * Math.PI * Math.max(1, Math.round(NX / 110))) / NX, ky = 0.07
+  for (let j = 1; j <= NY; j++) {
+    const sy = Math.sin(j * ky - simT * 0.0017), cy = Math.cos(j * ky - simT * 0.0017)
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) {
+      const ax = i * kx + simT * 0.0021
+      u[k] += amp * Math.sin(ax) * ky * cy * 12
+      v[k] -= amp * kx * Math.cos(ax) * sy * 12
+    }
+  }
+}
+
+function confine(eps, dt) {
+  for (let j = 1; j <= NY; j++) {
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) cw[k] = 0.5 * (v[k + 1] - v[k - 1] - (u[k + SX] - u[k - SX]))
+  }
+  bnd(0, cw)
+  for (let j = 1; j <= NY; j++) {
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) {
+      const nx = 0.5 * (Math.abs(cw[k + 1]) - Math.abs(cw[k - 1])), ny = 0.5 * (Math.abs(cw[k + SX]) - Math.abs(cw[k - SX]))
+      const w = (cw[k] * eps * dt) / (Math.sqrt(nx * nx + ny * ny) + 1e-5)
+      u[k] += ny * w
+      v[k] -= nx * w
+    }
+  }
+}
+
+function advectVel(dt) {
+  bnd(1, u); bnd(2, v)
+  u0.set(u); v0.set(v)
+  const ymax = NY + 0.5
+  for (let j = 1; j <= NY; j++) {
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) {
+      let x = i - 0.5 - dt * u0[k], y = j - dt * v0[k]
+      x -= NX * Math.floor(x / NX); x += 0.5
+      if (y < 0.5) y = 0.5; else if (y > ymax) y = ymax
+      const i0 = x | 0, j0 = y | 0, fx = x - i0, fy = y - j0, q = i0 + SX * j0
+      const w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy
+      u[k] = w00 * u0[q] + w10 * u0[q + 1] + w01 * u0[q + SX] + w11 * u0[q + SX + 1]
+      v[k] = w00 * v0[q] + w10 * v0[q + 1] + w01 * v0[q + SX] + w11 * v0[q + SX + 1]
+    }
+  }
+  bnd(1, u); bnd(2, v)
+}
+
+function project() {
+  let mean = 0
+  for (let j = 1; j <= NY; j++) {
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) { dv[k] = -0.5 * (u[k + 1] - u[k - 1] + v[k + SX] - v[k - SX]); mean += p[k] }
+  }
+  // the pressure is only known up to a constant: keep it from wandering
+  mean /= NX * NY
+  for (let j = 1; j <= NY; j++) { let k = 1 + SX * j; for (let i = 1; i <= NX; i++, k++) p[k] -= mean }
+  bnd(0, dv); bnd(0, p)
+  for (let it = 0; it < ITER; it++) {
+    for (let j = 1; j <= NY; j++) {
+      let k = 1 + SX * j
+      for (let i = 1; i <= NX; i++, k++) p[k] = (dv[k] + p[k - 1] + p[k + 1] + p[k - SX] + p[k + SX]) * 0.25
+    }
+    bnd(0, p)
+  }
+  for (let j = 1; j <= NY; j++) {
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) { u[k] -= 0.5 * (p[k + 1] - p[k - 1]); v[k] -= 0.5 * (p[k + SX] - p[k - SX]) }
+  }
+  bnd(1, u); bnd(2, v)
+}
+
+function sampleVel(x, y) {
+  let gx = x + 0.5
+  gx = ((gx - 0.5) % NX + NX) % NX + 0.5
+  const gy = clamp(y + 0.5, 0.5, NY + 0.5)
+  const i0 = gx | 0, j0 = gy | 0, fx = gx - i0, fy = gy - j0, q = i0 + SX * j0
+  const w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy
+  return [w00 * u[q] + w10 * u[q + 1] + w01 * u[q + SX] + w11 * u[q + SX + 1],
+          w00 * v[q] + w10 * v[q + 1] + w01 * v[q + SX] + w11 * v[q + SX + 1]]
+}
+
+function vortex(cx, cy, rad, s) {
+  const box = Math.ceil(rad * 3), inv = 1 / (rad * rad), ci = Math.floor(cx), cj = Math.floor(cy)
+  for (let dj = -box; dj <= box; dj++) {
+    const c = cj + dj
+    if (c < 0 || c >= NY) continue
+    const dy = c + 0.5 - cy, row = SX * (c + 1)
+    for (let di = -box; di <= box; di++) {
+      const dx = ci + di + 0.5 - cx, k = row + (((ci + di) % NX) + NX) % NX + 1
+      const g = Math.exp(-(dx * dx + dy * dy) * inv) * s
+      u[k] -= (dy * g) / rad
+      v[k] += (dx * g) / rad
+    }
+  }
+}
+
+// a dab of paint; with a brush (tx, ty: its seed) it lays bristle lines, running across, that the wind draws out
+function stamp(x, y, rad, rgb, amt, tx, ty) {
+  if (!(amt > 0)) return
+  const ax = x * R, ay = y * R, rd = Math.max(0.8, rad * R), r2 = rd * rd, box = Math.ceil(rd * 2.4)
+  const brush = tx !== undefined, bv = 1.6 / R
+  const ca = Math.floor(ax), b0 = Math.max(0, Math.floor(ay) - box), b1 = Math.min(DY - 1, Math.floor(ay) + box)
+  for (let b = b0; b <= b1; b++) {
+    const dy = b + 0.5 - ay
+    for (let a = ca - box; a <= ca + box; a++) {
+      const dx = a + 0.5 - ax
+      let w = Math.exp(-(dx * dx + dy * dy) / r2) * amt, j = 1
+      if (w < 0.002) continue
+      if (brush) {
+        const n = vnoise(tx + dx * 0.09, ty + dy * bv) - 0.5
+        w *= 1 + 1.1 * n; j = 1 + 0.75 * n
+      }
+      const k = ((a % DX) + DX) % DX + DX * b
+      let na = A[k] + w
+      CR[k] += w * rgb[0] * j; CG[k] += w * rgb[1] * j; CB[k] += w * rgb[2] * j
+      // fresh paint over old: past the most a cell holds, the new colour pushes the old one out
+      if (na > AMAX) { const s = AMAX / na; CR[k] *= s; CG[k] *= s; CB[k] *= s; na = AMAX }
+      A[k] = na
+    }
+  }
+}
+
+/* ---------------- drops ---------------- */
+const blooms = Array.from({ length: 28 }, () => ({ on: false, held: false, key: -1, age: 0, prof: new Float32Array(PN) }))
+
+function spawn(li, note, vel, at) {
+  const L = LAYERS[li]
+  let b = blooms.find((c) => !c.on)
+  if (!b) b = blooms.reduce((a, c) => (!c.held && c.age > a.age ? c : a), blooms.find((c) => !c.held) || blooms[0])
+  const t = clamp((note - L.range[0]) / (L.range[1] - L.range[0]), 0, 1)
+  const x = at ? at[0] : (((0.04 + 0.92 * t + (rand() - 0.5) * 0.05) * NX) % NX + NX) % NX
+  const y = at ? at[1] : (L.band[0] + (L.band[1] - L.band[0]) * (0.15 + 0.7 * rand())) * NY
+  const size = L.size * (0.55 + (0.75 * vel) / 127) * (small ? 0.8 : 1)
+  Object.assign(b, {
+    on: true, li, x, y, age: 0, flow: 0, held: L.held, key: -1, brush: false,
+    q0: (4.2 + rand() * 2) * size * size * scale * scale, tau: 18 + rand() * 12,
+    rc: (0.7 + 0.3 * size) * scale, rgb: colourOf(L, note), conc: L.conc * (0.7 + (0.6 * vel) / 127),
+    spin: (rand() - 0.5) * 0.04, shed: 4 + rand() * 6, maxR: 7 * L.size * scale, tx: rand() * 500, ty: rand() * 500,
+  })
+  b.area = Math.PI * b.rc * b.rc
+  // an uneven edge: the paint pushes out in fingers
+  const k1 = 3 + ((rand() * 4) | 0), p1 = rand() * 6.283, p2 = rand() * 6.283, p3 = rand() * 6.283
+  let mn = 1e9, mx = -1e9
+  for (let i = 0; i < PN; i++) {
+    const th = (i / PN) * 2 * Math.PI
+    const n = Math.sin(k1 * th + p1) + 0.6 * Math.sin((2 * k1 + 1) * th + p2) + 0.4 * Math.sin(11 * th + p3)
+    b.prof[i] = n; if (b.prof[i] < mn) mn = b.prof[i]; if (b.prof[i] > mx) mx = b.prof[i]
+  }
+  let mean = 0
+  for (let i = 0; i < PN; i++) { b.prof[i] = 0.35 + 2 * Math.pow(Math.max(0, b.prof[i] - mn) / (mx - mn + 1e-9), 1.7); mean += b.prof[i] }
+  for (let i = 0; i < PN; i++) b.prof[i] /= mean / PN
+  stamp(x, y, b.rc * 1.1, b.rgb, b.conc * 0.8, b.tx, b.ty)
+  // eddies from the landing, so no two drops open alike
+  const kicks = 3 + ((rand() * 3) | 0), est = Math.sqrt((b.q0 * b.tau) / Math.PI)
+  for (let q = 0; q < kicks; q++) {
+    const a = rand() * 6.283, d = est * (0.5 + rand())
+    vortex(x + Math.cos(a) * d, y + Math.sin(a) * d * 0.7, (1.2 + rand() * 1.6) * scale, (rand() < 0.5 ? -1 : 1) * (0.05 + rand() * 0.08) * size)
+  }
+  return b
+}
+
+function updateBlooms(dt) {
+  for (const b of blooms) {
+    if (!b.on) continue
+    b.age += dt
+    if (!b.held) b.flow += dt
+    const rf = Math.sqrt(b.area / Math.PI)
+    let Q = b.q0 * (b.held ? 0.3 : Math.exp(-b.flow / b.tau))
+    if (b.held && rf > b.maxR) Q *= 0.15   // a held note stops spreading but goes on feeding
+    b.area += Q * dt
+    if (!b.held && Q < 0.03 && b.flow > 40) { b.on = false; continue }
+    // the spread moves paint, not water: it goes in eu/ev, which carry the paint and are never projected
+    const reach = Math.min(rf * 2.2 + 4, 28), reach2 = reach * reach, qf = Q / (2 * Math.PI), rc2 = b.rc * b.rc
+    const box = Math.ceil(reach), ci = Math.floor(b.x), cj = Math.floor(b.y)
+    for (let dj = -box; dj <= box; dj++) {
+      const c = cj + dj
+      if (c < 0 || c >= NY) continue
+      const dy = c + 0.5 - b.y, row = SX * (c + 1)
+      for (let di = -box; di <= box; di++) {
+        const dx = ci + di + 0.5 - b.x, r2 = dx * dx + dy * dy
+        if (r2 > reach2) continue
+        const k = row + (((ci + di) % NX) + NX) % NX + 1
+        let pa = Math.atan2(dy, dx) * PK
+        if (pa < 0) pa += PN
+        const p0 = pa | 0, pf = pa - p0
+        const mod = b.prof[p0 % PN] * (1 - pf) + b.prof[(p0 + 1) % PN] * pf
+        const f = ((qf * mod) / (r2 + rc2)) * Math.exp((-1.6 * r2) / reach2)
+        // wider than tall, so a drop lies down into its band
+        eu[k] += dx * f - b.spin * dy * f * 6
+        ev[k] += 0.4 * dy * f + b.spin * dx * f * 6
+      }
+    }
+    if (Q > 0.08 && (b.shed -= dt) <= 0) {
+      b.shed = 5 + rand() * 8
+      const a = rand() * 6.283
+      vortex(b.x + Math.cos(a) * rf, b.y + Math.sin(a) * rf * 0.7, (1 + rand() * 1.4) * scale,
+             (rand() < 0.5 ? -1 : 1) * (0.03 + rand() * 0.05) * Math.min(1.5, (3 * Q) / b.q0 + 0.3))
+    }
+    if (b.held && !b.brush) {
+      // a held note rides the wind, so a drone draws a stroke
+      const [su, sv] = sampleVel(b.x, b.y), L = LAYERS[b.li]
+      b.x = ((b.x + su * dt * 0.75) % NX + NX) % NX
+      b.y = clamp(b.y + sv * dt * 0.25, L.band[0] * NY, L.band[1] * NY)
+      if (rand() < 0.0025 * dt) drip(b.x, b.y)
+    }
+    const conc = b.conc * (b.held ? 0.55 : 0.25 + 0.75 * Math.exp(-b.flow / 20))
+    const mix = Math.min(1, 0.05 * dt) * (b.held ? 1 : clamp((1.5 * Q) / b.q0, 0, 1))
+    stamp(b.x, b.y, b.rc, b.rgb, conc * mix, b.tx, b.ty)
+  }
+}
+
+/* ---------------- runs ----------------
+   Paint that runs down the canvas: a run gathers wet paint as it passes through it and leaves a thin trail of it
+   behind, slowing as it empties. */
+const drips = []
+function drip(x, y) {
+  if (drips.length > 48) return
+  const a = ((Math.floor(x * R) % DX) + DX) % DX, k = a + DX * clamp(Math.floor(y * R), 0, DY - 1), am = A[k]
+  const load = am > 0.05 ? Math.min(am, 1.6) : 0, f = load / (am || 1)
+  drips.push({ a, y: y * R, sp: 0.05 + rand() * 0.09, load, cr: CR[k] * f, cg: CG[k] * f, cb: CB[k] * f, age: 0 })
+}
+function updateDrips(dt) {
+  for (let n = drips.length - 1; n >= 0; n--) {
+    const d = drips[n], b = d.y | 0
+    if (b >= DY - 1) { drips.splice(n, 1); continue }
+    const k = d.a + DX * b
+    if (A[k] > 0.05) {
+      const take = Math.min(A[k], 0.6) * 0.03 * dt, f = take / A[k]
+      d.cr += CR[k] * f; d.cg += CG[k] * f; d.cb += CB[k] * f; d.load += take
+    }
+    const put = d.load * 0.035 * dt
+    if (put > 1e-4) {
+      const f = put / d.load, l = d.a > 0 ? k - 1 : k + DX - 1, r = d.a < DX - 1 ? k + 1 : k - DX + 1
+      for (const [q, w] of [[k, 1], [l, 0.3], [r, 0.3]]) {
+        A[q] = Math.min(AMAX, A[q] + put * w); CR[q] += d.cr * f * w; CG[q] += d.cg * f * w; CB[q] += d.cb * f * w
+      }
+      d.load -= put; d.cr *= 1 - f; d.cg *= 1 - f; d.cb *= 1 - f
+    }
+    d.y += d.sp * dt * (0.4 + Math.min(1, d.load * 2))
+    d.age += dt
+    if (d.age > 30 && d.load < 0.01) drips.splice(n, 1)
+  }
+}
+
+// MacCormack: step the paint forward, step that back, and correct by half of what the round trip lost, held
+// inside the four cells it came from. Plain stepping blurs the paint a little every frame; this keeps its edges.
+function advectPaint(dt) {
+  bnd(0, eu); bnd(0, ev)
+  const dr = dt * R
+  for (let b = 0, idx = 0; b < DY; b++) {
+    const jj = rowJ[b], fy = rowF[b], gy = 1 - fy, base = SX * jj
+    for (let a = 0; a < DX; a++, idx++) {
+      const q = colI[a] + base, fx = colF[a], gx = 1 - fx
+      const w00 = gx * gy, w10 = fx * gy, w01 = gx * fy, w11 = fx * fy
+      VX[idx] = dr * (w00 * (u[q] + eu[q]) + w10 * (u[q + 1] + eu[q + 1]) + w01 * (u[q + SX] + eu[q + SX]) + w11 * (u[q + SX + 1] + eu[q + SX + 1]))
+      VY[idx] = dr * (w00 * (v[q] + ev[q]) + w10 * (v[q + 1] + ev[q + 1]) + w01 * (v[q + SX] + ev[q + SX]) + w11 * (v[q + SX + 1] + ev[q + SX + 1]))
+    }
+  }
+  const ymax = DY - 1.001
+  for (let b = 0, idx = 0; b < DY; b++) {
+    for (let a = 0; a < DX; a++, idx++) {
+      let x = a - VX[idx], y = b - VY[idx]
+      x -= DX * Math.floor(x / DX)
+      if (y < 0) y = 0; else if (y > ymax) y = ymax
+      const x0 = x | 0, y0 = y | 0, sx = x - x0, sy = y - y0
+      const x1 = x0 + 1 < DX ? x0 + 1 : 0, r0 = DX * y0, r1 = r0 + DX
+      const a00 = (1 - sx) * (1 - sy), a10 = sx * (1 - sy), a01 = (1 - sx) * sy, a11 = sx * sy
+      const s00 = x0 + r0, s10 = x1 + r0, s01 = x0 + r1, s11 = x1 + r1
+      TA[idx] = a00 * A[s00] + a10 * A[s10] + a01 * A[s01] + a11 * A[s11]
+      TR[idx] = a00 * CR[s00] + a10 * CR[s10] + a01 * CR[s01] + a11 * CR[s11]
+      TG[idx] = a00 * CG[s00] + a10 * CG[s10] + a01 * CG[s01] + a11 * CG[s11]
+      TB[idx] = a00 * CB[s00] + a10 * CB[s10] + a01 * CB[s01] + a11 * CB[s11]
+    }
+  }
+  if (!sharp) {
+    let t = A; A = TA; TA = t
+    t = CR; CR = TR; TR = t
+    t = CG; CG = TG; TG = t
+    t = CB; CB = TB; TB = t
+    return
+  }
+  for (let b = 0, idx = 0; b < DY; b++) {
+    for (let a = 0; a < DX; a++, idx++) {
+      // back from where the paint went
+      let x = a + VX[idx], y = b + VY[idx]
+      x -= DX * Math.floor(x / DX)
+      if (y < 0) y = 0; else if (y > ymax) y = ymax
+      let x0 = x | 0, y0 = y | 0, sx = x - x0, sy = y - y0
+      let x1 = x0 + 1 < DX ? x0 + 1 : 0, r0 = DX * y0, r1 = r0 + DX
+      const a00 = (1 - sx) * (1 - sy), a10 = sx * (1 - sy), a01 = (1 - sx) * sy, a11 = sx * sy
+      const ba = a00 * TA[x0 + r0] + a10 * TA[x1 + r0] + a01 * TA[x0 + r1] + a11 * TA[x1 + r1]
+      const br = a00 * TR[x0 + r0] + a10 * TR[x1 + r0] + a01 * TR[x0 + r1] + a11 * TR[x1 + r1]
+      const bg = a00 * TG[x0 + r0] + a10 * TG[x1 + r0] + a01 * TG[x0 + r1] + a11 * TG[x1 + r1]
+      const bb = a00 * TB[x0 + r0] + a10 * TB[x1 + r0] + a01 * TB[x0 + r1] + a11 * TB[x1 + r1]
+      // the four cells the forward step read
+      x = a - VX[idx]; y = b - VY[idx]
+      x -= DX * Math.floor(x / DX)
+      if (y < 0) y = 0; else if (y > ymax) y = ymax
+      x0 = x | 0; y0 = y | 0; x1 = x0 + 1 < DX ? x0 + 1 : 0; r0 = DX * y0; r1 = r0 + DX
+      const s00 = x0 + r0, s10 = x1 + r0, s01 = x0 + r1, s11 = x1 + r1
+      UA[idx] = within(TA[idx] + 0.5 * (A[idx] - ba), A[s00], A[s10], A[s01], A[s11])
+      UR[idx] = within(TR[idx] + 0.5 * (CR[idx] - br), CR[s00], CR[s10], CR[s01], CR[s11])
+      UG[idx] = within(TG[idx] + 0.5 * (CG[idx] - bg), CG[s00], CG[s10], CG[s01], CG[s11])
+      UB[idx] = within(TB[idx] + 0.5 * (CB[idx] - bb), CB[s00], CB[s10], CB[s01], CB[s11])
+    }
+  }
+  let t = A; A = UA; UA = t
+  t = CR; CR = UR; UR = t
+  t = CG; CG = UG; UG = t
+  t = CB; CB = UB; UB = t
+}
+// a machine that can't keep up loses the sharpening before it loses frames
+let sharp = true, costMs = 0
+function within(x, p, q, r, s) {
+  const lo = Math.min(p, q, r, s), hi = Math.max(p, q, r, s)
+  return x < lo ? lo : x > hi ? hi : x
+}
+
+// the paint feathers out, more across than down, and slowly fades, so the picture never fills
+function soften(dt) {
+  const keep = Math.pow(0.5, dt / (60 * 32)), d = Math.min(dt, 2.5), kx = 0.009 * d, ky = 0.0025 * d, c = 1 - 2 * kx - 2 * ky
+  for (let b = 0, i = 0; b < DY; b++) {
+    const up = b > 0 ? -DX : 0, dn = b < DY - 1 ? DX : 0
+    for (let a = 0; a < DX; a++, i++) {
+      const l = a > 0 ? -1 : DX - 1, r = a < DX - 1 ? 1 : 1 - DX
+      TA[i] = keep * (c * A[i] + kx * (A[i + l] + A[i + r]) + ky * (A[i + up] + A[i + dn]))
+      TR[i] = keep * (c * CR[i] + kx * (CR[i + l] + CR[i + r]) + ky * (CR[i + up] + CR[i + dn]))
+      TG[i] = keep * (c * CG[i] + kx * (CG[i + l] + CG[i + r]) + ky * (CG[i + up] + CG[i + dn]))
+      TB[i] = keep * (c * CB[i] + kx * (CB[i + l] + CB[i + r]) + ky * (CB[i + up] + CB[i + dn]))
+    }
+  }
+  let t = A; A = TA; TA = t
+  t = CR; CR = TR; TR = t
+  t = CG; CG = TG; TG = t
+  t = CB; CB = TB; TB = t
+}
+
+function step(dt) {
+  simT += dt
+  eu.fill(0); ev.fill(0)
+  wind(dt)
+  updateBlooms(dt)
+  confine(0.06, dt)
+  advectVel(dt)
+  project()
+  const du = Math.pow(0.998, dt), dw = Math.pow(0.95, dt)
+  for (let i = 0, n = u.length; i < n; i++) {
+    u[i] = clamp(u[i] * du || 0, -3, 3)
+    v[i] = clamp(v[i] * dw || 0, -3, 3)
+  }
+  advectPaint(dt)
+  soften(dt)
+  updateDrips(dt)
+}
+
+function render() {
+  const top = COV.length - 1
+  for (let b = 0, i = 0; b < DY; b++) {
+    const up = b > 0 ? -DX : 0, dn = b < DY - 1 ? DX : 0
+    for (let a = 0; a < DX; a++, i++) {
+      const g0 = G0[i], g1 = G1[i], g2 = G2[i], am = A[i]
+      let r = g0, g = g1, bl = g2
+      if (am > 0.003) {
+        let ci = (am * 256) | 0
+        if (ci > top) ci = top
+        const cov = COV[ci], inv = 1 / am
+        // a wet edge: darker where the amount changes fast
+        const l = a > 0 ? i - 1 : i + DX - 1, rr = a < DX - 1 ? i + 1 : i - DX + 1
+        const gx = A[rr] - A[l], gy = A[i + dn] - A[i + up]
+        // the paint's thickness, lit from the upper left, and a darker wet rim
+        const lit = 1 + clamp(0.16 * (gx + gy), -0.2, 0.24) - 0.1 * Math.min(1, Math.sqrt(gx * gx + gy * gy))
+        r = g0 + (CR[i] * inv * lit - g0) * cov
+        g = g1 + (CG[i] * inv * lit - g1) * cov
+        bl = g2 + (CB[i] * inv * lit - g2) * cov
+      }
+      buf[i] = 0xff000000 | ((bl < 0 ? 0 : bl > 255 ? 255 : bl) << 16) | ((g < 0 ? 0 : g > 255 ? 255 : g) << 8) | (r < 0 ? 0 : r > 255 ? 255 : r)
+    }
+  }
+  ctx.putImageData(img, 0, 0)
+}
+
+// the canvas's tooth, on top: a fine weave with the strokes running across
+function paintGrain() {
+  const c = document.createElement('canvas'), n = 192
+  c.width = n; c.height = n
+  const g = c.getContext('2d'), d = g.createImageData(n, n)
+  for (let y = 0, o = 0; y < n; y++) {
+    for (let x = 0; x < n; x++, o += 4) {
+      const s = 0.55 * hash2(x * 7 + 3, y * 13 + 1) + 0.45 * vnoise(x / 22, y / 1.6)
+      const val = clamp(128 + (s - 0.5) * 70, 0, 255)
+      d.data[o] = d.data[o + 1] = d.data[o + 2] = val
+      d.data[o + 3] = 255
+    }
+  }
+  g.putImageData(d, 0, 0)
+  const el = $('grain')
+  grainCanvas = c
+  el.style.backgroundImage = `url(${c.toDataURL()})`
+  el.style.backgroundSize = `${n}px ${n}px`
+}
+
+/* ---------------- notes ---------------- */
+const held = new Map()
+let lastNoteAt = 0
+function noteOn(ch, note, vel) {
+  if (!A) return
+  const li = ch & 3, L = LAYERS[li], key = li * 128 + note
+  release(key)
+  const b = spawn(li, note, vel)
+  if (L.held) { b.key = key; held.set(key, b) }
+  if (rand() < (L.held ? 0.22 : 0.1)) drip(b.x, b.y)
+}
+function release(key) {
+  const b = held.get(key)
+  if (b && b.on && b.key === key) { b.held = false; b.key = -1 }
+  held.delete(key)
+}
+function noteOff(ch, note) { release((ch & 3) * 128 + note) }
+function allOff(ch) { for (const key of [...held.keys()]) if (ch < 0 || ((key >> 7) & 3) === (ch & 3)) release(key) }
+
+// MIDI clock: 24 a beat; its rate is the wind
+const clock = { last: 0, iv: 0, bpm: 0, running: false }
+function onClock(ts) {
+  if (clock.last && ts - clock.last < 200) {
+    const d = ts - clock.last
+    clock.iv = clock.iv ? clock.iv * 0.92 + d * 0.08 : d
+    clock.bpm = 60000 / (clock.iv * 24)
+  }
+  clock.last = ts
+}
+
+let lastMsgAt = 0
+function onMessage(data, ts) {
+  const st = data[0], now = performance.now()
+  lastMsgAt = now
+  if (st === 0xf8) { onClock(ts || now); return }
+  if (st === 0xfc) { allOff(-1); return }
+  if (st >= 0xf0) return
+  const ty = st & 0xf0, ch = st & 0x0f
+  if (ty === 0x90 || ty === 0x80) {
+    if (demo.on) setDemo(false)
+    lastNoteAt = now
+    if (ty === 0x90 && data[2] > 0) noteOn(ch, data[1], data[2])
+    else noteOff(ch, data[1])
+  } else if (ty === 0xb0 && (data[1] === 123 || data[1] === 120)) allOff(ch)
+}
+
+/* ---------------- the demo: a little of what the FM-1 plays, silent ---------------- */
+const AEOLIAN = [0, 2, 3, 5, 7, 8, 10]
+const degree = (d, base) => base + 12 * Math.floor(d / 7) + AEOLIAN[((d % 7) + 7) % 7]
+const demo = { on: false, bpm: 84, next: 0, step: 0, drone: [], lead: -1, leadLeft: 0, phrase: 0, leadDeg: 7 }
+function demoTick(now) {
+  if (!demo.on) return
+  const six = 60000 / demo.bpm / 4
+  if (now - demo.next > 1000) demo.next = now
+  while (now >= demo.next) {
+    const s = demo.step++
+    demo.next += six
+    // the drone, D then C under it, four bars each: the double tonic
+    if (s % 64 === 0) {
+      for (const n of demo.drone) noteOff(0, n)
+      const r = (s / 64) % 2 ? 36 : 38
+      demo.drone = [r, r + 7]
+      noteOn(0, r, 72); noteOn(0, r + 7, 58)
+    }
+    const shift = Math.floor(s / 64) % 2 ? -1 : 0
+    // the harp, in eighths over twelve
+    if (s % 2 === 0) {
+      const pat = [0, 4, 7, 9, 7, 4, 2, 4, 7, 11, 9, 7]
+      noteOn(1, degree(pat[(s / 2) % 12] + shift, 50), 55 + rand() * 45)
+    }
+    if (s % 3 === 0 && rand() < 0.45) noteOn(3, degree(((rand() * 8) | 0) + shift, 45), 55 + rand() * 35)
+    // the lead, a phrase now and then
+    if (demo.leadLeft > 0) demo.leadLeft--
+    if (demo.leadLeft === 0) {
+      if (demo.lead >= 0) { noteOff(2, demo.lead); demo.lead = -1 }
+      if (demo.phrase === 0 && s % 8 === 0 && rand() < 0.3) demo.phrase = 3 + ((rand() * 4) | 0)
+      if (demo.phrase > 0) {
+        demo.leadDeg = clamp(demo.leadDeg + (rand() < 0.5 ? -1 : 1) * (1 + ((rand() * 2) | 0)), 0, 13)
+        demo.lead = degree(demo.leadDeg, 62)
+        noteOn(2, demo.lead, 70 + rand() * 30)
+        demo.leadLeft = [2, 4, 4, 6, 8][(rand() * 5) | 0]
+        demo.phrase--
+      }
+    }
+  }
+}
+function setDemo(on) {
+  demo.on = on
+  $('demo').setAttribute('aria-pressed', String(on))
+  if (on) { demo.next = performance.now(); demo.step = 0; wake(true) }
+  else { allOff(-1); demo.drone = []; demo.lead = -1; demo.leadLeft = 0; demo.phrase = 0 }
+  say()
+}
+
+/* ---------------- Web MIDI ---------------- */
+let access = null, chosen = 'auto', listening = false
+function inputs() { return access ? [...access.inputs.values()] : [] }
+function bindInputs() {
+  const all = inputs(), sel = $('input')
+  const fm1 = all.find((i) => /fm-?1/i.test(i.name || ''))
+  const pick = chosen === 'all' ? null : all.find((i) => i.id === chosen) || fm1 || null
+  for (const i of all) i.onmidimessage = !pick || i === pick ? (e) => onMessage(e.data, e.timeStamp) : null
+  sel.replaceChildren()
+  const opt = (value, text) => { const o = document.createElement('option'); o.value = value; o.textContent = text; sel.append(o) }
+  opt('all', 'All MIDI inputs')
+  for (const i of all) opt(i.id, i.name || 'MIDI input')
+  sel.value = pick ? pick.id : 'all'
+  sel.hidden = all.length < 2
+  listening = true
+  say()
+}
+async function listen() {
+  if (!navigator.requestMIDIAccess) {
+    say(window.isSecureContext ? 'This browser has no Web MIDI. Use Chrome or Edge, or watch the demo.'
+                               : 'Web MIDI needs a secure page: open this over https, or from a file on this computer.')
+    return
+  }
+  say('Asking the browser for MIDI…')
+  try { access = await navigator.requestMIDIAccess() } catch {
+    say('MIDI was not allowed. Allow it in the site settings (by the address bar) and press Listen again.')
+    return
+  }
+  access.onstatechange = bindInputs
+  lastMsgAt = performance.now()
+  $('listen').textContent = 'Listening'
+  bindInputs()
+  wake(true)
+}
+
+let sayTimer = 0
+function say(text) {
+  const el = $('status')
+  if (text) { el.textContent = text; return }
+  if (demo.on) { el.textContent = 'Demo: a little of what the FM-1 plays, without sound.'; return }
+  if (!listening) { el.textContent = 'Plug in the FM-1, turn on MIDI out (GLO, Setup), then press Listen.'; return }
+  const all = inputs()
+  if (!all.length) { el.textContent = 'No MIDI devices. Plug in the FM-1: it shows up as DUB-1 FM-1.'; return }
+  const sel = $('input').value, name = sel === 'all' ? (all.length === 1 ? all[0].name : 'all MIDI inputs') : (all.find((i) => i.id === sel) || {}).name
+  const quiet = performance.now() - lastMsgAt > 4000
+  el.textContent = quiet ? `Listening to ${name}, but nothing is arriving. On the FM-1 press GLO for Setup, turn MIDI out on, and let it play.`
+                         : `Listening to ${name}.`
+}
+
+/* ---------------- the brush: paint with a finger or the mouse ---------------- */
+const brushes = new Map()
+function layerAt(fy) {
+  let best = 0, bd = 9
+  LAYERS.forEach((L, i) => { const d = Math.abs(fy - (L.band[0] + L.band[1]) / 2) - (L.band[1] - L.band[0]) / 2; if (d < bd) { bd = d; best = i } })
+  return best
+}
+function push(x, y, du, dv, rad) {
+  const box = Math.ceil(rad * 2), inv = 1 / (rad * rad), ci = Math.floor(x), cj = Math.floor(y)
+  for (let dj = -box; dj <= box; dj++) {
+    const c = cj + dj
+    if (c < 0 || c >= NY) continue
+    const dy = c + 0.5 - y, row = SX * (c + 1)
+    for (let di = -box; di <= box; di++) {
+      const dx = ci + di + 0.5 - x, g = Math.exp(-(dx * dx + dy * dy) * inv), k = row + (((ci + di) % NX) + NX) % NX + 1
+      u[k] += du * g; v[k] += dv * g
+    }
+  }
+}
+canvas.addEventListener('pointerdown', (e) => {
+  if (!A || e.button > 0) return
+  try { canvas.setPointerCapture(e.pointerId) } catch {}
+  const fx = clamp(e.clientX / W, 0, 1), fy = clamp(e.clientY / H, 0, 1), li = layerAt(fy), L = LAYERS[li]
+  const note = Math.round(L.range[0] + (L.range[1] - L.range[0]) * clamp((fx - 0.04) / 0.92, 0, 1))
+  const b = spawn(li, note, 70 + 50 * (e.pressure || 0.5), [fx * NX, fy * NY])
+  Object.assign(b, { held: true, brush: true, key: -2 })
+  brushes.set(e.pointerId, b)
+})
+canvas.addEventListener('pointermove', (e) => {
+  const b = brushes.get(e.pointerId)
+  if (!b || !b.on) return
+  const nx = clamp(e.clientX / W, 0, 1) * NX, ny = clamp(e.clientY / H, 0, 1) * NY
+  let dx = nx - b.x
+  if (dx > NX / 2) dx -= NX; else if (dx < -NX / 2) dx += NX
+  const dy = ny - b.y, d = Math.hypot(dx, dy), n = Math.min(40, Math.ceil(d / (b.rc * 0.5)))
+  // lay paint all along the drag, and drag the water with it
+  for (let i = 1; i <= n; i++) stamp(b.x + (dx * i) / n, b.y + (dy * i) / n, b.rc, b.rgb, 0.3, b.tx, b.ty)
+  if (d > 0) push(nx, ny, clamp(dx * 0.12, -1.5, 1.5), clamp(dy * 0.12, -1.5, 1.5), 1.5 * scale)
+  b.x = ((nx % NX) + NX) % NX; b.y = ny
+})
+function lift(e) {
+  const b = brushes.get(e.pointerId)
+  if (b) { b.held = false; b.brush = false; b.key = -1; brushes.delete(e.pointerId) }
+}
+canvas.addEventListener('pointerup', lift)
+canvas.addEventListener('pointercancel', lift)
+
+/* ---------------- keeping it: a picture, or a video with the FM-1's sound ---------------- */
+let grainCanvas = null
+// the painting at w x h: the paint, then the canvas's tooth over it, as the page shows them
+function compose(g, w, h) {
+  g.imageSmoothingEnabled = true
+  g.imageSmoothingQuality = 'high'
+  g.drawImage(canvas, 0, 0, w, h)
+  if (!grainCanvas) return
+  const pat = g.createPattern(grainCanvas, 'repeat'), k = w / W
+  pat.setTransform(new DOMMatrix().scale(k))
+  g.globalCompositeOperation = 'overlay'
+  g.globalAlpha = 0.55
+  g.fillStyle = pat
+  g.fillRect(0, 0, w, h)
+  g.globalCompositeOperation = 'source-over'
+  g.globalAlpha = 1
+}
+const fileName = (ext) => {
+  const d = new Date(), z = (n) => String(n).padStart(2, '0')
+  return `aisling-${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}.${ext}`
+}
+function download(blob, name) {
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = name
+  document.body.append(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000)
+}
+function savePicture() {
+  const k = Math.min(2, 2800 / W), c = document.createElement('canvas')
+  c.width = Math.round(W * k); c.height = Math.round(H * k)
+  const g = c.getContext('2d')
+  compose(g, c.width, c.height)
+  g.font = `${Math.round(12 * k)}px "Helvetica Neue", Helvetica, Arial, sans-serif`
+  g.fillStyle = ground === 'mist' ? 'rgba(28, 26, 33, .5)' : 'rgba(236, 232, 240, .42)'
+  g.textAlign = 'right'
+  g.textBaseline = 'bottom'
+  g.fillText(`AISLING  ${new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`, c.width - 14 * k, c.height - 10 * k)
+  c.toBlob((blob) => { if (blob) { download(blob, fileName('jpg')); say('Saved the picture.') } }, 'image/jpeg', 0.92)
+}
+
+// the FM-1's sound: its USB audio is an input like a microphone, named for it
+const sound = { stream: null, ac: null, an: null, data: null, level: 0, name: '' }
+async function fm1Sound() {
+  const md = navigator.mediaDevices
+  if (!md || !md.getUserMedia) return null
+  const opts = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 2 }
+  let s = await md.getUserMedia({ audio: opts })
+  const fm1 = (await md.enumerateDevices()).find((d) => d.kind === 'audioinput' && /fm-?1/i.test(d.label))
+  if (!fm1) { s.getTracks().forEach((t) => t.stop()); return null }
+  if (s.getAudioTracks()[0].getSettings().deviceId !== fm1.deviceId) {
+    s.getTracks().forEach((t) => t.stop())
+    s = await md.getUserMedia({ audio: { ...opts, deviceId: { exact: fm1.deviceId } } })
+  }
+  return { stream: s, name: fm1.label }
+}
+function hearSound(s) {
+  sound.stream = s.stream; sound.name = s.name
+  try {
+    sound.ac = new AudioContext()
+    sound.an = sound.ac.createAnalyser()
+    sound.an.fftSize = 1024
+    sound.data = new Float32Array(sound.an.fftSize)
+    sound.ac.createMediaStreamSource(s.stream).connect(sound.an)   // to the analyser only: nothing is played back
+  } catch { sound.an = null }
+}
+function dropSound() {
+  if (sound.stream) sound.stream.getTracks().forEach((t) => t.stop())
+  if (sound.ac) sound.ac.close().catch(() => {})
+  Object.assign(sound, { stream: null, ac: null, an: null, data: null, level: 0, name: '' })
+}
+function listenSound() {
+  if (!sound.an) return
+  sound.an.getFloatTimeDomainData(sound.data)
+  let e = 0
+  for (let i = 0; i < sound.data.length; i++) e += sound.data[i] * sound.data[i]
+  const db = 10 * Math.log10(e / sound.data.length + 1e-12)
+  sound.level += (clamp((db + 60) / 45, 0, 1) - sound.level) * 0.08
+}
+
+const rec = { mr: null, chunks: [], c: null, g: null, t0: 0, shown: -1, asking: false }
+async function record() {
+  if (rec.mr) { rec.mr.stop(); return }
+  if (rec.asking) return
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
+    say('This browser cannot record the page. Use Chrome or Edge, or save a picture.')
+    return
+  }
+  const w = Math.min(1920, Math.round(W * Math.min(2, devicePixelRatio || 1))) & ~1
+  rec.c = document.createElement('canvas')
+  rec.c.width = w; rec.c.height = Math.round((w * H) / W) & ~1
+  rec.g = rec.c.getContext('2d')
+  compose(rec.g, rec.c.width, rec.c.height)
+  say('Looking for the FM-1\'s sound (allow the microphone: the FM-1 arrives as one)…')
+  let s = null
+  rec.asking = true
+  try { s = await fm1Sound() } catch {}
+  rec.asking = false
+  if (s) hearSound(s)
+  const tracks = [...rec.c.captureStream(30).getVideoTracks(), ...(s ? s.stream.getAudioTracks() : [])]
+  const type = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+    .find((t) => MediaRecorder.isTypeSupported(t))
+  try {
+    rec.mr = new MediaRecorder(new MediaStream(tracks), { ...(type ? { mimeType: type } : {}), videoBitsPerSecond: 8e6, audioBitsPerSecond: 192e3 })
+  } catch {
+    dropSound(); say('This browser cannot record the page. Use Chrome or Edge, or save a picture.'); return
+  }
+  rec.chunks = []
+  rec.mr.ondataavailable = (e) => { if (e.data && e.data.size) rec.chunks.push(e.data) }
+  rec.mr.onstop = () => {
+    const mime = rec.mr.mimeType || type || 'video/webm'
+    download(new Blob(rec.chunks, { type: mime }), fileName(/mp4/.test(mime) ? 'mp4' : 'webm'))
+    rec.mr = null; rec.chunks = []; rec.c = rec.g = null
+    dropSound()
+    $('record').setAttribute('aria-pressed', 'false')
+    $('record').textContent = 'Record'
+    say('Saved the video.')
+  }
+  rec.mr.start(1000)
+  rec.t0 = performance.now(); rec.shown = -1
+  $('record').setAttribute('aria-pressed', 'true')
+  wake(true)
+  say(s ? `Recording, with the sound from ${s.name}.` : 'Recording without sound: no FM-1 audio input was found (or the microphone was not allowed).')
+}
+function recordTick(now) {
+  if (!rec.mr) return
+  compose(rec.g, rec.c.width, rec.c.height)
+  const t = Math.floor((now - rec.t0) / 1000)
+  if (t !== rec.shown) { rec.shown = t; $('record').textContent = `Stop ${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` }
+}
+
+/* ---------------- the page ---------------- */
+let lock = null
+async function wake(on) {
+  try {
+    if (on && !lock && navigator.wakeLock && document.visibilityState === 'visible') {
+      lock = await navigator.wakeLock.request('screen')
+      lock.addEventListener('release', () => { lock = null })
+    }
+  } catch {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (listening || demo.on)) wake(true) })
+
+function setGround(g) {
+  ground = g
+  document.documentElement.dataset.ground = g
+  document.querySelector('meta[name="theme-color"]').content = GROUNDS[g].theme
+  $('ground').textContent = g === 'night' ? 'Mist' : 'Night'
+  if (A) paintGround()
+  store.set('aisling-vis-ground', g)
+}
+
+function toggleFull() {
+  if (document.fullscreenElement) document.exitFullscreen?.()
+  else document.documentElement.requestFullscreen?.().catch(() => {})
+}
+
+let idleAt = performance.now(), hidden = false
+function wakeUi() { idleAt = performance.now(); if (!hidden) document.body.classList.remove('quiet') }
+for (const ev of ['pointermove', 'pointerdown', 'keydown', 'focusin']) addEventListener(ev, wakeUi, { passive: true })
+
+$('listen').addEventListener('click', listen)
+$('demo').addEventListener('click', () => setDemo(!demo.on))
+$('ground').addEventListener('click', () => setGround(ground === 'night' ? 'mist' : 'night'))
+$('full').addEventListener('click', toggleFull)
+$('save').addEventListener('click', savePicture)
+$('record').addEventListener('click', record)
+$('input').addEventListener('change', (e) => { chosen = e.target.value; bindInputs() })
+if (!document.fullscreenEnabled) $('full').hidden = true
+addEventListener('keydown', (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return
+  const k = e.key.toLowerCase()
+  if (k === 'f') toggleFull()
+  else if (k === 'm') setGround(ground === 'night' ? 'mist' : 'night')
+  else if (k === 'd') setDemo(!demo.on)
+  else if (k === 's') savePicture()
+  else if (k === 'r') record()
+  else if (k === 'h') { hidden = !hidden; document.body.classList.toggle('quiet', hidden) }
+})
+
+for (const L of LAYERS.slice().sort((a, b) => a.band[0] - b.band[0])) {
+  const li = document.createElement('li'), sw = document.createElement('i')
+  sw.style.setProperty('--c', `linear-gradient(90deg, ${L.stops.join(', ')})`)
+  li.append(sw, `${L.name}: ${L.place}`)
+  $('legend').append(li)
+}
+
+const params = new URLSearchParams(location.search)
+setGround(params.get('ground') === 'mist' ? 'mist' : params.get('ground') === 'night' ? 'night' : store.get('aisling-vis-ground') === 'mist' ? 'mist' : 'night')
+layout()
+paintGrain()
+say()
+if (params.has('demo')) setDemo(true)
+if (params.has('clean')) { hidden = true; document.body.classList.add('quiet') }
+// an opening, so the page is never bare: one drop for each layer, once there is a canvas to drop them on
+let opened = false
+function opening() {
+  opened = true
+  for (const [ch, n, vel, at] of [[2, 74, 80, 0], [3, 62, 70, 450], [1, 64, 85, 850], [0, 50, 80, 1250]]) {
+    setTimeout(() => { noteOn(ch, n, vel); setTimeout(() => noteOff(ch, n), 2600) }, at)
+  }
+}
+
+const reduced = matchMedia('(prefers-reduced-motion: reduce)')
+let last = performance.now()
+function frame(now) {
+  layout()
+  if (!A) { last = now; requestAnimationFrame(frame); return }
+  if (!opened) opening()
+  const dt = Math.min(2.5, (now - last) / 16.667) * (reduced.matches ? 0.5 : 1)
+  last = now
+  layout()
+  demoTick(now)
+  clock.running = now - clock.last < 700
+  const t0 = performance.now()
+  step(dt)
+  render()
+  costMs += (performance.now() - t0 - costMs) * 0.02
+  if (sharp && costMs > 12 && now > 8000) sharp = false
+  listenSound()
+  recordTick(now)
+  if ((listening || demo.on || rec.mr) && !hidden && now - idleAt > 4000) document.body.classList.add('quiet')
+  if (listening && now - sayTimer > 1000) { sayTimer = now; if (!demo.on) say() }
+  requestAnimationFrame(frame)
+}
+requestAnimationFrame(frame)
+</script>
+</body>
+</html>

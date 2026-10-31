@@ -527,6 +527,17 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
 - **In, channel 1:** a note adds or removes its note from the scale ("ADDED", "REMOVED"; the root stays,
   three notes at least). The keys no longer do this; they play the Lead.
 
+### The visualiser
+
+[aisling.stephen8n.com](https://aisling.stephen8n.com) turns the MIDI out into a painting of the west of Ireland: the
+Lead's notes fall into the sky, the Sequence's into the hills, the Drone's into the fields and Sequence 2's into the bog.
+A note's pitch sets how far across it lands, how hard it's played how much paint, and the tempo the wind. Connect the FM-1 by USB, open the
+page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
+**Demo** paints without an FM-1. Paint into it with a finger or the mouse; **Save picture** keeps a still, and
+**Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
+USB audio appears). Everything stays on your computer. Add `?clean` to the address for the painting alone, for a
+projector or a stream.
+
 ### Screen reader
 
 AISLING can tell the [FM-1 Screen Reader](https://charlesvestal.github.io/fm1-reader/) what its screen
