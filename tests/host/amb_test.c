@@ -910,6 +910,40 @@ static int ld_left_on(void)
         c += sounding[2][k] > 0;
     return c + (int)ld_on_now;
 }
+/* (AISLING, step 6) from the log, its first two phrases against an air (s, d: its n entries, semitones over the
+ * piece's root and sixteenths): 0 if the first is a call on the theme (slot 0), the air as written (each note's
+ * interval from its first the air's, the first in its octave or another over the root, each onset apart as the air's
+ * sixteenths) and the second its answer (the theme's, n notes, the same but its last, closed on the chord: begun no
+ * sooner than the call's last note's sixteenths after it); else the check that failed: 1 the call's role or slot (or
+ * too few notes), 2 its count or its first note's pitch class, 3 its notes, 4 its rhythm, 5 the answer's role, slot
+ * or count, 6 its notes, 7 its rhythm */
+static int air_heard(const int8_t *s, const uint8_t *d, int n, int root)
+{
+    uint32_t i, nc = 0, na = 0;
+    if (lg_n < 2u * (uint32_t)n || lg[0].slot || lg[0].role != LR_CALL)
+        return 1;
+    while (nc < lg_n && lg[nc].phr == lg[0].phr)
+        nc++;
+    while (nc + na < lg_n && lg[nc + na].phr == lg[nc].phr)
+        na++;
+    if (nc != (uint32_t)n || (lg[0].note - s[0] - root + 1200) % 12)
+        return 2;
+    for (i = 0; i < nc; i++)
+        if (lg[i].note - lg[0].note != s[i] - s[0])
+            return 3;
+    for (i = 0; i + 1 < nc; i++)
+        if (lg[i + 1].on - lg[i].on != d[i])
+            return 4;
+    if (lg[nc].role != LR_ANSWER || lg[nc].slot || na != (uint32_t)n)
+        return 5;
+    for (i = 0; i + 1 < na; i++)
+        if (lg[nc + i].note - lg[nc].note != s[i] - s[0])
+            return 6;
+    for (i = 0; i + 2 < na; i++)
+        if (lg[nc + i + 1].on - lg[nc + i].on != d[i])
+            return 7;
+    return lg[nc].on - lg[nc - 1].on < d[n - 1] ? 7 : 0;
+}
 /* (Part 3, the user: the Lead answers the keys, it doesn't repeat them) from the log: the phrase at entry i against the
  * keys' figure logged at k0 .. k0+n-1: 1 if it's the keys' answer (LR_ANSWER on the theme, slot 0, n notes, the
  * figure's rhythm: each onset apart as the figure's, the last held as long); *dif: its notes not the figure's (in how
@@ -3141,6 +3175,107 @@ int main(void)
                 CHECK(gr_n[OR_SLIDE] && tot == gr_n[OR_SLIDE], "test_ornament_voices: %s's Theremin", PN[k]);
         }
         CHECK(!out, "test_ornament_budget: %u of the Lead's own notes off its scale (the test's scale wrong)", out);
+    }
+
+    /* (AISLING, step 6) the airs (AIRS, amb.c: each piece's from O'Neill's). (i) Each in its piece's mode (every
+     * note's pitch class in its pool), 8 to 16 entries, no rest, every length over 0; the recipes' Lead air the
+     * pieces' order. (ii) A piece begun (its regrow): the air its theme (slot 0, the keys' kind: en_lead_played and
+     * en_lead_air), its entries the air's degrees in the scale and its sixteenths. (iii) Its Lead's first two phrases
+     * (within 180 s): the air as written, then its answer (air_heard). (iv) A figure on the keys takes the air's place
+     * (the keys' theme, its rhythm; not the air, nor 60 s on). (v) FORGET lets it go: no theme, not the keys', and the
+     * one thought of after it not the air. (vi) At power-on (en_init, the piece's parameters set, no regrow) the
+     * Lead's first draw takes the air and its first phrases are the air's. (vii) NACHTFAHRT's fixtures: none */
+    {
+        static const int FG[4] = {4, 2, 0, 1}, FD[4] = {4, 4, 4, 8};
+        int k, m, i, p;
+        for (k = 0; k < EN_NPIECES; k++) {
+            int16_t pp[P_NPARAMS];
+            uint16_t pl;
+            int8_t s[16], off[32], dg[16];
+            uint8_t d[16], dur[32];
+            int n, nt, st[12], ns, in = 1, same, h[2];
+            en_piece(k, pp, &pl);
+            n = en_air(pp[P_AIR] - 1, s, d);
+            ns = en_scale(pl, st);
+            for (i = 0; i < n; i++) {             /* (i) */
+                const int o = s[i] >= 0 ? s[i] / 12 : -((11 - s[i]) / 12);
+                in &= s[i] != LD_REST && d[i] > 0 && (pl >> (uint32_t)(s[i] + 120) % 12u & 1u);
+                dg[i] = (int8_t)(en_deg_of(pl, s[i] - 12 * o) + ns * o);
+            }
+            CHECK(pp[P_AIR] == k + 1 && n >= 8 && n <= 16 && in, "test_air_mode: %s: air %d, %d entries, in its mode "
+                  "%d", en_piece_name(k), pp[P_AIR], n, in);
+            for (m = 0; m < 2; m++) {
+                fresh();
+                if (m) {                         /* (vi) */
+                    for (p = 0; p < P_NPARAMS; p++)
+                        en_set(p, pp[p]);
+                    en_pool(pl);
+                    run(0.05f);
+                    h[0] = en_lead_air();
+                } else {                         /* (ii) */
+                    apply(pp, pl);
+                    run(0.05f);
+                    nt = en_lead_theme(off, dur);
+                    for (i = 0, same = nt == n; i < n && same; i++)
+                        same = off[i] == dg[i] && dur[i] == d[i];
+                    CHECK(same && en_lead_air() && en_lead_played(), "test_air_theme: %s begun: its theme %d entries "
+                          "(%d), the air's %d; the air %d, the keys' kind %d", en_piece_name(k), nt, n, same,
+                          en_lead_air(), en_lead_played());
+                }
+                lg_n = 0, lg_open = -1;
+                en_play(1);
+                for (i = 0; i < 90 && lg_n < 2u * (uint32_t)n + 1u; i++)
+                    run(2.0f);
+                run(8.0f);
+                h[1] = air_heard(s, d, n, pp[P_ROOT]);
+                if (!m)
+                    printf("  air: %s, %d notes: the Lead in at %.1f s, its call and answer %s\n", en_piece_name(k),
+                           n, lg_n ? (double)lg[0].on * 15.0 / pp[P_TEMPO] : -1.0, h[1] ? "not the air's" : "the air's");
+                CHECK(!h[1] && (!m || (!h[0] && en_lead_air())), "test_air_%s: %s: the Lead's first phrases not its "
+                      "air's (%d: air_heard); %d notes logged%s%d", m ? "power_on" : "heard", en_piece_name(k), h[1],
+                      lg_n, m ? "; the air before the first draw (0) " : "", m ? h[0] : 0);
+            }
+        }
+        fresh();                                 /* (iv) */
+        shipped(0);
+        en_play(1);
+        run(12.0f);
+        run_to(keys_play(FG, FD, 4) + 9u);       /* (taken two beats after the last let go) */
+        {
+            int8_t off[32];
+            uint8_t dur[32];
+            int nt = en_lead_theme(off, dur), same = nt == 4, a0 = en_lead_air(), p0 = en_lead_played();
+            for (i = 0; i < 4 && same; i++)
+                same = dur[i] == FD[i];
+            run(60.0f);
+            CHECK(same && !a0 && p0 && !en_lead_air() && en_lead_played(), "test_air_keys: a figure on the keys in "
+                  "Skellig: the theme %d entries, its rhythm %d; the air %d, the keys' %d (0, 1); 60 s on, %d, %d",
+                  nt, same, a0, p0, en_lead_air(), en_lead_played());
+            fresh();                             /* (v) */
+            shipped(1);
+            run(0.05f);
+            a0 = en_lead_air();
+            en_lead_forget();
+            run(256.0f / 44100.0f + 1e-6f);
+            nt = en_lead_theme(off, dur), p0 = en_lead_played();
+            CHECK(a0 && !nt && !en_lead_air() && !p0, "test_air_forget: Burren's air %d, FORGET: the theme %d entries, "
+                  "the air %d, the keys' %d (0)", a0, nt, en_lead_air(), p0);
+            en_play(1);
+            run(30.0f);
+            nt = en_lead_theme(off, dur);
+            CHECK(nt > 0 && !en_lead_air() && !en_lead_played(), "test_air_forget: 30 s after: a theme of %d entries, "
+                  "the air %d, the keys' %d (0)", nt, en_lead_air(), en_lead_played());
+        }
+        for (k = 0; k < EN_NPIECES; k++) {       /* (vii) */
+            int16_t pp[P_NPARAMS];
+            uint16_t pl;
+            fresh();
+            nf_piece(k, pp, &pl);
+            piece(k);
+            run(0.05f);
+            CHECK(!pp[P_AIR] && !en_lead_air(), "test_air_fixtures: %s's Lead air %d, the air %d (0)", NF[k].name,
+                  pp[P_AIR], en_lead_air());
+        }
     }
 
     /* (BERLIN) the black keys' Transpose: a written pattern played with Transpose held is the same pattern written three

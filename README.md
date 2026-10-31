@@ -59,7 +59,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 | # | Piece | Named for | Key, tempo | What you hear |
 |---|---|---|---|---|
 | 1 | Skellig | Skellig Michael, off Kerry | D minor, 76 | An organ drone, one harp in a jig's threes, the surf; Dm and C in turn |
-| 2 | Burren | The Burren, Clare | G major, 84 | A choir, two harps of 12 and 11 drifting apart, a fiddle's slow air, the wind |
+| 2 | Burren | The Burren, Clare | G Mixolydian, 84 | A choir, two harps of 12 and 11 drifting apart, a fiddle's slow air, the wind |
 | 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a bouzouki's jig of 12 over a bodhrán's slip jig of 9, the chanter, a turf fire's crackle; Am and G in turn |
 | 4 | Carolan | Turlough O'Carolan, the harper | D major, 88 | Strings, two harps of 16 and 15, rain, a planxty's chords |
 | 5 | Blasket | The Blasket Islands, Kerry | E Dorian, 70 | A choir, slow dulcimers, a singer's slow air over the surf; Em and D in turn |
@@ -67,7 +67,9 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 | 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a slip jig's 9 over 8, a fiddle, rain; Gm and F in turn |
 | 8 | Tir na nOg | The land of the young, over the western sea | D hexatonic major, 80 | A phased glass drone, two harps, a long reverb; D and G in turn |
 
-The keys, modes and tempos are starting points, tuned by ear. The Lead's themes are its own: no air is quoted.
+The keys, modes and tempos are starting points, tuned by ear. Each piece's Lead opens on an air, the first phrase of a
+public-domain tune from O'Neill's *Music of Ireland* (Chicago, 1903), played as written; its own ideas grow from it.
+The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 
 ## In short
 

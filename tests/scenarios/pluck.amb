@@ -72,7 +72,7 @@ said VOICE Harp
 expect par35 6
 wait 8000
 expect ksstruck >0
-# kept: stopped, it saves itself; the same after a restart (the save's format AISLING's own, now 2; Pluck and step 4's
+# kept: stopped, it saves itself; the same after a restart (the save's format AISLING's own, now 3; Pluck and step 4's
 # voices appended, nothing moved)
 tap PLAY
 wait 6000
@@ -80,6 +80,6 @@ expect dirty 0
 expect store_writes >0
 reboot
 wait 500
-expect format 2
+expect format 3
 expect par33 5
 expect par35 6

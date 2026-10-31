@@ -4,7 +4,10 @@
 # is let go the figure is the theme, and a beat or two later (3-4 beats after the last key) the Lead answers it, not
 # playing it back: its rhythm (four quarters), its own notes related to the figure's (review 1: A4 F4 F4 D4, its first
 # a third above the figure's last, three of the four not the figure's in their place), closing on the root, held as the
-# figure's last. Pinned from the MIDI log (the answer at +2549 ms, 3.2 beats, as Timewind's +2033 at 96 BPM)
+# figure's last. Pinned from the MIDI log (the answer at +2549 ms, 3.2 beats, as Timewind's +2033 at 96 BPM). (AISLING,
+# step 6) now D4 E4 A4 D4: its first a third below the figure's last, none of the four the figure's in their place,
+# the same rhythm and close; Skellig's air in the theme's slot leaves the Lead's dice a draw on (its air off: review
+# 1's A4 F4 F4 D4 again)
 wait 300
 expect pool 1453
 bar 2
@@ -27,12 +30,12 @@ wait 2300
 expect notes_ch3 4
 wait 400
 expect notes_ch3 5
-expect lastnote_ch3 69
+expect lastnote_ch3 62
 wait 789
-expect lastnote_ch3 65
+expect lastnote_ch3 64
 wait 789
 expect notes_ch3 7
-expect lastnote_ch3 65
+expect lastnote_ch3 69
 wait 789
 expect lastnote_ch3 62
 expect notes_ch3 8

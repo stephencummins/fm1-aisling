@@ -1,0 +1,66 @@
+# (AISLING, step 6) the airs: the eight pieces at their recipes, three minutes of each from its start, each Lead's
+# first call its piece's air as written and its answer after it (Skellig from power-on: its air the Lead's first
+# draw; the others from a piece change: their regrow). No clipping
+wait 300
+expect piece 0
+peakreset
+wav air_0_skellig.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 1
+peakreset
+wav air_1_burren.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 2
+peakreset
+wav air_2_aran.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 3
+peakreset
+wav air_3_carolan.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 4
+peakreset
+wav air_4_blasket.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 5
+peakreset
+wav air_5_samhain.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 6
+peakreset
+wav air_6_connemara.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5
+turn PRESET 1
+wait 300
+expect piece 7
+peakreset
+wav air_7_tirnanog.wav
+wait 180000
+wavstop
+expect peak_db_max -0.5

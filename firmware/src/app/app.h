@@ -10,9 +10,9 @@
 #define EN_VERSION "DEV"
 #endif
 #define PROJ_MAGIC 0x31534941u           /* "AIS1": NACHTFAHRT's ("BRL1"), DUB-1's ("DUB1") and AMB-1's ("ENO1") projects give the recipes */
-#define PROJ_FORMAT 2u                   /* (AISLING's own count, from 1; 2: Ornament appended; while AISLING is
-                                         * built, a slot that changes meaning moves the format on, so a save from
-                                         * before gives the recipes) */
+#define PROJ_FORMAT 3u                   /* (AISLING's own count, from 1; 2: Ornament appended; 3: Lead air
+                                         * appended; while AISLING is built, a slot that changes meaning moves the
+                                         * format on, so a save from before gives the recipes) */
 #define NPIECES EN_NPIECES
 
 typedef struct {

@@ -251,7 +251,8 @@ It plays in pairs: a call that ends open, then, a beat or two later, its answer,
 fifth, held longer. It remembers its motifs: it plays one for a few pairs, then keeps it, varies it a little (a note
 moved, a new tail, its first half twice, slower) or finds a new one. How much it keeps is **Memory** (the Arc page, and the Lead's style page):
 the chance that after those few pairs it keeps the motif; at 100 it holds on to an idea, at 0 it changes it nearly
-every pair. Its first idea is the piece's theme, and the theme comes back when Solo begins, after the
+every pair. Its first idea is the piece's theme: the opening of the piece's **air** ([The pieces](#7-the-pieces)), its
+first call the air as written and its answer the same, ending on the chord. Its notes are never varied (a return in a quiet stretch may come at half speed). The theme comes back when Solo begins, after the
 arc's rise peaks, when a Bridge begins, and when it hasn't been heard for a while (with Memory under 20 the theme it
 made itself doesn't come back). Towards the arc's peak it plays more notes, shorter and higher, and sometimes builds a longer phrase that ends in
 a quick run, mostly downwards, to a close. Between pairs it breathes for bars (**Phrases**: how often). Its vibrato comes in late.
@@ -264,15 +265,15 @@ play are kept, at most sixteen notes and rests) and pause for two beats. What yo
 **answers** it a beat or two later: your rhythm, its own notes but close to yours (it picks up a step or two from your
 last note, and on the strong beats it lands on a chord note next to yours), ending on the chord. It doesn't play your
 notes back to you. It does this in any part of the piece, Emerge too, even before **Lead in**: you asked by playing.
-From then on your notes are the piece's theme: they come back whole where the theme does, over whatever chord is
+From then on your notes are the piece's theme, in the air's place: they come back whole where the theme does, over whatever chord is
 playing, varied a little at a time like any of its ideas, even when the Lead otherwise keeps little (a theme you
 played is never thrown away). One or two notes are just played, nothing is kept; notes played while the Lead is muted
 aren't kept either. Your notes sound as you play them; the Lead counts them on the grid, to the nearest sixteenth.
 Stopping the music, or PANIC, forgets notes you are in the middle of playing; PANIC also drops an answer not yet begun
-(a theme already taken stays: the Lead plays it next, in its own time). A new piece starts with new ideas, and so does
-PERFORM's **Forget** (the top key).
+(a theme already taken stays: the Lead plays it next, in its own time). A new piece starts again from its air. PERFORM's
+**Forget** (the top key) lets the air go too, and the Lead starts again from ideas of its own.
 
-After your theme, the Lead's own ideas **grow out of it**. The next one, a bar or two after the answer, starts from
+After your theme, or the piece's air, the Lead's own ideas **grow out of it**. The next one, a bar or two after the answer, starts from
 it: its first notes carried on in a new way, or its first notes and then the same again from another note of the
 chord, or its shape turned upside down. The ones after stray further, even when Memory would keep an idea: your notes
 backwards, its last notes carried on, then only its rhythm with new notes. After a while its ideas are its own again:
@@ -388,7 +389,7 @@ tonic (the chords swinging between two, a long while each: the Chords page in Lo
 | # | Piece | The place | Key, tempo | Harps | Drone | Atmosphere | Chords |
 |---|---|---|---|---|---|---|---|
 | 1 | **Skellig** | Skellig Michael, the rock off Kerry | D minor, 76 | One: 12 sixteenths in threes, every third accented, opening over 8 bars; no Sequence 2 | Pipes | Surf | Dm and C in turn, 16 bars each |
-| 2 | **Burren** | The Burren, Clare: bare limestone | G major, 84 | Two, of 12 and 11 steps, drifting apart | Choir | Wind | I IV I ii, 16 bars each |
+| 2 | **Burren** | The Burren, Clare: bare limestone | G Mixolydian, 84 | Two, of 12 and 11 steps, drifting apart | Choir | Wind | I IV I ii, 16 bars each |
 | 3 | **Aran** | Inis Mór | A Dorian, 96 | A bouzouki's jig of 12 over a bodhrán's slip jig of 9; the bouzouki straight in | Harmonium | Tape: a turf fire's crackle | Am and G in turn, 8 bars each |
 | 4 | **Carolan** | Turlough O'Carolan, the blind harper (1670–1738) | D major, 88 | Two, of 16 and 15 sixteenths; the first straight in | Strings | Rain | A planxty's: I IV I V vi IV V I, 8 bars each |
 | 5 | **Blasket** | The Blasket Islands, Kerry, left in 1953 | E Dorian, 70 | Two slow dulcimers of 12 and 11; the second opens over 12 bars, after the first | Choir | Surf | Em and D in turn, 32 bars each |
@@ -402,7 +403,25 @@ Connemara, the Chanter in Aran and the Voice in Blasket and Samhain, coming in w
 Carolan 70, Blasket 65, Samhain 40, Connemara 50, Tir na nOg 55 (Aran's chanter and Carolan's flute hold on to
 their ideas, Samhain's voice wanders). Its **Ornament**: Aran 50 (the chanter is the most graced), Blasket 45, Burren
 40, Skellig and Connemara 35, Carolan and Samhain 30, Tir na nOg 25. The keys are the pipes' and the whistle's (D, G, A, E, B). The keys, modes and tempos
-are starting points, to be tuned by ear. The Lead's themes are its own: no air is quoted.
+are starting points, to be tuned by ear.
+
+Each piece's Lead opens on an air, its first theme: the opening of a public-domain tune, traditional or O'Carolan's,
+from Captain Francis O'Neill's *O'Neill's Music of Ireland* (Chicago, 1903; its number there), in the piece's key
+and mode. Most are in 3/4 or 6/8; the Lead plays them in their own time, so they float across the pieces' 4/4.
+
+| # | Piece | Air | O'Neill's |
+|---|---|---|---|
+| 1 | Skellig | O'Carolan's Lament | 69 |
+| 2 | Burren | The Coolin (An Chúileann) | 89 |
+| 3 | Aran | Rory Dall's Sister's Lament | 47 |
+| 4 | Carolan | Planxty Irwin (O'Carolan) | 677 |
+| 5 | Blasket | Have You Seen My Valentine? (bars 2 to 4) | 592 |
+| 6 | Samhain | The Little Black Rose (Róisín Dubh), from C minor | 70 |
+| 7 | Connemara | The Pearl of the Flowing Tresses | 284 |
+| 8 | Tir na nOg | Ossian's Lament, from G | 132 |
+
+The air is kept with the piece's settings (**Lead air**, on no page). A figure on the keys takes its place, and
+Forget lets it go, until the piece begins again.
 
 ---
 
@@ -532,7 +551,7 @@ that do something are lit:
   **Drop** (both sequences out), **Echo** (the echo pushed, everything in and feeding back).
 - **The top key (G), apart from the rest:** **Forget**. A press and the Lead forgets everything it remembers:
   its ideas, its theme (yours too, if you played one), a figure you were in the middle of playing, and an answer it
-  was about to give. The note it's playing stops; it thinks of a new theme and new ideas, as at the start of a piece,
+  was about to give. The note it's playing stops; it thinks of a new theme and new ideas of its own (the piece's air too is let go),
   and plays again within a few bars. Nothing else changes (no setting, nothing saved). The key is lit, and dark
   while you hold it.
 

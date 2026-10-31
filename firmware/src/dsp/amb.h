@@ -112,6 +112,9 @@ enum {
     P_ORN,                                         /* (AISLING, format 2) Ornament: the chance a Lead note an eighth or
                                                     * longer is ornamented (a cut, a tap, a roll, a cran, a slide, a
                                                     * turn), 0..100 */
+    P_AIR,                                         /* (AISLING, format 3) the piece's air: the Lead's theme, the opening
+                                                    * of an air from O'Neill's (1..EN_NAIRS, the pieces' order); 0 none,
+                                                    * the Lead's own */
     P_NPARAMS
 };
 #define P_MW1 P_SWEEP                              /* (the Sequence's Width is its Sweep: one parameter) */
@@ -232,6 +235,9 @@ int en_atm_ok(void);                             /* 1: the Atmosphere's float st
 int en_lead_cap(void);
 int en_lead_theme(int8_t *off, uint8_t *dur);
 int en_lead_played(void);                        /* (the theme the keys played: LD_PLAYED on slot 0, 1 or 0) */
+int en_lead_air(void);                           /* (the theme the piece's air: LD_AIR on slot 0, 1 or 0) */
+int en_air(int a, int8_t *semi, uint8_t *dur);   /* (air a, 0..EN_NAIRS-1: its entries, semitones over the piece's root
+                                                  * (LD_REST: a rest) and sixteenths, into semi and dur; its count) */
 /* (host tests only, the Lead's offspring) the kinship its next fresh idea has with a theme the keys played, 0..100 (0:
  * none, the generator's own); a count of the fresh ideas its blocks took (an idea begins where it moves) and how the
  * last was made (LK_*); the line's idea now: its entries into off and dur, its count (0: none yet) */
@@ -361,5 +367,6 @@ const char *en_chord_label(int root, int kind, int type, char *buf);   /* "Fm7",
 
 /* the pieces: recipes for every parameter (Tune and MIDI out included, but they are the player's) */
 #define EN_NPIECES 8
+#define EN_NAIRS 8                             /* (AISLING) the airs (P_AIR), one a piece */
 const char *en_piece_name(int i);
 void en_piece(int i, int16_t *par, uint16_t *pool);

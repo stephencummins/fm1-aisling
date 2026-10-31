@@ -33,7 +33,7 @@ wait 300
 expect dirty 0
 reboot
 wait 1000
-expect format 2
+expect format 3
 expect piece 0
 expect par28 8
 # GLO held on (1.5 s): back to its recipe

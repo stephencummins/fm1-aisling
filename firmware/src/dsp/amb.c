@@ -71,7 +71,7 @@ static const en_param_t PARAMS[P_NPARAMS] = {
     {"Noise width", 0, 100, 50}, {"Noise plate", 0, 100, 50}, {"Noise echo", 0, 100, 50}, {"Atmos width", 0, 100, 20},
     {"Noise LFO", 0, 100, 0}, {"Arc", 0, 100, 0},
     {"Atmos rate", 0, 100, 30}, {"Atmos intro", 0, 64, 0}, {"Bridge", 0, 100, 40}, {"Memory", 0, 100, 50},
-    {"Ornament", 0, 100, 30},
+    {"Ornament", 0, 100, 30}, {"Lead air", 0, EN_NAIRS, 0},
 };
 const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PARAMS[i] : &PARAMS[0]; }
 
@@ -99,7 +99,8 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
  *  1 for the voices that like the 9th (Strings, Harmonium, Glass: regrow). The moves (filter motion spec 9): MW/MT/MR/MI
  *  a layer's Width, Time, Rate and Intro in bars (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2, 4 Atmosphere; the
  *  Sequence's Width is Sweep); the Lead's Width kept low; Bridge the middle section's move. Memory: how much the Lead
- *  keeps its ideas; Ornament: how often its notes are graced, Aran's Chanter most, Tir na nOg's least) */
+ *  keeps its ideas; Ornament: how often its notes are graced, Aran's Chanter most, Tir na nOg's least; Lead air: the
+ *  piece's air, its theme, AIRS) */
 static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the sea under a drone on D, a harp's slow
                                                 * ostinato in threes (12 sixteenths, every third accented), a whistle;
                                                 * Dm and C in turn, sixteen bars each */
@@ -108,20 +109,21 @@ static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the
     P_SEQ2, 0,
     P_CHORD, 38, P_CVOICE, 2, P_PEDAL, 90, P_PHASER, 15, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4, P_ORN, 35,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4, P_ORN, 35, P_AIR, 1,
     P_REVERB, 55, P_SIZE, 80,
     P_NCHAR, 2, P_CRACKLE, 5,
     P_MW0, 30, P_MR0, 25, P_MW4, 30, P_MR4, 20, P_BRIDGE, 40,
     P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 60, -1};
 static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limestone, the wind; a choir held over G, two
                                                 * harps of 12 and 11 drifting apart, a fiddle's slow air; I IV I ii,
-                                                * sixteen bars each */
-    P_TEMPO, 84, P_ROOT, 7, P_MODE, MODE_IONIAN,
+                                                * sixteen bars each; Mixolydian, its air's (step 6: The Coolin's F
+                                                * naturals) */
+    P_TEMPO, 84, P_ROOT, 7, P_MODE, MODE_MIXOLYDIAN,
     P_SEQ, 67, P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 45, P_SWEEP, 35, P_DECAY, 75,
     P_SEQ2, 46, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 85, P_MI3, 8,
     P_CHORD, 55, P_CVOICE, 5, P_PEDAL, 80, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 2,
-    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 18, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 8, P_ORN, 40,
+    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 18, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 8, P_ORN, 40, P_AIR, 2,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
     P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
@@ -133,7 +135,7 @@ static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a 
     P_SEQ, 59, P_SEQ2, 35, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 80, P_MI3, 8,
     P_CHORD, 46, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
-    P_LEAD, 76, P_LVOICE, 5, P_LTONE, 55, P_VIB, 5, P_GLIDE, 5, P_LDENS, 95, P_LDIN, 4, P_ORN, 50,
+    P_LEAD, 76, P_LVOICE, 5, P_LTONE, 55, P_VIB, 5, P_GLIDE, 5, P_LDENS, 95, P_LDIN, 4, P_ORN, 50, P_AIR, 3,
     P_NCHAR, 5, P_CRACKLE, 10,
     P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 30, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
     P_ARC, 25, P_MOTION, 55, P_LMEM, 70, -1};
@@ -147,7 +149,7 @@ static const int16_t PC_CAROLAN[] = {         /* Turlough O'Carolan, the harper 
     P_CHORD, 50, P_CVOICE, 1, P_PEDAL, 60, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 5, P_CR4, 6, P_CR5, 4, P_CR6, 5, P_CR7, 1,
     P_CX0, 1, P_CX1, 1, P_CX2, 1, P_CX3, 1, P_CX4, 1, P_CX5, 1, P_CX6, 1, P_CX7, 1,
-    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4, P_ORN, 30,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4, P_ORN, 30, P_AIR, 4,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 20, P_MR0, 25, P_SWEEP, 40, P_MR1, 30, P_MW4, 25, P_MR4, 20,
     P_ARC, 25, P_MOTION, 50, P_LMEM, 70, -1};
@@ -160,7 +162,7 @@ static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, lef
     P_TAPB, 50, P_TAPBT, 4,
     P_CHORD, 50, P_CVOICE, 5, P_PEDAL, 85, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LEAD, 76, P_LVOICE, 7, P_LTONE, 45, P_VIB, 10, P_GLIDE, 40, P_LDENS, 90, P_LDIN, 8, P_ORN, 45,
+    P_LEAD, 76, P_LVOICE, 7, P_LTONE, 45, P_VIB, 10, P_GLIDE, 40, P_LDENS, 90, P_LDIN, 8, P_ORN, 45, P_AIR, 5,
     P_REVERB, 50, P_SIZE, 85,
     P_NCHAR, 2, P_CRACKLE, 5,
     P_MW0, 35, P_MT0, 60, P_MR0, 30, P_MW4, 30, P_MR4, 25, P_BRIDGE, 35,
@@ -174,7 +176,7 @@ static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: 
     P_SEQ, 59, P_SEQ2, 40, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_SACC1, 0x03, P_S2DEC, 60,
     P_CHORD, 42, P_CVOICE, 2, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6, P_CR2, 7,
-    P_LEAD, 76, P_LVOICE, 7, P_LOCT, -1, P_VIB, 10, P_GLIDE, 30, P_LDENS, 90, P_LDIN, 8, P_ORN, 30,
+    P_LEAD, 76, P_LVOICE, 7, P_LOCT, -1, P_VIB, 10, P_GLIDE, 30, P_LDENS, 90, P_LDIN, 8, P_ORN, 30, P_AIR, 6,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 45, P_MT0, 70, P_MR0, 40, P_MW2, 10, P_BRIDGE, 30,
     P_MI0, 8, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
@@ -186,7 +188,7 @@ static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; 
     P_SEQ, 59, P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_S2DEC, 85, P_MI3, 8,
     P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6,
-    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4, P_ORN, 35,
+    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4, P_ORN, 35, P_AIR, 7,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 30, P_MR0, 30, P_MW3, 30, P_MR3, 35, P_BRIDGE, 40,
     P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
@@ -200,7 +202,7 @@ static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the you
     P_TAPB, 60, P_TAPBT, 4,
     P_CHORD, 42, P_CVOICE, 4, P_PHASER, 70, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CX0, 1, P_CX1, 1,
-    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4, P_ORN, 25,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4, P_ORN, 25, P_AIR, 8,
     P_REVERB, 60, P_SIZE, 90,
     P_MW0, 25, P_MR0, 20, P_MW3, 35, P_MR3, 20,
     P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
@@ -1981,9 +1983,11 @@ typedef struct {
     uint16_t cm;                                 /* (the chord it was made on: its tones over the root, ld_cmask; over
                                                   * another kind of chord its held notes are fitted; LD_KEEP: written,
                                                   * played in the octave it was written in; LD_PLAYED: the keys'
-                                                  * theme, back at the arc's moments at any Memory) */
+                                                  * theme, back at the arc's moments at any Memory; LD_AIR: the
+                                                  * piece's air, ld_air) */
 } ld_motif_t;
 #define LD_KEEP 0x8000u
+#define LD_AIR 0x4000u
 #define LD_PLAYED 0x2000u
 #define LD_CM 0x0FFFu
 static ld_motif_t ld_bank[4];
@@ -2055,6 +2059,67 @@ static void ld_reseed(void)                      /* a new piece, or FORGET: new 
     ld_iband = 0;
 }
 static uint32_t ld_cmask(void);
+/* (AISLING, step 6) the airs: each piece's theme the opening of an air, traditional or O'Carolan's (no arrangement),
+ * as printed in O'Neill's Music of Ireland (Chicago, 1903: its number there); in semitones over the piece's root (in
+ * its key: every note in the piece's mode, amb_test) and sixteenths (a bar of 3/4 or 6/8 twelve: the air's own time,
+ * over the pieces' 4/4). Written into slot 0 as a piece begins (C_REGROW, or at power-on the Lead's first draw,
+ * ld_airq; FORGET lets it go) and played as the keys' theme is (LD_PLAYED: the first block, back at the arc's moments
+ * at any Memory, the line's ideas its offspring for a while after the Lead comes in), but as written: in the scale's
+ * frame, not the chord's (over the bVII as over the I), its notes never varied (a return in a quiet stretch may come
+ * at half speed, ld_aug, as any theme's may; never its first), its call's last note its own; its answer closes on the
+ * chord as any answer does. A figure on the keys takes its place (ld_take) */
+static const struct {
+    int8_t s[16];
+    uint8_t d[16], n;
+} AIRS[EN_NAIRS] = {
+    {{3, 5, 7, 7, 8, 7, 5, 7, 12, 3, 5, 7}, {2, 2, 4, 3, 1, 2, 2, 4, 4, 3, 1, 8}, 12},   /* Skellig: O'Carolan's
+                                                  * Lament (69, D minor): its pickup, two bars, the third's first A held
+                                                  * (its F sharp after) */
+    {{7, 9, 10, 12, 12, 16, 16, 14, 12, 10, 12, 7}, {2, 1, 1, 4, 3, 1, 1, 1, 1, 1, 4, 8}, 12},   /* Burren: The
+                                                  * Coolin (89, G, its F naturals: Mixolydian): its pickup and two bars,
+                                                  * the D held through the triplet after it */
+    {{0, 2, 0, 2, -2, 0, 2, 5, 7, -5}, {6, 2, 2, 2, 6, 2, 2, 2, 4, 8}, 10},   /* Aran: Rory Dall's Sister's Lament
+                                                  * (47, A Dorian): three bars, the octave down to the fifth */
+    {{7, 12, 11, 9, 11, 12, 7, 5, 4, 2, 0, 5, 2, 4, 5, 7}, {2, 4, 2, 2, 2, 2, 4, 2, 2, 2, 2, 4, 2, 2, 2, 6}, 16},
+                                                 /* Carolan: Planxty Irwin (677, Carolan's, D, 6/8): its pickup and
+                                                  * three bars, the last A held */
+    {{0, 0, 2, 3, 2, 0, 0, -2, -5, -5}, {8, 2, 2, 8, 2, 2, 2, 2, 4, 4}, 10},   /* Blasket: Have You Seen My
+                                                  * Valentine? (592, E minor, its C sharps Dorian's): its second to
+                                                  * fourth bars (the first's D sharp, a leading note, not Dorian's) */
+    {{10, 7, 15, 12, 14, 12, 10, 7, 5, 2, 2, 0, 0}, {4, 4, 3, 1, 3, 1, 2, 2, 2, 2, 4, 4, 4}, 13},   /* Samhain: The
+                                                  * Little Black Rose, Roisin Dubh (70, C minor, here in B): three bars
+                                                  * after its pickup (an A natural) */
+    {{-5, 0, 0, 0, 2, 0, 10, 7, 5, 2, 2, 0, -2}, {4, 4, 4, 3, 1, 8, 2, 2, 4, 4, 3, 1, 8}, 13},   /* Connemara: The
+                                                  * Pearl of the Flowing Tresses (284, G minor): its pickup, three bars
+                                                  * and the fourth's F, no E flat in them (the Hex min's sixth, left
+                                                  * out) */
+    {{0, 2, 4, 2, 4, 2, 0, 2, 0, 0, 2, 4}, {3, 1, 6, 2, 2, 1, 1, 4, 4, 3, 1, 8}, 12},   /* Tir na nOg: Ossian's
+                                                  * Lament (132, G, here in D: Oisin back from Tir na nOg): its pickup,
+                                                  * two bars, the third's B held */
+};
+static uint8_t ld_airq;                          /* (the air due: at power-on the piece's parameters are set after
+                                                  * en_init, with no regrow, so the Lead's first draw takes it, unless
+                                                  * the keys or FORGET come first) */
+static void ld_air(void)                         /* the piece's air (P_AIR) into slot 0, its theme (none: the Lead's
+                                                  * own, thought of ahead, ld_think) */
+{
+    const int a = par[P_AIR] - 1, ns = nsteps ? nsteps : 7;
+    ld_motif_t *m = &ld_bank[0];
+    int i, n;
+    ld_airq = 0;
+    if ((unsigned)a >= EN_NAIRS)
+        return;
+    n = AIRS[a].n < LD_MOTN ? AIRS[a].n : LD_MOTN;
+    for (i = 0; i < n; i++) {
+        const int s = AIRS[a].s[i], o = s >= 0 ? s / 12 : -((11 - s) / 12);   /* (its octave, floored) */
+        m->off[i] = (int8_t)(s == LD_REST ? LD_REST : en_deg_of(pool, s - 12 * o) + ns * o);
+        m->dur[i] = AIRS[a].d[i];
+    }
+    m->n = (uint8_t)n;
+    m->heard = 0;
+    m->cm = (uint16_t)(ld_cmask() | LD_PLAYED | LD_AIR);
+    ld_prep = 4;                                 /* (the theme thought of: the Lead may come in, lead_tick) */
+}
 #ifdef EN_HOST
 int en_heard(int p) { return pe(p); }
 void en_lead_motif(int slot, const int8_t *off, const uint8_t *dur, int n)
@@ -2085,6 +2150,15 @@ int en_lead_theme(int8_t *off, uint8_t *dur)
     return ld_bank[0].n;
 }
 int en_lead_played(void) { return (ld_bank[0].cm & LD_PLAYED) != 0; }
+int en_lead_air(void) { return (ld_bank[0].cm & LD_AIR) != 0; }
+int en_air(int a, int8_t *semi, uint8_t *dur)
+{
+    int i;
+    a = (unsigned)a < EN_NAIRS ? a : 0;
+    for (i = 0; i < AIRS[a].n; i++)
+        semi[i] = AIRS[a].s[i], dur[i] = AIRS[a].d[i];
+    return AIRS[a].n;
+}
 volatile uint8_t en_lead_ideas, en_lead_kind;
 static int ld_kinship(void);
 int en_lead_kin(void) { return ld_kinship(); }
@@ -2521,7 +2595,10 @@ static void ld_think(void)
               kb = th ? 0 : ld_band();
     const float in = th ? 0.5f : ld_level();
     ld_motif_t *m = &ld_bank[sl];
-    if (sl == ld_next || (th ? m->heard != 0 : sl == ld_idea))
+    if (th && ld_airq && !m->heard)              /* (the piece's air, at power-on) */
+        ld_air();
+    if (sl == ld_next || (th ? m->heard != 0 || (m->cm & LD_AIR) : sl == ld_idea))   /* (the piece's air: the theme,
+                                                  * not thought of) */
         return;
     if (!th && ld_prep && ((ld_pint >> 5) != kb || in20 - (ld_pint & 31) > 3 || (ld_pint & 31) - in20 > 3))
         ld_prep = 0;                             /* (intensity moved on, or the keys' theme's kinship to another kind of
@@ -2815,8 +2892,12 @@ static int ld_block(void)
             ld_idea = ld_slot;
     } else if (back || first) {
         ld_slot = 0;
-        if (first)
+        if (first) {
             ld_prep = 0;                         /* (the theme heard: thinking ahead goes on to the oldest slot) */
+            if (ld_bank[0].cm & LD_AIR)
+                ld_kin = 0;                      /* (the piece's air: its offspring from the Lead's first block, as
+                                                  * the keys' theme's from its taking) */
+        }
     } else {
         const int kb = ld_band(), moved = ld_idea && ld_iband != kb;   /* (the keys' theme's kinship moved on to
                                                   * another kind of offspring, or to none, since the line's idea was
@@ -2863,10 +2944,12 @@ static int ld_block(void)
                                                   * theme back, or the keys': one pair) */
     for (k = 0; k < ld_bank[ld_slot].n; k++)
         tot += ld_bank[ld_slot].dur[k];
-    ld_aug = (uint8_t)(!asked && !(ld_bank[ld_slot].cm & LD_KEEP) && tot <= 32 && ld_int < 0.3f &&
+    ld_aug = (uint8_t)(!asked && !(ld_bank[ld_slot].cm & LD_KEEP) && !(first && (ld_bank[ld_slot].cm & LD_AIR)) &&
+                       tot <= 32 && ld_int < 0.3f &&
                        seq_rand(&ld_rng) % 100u < (ar_sec == EN_SEC_BRIDGE ? 50u : 10u));   /* (the values doubled:
                                                   * calm, the Bridge's half the time) */
-    ld_sent = (uint8_t)(!asked && ld_blen == 3 && seq_rand(&ld_rng) % 100u < 50u);
+    ld_sent = (uint8_t)(!asked && ld_blen == 3 && !(ld_bank[ld_slot].cm & LD_AIR) &&
+                        seq_rand(&ld_rng) % 100u < 50u);   /* (never the air's: it's played as written) */
     ld_pair = (uint8_t)(ld_sent ? ld_blen - 1 : 0);   /* (a sentence the whole block) */
     if (ld_sent) {
         const uint32_t s = seq_rand(&ld_rng) % 4u;
@@ -2884,8 +2967,10 @@ static void lead_plan(void)                      /* the next phrase: the group's
     const int r = ld_cdeg(0), ns = nsteps ? nsteps : 7;
     const uint32_t cm = ld_cmask();
     ld_motif_t t;
-    int i, last = -1, lo = 999, hi = -999, sh = 0, aug, keys;
+    int i, last = -1, lo = 999, hi = -999, sh = 0, aug, keys, air;
     ld_int = ld_level();
+    if (!ld_bank[0].n && ld_airq)                /* (the piece's air, at power-on, if nothing was thought of yet) */
+        ld_air();
     if (!ld_bank[0].n)                           /* (the theme, a piece's first idea, if it wasn't thought of ahead: a
                                                   * figure of about 4 notes, whatever the section it's first heard in) */
         ld_motif_new(&ld_bank[0], 0.5f, LR_CALL);
@@ -2895,9 +2980,9 @@ static void lead_plan(void)                      /* the next phrase: the group's
         const int tg = ld_int > 0.4f ? (int)((ld_int - 0.4f) * (5.0f / 0.6f) + 0.5f) : 0;
         ld_reg = (int8_t)(ld_reg + (tg > ld_reg) - (tg < ld_reg));   /* (the register walking to intensity's) */
         if ((ld_next >= 0 || ld_cb || ld_pair >= ld_blen ? ld_block() : 1) && ld_bank[ld_slot].heard >= 2 &&
-            seq_rand(&ld_rng) % 100u >= (uint32_t)ld_mem)
+            !(ld_bank[ld_slot].cm & LD_AIR) && seq_rand(&ld_rng) % 100u >= (uint32_t)ld_mem)
             ld_vary(&ld_bank[ld_slot]);         /* (a pass, from its third: 1 - Memory a pass, one variation; the
-                                                  * block's Memory) */
+                                                  * block's Memory; never the piece's air) */
         ld_pair++;
         ld_step = 0;
         if (ld_bank[ld_slot].heard < 255)
@@ -2964,13 +3049,15 @@ static void lead_plan(void)                      /* the next phrase: the group's
             t = f;
     } else if (ld_role == LR_CADENCE)
         ld_cadence(&t);
+    air = (t.cm & LD_AIR) != 0;                  /* (the piece's air: from the scale's root, not the chord's) */
     ld_n = t.n;
     aug = ld_aug && !ld_sent;                    /* (never a sentence's, its cadence: both are a block's choice, calm
                                                   * and busy; kept apart here too) */
     for (i = 0; i < ld_n; i++) {
         ld_dur[i] = (uint8_t)(aug && t.dur[i] < 16 ? 2 * t.dur[i] : aug ? 32 : t.dur[i]);
         ld_dg[i] = t.off[i] == LD_REST ? (int8_t)LD_REST
-                                       : (int8_t)(r + t.off[i] + (ld_role == LR_SEQ && ld_step ? ld_shift : 0));
+                                       : (int8_t)((air ? 0 : r) + t.off[i] +
+                                                  (ld_role == LR_SEQ && ld_step ? ld_shift : 0));
         if (t.off[i] != LD_REST)
             last = i;
     }
@@ -3012,15 +3099,17 @@ static void lead_plan(void)                      /* the next phrase: the group's
             const int dd = ld_dg[pv] - ld_dg[pp], ds = ld_deg_raw(ld_dg[pv]) - ld_deg_raw(ld_dg[pp]);
             turn = dd >= 3 || dd <= -3 || ds >= 5 || ds <= -5 ? (dd > 0 ? -1 : 1) : 0;
         }
-        if (ld_role != LR_CADENCE)              /* (the cadence's ending its own) */
+        if (ld_role != LR_CADENCE && !(air && ld_role == LR_CALL))   /* (the cadence's ending its own; the air's call
+                                                  * its own, as written) */
             ld_dg[last] = (int8_t)ld_ending(ld_dg[last], ld_role == LR_ANSWER, pv >= 0 ? ld_dg[pv] : ld_dg[last], turn);
         if ((ld_role == LR_ANSWER && !keys) || ld_role == LR_CADENCE)
             ld_dur[last] = (uint8_t)(ld_dur[last] < 16 ? 2 * ld_dur[last] : 32);
     }
-    for (i = 0; i < last && (cm != (t.cm & LD_CM) || (ld_role == LR_SEQ && ld_step) || aug); i++)   /* a held note
-                                                  * a chord tone (a tension excepted: resolved a step down onto one), the
-                                                  * motif over another kind of chord than it was made on, shifted, or its
-                                                  * values doubled */
+    for (i = 0; i < last && !air && (cm != (t.cm & LD_CM) || (ld_role == LR_SEQ && ld_step) || aug); i++)   /* a
+                                                  * held note a chord tone (a tension excepted: resolved a step down
+                                                  * onto one), the motif over another kind of chord than it was made
+                                                  * on, shifted, or its values doubled (never the air's: its notes its
+                                                  * own) */
         if (ld_hangs(ld_dg, ld_dur, i, last, r, cm, 1))
             ld_dg[i] = (int8_t)(r + ld_snap(ld_dg[i] - r, cm));
     for (i = 0; i < ld_n; i++)                   /* (its range) */
@@ -3138,6 +3227,7 @@ static int ld_take(void)
         ld_idea = 0;                             /* (the line's idea let go: after the keys' answer, at any Memory,
                                                   * its first offspring) */
         ld_kin = 0;                              /* (its offspring's clock, from now) */
+        ld_airq = 0;                             /* (the keys' theme in the air's place) */
     }
     cp_n = cp_q = 0;
     return c >= 3;
@@ -4154,6 +4244,7 @@ void en_init(void)
     or_rng = 0x5BE0CD19u;
     ld_key = -1;
     ld_reseed();
+    ld_airq = 1;                                 /* (AISLING: the piece's air, once its parameters are set) */
     dr_on[0] = dr_on[1] = dr_midi[0] = dr_midi[1] = 0;
     dr_lvl[0] = dr_lvl[1] = 0.0f;
     ch_live = 0;                                 /* (Choir from rest) */
@@ -4379,6 +4470,7 @@ static void drain(void)
             ar_start();                          /* (BERLIN) a piece (changed, or back to its recipe) from its arc's
                                                   * start: its intros (Emerge), or Flow at once */
             ld_reseed();                         /* (the Lead's ideas new: a new piece; its phrase let go) */
+            ld_air();                            /* (AISLING) its theme the piece's air */
             lead_off();
             break;
         case C_SEQ:
@@ -4404,6 +4496,7 @@ static void drain(void)
             if (ld_key < 0)
                 lead_off();
             ld_reseed();
+            ld_airq = 0;                         /* (AISLING: the piece's air let go too) */
             ld_rest = ld_gap = 0;
             ld_cb = 1;                           /* (its first block, the new theme, at the bar line after its draws,
                                                   * not on the roll: the Lead back within a few bars) */
