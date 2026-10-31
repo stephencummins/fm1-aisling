@@ -571,7 +571,9 @@ static void hit(int l, float vel) { en_hit_vel[l] = vel; en_hits[l]++; }
 static float scope_acc;
 static uint32_t scope_ph;
 static uint32_t mutes, perf, fxm, fxm_was;      /* performance: the layers muted, the moves held; the effects held */
-static float perf_sw, perf_echo, mb_c[4], mb_s[4];   /* (mb: Open's and Shut's filter on the music, the kick left out) */                /* the filter pushed open (+) or shut (-), the echo pushed */
+static float perf_sw, perf_echo, mb_c[4], mb_s[4], mb_in;   /* the filter pushed open (+) or shut (-), the echo
+                                                 * pushed (mb: Open's and Shut's filter on the music, the kick left
+                                                 * out; mb_in: Shut's faded in, 0..1) */
 
 static int16_t par[P_NPARAMS];
 /* the noise's controls (P_NCOL .. P_NCHAR: render_crackle reads them) */
@@ -4358,6 +4360,9 @@ static inline float wd_read(const int16_t *b, float d)
     if (r < 0.0f)
         r += (float)WD_N;
     i0 = (int)r;
+    if (i0 >= WD_N)                              /* (AISLING) r a hair under 0 rounds, WD_N on, to WD_N: the start
+                                                  * again (it read a sample past the end: a click) */
+        i0 = 0, r = 0.0f;
     i1 = i0 + 1 < WD_N ? i0 + 1 : 0;
     a = r - (float)i0;
     return ((float)b[i0] + a * (float)(b[i1] - b[i0])) * (1.0f / 12000.0f);
@@ -4917,6 +4922,8 @@ static void render_crackle(uint32_t n)
                     if (rd < 0.0f)
                         rd += (float)NZ_L;
                     i0 = (int)rd;
+                    if (i0 >= NZ_L)              /* (AISLING: as wd_read's, a hair under 0) */
+                        i0 = 0, rd = 0.0f;
                     i1 = i0 + 1 < NZ_L ? i0 + 1 : 0;
                     a = rd - (float)i0;
                     fb = ((float)nz_buf[q * NZ_L + i0] + a * (float)(nz_buf[q * NZ_L + i1] - nz_buf[q * NZ_L + i0])) * (1.0f / 12000.0f);
@@ -5933,10 +5940,13 @@ static void render_chunk(int32_t *out, uint32_t n, float gain)
     const float shut = fm_maxf(-perf_sw, 0.0f), open = fm_maxf(perf_sw, 0.0f);
     if (shut > 0.01f)
         svf_coefs(mb_c, 14000.0f * fm_exp2f(-1.9f * shut), 0.55f);
-    else if (open > 0.01f)
+    else if (open > 0.01f) {
         svf_coefs(mb_c, 25.0f * fm_exp2f(1.33f * open), 0.5f);
-    else
+        mb_in = 0.0f;
+    } else {
         mb_s[0] = mb_s[1] = mb_s[2] = mb_s[3] = 0.0f;
+        mb_in = 0.0f;
+    }
     for (j = 0; j < n; j++)
         mixl[j] = mixr[j] = rsend[j] = esend[j] = 0.0f;
     lfo_step();
@@ -6002,8 +6012,15 @@ static void render_chunk(int32_t *out, uint32_t n, float gain)
         r = r + sd;
         if (shut > 0.01f) {
             float bp;
-            l = svf_lp(mb_c, mb_s, l, &bp);
-            r = svf_lp(mb_c, mb_s + 2, r, &bp);
+            const float fl = svf_lp(mb_c, mb_s, l, &bp), fr = svf_lp(mb_c, mb_s + 2, r, &bp);
+            if (mb_in < 1.0f) {                  /* (AISLING) from rest, faded in over 64 samples: at once, its first
+                                                  * samples out of a zeroed state clicked, each time the motion's
+                                                  * round took Filter below 0 */
+                l += mb_in * (fl - l);
+                r += mb_in * (fr - r);
+                mb_in += 1.0f / 64.0f;
+            } else
+                l = fl, r = fr;
         } else if (open > 0.01f) {               /* (the high-pass: what the low-pass and its band leave) */
             float bp, lp = svf_lp(mb_c, mb_s, l, &bp);
             l -= lp + mb_c[3] * bp;
