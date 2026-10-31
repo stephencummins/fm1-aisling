@@ -91,6 +91,26 @@ input[type="radio"], input[type="checkbox"] { accent-color: var(--river-2); widt
 .knobs dt { color: var(--ink); font-weight: 600; }
 .knobs dd { margin: 0 0 .45rem; }
 kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--ink); padding: 0 .3em; color: var(--ink); }
+/* the visualiser: a drawer up from the foot of the window, its height dragged by its bar; while it is open the FM-1
+   shrinks to fit above it, so the two are seen together */
+:root { --vis-h: 45vh; }
+.bar button[aria-expanded="true"] { background: var(--river); color: var(--on-river); }
+.vis { position: fixed; left: 0; right: 0; bottom: 0; height: var(--vis-h); z-index: 10; display: flex; flex-direction: column;
+       background: var(--ground); border-top: 1px solid var(--ink); box-shadow: 0 -6px 18px rgba(43, 34, 25, .18);
+       transform: translateY(100%); visibility: hidden; transition: transform .35s ease, visibility 0s .35s; }
+body.vis-open .vis { transform: none; visibility: visible; transition: transform .35s ease; }
+body.vis-open { padding-bottom: calc(var(--vis-h) + 24px); }
+body.vis-open main { max-width: clamp(360px, calc((100vh - var(--vis-h) - 2.5rem) / .64), 1040px); }
+main { transition: max-width .35s ease; }
+@media (prefers-reduced-motion: reduce) { .vis, body.vis-open .vis, main { transition: none; } }
+.vis-bar { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem; padding: 12px 16px 7px;
+           cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none; font-size: .92rem; color: var(--muted); }
+.vis-bar .grip { position: absolute; top: 3px; left: 50%; width: 48px; height: 5px; margin-left: -24px; border-radius: 3px; background: var(--muted); }
+.vis-bar .grip:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.vis-bar b { color: var(--ink); font-weight: 600; }
+.vis-bar a { margin-left: auto; cursor: pointer; }
+.vis-bar button { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--ink); padding: .2em .8em; cursor: pointer; }
+.vis iframe { flex: 1; min-height: 0; width: 100%; border: 0; border-top: 1px solid var(--rule); display: block; }
 </style>
 </head>
 <body>
@@ -125,6 +145,7 @@ kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--card); b
   <button id="mute" type="button" aria-pressed="false" disabled>Mute</button>
   <button id="reset" type="button" title="Forget your scale and sound, and start again from the factory settings">Factory reset</button>
   <label><input type="checkbox" id="shortcuts" checked> Keyboard shortcuts</label>
+  <button id="vis-open" type="button" aria-expanded="false" aria-controls="vis" title="AISLING's visualiser, painting what the emulator plays">Visualiser</button>
 </div>
 
 <section class="reader" aria-labelledby="h-reader">
@@ -262,6 +283,18 @@ kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--card); b
   </div>
 </section>
 </main>
+
+<aside class="vis" id="vis" aria-label="Visualiser" inert>
+  <div class="vis-bar" id="vis-bar">
+    <div class="grip" id="vis-grip" role="separator" tabindex="0" aria-orientation="horizontal" aria-controls="vis"
+         aria-label="The visualiser's height (up and down arrows)" aria-valuemin="20" aria-valuemax="85" aria-valuenow="45"></div>
+    <span><b>Visualiser</b> <span id="vis-piece"></span></span>
+    <span>what the emulator plays, painted as a west-coast evening</span>
+    <a href="https://aisling.stephen8n.com/" target="_blank" rel="noopener">With your own FM-1</a>
+    <button id="vis-close" type="button">Close</button>
+  </div>
+  <iframe id="vis-frame" title="AISLING's visualiser, painting what the emulator plays" allow="fullscreen"></iframe>
+</aside>
 
 <script>
 "use strict";
@@ -735,6 +768,7 @@ async function switchOn() {
       node.port.onmessage = (e) => {
         const m = e.data;
         if (m.type === "ready") res();
+        else if (m.type === "midi") visMidi(m);
         else if (m.type === "frame") {
           if (m.fb) drawScreen(m.fb);
           drawLights(m.buttons, m.keys);
@@ -754,6 +788,7 @@ async function switchOn() {
     status.textContent = ac.sampleRate === 44100 ? "On." : `On (the browser runs audio at ${ac.sampleRate} Hz).`;
     syncButtons(); syncKeys();
     readerMode();
+    if (visShown()) send({ type: "midi", on: true });
     // the button pressed is gone: the focus goes to the FM-1 it switched on, not back to the top of the page
     device.focus({ preventScroll: true });
   } catch (err) {
@@ -780,6 +815,83 @@ $("reset").addEventListener("click", () => {
     status.textContent = "Press Factory reset again to forget your pieces and start from the factory settings.";
   }
 });
+
+// ---------------------------------------------------------------- the visualiser
+// AISLING's visualiser (visualiser.html: the page at aisling.stephen8n.com) in the drawer, painting what the emulator
+// plays. While it is open the worklet sends the FM-1's MIDI out (the USB packets), each with the audio time it is
+// heard at; here that becomes the computer's clock, the speakers' delay included, and the visualiser waits for it.
+const vis = $("vis"), visFrame = $("vis-frame"), visOpen = $("vis-open"), visGrip = $("vis-grip");
+let visH = 45, visReady = false;
+const visShown = () => document.body.classList.contains("vis-open");
+const visPost = (m) => { if (visReady) visFrame.contentWindow.postMessage(m, location.origin === "null" ? "*" : location.origin); };
+function setVisH(h, keep) {
+  visH = Math.round(Math.min(85, Math.max(20, h)));
+  document.documentElement.style.setProperty("--vis-h", visH + "vh");
+  visGrip.setAttribute("aria-valuenow", visH);
+  visGrip.setAttribute("aria-valuetext", `${visH}% of the window`);
+  if (keep) { prefs.visH = visH; savePrefs(); }
+}
+// the FM-1 at the top of the window, the space above the drawer its own (once it has finished changing size)
+let alignT;
+function alignDevice() {
+  clearTimeout(alignT);
+  alignT = setTimeout(() => {
+    if (visShown()) scrollTo({ top: scrollY + device.getBoundingClientRect().top - 12, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, 380);
+}
+function showVis(on, align) {
+  document.body.classList.toggle("vis-open", on);
+  vis.inert = !on;
+  visOpen.setAttribute("aria-expanded", String(on));
+  if (on && !visFrame.src) {
+    visFrame.addEventListener("load", () => { visReady = true; visPost({ type: "aisling-pause", on: !visShown() }); }, { once: true });
+    visFrame.src = "visualiser.html?embed";
+  }
+  visPost({ type: "aisling-pause", on: !on });
+  send({ type: "midi", on });
+  if (!on && vis.contains(document.activeElement)) visOpen.focus();
+  if (on && align) alignDevice();
+  prefs.vis = on; savePrefs();
+}
+function visMidi(m) {
+  if (m.name !== undefined) $("vis-piece").textContent = m.name ? "· " + m.name : "";
+  if (!m.ev || !visReady || !out) return;
+  const ac = out.context, ts = ac.getOutputTimestamp ? ac.getOutputTimestamp() : null;
+  // the audio clock against the page's: where the speakers are now (or, without that, the clock less the delay)
+  const base = ts && ts.contextTime ? ts.performanceTime - ts.contextTime * 1000
+             : performance.now() - (ac.currentTime - (ac.outputLatency || ac.baseLatency || 0)) * 1000;
+  const data = [], at = [];
+  for (let i = 0; i < m.ev.length; i++) {
+    const p = m.ev[i];
+    if ((p & 15) < 8) continue;                     // channel messages and real time only (no SysEx)
+    data.push([(p >>> 8) & 255, (p >>> 16) & 255, (p >>> 24) & 255]);
+    at.push(performance.timeOrigin + base + m.t[i] * 1000);
+  }
+  if (data.length) visPost({ type: "aisling-midi", data, at });
+}
+visOpen.addEventListener("click", () => showVis(!visShown(), true));
+$("vis-close").addEventListener("click", () => showVis(false));
+// drag the bar to size it (the frame would take the moves, so it lets them through meanwhile)
+$("vis-bar").addEventListener("pointerdown", (e) => {
+  if (e.button !== 0 || e.target.closest("a, button")) return;
+  const bar = e.currentTarget, y0 = e.clientY, h0 = visH, stop = new AbortController(), o = { signal: stop.signal };
+  bar.setPointerCapture(e.pointerId);
+  visFrame.style.pointerEvents = "none";
+  bar.addEventListener("pointermove", (ev) => setVisH(h0 + ((y0 - ev.clientY) * 100) / innerHeight), o);
+  const up = () => { stop.abort(); visFrame.style.pointerEvents = ""; setVisH(visH, true); alignDevice(); };
+  bar.addEventListener("pointerup", up, o);
+  bar.addEventListener("pointercancel", up, o);
+});
+visGrip.addEventListener("keydown", (e) => {
+  const d = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5, PageUp: 15, PageDown: -15 }[e.key];
+  if (d) setVisH(visH + d, true);
+  else if (e.key === "Home" || e.key === "End") setVisH(e.key === "Home" ? 20 : 85, true);
+  else return;
+  e.preventDefault();
+  alignDevice();
+});
+setVisH(+prefs.visH || 45);
+if (prefs.vis) showVis(true);
 </script>
 </body>
 </html>
