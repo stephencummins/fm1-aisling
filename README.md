@@ -43,7 +43,8 @@ in the [browser emulator](https://stephencummins.github.io/fm1-aisling/emu/), fr
 landscape in oils: the Lead is the sky, Sequence 2 the hills, the Sequence the fields, the Drone the bog. Plug the FM-1
 into a computer or Android phone, open the page in Chrome or Edge and press Listen; it reads the FM-1's MIDI out
 (on by default) in your browser, and nothing is sent anywhere. You can paint into it with a finger or the mouse, save a
-picture, and record a video with the FM-1's own sound from its USB audio. It is one file,
+picture, record a video with the FM-1's own sound from its USB audio, and drop a sound file on it to mix in: it loops in
+time with the FM-1 and paints as the weather. It is one file,
 [web/visualiser/index.html](web/visualiser/index.html), which also works opened straight from disk, offline.
 
 **Saved pieces.** AISLING saves its eight pieces in the same place in the FM-1's memory as NACHTFAHRT, DUB-1 and
