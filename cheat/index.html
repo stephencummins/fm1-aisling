@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING cheat sheet</title>
+<meta name="description" content="AISLING's controls and its eight pieces on one page.">
+<meta name="theme-color" content="#f3ead7">
+<style>
+/* the landing page's colours on screen; black on white to print, small enough for one sheet */
+:root { --ground: #f3ead7; --card: #fbf6eb; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1; --acc: #146c41; color-scheme: light; }
+body { background: var(--ground); color: var(--ink); margin: 0; padding: 24px 16px 48px;
+       font: 400 15px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+main { max-width: 60rem; margin: 0 auto; }
+h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: .12em; margin: 0; }
+p.sub { color: var(--acc); text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; margin: .2rem 0 1.2rem; }
+h2 { font-size: .95rem; font-weight: 400; text-transform: uppercase; letter-spacing: .08em; color: var(--acc);
+     margin: 1.6rem 0 .4rem; }
+.wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: 5px 8px; border-top: 1px solid var(--rule); }
+th { font-weight: 400; color: var(--muted); }
+td:first-child { white-space: nowrap; font-weight: 600; }
+a { color: var(--ink); text-decoration-color: var(--acc); text-underline-offset: 3px; }
+nav { font-size: .9rem; margin-top: 1.6rem; color: var(--muted); }
+@media print {
+  :root { --ground: #fff; --ink: #000; --muted: #444; --rule: #bbb; --acc: #1a7a44; color-scheme: light; }
+  body { font-size: 8pt; line-height: 1.3; padding: 0; }
+  p.sub { margin-bottom: .6rem; }
+  h2 { margin: .9rem 0 .2rem; }
+  th, td { padding: 3px 6px; }
+  tr { break-inside: avoid; }
+  nav { display: none; }
+  @page { margin: 10mm; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>AISLING</h1>
+<p class="sub">Cheat sheet · v0.1 · by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a></p>
+<h2>The controls</h2>
+<div class="wrap"><table>
+<thead><tr><th scope="col"></th><th scope="col"></th></tr></thead>
+<tbody>
+<tr><td>White keys</td><td>Play the Lead (the flute), in the piece's scale (the key it sounds is lit)</td></tr>
+<tr><td>Black keys</td><td>Eleven effects, each while held (lit; dark while held): Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, then Rise, Close, Transpose (in PERFORM: the solos)</td></tr>
+<tr><td>PLAY · REC · EDIT</td><td>Play / rest · a tap: hold (the echo repeats what it holds), held: the effects grid (16 effects on the white keys) · a tap: the Chords page, held: the next chord</td></tr>
+<tr><td>SEL</td><td>PERFORM: the knobs Filter, Wet, Energy, Sweep; white 1–5 mute the Drone, Sequence, Lead, Sequence 2, Atmosphere; black 1–5 solo them; white 6 held: the levels; white 7–11 held: Sweep, Open, Shut, Drop (both sequences out), Echo; the top key (G): the Lead forgets its ideas and its theme. Held: Lock</td></tr>
+<tr><td>HOME</td><td>The Aisling page (Filter, Evolve, Motion, Drift); again, the Key page (Tempo, Root, Mode, Transpose)</td></tr>
+<tr><td>ENV</td><td>The Drone (Pedal, Reso, Phaser, Attack); again, its sound (Colour, Release, Reverb, Echo); again, its Move page (Width, Time, Rate, Intro)</td></tr>
+<tr><td>ARP</td><td>The Sequence (Density, Octave, Length, Grid); again, its sound (Cutoff, Decay, Reverb, Echo); again, its Repeats (Repeat A, A time, Repeat B, B time); again, its Move page</td></tr>
+<tr><td>LFO</td><td>The Lead (Phrases, Octave, Glide, Vibrato); again, its sound (Tone, Attack, Reverb, Echo); again, its Move page</td></tr>
+<tr><td>SEQ</td><td>Sequence 2 (Chance, Octave, Length, Level); again, its sound; again, the Pattern page (write the steps on the keys); again, its Move page</td></tr>
+<tr><td>SAVE</td><td>The Atmosphere (Density, Width, Drift, Air); again, its sound (Colour, Ring, Reverb, Echo); again, its Move page</td></tr>
+<tr><td>FX</td><td>Space (Echo, Echo time, Feedback, Reverb); again, the Echo page (Blur, Tone, Width, Size)</td></tr>
+<tr><td>GLO</td><td>Setup (Tune, MIDI out, Lights, Save); again, the Arc (Lead in, Bridge, Arc, Memory). Held: save; held on: the piece back to its recipe</td></tr>
+<tr><td>ALGORITHM</td><td>On a layer's page, its voice (the Atmosphere: its character)</td></tr>
+<tr><td>PRESETS</td><td>The piece</td></tr>
+<tr><td>SELECT</td><td>On a layer's pages, its level; on the Aisling page, Energy (elsewhere nothing)</td></tr>
+<tr><td>OCT− / OCT+</td><td>On the Sequence's, the Lead's and Sequence 2's pages, its octave (lit while it's above or below where the piece was loaded)</td></tr>
+</tbody>
+</table></div>
+<h2>The pieces</h2>
+<div class="wrap"><table>
+<thead><tr><th scope="col">#</th><th scope="col">Piece</th><th scope="col">Named for</th><th scope="col">Key, tempo</th><th scope="col">What you hear</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Skellig</td><td>Skellig Michael, off Kerry</td><td>D minor, 76</td><td>An organ drone, one harp in a jig's threes, the surf; Dm and C in turn</td></tr>
+<tr><td>2</td><td>Burren</td><td>The Burren, Clare</td><td>G major, 84</td><td>A choir, two harps of 12 and 11 drifting apart, the wind</td></tr>
+<tr><td>3</td><td>Aran</td><td>Inis Mór</td><td>A Dorian, 96</td><td>A reed drone, a jig's 12 over a slip jig's 9, a turf fire's crackle; Am and G in turn</td></tr>
+<tr><td>4</td><td>Carolan</td><td>Turlough O'Carolan, the harper</td><td>D major, 88</td><td>Strings, two harps of 16 and 15, rain, a planxty's chords</td></tr>
+<tr><td>5</td><td>Blasket</td><td>The Blasket Islands, Kerry</td><td>E Dorian, 70</td><td>A choir, slow harps, the flute's slow air over the surf; Em and D in turn</td></tr>
+<tr><td>6</td><td>Samhain</td><td>The year's dark turn</td><td>B minor, 64</td><td>A low, beating organ, one low harp, a low flute, the wind</td></tr>
+<tr><td>7</td><td>Connemara</td><td>Bog, lake and rain</td><td>G hexatonic minor, 92</td><td>An organ, a slip jig's 9 over 8, rain; Gm and F in turn</td></tr>
+<tr><td>8</td><td>Tir na nOg</td><td>The land of the young, over the western sea</td><td>D hexatonic major, 80</td><td>A phased glass drone, two harps, a long reverb; D and G in turn</td></tr>
+</tbody>
+</table></div>
+<nav><a href="../">AISLING</a> · <a href="../manual/">Manual</a> · <a href="../emu/">Try it in the browser</a> ·
+<a href="../install/">Install</a></nav>
+</main>
+</body>
+</html>
