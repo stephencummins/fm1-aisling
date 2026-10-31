@@ -792,7 +792,7 @@ function say(text) {
   const el = $('status')
   if (text) { el.textContent = text; return }
   if (demo.on) { el.textContent = 'Demo: a little of what the FM-1 plays, without sound.'; return }
-  if (!listening) { el.textContent = 'Plug in the FM-1, turn on MIDI out (GLO, Setup), then press Listen.'; return }
+  if (!listening) { el.textContent = 'Plug in the FM-1 by USB, then press Listen.'; return }
   const all = inputs()
   if (!all.length) { el.textContent = 'No MIDI devices. Plug in the FM-1: it shows up as DUB-1 FM-1.'; return }
   const sel = $('input').value, name = sel === 'all' ? (all.length === 1 ? all[0].name : 'all MIDI inputs') : (all.find((i) => i.id === sel) || {}).name
