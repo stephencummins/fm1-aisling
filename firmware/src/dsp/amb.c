@@ -113,26 +113,26 @@ static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the
     P_MW0, 30, P_MR0, 25, P_MW4, 30, P_MR4, 20, P_BRIDGE, 40,
     P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 60, -1};
 static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limestone, the wind; a choir held over G, two
-                                                * harps of 12 and 11 drifting apart, a soft flute; I IV I ii, sixteen
-                                                * bars each */
+                                                * harps of 12 and 11 drifting apart, a fiddle's slow air; I IV I ii,
+                                                * sixteen bars each */
     P_TEMPO, 84, P_ROOT, 7, P_MODE, MODE_IONIAN,
     P_SEQ, 67, P_SVOICE, 5, P_SEQLEN, 12, P_DENSITY, 45, P_SWEEP, 35, P_DECAY, 75,
     P_SEQ2, 46, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 11, P_S2DEC, 85, P_MI3, 8,
     P_CHORD, 55, P_CVOICE, 5, P_PEDAL, 80, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 4, P_CR2, 1, P_CR3, 2,
-    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 35, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 8,
+    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 18, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 8,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
     P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
 static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a bouzouki in a jig's threes over a
-                                                * bodhran's slip jig of nine, a bright flute, a turf fire (Tape's
-                                                * crackle); Am and G in turn, eight bars each */
+                                                * bodhran's slip jig of nine, a chanter, a turf fire (Tape's crackle);
+                                                * Am and G in turn, eight bars each */
     P_TEMPO, 96, P_ROOT, 9, P_MODE, MODE_DORIAN,
     P_SVOICE, 6, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
     P_SEQ, 59, P_SEQ2, 35, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 80, P_MI3, 8,
     P_CHORD, 46, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
-    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 60, P_VIB, 10, P_GLIDE, 10, P_LDENS, 95, P_LDIN, 4,
+    P_LEAD, 76, P_LVOICE, 5, P_LTONE, 55, P_VIB, 5, P_GLIDE, 5, P_LDENS, 95, P_LDIN, 4,
     P_NCHAR, 5, P_CRACKLE, 10,
     P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 30, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
     P_ARC, 25, P_MOTION, 55, P_LMEM, 70, -1};
@@ -151,7 +151,7 @@ static const int16_t PC_CAROLAN[] = {         /* Turlough O'Carolan, the harper 
     P_MW0, 20, P_MR0, 25, P_SWEEP, 40, P_MR1, 30, P_MW4, 25, P_MR4, 20,
     P_ARC, 25, P_MOTION, 50, P_LMEM, 70, -1};
 static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, left in 1953: a choir over E, slow
-                                                * dulcimers in threes, a flute's slow air over the surf; Em and D in
+                                                * dulcimers in threes, a singer's slow air over the surf; Em and D in
                                                 * turn, thirty-two bars each */
     P_TEMPO, 70, P_ROOT, 4, P_MODE, MODE_DORIAN,
     P_SVOICE, 7, P_SEQLEN, 12, P_DENSITY, 40, P_SACC0, 0x249, P_DECAY, 90,
@@ -159,33 +159,33 @@ static const int16_t PC_BLASKET[] = {         /* the Blasket Islands, Kerry, lef
     P_TAPB, 50, P_TAPBT, 4,
     P_CHORD, 50, P_CVOICE, 5, P_PEDAL, 85, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 45, P_VIB, 20, P_GLIDE, 35, P_LDENS, 90, P_LDIN, 8,
+    P_LEAD, 76, P_LVOICE, 7, P_LTONE, 45, P_VIB, 10, P_GLIDE, 40, P_LDENS, 90, P_LDIN, 8,
     P_REVERB, 50, P_SIZE, 85,
     P_NCHAR, 2, P_CRACKLE, 5,
     P_MW0, 35, P_MT0, 60, P_MR0, 30, P_MW4, 30, P_MR4, 25, P_BRIDGE, 35,
     P_MI1, 8, P_ARC, 20, P_MOTION, 35, P_LMEM, 65, -1};
 static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: a low drone on B beating, a low harp of
                                                 * eight over a bodhran's heartbeat (its first two steps of eight, the
-                                                * rest ghosts), a low whistle an octave down, the wind; Bm, G, A,
-                                                * thirty-two bars each */
+                                                * rest ghosts), a low voice, the wind; Bm, G, A, thirty-two bars
+                                                * each */
     P_TEMPO, 64, P_ROOT, 11, P_MODE, MODE_AEOLIAN,
     P_SVOICE, 5, P_SEQOCT, -1, P_SEQLEN, 8, P_DENSITY, 45, P_CUTOFF, 40, P_SWEEP, 55, P_DECAY, 95,
     P_SEQ, 59, P_SEQ2, 40, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_SACC1, 0x03, P_S2DEC, 60,
     P_CHORD, 42, P_CVOICE, 2, P_CCOL, -25, P_PEDAL, 95, P_PHASER, 25, P_DRIFT, 4,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6, P_CR2, 7,
-    P_LEAD, 76, P_LVOICE, 2, P_LOCT, -1, P_VIB, 15, P_LDENS, 90, P_LDIN, 8,
+    P_LEAD, 76, P_LVOICE, 7, P_LOCT, -1, P_VIB, 10, P_GLIDE, 30, P_LDENS, 90, P_LDIN, 8,
     P_NCHAR, 1, P_CRACKLE, 7,
     P_MW0, 45, P_MT0, 70, P_MR0, 40, P_MW2, 10, P_BRIDGE, 30,
     P_MI0, 8, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
 static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; an organ on G in the gapped minor (no
                                                 * sixth), a harp in a slip jig's nine over another of eight an octave
-                                                * down, a flute; Gm and F in turn, sixteen bars each */
+                                                * down, a fiddle; Gm and F in turn, sixteen bars each */
     P_TEMPO, 92, P_ROOT, 7, P_MODE, MODE_HEX_MIN,
     P_SVOICE, 5, P_SEQLEN, 9, P_DENSITY, 60, P_SACC0, 0x49, P_DECAY, 75,
     P_SEQ, 59, P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_S2DEC, 85, P_MI3, 8,
     P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6,
-    P_LEAD, 76, P_LVOICE, 2, P_LTONE, 40, P_VIB, 12, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4,
+    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 30, P_MR0, 30, P_MW3, 30, P_MR3, 35, P_BRIDGE, 40,
     P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
@@ -227,7 +227,9 @@ void en_piece(int i, int16_t *par, uint16_t *pool)
 const char *const EN_CV_NAME[EN_NCV] = {"Organ", "Strings", "Pipes", "Harmonium", "Glass", "Choir"};   /* (BERLIN: the
                                                  * Drone's; the voices batch: Horn was Choir, its place kept; the formant
                                                  * Choir appended; AISLING: Pipes in Horn's place, Harmonium in Saws') */
-const char *const EN_BV_NAME[EN_NBV] = {"Odyssey", "Mini", "Flute", "Theremin", "Synthi"};   /* (BERLIN: the Lead's) */
+const char *const EN_BV_NAME[EN_NBV] = {"Odyssey", "Mini", "Flute", "Theremin", "Synthi", "Chanter", "Fiddle",
+                                        "Voice"};   /* (BERLIN: the Lead's; AISLING's appended, so the saves and
+                                                     * NACHTFAHRT's pieces keep theirs) */
 const char *const EN_CQ_NAME[EN_NCQ] = {"Empty", "Major", "Minor", "Sus2", "Sus4", "Dim", "Aug"};
 const char *const EN_CX_NAME[EN_NCX] = {"Triad", "6", "7", "Maj7", "9", "11", "Add9"};
 static const char *const ETIME_NAME[6] = {"1/8", "1/8.", "1/4", "1/4.", "1/2", "1 bar"};
@@ -1910,12 +1912,25 @@ static void seq_tick(void)                       /* a sixteenth: the sequences' 
 /* ------------------------------------------------------------------ the lead --- */
 /* (BERLIN) the Lead: one voice, gliding, its vibrato coming in late; it plays its motifs in pairs (below), never in
  * Emerge, a breath between pairs (Phrases: how often). Voices: Odyssey (a saw and a pulse), Mini (three saws), Flute
- * (a sine and breath), Theremin (a sine, always wavering), Synthi (a square). MIDI channel 3 */
+ * (a sine and breath), Theremin (a sine, always wavering), Synthi (a square). MIDI channel 3. (AISLING) Chanter (a
+ * reed: a narrow pulse, a nasal formant, the notes stopped short), Fiddle (a bowed saw, its body's resonances and the
+ * bow's hiss), Voice (one singer: the Choir's formants, the vowel moving from note to note) */
 static struct {
     uint8_t on, note;                            /* sounding (its gate); the note it glides to */
     float cur, ph, ph2, ph3, vph, env, fenv, vt, s1[2], s2[2], c1[4], c2[4];
+    float art, s3[2], s4[2], s5[2], c3[4], c4[4], c5[4];   /* (AISLING) the Chanter's stop; the formant, the Fiddle's
+                                                  * body */
+    float vw, vwt, vg, tl, fy[3][2];             /* (AISLING) the Voice: its vowel (0 'oo' .. 4 'ee', CH_F), the note's,
+                                                  * its gain, the source's tilt, the formants' y1 y2 */
 } lead;
 static float lead_vol, ld_gk = 0.004f, ld_tone = 1.0f, ld_att = 0.0009f, ld_rev = 1.0f, ld_echo = 1.0f;
+static uint32_t lv_rng = 0x1F83D9ABu;            /* (AISLING: the Lead's voices' own dice, the bow's and the singer's:
+                                                  * the voice changes the sound, never the piece) */
+static float lv_noise(void)                      /* (-0.5 .. 0.5) */
+{
+    lv_rng = lv_rng * 1664525u + 1013904223u;
+    return (float)(lv_rng >> 8) * (1.0f / 16777216.0f) - 0.5f;
+}
 #define CP_MAX EN_LEAD_CPMAX                     /* (the keys' figure: the most entries kept, amb.h) */
 #define LD_MOTN (((CP_MAX > 8 ? CP_MAX : 8) + 1) & ~1)   /* (a motif's room: the keys' theme's, or the generator's
                                                   * 8; even, for its first half twice: ld_frag) */
@@ -3122,6 +3137,8 @@ static void lead_note(int n)                     /* the next note: legato (it gl
     lead.on = 1;
     lead.vt = 0.0f;
     lead.fenv = 1.0f;
+    lead.vwt = fm_clampf(0.3f + 1.6f * (lv_noise() + 0.5f) + (float)(n - 66) * (1.0f / 24.0f), 0.0f, 3.0f);   /* (AISLING:
+                                                  * the Voice's next vowel, 'oo' to 'ah' mostly, opening higher up) */
     hit(2, 0.8f);
     midi(0x92, (uint32_t)n, 90);
 }
@@ -4004,6 +4021,7 @@ void en_init(void)
     ld_rng = 0x3C6EF372u;
     ks_rng = 0x6C078965u;                        /* (Pluck's bursts) */
     br_rng = 0x41C64E6Du;                        /* (AISLING: the Bodhran's) */
+    lv_rng = 0x1F83D9ABu;                        /* (AISLING: the Lead's voices') */
     atm_rng = 0xBB67AE85u;
     atm_reset();                                 /* (the voices batch: its wanderings and filters too) */
     ar_rng = 0x510E527Fu;
@@ -5382,6 +5400,21 @@ int en_ch_ok(void)                               /* (host tests) Choir's float s
             ok &= ks_fine(ch_s[i][k]);
     return ok;
 }
+int en_ld_ok(void)                               /* (host tests, AISLING) the Lead's float state: finite, no
+                                                  * denormals, the phases in [0, 1) */
+{
+    int i, k, ok = ks_fine(lead.cur) & ks_fine(lead.env) & ks_fine(lead.fenv) & ks_fine(lead.vt) & ks_fine(lead.art) &
+                   ks_fine(lead.vw) & ks_fine(lead.vwt) & ks_fine(lead.vg) & ks_fine(lead.tl);
+    ok &= (lead.ph >= 0.0f && lead.ph < 1.0f) & (lead.ph2 >= 0.0f && lead.ph2 < 1.0f) &
+          (lead.ph3 >= 0.0f && lead.ph3 < 1.0f) & (lead.vph >= 0.0f && lead.vph < 1.0f);
+    for (i = 0; i < 2; i++) {
+        ok &= ks_fine(lead.s1[i]) & ks_fine(lead.s2[i]) & ks_fine(lead.s3[i]) & ks_fine(lead.s4[i]) &
+              ks_fine(lead.s5[i]);
+        for (k = 0; k < 3; k++)
+            ok &= ks_fine(lead.fy[k][i]);
+    }
+    return ok;
+}
 int en_dr_ok(void)                               /* (host tests) the Drone's voices' float state: finite, no denormals,
                                                   * the phases in [0, 1) */
 {
@@ -5659,39 +5692,121 @@ static void render_drone(uint32_t n)
     }
 }
 
+/* (AISLING) the new voices' levels, each heard as loud as the Flute on the same note (test_lead_voices_level), and
+ * their colours */
+static const float LV_GAIN[3] = {0.507f, 0.638f, 1.55f};   /* the Chanter's, the Fiddle's, the Voice's */
+#define LV_TRIM 0.031f                           /* (the Fiddle's: octaves a semitone over its middle, 66; a saw's low
+                                                  * notes, many overtones in the ear's best octaves, heard ~6 dB over
+                                                  * its high ones, where the Flute's sine is the other way) */
+#define LV_NOSE 0.5f                             /* (the Chanter's formant, over its reed) */
+static float lv_aw2(float f)                     /* (A-weighting's power at f, a product of ratios: f^8 overflows) */
+{
+    const float f2 = f * f, a = f2 / (f2 + 424.36f), b = 148693636.0f / (f2 + 148693636.0f);
+    return a * a * (f2 / (f2 + 11599.29f)) * (f2 / (f2 + 544496.41f)) * b * b;
+}
+/* the gain that has the Voice heard as loud as a sine on its note (A-weighted, as the Flute is: one voice's harmonics
+ * fall on the formants or between them, so the Choir's estimate, a chord's smooth spectrum, swings ~8 dB note to
+ * note): a saw's harmonics (2 / (pi k)) under the tilt, the formants rc and the low-pass c, summed to 6.4 kHz, once a
+ * chunk (the cosines turned, not computed) */
+static float lv_level(const float rc[3][3], const float *c, float f0)
+{
+    const float w = FM_TWO_PI * f0 * (1.0f / EN_SR), c1 = fm_cosf(w), s1 = fm_sinf(w), ilg = c[0] / c[1],
+                k2 = c[3] * c[3], q = 1.0f - CH_TILT, tq = CH_TILT * CH_TILT;
+    float ck = c1, sk = s1, p = 0.0f;
+    int k, f;
+    for (k = 1; k <= 48 && (float)k * f0 < 6400.0f; k++) {
+        const float c2 = 2.0f * ck * ck - 1.0f, s2 = 2.0f * sk * ck, x = sk / (1.0f + ck) * ilg, x2 = x * x,
+                    t = ck * c1 - sk * s1;
+        float g2 = tq / ((1.0f - 2.0f * q * ck + q * q) * ((1.0f - x2) * (1.0f - x2) + k2 * x2) * (float)(k * k));
+        for (f = 0; f < 3; f++) {
+            const float re = 1.0f - rc[f][1] * ck - rc[f][2] * c2, im = rc[f][1] * sk + rc[f][2] * s2;
+            g2 *= rc[f][0] * rc[f][0] / (re * re + im * im + 1e-30f);
+        }
+        p += g2 * lv_aw2((float)k * f0);
+        sk = sk * c1 + ck * s1;
+        ck = t;
+    }
+    return fm_sqrtf(lv_aw2(f0) / (0.40528473f * 2.0f * p + 1e-30f));   /* (a sine's power 1/2; the saw's 4 / pi^2 a
+                                                  * harmonic over k^2, half of it each) */
+}
 static void render_lead(uint32_t n)
 {
     const int lv = (unsigned)par[P_LVOICE] < EN_NBV ? par[P_LVOICE] : 0;
-    const float g = lead_vol * 0.45f, vib = (float)par[P_VIB] * 0.004f + (lv == 3 ? 0.25f : 0.0f), gl = 0.84f, gr = 1.08f,
-                tone = ld_tone * fo_mul(FO_LEAD);   /* (Tone, moved by the filter motion) */
+    const float g = lead_vol * 0.45f * (lv >= 5 ? LV_GAIN[lv - 5] : 1.0f),
+                vib = (float)par[P_VIB] * 0.004f + (lv == 3 ? 0.25f : 0.0f), gl = 0.84f, gr = 1.08f,
+                tone = ld_tone * fo_mul(FO_LEAD),   /* (Tone, moved by the filter motion) */
+                tb = fm_clampf(tone, 0.5f, 2.0f),   /* (AISLING: as the Flute's, so the motion never shuts a voice) */
+                rel = lv == 5 ? 0.0009f : 0.00008f;   /* (~300 ms out; the Chanter stopped in ~25 ms) */
     uint32_t j;
-    float dt = 0.0f, h2 = 0.0f, h3 = 0.0f, br = 0.0f;
+    float dt = 0.0f, h2 = 0.0f, h3 = 0.0f, br = 0.0f, ck = 0.0f, stop = 1.0f, trim = 1.0f, vdg = 0.0f,
+          rc[3][3] = {{0.0f}};
     if (!lead.on && lead.env < 1e-5f) {
         en_bass_level = 0.0f;                    /* (the meter, at rest) */
         return;
     }
+    if (lv == 5)                                 /* (AISLING) the Chanter's nose, where the reed's is */
+        svf_coefs(lead.c3, 1150.0f, 0.7f);
+    else if (lv == 6) {                          /* the Fiddle's body: its air, and the bridge's hill */
+        svf_coefs(lead.c4, 290.0f, 0.8f);
+        svf_coefs(lead.c5, 2800.0f, 1.1f);
+    } else if (lv == 7) {                        /* the Voice: the vowel eased toward the note's (Tone and the filter
+                                                  * motion open it), its three formants the Choir's, and its gain
+                                                  * (lv_level) */
+        const float want = fm_clampf(lead.vwt + 1.5f * (tb - 1.0f), 0.0f, 4.0f);
+        float fr, gt;
+        int f, v0;
+        lead.vw += (want - lead.vw) * fm_minf((float)n * (1.0f / 11025.0f), 1.0f);   /* (~0.25 s) */
+        v0 = lead.vw >= 3.0f ? 3 : (int)lead.vw;
+        fr = lead.vw - (float)v0;
+        for (f = 0; f < 3; f++) {
+            const float hz = CH_F[v0][f] + fr * (CH_F[v0 + 1][f] - CH_F[v0][f]),
+                        bw = CH_B[v0][f] + fr * (CH_B[v0 + 1][f] - CH_B[v0][f]), r = fm_expf(-FM_PI * bw * (1.0f / EN_SR));
+            rc[f][1] = 2.0f * r * fm_cosf(FM_TWO_PI * hz * (1.0f / EN_SR));
+            rc[f][2] = -r * r;
+            rc[f][0] = 1.0f - rc[f][1] - rc[f][2];
+        }
+        svf_coefs(lead.c1, 5000.0f * tb, 0.9f);
+        gt = lv_level(rc, lead.c1, mtof(lead.cur));
+        if (lead.vg <= 0.0f)
+            lead.vg = gt;
+        vdg = (gt - lead.vg) / (float)n;
+    }
     for (j = 0; j < n; j++) {
-        float x, bp, a;
+        float x, bp, a, nose = 0.0f;
         if (!(j & 15u)) {                        /* the glide, the vibrato, the filter: every 16 */
             const float vd = vib * fm_clampf((lead.vt - 0.4f) * 2.5f, 0.0f, 1.0f), f = mtof(lead.cur + vd * sine(lead.vph));
             dt = f * (1.0f / EN_SR);
-            svf_coefs(lead.c1, f * (3.0f + 6.0f * lead.fenv) * tone, 0.9f);
-            svf_coefs(lead.c2, f * (3.0f + 6.0f * lead.fenv) * tone, 0.7f);
+            if (lv < 5) {
+                svf_coefs(lead.c1, f * (3.0f + 6.0f * lead.fenv) * tone, 0.9f);
+                svf_coefs(lead.c2, f * (3.0f + 6.0f * lead.fenv) * tone, 0.7f);
+            } else if (lv < 7) {                 /* (AISLING) the Chanter's low-pass as the synths', bright at the
+                                                  * start; the Fiddle's steadier */
+                const float fc = f * (lv == 5 ? 3.0f + 6.0f * lead.fenv : 4.0f + 3.0f * lead.fenv) * tb;
+                svf_coefs(lead.c1, fc, 0.9f);
+                svf_coefs(lead.c2, fc, 0.7f);
+            }
             if (lv == 2) {                       /* (AISLING's Flute: breath, a band round the second harmonic; the
                                                   * overtones a low note and Tone give it, none up high; the chiff,
                                                   * fenv squared (~12 ms), a puff and a hard second at the start) */
                 const float reg = fm_clampf((84.0f - lead.cur) * (1.0f / 24.0f), 0.0f, 1.0f),
-                            tb = fm_clampf(tone, 0.5f, 2.0f), ch = lead.fenv * lead.fenv;
+                            ch = lead.fenv * lead.fenv;
                 h2 = (0.08f + 0.14f * reg) * tb + 0.3f * ch;
                 h3 = (0.02f + 0.06f * reg) * tb + 0.1f * ch;
                 br = 0.5f + 0.4f * reg + 4.0f * ch;
                 svf_coefs(lead.c1, f * 2.0f * tb, 1.0f);
             }
+            ck = lead.fenv * lead.fenv;          /* (AISLING: ~12 ms, the new voices' starts) */
+            stop = 1.0f - 0.85f * ck;            /* (the Chanter's: each note stopped, and opened again) */
+            if (lv == 6)
+                trim = fm_exp2f((lead.cur - 66.0f) * LV_TRIM);
             lead.vt += 16.0f / EN_SR;
             lead.vph += 16.0f * 5.5f / EN_SR;
             if (lead.vph >= 1.0f)
                 lead.vph -= 1.0f;
             lead.fenv *= 0.985f;                 /* (~0.4 s) */
+            if (lead.fenv < 1e-9f)               /* (AISLING: never denormal, a note held; under 1e-9 it moves no sum
+                                                  * it's in, so the voices' sound is the same to the bit) */
+                lead.fenv = 0.0f;
         }
         lead.cur += ((float)lead.note - lead.cur) * ld_gk;
         switch (lv) {
@@ -5702,6 +5817,20 @@ static void render_lead(uint32_t n)
             x = sine(lead.ph) + h2 * sine(2.0f * lead.ph) + h3 * sine(3.0f * lead.ph) + br * bp;
             break;
         case 3: x = sine(lead.ph); break;
+        case 5:                                  /* (AISLING) the Chanter: a reed, a narrow pulse; its nose */
+            x = blep_pulse(lead.ph, dt, 0.3f);
+            svf_lp(lead.c3, lead.s3, x, &nose);
+            break;
+        case 6: {                                /* the Fiddle: a saw; the bow's hiss, loudest as the string slips
+                                                  * (the end of its turn), and its scrape at the start */
+            const float u = lead.ph * lead.ph;
+            x = blep_saw(lead.ph, dt) + (0.12f + 0.8f * ck) * u * lv_noise();
+            break;
+        }
+        case 7:                                  /* the Voice: a saw tilted to a throat's (the Choir's), a breath in it */
+            lead.tl += CH_TILT * (blep_saw(lead.ph, dt) - lead.tl);
+            x = lead.tl + (0.02f + 0.1f * ck) * lv_noise();
+            break;
         default: x = blep_saw(lead.ph, dt) - blep_saw(frac1(lead.ph + 0.5f), dt); break;
         }
         lead.ph += dt;
@@ -5713,11 +5842,29 @@ static void render_lead(uint32_t n)
         lead.ph3 += dt * 0.996f;
         if (lead.ph3 >= 1.0f)
             lead.ph3 -= 1.0f;
-        if (lv != 2 && lv != 3) {
+        if (lv != 2 && lv != 3 && lv != 7) {
             x = svf_lp(lead.c1, lead.s1, x, &bp);
             x = svf_lp(lead.c2, lead.s2, x, &bp);
         }
-        lead.env += ((lead.on ? 1.0f : 0.0f) - lead.env) * (lead.on ? ld_att : 0.00008f);   /* (Attack in, ~300 ms out) */
+        if (lv == 5) {                           /* (AISLING) the Chanter's nose on its reed, and its stops */
+            lead.art += (stop - lead.art) * 0.02f;
+            x = (x + LV_NOSE * lead.c3[3] * nose) * lead.art;
+        } else if (lv == 6) {                    /* the Fiddle's body */
+            float b1, b2;
+            svf_lp(lead.c4, lead.s4, x, &b1);
+            svf_lp(lead.c5, lead.s5, x, &b2);
+            x = (x + 0.5f * b1 + 0.35f * b2) * trim;
+        } else if (lv == 7) {                    /* the Voice's throat: its three formants, then its low-pass */
+            int f;
+            for (f = 0; f < 3; f++) {
+                const float y = rc[f][0] * x + rc[f][1] * lead.fy[f][0] + rc[f][2] * lead.fy[f][1];
+                lead.fy[f][1] = lead.fy[f][0];
+                lead.fy[f][0] = x = y;
+            }
+            x = svf_lp(lead.c1, lead.s1, x, &bp) * lead.vg;
+            lead.vg += vdg;
+        }
+        lead.env += ((lead.on ? 1.0f : 0.0f) - lead.env) * (lead.on ? ld_att : rel);   /* (Attack in, ~300 ms out) */
         a = x * lead.env * g;
         mixl[j] += a * gl;
         mixr[j] += a * gr;

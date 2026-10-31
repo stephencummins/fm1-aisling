@@ -13,10 +13,10 @@ By CU_STE · [www.stephen8n.com](https://www.stephen8n.com)
 
 ## What?
 
-AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps and a flute over a held drone,
-in the old modes, with the weather of the west coast behind them. It plays itself from the moment it's switched
-on, and it never ends. You can play with it: the white keys give you the flute, always in the piece's scale, and
-it answers you. (An *aisling*, said "ash-ling", is an Irish vision poem.)
+AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps over a held drone, and a flute, a
+fiddle, a chanter or a voice leading, in the old modes, with the weather of the west coast behind them. It plays
+itself from the moment it's switched on, and it never ends. You can play with it: the white keys give you the Lead,
+always in the piece's scale, and it answers you. (An *aisling*, said "ash-ling", is an Irish vision poem.)
 
 It is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt), FartyPants's Berlin School firmware.
 AISLING keeps NACHTFAHRT's whole machine (its five layers, its arc, its slowly moving filters, its lead that
@@ -24,7 +24,9 @@ remembers and answers) and changes what it plays:
 
 - **the harp**: NACHTFAHRT's plucked string restrung as a wire-strung harp, with a long, bright ring. It plays
   every piece's Sequence and, an octave down, its Sequence 2, like the harper's other hand;
-- **the flute**: a soft tone, breath, and a chiff as each note starts, leading in every piece;
+- **the Lead's four voices**: a flute (a soft tone, breath, and a chiff as each note starts); a fiddle (a bowed
+  string through its body, the bow's hiss loudest as each note starts); a chanter (a nasal reed, each note stopped
+  and opened again); and a voice (a singer's, its vowel easing from note to note), matched in loudness;
 - **the modes**: major, Mixolydian, Dorian and minor, and two gapped scales of six notes (one with no seventh,
   one with no sixth), in the pipes' and the whistle's keys (D, G, A, E, B);
 - **the double tonic**: the chords swing between two, D and C or E minor and D, a long while each, as the old
@@ -57,21 +59,21 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 | # | Piece | Named for | Key, tempo | What you hear |
 |---|---|---|---|---|
 | 1 | Skellig | Skellig Michael, off Kerry | D minor, 76 | An organ drone, one harp in a jig's threes, the surf; Dm and C in turn |
-| 2 | Burren | The Burren, Clare | G major, 84 | A choir, two harps of 12 and 11 drifting apart, the wind |
-| 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a bouzouki's jig of 12 over a bodhrán's slip jig of 9, a turf fire's crackle; Am and G in turn |
+| 2 | Burren | The Burren, Clare | G major, 84 | A choir, two harps of 12 and 11 drifting apart, a fiddle's slow air, the wind |
+| 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a bouzouki's jig of 12 over a bodhrán's slip jig of 9, the chanter, a turf fire's crackle; Am and G in turn |
 | 4 | Carolan | Turlough O'Carolan, the harper | D major, 88 | Strings, two harps of 16 and 15, rain, a planxty's chords |
-| 5 | Blasket | The Blasket Islands, Kerry | E Dorian, 70 | A choir, slow dulcimers, the flute's slow air over the surf; Em and D in turn |
-| 6 | Samhain | The year's dark turn | B minor, 64 | A low, beating organ, one low harp over a bodhrán's heartbeat, a low flute, the wind |
-| 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a slip jig's 9 over 8, rain; Gm and F in turn |
+| 5 | Blasket | The Blasket Islands, Kerry | E Dorian, 70 | A choir, slow dulcimers, a singer's slow air over the surf; Em and D in turn |
+| 6 | Samhain | The year's dark turn | B minor, 64 | A low, beating organ, one low harp over a bodhrán's heartbeat, a low voice, the wind |
+| 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a slip jig's 9 over 8, a fiddle, rain; Gm and F in turn |
 | 8 | Tir na nOg | The land of the young, over the western sea | D hexatonic major, 80 | A phased glass drone, two harps, a long reverb; D and G in turn |
 
-The keys, modes and tempos are starting points, tuned by ear. The flute's themes are its own: no air is quoted.
+The keys, modes and tempos are starting points, tuned by ear. The Lead's themes are its own: no air is quoted.
 
 ## In short
 
 | | |
 |---|---|
-| White keys | Play the Lead (the flute), in the piece's scale (the key it sounds is lit) |
+| White keys | Play the Lead (the piece's flute, fiddle, chanter or voice), in the piece's scale (the key it sounds is lit) |
 | Black keys | Eleven effects, each while held (lit; dark while held): Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, then Rise, Close, Transpose (in PERFORM: the solos) |
 | PLAY · REC · EDIT | Play / rest · a tap: hold (the echo repeats what it holds), held: the effects grid (16 effects on the white keys) · a tap: the Chords page, held: the next chord |
 | SEL | PERFORM: the knobs Filter, Wet, Energy, Sweep; white 1–5 mute the Drone, Sequence, Lead, Sequence 2, Atmosphere; black 1–5 solo them; white 6 held: the levels; white 7–11 held: Sweep, Open, Shut, Drop (both sequences out), Echo; the top key (G): the Lead forgets its ideas and its theme. Held: Lock |

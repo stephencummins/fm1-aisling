@@ -1698,6 +1698,18 @@ int main(void)
             en_param_text(P_SVOICE, 3, t);
             CHECK(!strcmp(t, "Pulse"), "test_voices_listed: seq voice 3 %s (Pulse, kept)", t);
         }
+        {                                        /* (AISLING, step 4) Chanter, Fiddle and Voice appended to the Lead's:
+                                                  * the Flute, Theremin and Synthi keep their numbers */
+            static const char *const L[4] = {"Synthi", "Chanter", "Fiddle", "Voice"};
+            int i;
+            for (i = 0; i < 4; i++) {
+                en_param_text(P_LVOICE, 4 + i, t);
+                CHECK(!strcmp(t, L[i]), "test_voices_listed: lead voice %d %s (%s)", 4 + i, t, L[i]);
+            }
+            en_param_text(P_LVOICE, 2, t);
+            CHECK(!strcmp(t, "Flute") && en_param_info(P_LVOICE)->hi == 7,
+                  "test_voices_listed: lead voice 2 %s (Flute, kept), hi %d (7)", t, en_param_info(P_LVOICE)->hi);
+        }
         en_param_text(P_CATT, 40, t);
         CHECK(!strcmp(t, "40"), "attack 40, unsigned: %s", t);
         en_param_text(P_LOCT, 1, t);
@@ -2959,6 +2971,95 @@ int main(void)
             en_play(0);
             run(30.0f);
             CHECK(en_dr_ok() && !bad, "test_pipes_state: %s after 30 s stopped (bad %d)", VN[v], bad);
+        }
+    }
+
+    /* (AISLING, step 4) the Lead's new voices, appended (the Flute, Theremin and Synthi kept: NACHTFAHRT's pieces, and
+     * the saves, play them): Chanter, Fiddle and Voice, a key held, the Lead alone and dry. (i) In tune, notes 48 ..
+     * 84 (Vibrato 0; 100 ms, a quarter second in); (ii) heard as loud as the Flute, held (2 s, dB(A)), within 2 dB,
+     * notes 48 .. 79 (amb.c's LV_GAIN, lv_level and LV_TRIM; under 48 the Chanter's reed and the Fiddle's saw carry
+     * more than the Flute's sine, as real ones do); (iii) in their pieces, the Lead alone, the 40 s from its first
+     * note as loud as the same notes on the Flute, within 2 dB(A) (the voice changes the sound, never the piece: the
+     * notes the same); (iv) the state finite, no denormals, the phases in [0, 1), after those 40 s and 30 s
+     * stopped (en_ld_ok) */
+    {
+        static float x[2 * 44100];
+        static const int OCT[7] = {-1, -1, 0, 0, 1, 1, 1}, DEG[7] = {0, 4, 0, 4, 0, 4, 7};
+        static const int PC[5] = {1, 2, 4, 5, 6}, PV[5] = {6, 5, 7, 7, 6};
+        static const char *const VN[8] = {"", "", "Flute", "", "", "Chanter", "Fiddle", "Voice"};
+        static const char *const PN[5] = {"Burren", "Aran", "Blasket", "Samhain", "Connemara"};
+        double lv[7][4], a[2];
+        int k, v, w, n, nt[7];
+        for (k = 0; k < 7; k++)
+            for (w = 0; w < 4; w++)
+                for (v = !w; v < 2; v++) {      /* (v 0, the pitch: the new voices'; 1, the level: the Flute's too) */
+                    const int vv = w ? 4 + w : 2;
+                    float f, p, c;
+                    at_solo(-1, 0, 0, 1);
+                    en_set(P_LEAD, en_param_info(P_LEAD)->def);
+                    en_set(P_LVOICE, vv), en_set(P_LOCT, OCT[k]), en_set(P_ROOT, 0), en_set(P_MOTION, 0);
+                    en_set(P_LDREV, 0), en_set(P_LDECHO, 0), en_set(P_ECHO, 0), en_set(P_REVERB, 0);
+                    fo_all(0, -1, 0, 0), en_set(P_BRIDGE, 0), en_set(P_EWIDTH, 0);   /* (Tone the knob's; and no
+                                                  * widener: its sweep, 0.21 Hz, runs on through en_init, and a held
+                                                  * note through it read up to 2 dB apart from run to run) */
+                    if (!v)
+                        en_set(P_VIB, 0);
+                    run(0.2f);
+                    en_lead_key(DEG[k], 1);
+                    if (!v) {                    /* (i: a second in, the Voice's vowel settled: a formant moving
+                                                  * past the note bends its phase, heard as a few cents) */
+                        run(1.0f);
+                        n = run_cap(0.2f, x, 2 * 44100);
+                        f = 440.0f * powf(2.0f, ((float)last_lead - 69.0f) / 12.0f);
+                        p = dft_pitch(x, n, f);
+                        c = p > 0.0f ? 1200.0f * log2f(p / f) : 999.0f;
+                        printf("  lead: %s note %d (%.2f Hz): heard at %.2f Hz, %+.2f cents\n", VN[vv], last_lead,
+                               (double)f, (double)p, (double)c);
+                        CHECK(fabsf(c) < 3.0f && !bad, "test_lead_voices_pitch: %s note %d %+.2f cents off (bad %d)",
+                              VN[vv], last_lead, (double)c, bad);
+                    } else {                     /* (ii: from 1.1 s, the vibrato in) */
+                        run(1.1f);
+                        at_cap(2.0f);
+                        at_spec();
+                        lv[k][w] = at_alevel();
+                        nt[k] = last_lead;
+                    }
+                    en_lead_key(DEG[k], 0);
+                }
+        for (k = 0; k < 6; k++) {
+            printf("  lead: note %d held: Flute %.1f dB(A), Chanter %+.1f, Fiddle %+.1f, Voice %+.1f\n", nt[k], lv[k][0], lv[k][1] - lv[k][0], lv[k][2] - lv[k][0],
+                   lv[k][3] - lv[k][0]);
+            for (w = 1; w < 4; w++)
+                CHECK(fabs(lv[k][w] - lv[k][0]) < 2.0, "test_lead_voices_level: note %d %s %.1f dB(A), the Flute %.1f",
+                      nt[k], VN[4 + w], lv[k][w], lv[k][0]);
+        }
+        for (k = 0; k < 5; k++) {
+            for (v = 0; v < 2; v++) {            /* (iii) */
+                int16_t pp[P_NPARAMS];
+                uint16_t pl;
+                uint32_t ons;
+                fresh();
+                en_piece(PC[k], pp, &pl);
+                pp[P_LVOICE] = (int16_t)(v ? PV[k] : 2);
+                pp[P_CHORD] = pp[P_SEQ] = pp[P_SEQ2] = pp[P_CRACKLE] = 0;
+                apply(pp, pl);
+                en_play(1);
+                for (ons = ld_ons, n = 0; ld_ons == ons && n < 600 * 172; n++)
+                    run(256.0f / 44100.0f);
+                at_cap(40.0f);
+                at_spec();
+                a[v] = at_alevel();
+                CHECK(en_ld_ok(), "test_lead_voices_state: %s's %s not finite, or denormal, or a phase out of [0, 1), "
+                      "while playing", PN[k], VN[v ? PV[k] : 2]);
+                en_play(0);                      /* (iv) */
+                run(30.0f);
+                CHECK(en_ld_ok() && !bad, "test_lead_voices_state: %s's %s after 30 s stopped (bad %d)", PN[k],
+                      VN[v ? PV[k] : 2], bad);
+            }
+            printf("  lead: %s's %s, the 40 s from its first note %.1f dB(A), with the Flute %.1f\n", PN[k], VN[PV[k]],
+                   a[1], a[0]);
+            CHECK(fabs(a[1] - a[0]) < 2.0 && !bad, "test_lead_voices_pieces: %s's %s %.1f dB(A), with the Flute %.1f",
+                  PN[k], VN[PV[k]], a[1], a[0]);
         }
     }
 

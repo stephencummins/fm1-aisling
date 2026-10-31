@@ -176,7 +176,8 @@ void en_midi_out(uint32_t st, uint32_t d1, uint32_t d2);
 
 /* the voices: each layer's sounds (ALGORITHM on the layer's page) */
 #define EN_NCV 6                         /* (BERLIN) the Drone's voices: Organ, Strings, Horn, Saws, Glass, Choir */
-#define EN_NBV 5
+#define EN_NBV 8                         /* (the Lead's: Odyssey, Mini, Flute, Theremin, Synthi; AISLING appends
+                                         * Chanter, Fiddle, Voice) */
 #define EN_NSV 8                        /* (BERLIN) the Sequence's voices: 2600, Moog, Synthi, Pulse, Glass, Harp
                                          * (Pluck), Bouzouki, Dulcimer */
 #define EN_NS2V 10                      /* Sequence 2's: the same five, Sub, Harp, Bouzouki, Dulcimer, Bodhran (the
@@ -222,6 +223,7 @@ extern volatile float en_ch_vowel;               /* (Choir) the vowel heard: 0 '
 extern volatile uint32_t en_ch_work;             /* (Choir) its samples rendered so far */
 int en_ch_ok(void);                              /* 1: Choir's float state finite, no denormals */
 int en_dr_ok(void);                              /* 1: the Drone's voices' float state finite, no denormals */
+int en_ld_ok(void);                              /* 1: the Lead's float state finite, no denormals */
 float en_ch_gain(float hz);                      /* (Choir) its three formants' gain at hz, as last set */
 int en_atm_ok(void);                             /* 1: the Atmosphere's float state finite, no denormals */
 int en_lead_cap(void);
