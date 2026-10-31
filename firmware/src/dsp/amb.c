@@ -757,7 +757,7 @@ static int chord_slot = -1;                     /* the slot whose chord sounds (
 /* (BERLIN) the Drone: the chord held, its four notes and the root an octave under (a pedal), swelling in over Attack
  * and away over Release; a new chord swells in on the other bank while the old one dies. Its voices: Organ
  * (drawbars), Strings (a saw, into the ensemble), Pipes (AISLING, in Horn's place: the chord's notes regulators, a
- * narrow pulse through a nasal formant; the pedal the three drones, bass, baritone and tenor in octaves, beating),
+ * pulse through a low, soft formant; the pedal the three drones, bass, baritone and tenor in octaves, beating),
  * Harmonium (AISLING, in Saws': two ranks of free reeds, the second a few cents sharp, on a slow bellows), Glass
  * (FM), Choir (two saws a note through three moving formants, a vowel, into the ensemble: choir(), below); the bus
  * through the phaser. MIDI channel 1: a chord's notes on as it starts, off as it goes */
@@ -5284,7 +5284,8 @@ static void render_drone(uint32_t n)
             hm_ph2 -= 1.0f;
     }
     svf_coefs(c, fc, k);
-    svf_coefs(cf1, 1300.0f, 0.7f);               /* (Pipes: the regulators' nasal formant, the drones' buzz) */
+    svf_coefs(cf1, 700.0f, 1.0f);                /* (Pipes: the regulators' formant, low and soft (the user: a fifth
+                                                  * pulse at 1.3 kHz was harsh; 1-2 kHz now 6 dB down); the drones' buzz) */
     svf_coefs(cf2, 700.0f, 0.8f);
     for (j = 0; j < n; j++)
         drl[j] = drr[j] = 0.0f;
@@ -5309,10 +5310,10 @@ static void render_drone(uint32_t n)
                 case 1: x = blep_saw(v->ph, v->dt); break;
                 case 2: {                        /* Pipes */
                     float f, s0;
-                    if (i < EN_NPAD) {           /* (a regulator: a double reed, narrow and nasal) */
-                        s0 = blep_pulse(v->ph, v->dt, 0.2f);
+                    if (i < EN_NPAD) {           /* (a regulator: a double reed, mostly its formant) */
+                        s0 = blep_pulse(v->ph, v->dt, 0.3f);
                         svf_lp(cf1, v->f1, s0, &f);
-                        x = 0.62f * (s0 + 0.9f * f);
+                        x = 0.72f * (0.6f * s0 + f);
                     } else {                     /* (the drones: near-square, cylindrical, bass, baritone, tenor) */
                         s0 = blep_pulse(v->ph, v->dt, 0.42f) + 0.7f * blep_pulse(v->ph2, 2.0016f * v->dt, 0.42f) +
                              0.5f * blep_pulse(v->vp, 3.9976f * v->dt, 0.42f);

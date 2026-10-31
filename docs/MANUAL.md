@@ -215,7 +215,7 @@ Octave knob shows where it is, and OCT+ or OCT− lights. Turn its Octave knob o
 what you set is its octave again, the move gone; what's saved is always the octave you set.
 
 **The Drone** (ENV; channel 1) holds the chord on two banks of five voices: the chord's four notes and the
-root an octave under (the **Pedal**). Voices: **Organ**, **Strings** (through an ensemble), **Pipes** (a piper's chord: each note a narrow double reed through a nasal formant, and the Pedal three drones, bass, baritone and tenor, an octave apart and a few cents out, so they beat slowly), **Harmonium** (two free-reed ranks, one a few cents sharp, on a slow bellows that swells and brightens them),
+root an octave under (the **Pedal**). Voices: **Organ**, **Strings** (through an ensemble), **Pipes** (a piper's chord: each note a soft double reed, and the Pedal three drones, bass, baritone and tenor, an octave apart and a few cents out, so they beat slowly), **Harmonium** (two free-reed ranks, one a few cents sharp, on a slow bellows that swells and brightens them),
 **Glass**, **Choir**. The Choir sings a vowel: each note is two voices a little apart, through three formants
 (as a voice's mouth shapes it) and the Strings' ensemble. The vowel moves with the Drone's brightness: **Colour**
 chooses it ('oo' at −25, 'ah' at 0, 'ee' at +25, 'oh' and 'eh' between; past ±25 it only gets darker or
