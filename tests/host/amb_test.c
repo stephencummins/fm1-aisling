@@ -2150,6 +2150,33 @@ int main(void)
                (double)tail[1]);
         CHECK(tail[1] > 2.0f * tail[0], "test_fx_supernova: the tail %.4f held, %.4f not", (double)tail[1],
               (double)tail[0]);
+        /* (AISLING) Macalla, past full whatever the echo's time: a slow piece's tempo (64), the echo 1.5 beats (the
+         * ping-pong) and 4 (too long for it); held, the tail 10-14 s after the music stops within 6 dB of its 2-6 s
+         * (NACHTFAHRT's +0.35 left it 51 and 28 dB down) */
+        for (e = 3; e <= 5; e += 2) {
+            fresh();
+            en_set(P_ECHO, 80);
+            en_set(P_TEMPO, 64);
+            en_set(P_ETIME, e);
+            en_play(1);
+            run(10.0f);
+            for (k = 0; k < 5; k++)
+                en_set(OFF[k], 0);
+            en_fx(1u << EN_FX_SUPERNOVA);
+            run(2.0f);
+            sum2 = 0.0f;
+            run(4.0f);
+            tail[0] = sqrtf(sum2 / (2.0f * 44100.0f * 4.0f));
+            run(4.0f);
+            sum2 = 0.0f;
+            run(4.0f);
+            tail[1] = sqrtf(sum2 / (2.0f * 44100.0f * 4.0f));
+            en_fx(0);
+            printf("  Macalla held, tempo 64, Echo time %d: the tail 2-6 s after the music stops %.4f, 10-14 s %.4f\n", e,
+                   (double)tail[0], (double)tail[1]);
+            CHECK(tail[1] > 0.5f * tail[0], "test_fx_macalla: Echo time %d, the tail %.4f at 10-14 s, %.4f at 2-6 s", e,
+                  (double)tail[1], (double)tail[0]);
+        }
         fresh();                                 /* (nothing in the echo: Supernova has nothing to grow, and adds none) */
         for (k = 0; k < 5; k++)
             en_set(OFF[k], 0);

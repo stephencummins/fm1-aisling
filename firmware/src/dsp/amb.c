@@ -729,7 +729,8 @@ static uint32_t cnoise = 4321u;
 static float echo_send, rev_send, echo_len, echo_len_t, echo_fb = 0.6f, ein_gain = 1.0f, echo_t60 = 6.0f;
 static float fb_cap = 2.0f;                     /* stopped, the feedback eases under 90%: the tails die */
 static float fx_em = 1.0f, fx_ek = 0.001f, fx_ts = 1.0f;   /* the grid on the echo: its time's multiple, its easing; the tape stop */
-static float fx_nova;                            /* (BERLIN) the grid's Supernova: the echo's feedback past full, eased */
+static float fx_nova;                            /* (BERLIN) the grid's Supernova (AISLING's Macalla): the echo's feedback
+                                                  * past full, eased */
 static float rev_in_gain = 1.0f;                /* falls to 0 while frozen */
 static float tape_lpc = 0.55f, tape_hpc = 0.08f; /* the echo's feedback band-pass */
 static float crackle_vol, cloud_amt;
@@ -3462,11 +3463,14 @@ static inline void echoes(float in, float *el, float *er)
                 tape_w = 0;
             tape[tape_w] = s;
         } else {
-            const float nova = fx_nova;          /* (the grid's Supernova) */
-            float g = fm_minf(echo_fb + 0.12f * perf_echo + 0.1f * dub_up + 0.35f * nova,
-                              fb_cap + 0.3f * nova);   /* (Dub: past the knob; Supernova, past full) */
+            float g = fm_minf(echo_fb + 0.12f * perf_echo + 0.1f * dub_up, fb_cap);   /* (Dub: past the knob) */
             if (ec_pp)
                 g *= g;                          /* (two repeats a turn round: the feedback squared) */
+            g += fx_nova * fm_maxf(1.35f - g, 0.0f);   /* (AISLING) Macalla: a turn round past full, whatever the
+                                                  * echo's time (the band-pass keeps ~0.8 at its peak: ~1.08 a turn;
+                                                  * sat bounds it); NACHTFAHRT's +0.35 left the slow pieces' long
+                                                  * echoes at a third a turn, a tail a few seconds longer under the
+                                                  * music (the user: "I don't hear what macalla is doing") */
             tape_lp += tape_lpc * (f1 - tape_lp);   /* each time round: thinner, darker */
             tape_hp += tape_hpc * (tape_lp - tape_hp);
             fb = ec_fb(tape_lp - tape_hp);       /* (and more dissolved) */
@@ -3886,6 +3890,9 @@ void en_init(void)
         cl_g[i].len = 0;
     cl_live = 0;
     tape_w = tape_ph = 0;
+    tape_acc = tape_lp = tape_hp = tape_p1 = tape_c1 = tape_p3 = tape_c3 = ec_lp = ec_hp = 0.0f;
+    fx_nova = 0.0f;                              /* (AISLING) the echo's filters quiet too, and Macalla at rest: past
+                                                  * full, what a reset left in them would build again */
     echo_len = 0.0f;
     q_r = q_w = 0;
     for (i = 0; i < NMOD; i++) {
@@ -4788,7 +4795,8 @@ static void render_crackle(uint32_t n)
 
 /* -------------------------------------------------------- the effects grid --- */
 /* (BERLIN) REC held, the keys: each effect eased in while its key is held and out when let go, costing nothing until
- * then. The echo's (Repeat: the Sequence thrown into it; Time, Tape stop; Supernova: its feedback past full);
+ * then. The echo's (Repeat: the Sequence thrown into it; Time, Tape stop; Supernova, AISLING's Macalla: its feedback
+ * past full, and twice as much into it);
  * a master filter on everything (Low-pass, High-pass); Sweep the Sequence's own filter, swept; Phaser on all the dry
  * music; Reverb (the dry into the plate), Take-off (the Crash ending's noise falling into the echo), Freeze (the
  * cloud), Wash; Shimmer (the plate climbing in octaves: see the plate); Octave and Return in the sequences; Twitter, a
@@ -5536,6 +5544,9 @@ static void render_chunk(int32_t *out, uint32_t n, float gain)
     if (fxm || tw_env > 1e-4f || fx_ph > 0.005f)
         render_fx(n);
     eg += (1.0f - eg) * fx_wash;                 /* Wash: everything into the echo */
+    eg += fx_nova * fm_minf(eg, fm_maxf(1.0f - eg, 0.0f));   /* (AISLING) Macalla: twice as much in (all of it at
+                                                  * most; none, if none), so the next repeats, a second off, come back
+                                                  * louder while the loop builds */
     epk = en_echo_pk;
     for (j = 0; j < n; j++) {
         float wl, wr, l, r, el, er, rin, cl, cr, sd, dry = 1.0f - 0.75f * fx_wash;

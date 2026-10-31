@@ -449,7 +449,7 @@ they're let go.
 | **Echo** | Repeat: the Sequence thrown into the echo | Time: the echo's time doubled | Tape stop: the tape slowing to a quarter | Shimmer: the plate climbing, its tail an octave up and again (see below) |
 | **Filter** | Low-pass: down to 350 Hz | High-pass: up to 1.3 kHz | Sweep: the Sequence's filter swept two octaves each way | Phaser: a deep phaser on all the music |
 | **Space** | Reverb: the dry music into the plate | Ceo (fog): a wash of noise rolling down into the echo | Freeze: the cloud holds what it has | Wash: everything into the echo and the plate, the dry down |
-| **Moves** | Octave: the Sequence an octave up | Return: both sequences round their first four steps | Fras (a burst of rain): a scatter of bleeps into the echo | Macalla (an echo): the echo's feedback past full, ringing on |
+| **Moves** | Octave: the Sequence an octave up | Return: both sequences round their first four steps | Fras (a burst of rain): a scatter of bleeps into the echo | Macalla (an echo): the echo's feedback past full and more into it, so it rings on and builds |
 
 **Shimmer** is a shimmer reverb, played. While it is held, the plate's tail is pitched an octave up and fed back
 into the plate, so each time round it climbs another octave, darker as it climbs (the FM-1's speaker is bright) and
