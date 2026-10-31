@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Make the AISLING site for GitHub Pages (https://stephencummins.github.io/fm1-aisling/), as NACHTFAHRT's is made:
 
-  index.html                  what AISLING is, and the ways in: try, install, manual, cheat sheet, download, source
-  img/                        screenshots (docs/img) and the card (docs/card.png, tools/make_card.py)
+  index.html                  what AISLING is, and the ways in: install, try, the visualiser; then the help (manual,
+                              cheat sheet, troubleshooting), the download and the source
+  img/                        screenshots (docs/img), the card (docs/card.png, tools/make_card.py) and the
+                              visualiser's painting (web/visualiser/share.jpg, also the page's preview image)
   emu/                        AISLING in the browser (build/emu, from web/emu/build.sh)
   words/                      the screen reader's words files (web/words, from firmware/words.tsv)
   install/index.html          the web installer (web/amb_installer.html, with fm1pkg.js, fm1ota.js and
@@ -29,6 +31,7 @@ sys.path.insert(0, str(SRC / "web"))
 from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the package format)
 
 REPO = "https://github.com/stephencummins/fm1-aisling"
+SITE = "https://stephencummins.github.io/fm1-aisling/"
 BY = 'by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
 
 LANDING = """<!doctype html>
@@ -39,6 +42,13 @@ LANDING = """<!doctype html>
 <title>AISLING · Irish ambient for the FM-1</title>
 <meta name="description" content="A generative Irish ambient instrument for the M-VAVE FM-1: harps and a flute over a held drone, in the old modes, with the weather of the west coast behind them. Let it play for hours, or play the flute with it on the keys.">
 <meta name="theme-color" content="#f3ead7">
+<meta property="og:title" content="AISLING · Irish ambient for the FM-1">
+<meta property="og:description" content="A generative Irish ambient instrument for the M-VAVE FM-1. Install it from the browser, try it without one, and watch it paint an Irish landscape.">
+<meta property="og:url" content="__SITE__">
+<meta property="og:image" content="__SITE__img/visualiser.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 /* AISLING's colours: vellum, a dark iron-gall ink, the triskele's green (darkened to read on the vellum) for the accent,
    the layers' colours for the list. Text reads at 4.5:1 or more on the ground and the cards, the markers at 3:1 */
@@ -66,6 +76,12 @@ a:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 .ways strong { font-weight: 400; font-size: 1.1rem; text-transform: uppercase; letter-spacing: .06em; display: block; }
 .ways span { color: var(--muted); font-size: .95rem; }
 .ways em.v { font-style: normal; text-transform: none; letter-spacing: 0; }
+/* the visualiser's card shows a strip of its painting; the help's cards sit two to a row where there's room */
+.ways a.pic img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; border-radius: 4px;
+                  margin: 2px 0 10px; }
+.ways.help { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.ways.help a:first-child { border-color: var(--rule); }
+.ways.help a:hover, .ways.help a:focus-visible { border-color: var(--acc); }
 ul.layers { padding-left: 1.2rem; margin: 0 0 1rem; }
 ul.layers li { margin: 0 0 .45rem; }
 ul.layers li.d::marker { color: var(--drone); } ul.layers li.s::marker { color: var(--seq); }
@@ -96,11 +112,17 @@ always in the piece's scale, and it answers you.</p>
 </div>
 <nav class="ways" aria-label="Get AISLING">
   <a href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge (also Chrome on Android), with the FM-1 connected by USB. Nothing to install.</span></a>
-  <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed.</span></a>
-  <a href="https://aisling.stephen8n.com"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI, in Chrome or Edge. Nothing leaves your computer.</span></a>
+  <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed. Slide the visualiser up beneath it to watch what it plays painted.</span></a>
+  <a class="pic" href="https://aisling.stephen8n.com"><img src="img/visualiser.jpg" width="1200" height="630" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills and fields, the drone the bog. Chrome or Edge; Demo paints without an FM-1. Nothing leaves your computer.</span></a>
+</nav>
+
+<h2>Help, and the files</h2>
+<nav class="ways help" aria-label="Help and the files">
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
   <a href="cheat/"><strong>Cheat sheet</strong><span>Every control and the eight pieces on one page, to print.</span></a>
-  <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>For the command-line installer: <code>python3 tools/fm1_install.py __PKG__</code></span></a>
+  <a href="manual/#s13"><strong>If it goes wrong</strong><span>Update mode, calibration, safe mode, and bringing back an FM-1 that won't start.</span></a>
+  <a href="https://www.m-vave.com/download"><strong>Back to stock</strong><span>M-VAVE's updater, M-UPGRADE, puts the official firmware back.</span></a>
+  <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>The package itself, for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. A fork of NACHTFAHRT, by way of DUB-1 and AMB-1.</span></a>
 </nav>
 
@@ -123,9 +145,7 @@ mutes and solos the layers and pushes Filter, Wet and Energy.</p>
 <p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain, Connemara and Tir na nOg, in the old modes and the
 pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders
 relative to the knob you set.</p>
-<p class="small">To go back to the official firmware, use M-VAVE's updater, M-UPGRADE, from
-<a href="https://www.m-vave.com/download">m-vave.com/download</a>.
-AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>). It is a fork of
+<p class="small">AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>). It is a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, based on
 <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> by sbegueria, itself based on
 <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a> by Charles Vestal; its granular cloud follows JIANT's;
@@ -246,8 +266,10 @@ def main(pkg, version, out):
     # the landing page and its screenshots
     shutil.copytree(SRC / "docs" / "img", out / "img")
     shutil.copy(SRC / "docs" / "card.png", out / "img" / "card.png")
+    shutil.copy(SRC / "web" / "visualiser" / "share.jpg", out / "img" / "visualiser.jpg")
     (out / "index.html").write_text(LANDING.replace("__VERSION__", html.escape(version)).replace("__PKG__", name)
-                                    .replace("__REPO__", REPO).replace("__BY__", BY), encoding="utf-8")
+                                    .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY),
+                                    encoding="utf-8")
     # the cheat sheet
     (out / "cheat" / "index.html").write_text(cheat_sheet(version), encoding="utf-8")
     emu = SRC / "build" / "emu"
