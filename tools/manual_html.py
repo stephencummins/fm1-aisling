@@ -21,13 +21,12 @@ SRC = Path(__file__).resolve().parents[1]
 PART_COLOURS = {}                                     # (X0X marks its parts with a swatch; AISLING has none)
 
 CSS = """
-/* AISLING's colours (NACHTFAHRT's), as its screen and the site's cover: black, a pale lavender ink, cyan, the Drone's violet
-   (the names kept from AMB-1's) */
+/* AISLING's colours, as the site's cover: vellum, a dark iron-gall ink, the triskele's green (the names kept from AMB-1's) */
 :root {
-  --paper: #000000; --sheet: #0d0b14; --green-1: #241f33; --green-3: #b48cff;
-  --river: #b48cff; --river-2: #7fd8ff; --ink: #efe7ff; --muted: #a49cb8; --rule: #241f33;
-  color-scheme: dark;
-  /* --river-2 and --muted read on the paper and the cards (cyan 12:1, the muted lavender 7.6:1 on black) */
+  --paper: #f3ead7; --sheet: #fbf6eb; --green-1: #e6dcc3; --green-3: #146c41;
+  --river: #146c41; --river-2: #146c41; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1;
+  color-scheme: light;
+  /* --river-2 and --muted read on the paper and the cards (the green 5.4:1, the muted brown 5.7:1 on the vellum) */
 }
 body {
   background: var(--paper); color: var(--ink); margin: 0;

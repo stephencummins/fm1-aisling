@@ -38,12 +38,12 @@ LANDING = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AISLING · Irish ambient for the FM-1</title>
 <meta name="description" content="A generative Irish ambient instrument for the M-VAVE FM-1: harps and a flute over a held drone, in the old modes, with the weather of the west coast behind them. Let it play for hours, or play the flute with it on the keys.">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#f3ead7">
 <style>
-/* AISLING's colours: NACHTFAHRT's screen (black, a pale lavender ink), the triskele's green for the accent, the layers'
-   colours for the list */
-:root { --ground: #000; --card: #0d0b14; --ink: #efe7ff; --muted: #a49cb8; --rule: #241f33; --acc: #34c474;
-        --drone: #b48cff; --seq: #ff6ad5; --lead: #ffd27f; --seq2: #7fd8ff; --atmos: #baae9c; color-scheme: dark; }
+/* AISLING's colours: vellum, a dark iron-gall ink, the triskele's green (darkened to read on the vellum) for the accent,
+   the layers' colours for the list. Text reads at 4.5:1 or more on the ground and the cards, the markers at 3:1 */
+:root { --ground: #f3ead7; --card: #fbf6eb; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1; --acc: #146c41;
+        --drone: #6a44b3; --seq: #b02f7c; --lead: #9a6400; --seq2: #1d6a94; --atmos: #7a6a54; color-scheme: light; }
 body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 0 64px;
        font: 400 17px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 header { max-width: 42rem; margin: 0 auto; padding-top: 32px; display: flex; gap: 20px; align-items: center; }
@@ -144,10 +144,10 @@ CHEAT = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AISLING cheat sheet</title>
 <meta name="description" content="AISLING's controls and its eight pieces on one page.">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#f3ead7">
 <style>
 /* the landing page's colours on screen; black on white to print, small enough for one sheet */
-:root { --ground: #000; --card: #0d0b14; --ink: #efe7ff; --muted: #a49cb8; --rule: #241f33; --acc: #34c474; color-scheme: dark; }
+:root { --ground: #f3ead7; --card: #fbf6eb; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1; --acc: #146c41; color-scheme: light; }
 body { background: var(--ground); color: var(--ink); margin: 0; padding: 24px 16px 48px;
        font: 400 15px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 main { max-width: 60rem; margin: 0 auto; }

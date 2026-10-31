@@ -3,13 +3,13 @@
      AISLING's visualiser: the FM-1's MIDI out (Drone, Sequence, Lead, Sequence 2 on channels 1 to 4, and its clock)
      painted as a west-coast landscape. One file, no build and nothing fetched but the page itself, so it also runs
      from a downloaded copy (file:// is a secure context in Chrome, which Web MIDI needs). -->
-<html lang="en" data-ground="night">
+<html lang="en" data-ground="vellum">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Visualiser · AISLING</title>
 <meta name="description" content="Plug in an FM-1 running AISLING and watch its four layers paint an Irish landscape: the Lead the sky, the hills, the fields, the bog. Web MIDI, in your browser; nothing leaves your computer.">
-<meta name="theme-color" content="#120f17">
+<meta name="theme-color" content="#ece2cb">
 <!-- for link previews only: the page itself fetches nothing -->
 <meta property="og:title" content="AISLING's visualiser">
 <meta property="og:description" content="An FM-1 running AISLING paints an Irish landscape from its MIDI: the Lead the sky, the hills, the fields, the bog.">
@@ -22,10 +22,13 @@
 <style>
 :root { --panel: rgba(16, 13, 21, .74); --ink: #ece8f0; --muted: #b3abbd; --rule: rgba(236, 232, 240, .16);
         --accent: #d98a3c; --btn: rgba(236, 232, 240, .08); --btn-on: rgba(217, 138, 60, .26); color-scheme: dark; }
+:root[data-ground="vellum"] { --panel: rgba(246, 239, 224, .82); --ink: #2b2219; --muted: #5c5040; --rule: rgba(43, 34, 25, .18);
+        --accent: #8c3510; --btn: rgba(43, 34, 25, .07); --btn-on: rgba(192, 90, 30, .22); color-scheme: light; }
 :root[data-ground="mist"] { --panel: rgba(236, 234, 229, .8); --ink: #1c1a21; --muted: #4c4854; --rule: rgba(28, 26, 33, .18);
         --accent: #8c3510; --btn: rgba(28, 26, 33, .07); --btn-on: rgba(192, 90, 30, .22); color-scheme: light; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #120f17; }
 :root[data-ground="mist"] body { background: #bdbab3; }
+:root[data-ground="vellum"] body { background: #ece2cb; }
 body { color: var(--ink); font: 400 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 #pool { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
 #grain { position: fixed; inset: 0; pointer-events: none; mix-blend-mode: overlay; opacity: .55; }
@@ -91,7 +94,7 @@ kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-rad
     <p>It works in Chrome, Edge and Opera, on a computer or an Android phone. Firefox asks you to allow a site permission
        first. Safari, and every browser on an iPhone or iPad, has no Web MIDI: watch the demo there.</p>
     <p>Any MIDI source works: channels 1 to 4 are the Drone, the Sequence, the Lead and Sequence 2, as the FM-1 sends them.</p>
-    <p>Keys: <kbd>F</kbd> full screen, <kbd>M</kbd> mist or night, <kbd>D</kbd> demo, <kbd>S</kbd> save picture,
+    <p>Keys: <kbd>F</kbd> full screen, <kbd>M</kbd> the ground (vellum, mist or night), <kbd>D</kbd> demo, <kbd>S</kbd> save picture,
        <kbd>R</kbd> record, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel at all
        (a projector, or a browser source in OBS).</p>
     <p>Part of <a href="https://github.com/stephencummins/fm1-aisling">AISLING</a> (GPL-3.0). No FM-1? Hear it in the
@@ -122,7 +125,9 @@ const LAYERS = [
     stops: ['#2a2456', '#4a3f7a', '#8a86a6'] },
 ]
 for (const L of LAYERS) L.rgb = L.stops.map(hex)
+// vellum first: the default, a page of old calfskin, warm and darkening to its foot
 const GROUNDS = {
+  vellum: { top: '#f5edda', bottom: '#d8c9a8', mottle: 9, vignette: 0.16, theme: '#ece2cb' },
   night: { top: '#17131d', bottom: '#0d0b11', mottle: 8, vignette: 0.4, theme: '#120f17' },
   mist: { top: '#d9d6cf', bottom: '#8e8b85', mottle: 7, vignette: 0.12, theme: '#bdbab3' },
 }
@@ -160,7 +165,7 @@ let DX = 0, DY = 0
 let u, v, u0, v0, p, dv, cw, eu, ev
 let A, CR, CG, CB, TA, TR, TG, TB, UA, UR, UG, UB, VX, VY, G0, G1, G2, colI, colF, rowJ, rowF, img, buf
 let simT = 0, windNow = 0.01
-let ground = 'night'
+let ground = 'vellum'
 const COV = new Float32Array(1100)
 // opaque past a thin film, so the paint has an edge
 for (let i = 0; i < COV.length; i++) { const t = clamp((i / 256 - 0.03) / 0.42, 0, 1); COV[i] = t * t * (3 - 2 * t) }
@@ -884,7 +889,7 @@ function savePicture() {
   const g = c.getContext('2d')
   compose(g, c.width, c.height)
   g.font = `${Math.round(12 * k)}px "Helvetica Neue", Helvetica, Arial, sans-serif`
-  g.fillStyle = ground === 'mist' ? 'rgba(28, 26, 33, .5)' : 'rgba(236, 232, 240, .42)'
+  g.fillStyle = ground === 'night' ? 'rgba(236, 232, 240, .42)' : 'rgba(28, 26, 33, .5)'
   g.textAlign = 'right'
   g.textBaseline = 'bottom'
   g.fillText(`AISLING  ${new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`, c.width - 14 * k, c.height - 10 * k)
@@ -993,13 +998,17 @@ async function wake(on) {
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (listening || demo.on)) wake(true) })
 
-function setGround(g) {
+// the ground button names the next ground; a choice is kept only when the viewer makes it (pages before vellum saved
+// night on every visit, under the old key, so that key is not read)
+const NEXT_GROUND = { vellum: 'mist', mist: 'night', night: 'vellum' }
+function setGround(g, picked) {
   ground = g
   document.documentElement.dataset.ground = g
   document.querySelector('meta[name="theme-color"]').content = GROUNDS[g].theme
-  $('ground').textContent = g === 'night' ? 'Mist' : 'Night'
+  const next = NEXT_GROUND[g]
+  $('ground').textContent = next[0].toUpperCase() + next.slice(1)
   if (A) paintGround()
-  store.set('aisling-vis-ground', g)
+  if (picked) store.set('aisling-vis-ground-picked', g)
 }
 
 function toggleFull() {
@@ -1013,7 +1022,7 @@ for (const ev of ['pointermove', 'pointerdown', 'keydown', 'focusin']) addEventL
 
 $('listen').addEventListener('click', listen)
 $('demo').addEventListener('click', () => setDemo(!demo.on))
-$('ground').addEventListener('click', () => setGround(ground === 'night' ? 'mist' : 'night'))
+$('ground').addEventListener('click', () => setGround(NEXT_GROUND[ground], true))
 $('full').addEventListener('click', toggleFull)
 $('save').addEventListener('click', savePicture)
 $('record').addEventListener('click', record)
@@ -1023,7 +1032,7 @@ addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return
   const k = e.key.toLowerCase()
   if (k === 'f') toggleFull()
-  else if (k === 'm') setGround(ground === 'night' ? 'mist' : 'night')
+  else if (k === 'm') setGround(NEXT_GROUND[ground], true)
   else if (k === 'd') setDemo(!demo.on)
   else if (k === 's') savePicture()
   else if (k === 'r') record()
@@ -1038,7 +1047,8 @@ for (const L of LAYERS.slice().sort((a, b) => a.band[0] - b.band[0])) {
 }
 
 const params = new URLSearchParams(location.search)
-setGround(params.get('ground') === 'mist' ? 'mist' : params.get('ground') === 'night' ? 'night' : store.get('aisling-vis-ground') === 'mist' ? 'mist' : 'night')
+const isGround = (g) => Object.hasOwn(GROUNDS, g ?? '')
+setGround(isGround(params.get('ground')) ? params.get('ground') : isGround(store.get('aisling-vis-ground-picked')) ? store.get('aisling-vis-ground-picked') : 'vellum')
 layout()
 paintGrain()
 say()

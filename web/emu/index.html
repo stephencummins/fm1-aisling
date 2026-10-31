@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Emulator · AISLING</title>
 <meta name="description" content="AISLING, a generative Irish ambient firmware for the M-VAVE FM-1, in your browser: the same code the FM-1 runs.">
-<meta name="theme-color" content="#10141a">
+<meta name="theme-color" content="#f3ead7">
 <link rel="icon" href="card.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
 <style>
-/* AISLING's colours: a dark room and the card's green (docs/card.png, the landing page's accent); the FM-1 itself
-   stays as it is. --muted and --river-2 read at 4.5:1 or more on the ground and on the cards, --ink at 5:1 on --river */
-:root { --ground: #10141a; --ink: #dee4e8; --muted: #9aa8b6; --rule: #2e3846; --accent: #34c474; --river: #146c41; --river-2: #34c474;
-        --green-1: #0e5432; --card: #1e252f; --focus: #34c474; color-scheme: dark; }
+/* AISLING's colours: vellum, a dark iron-gall ink and the card's green (docs/card.png), darkened to read on the vellum;
+   the FM-1 itself stays as it is. --muted and --river-2 read at 4.5:1 or more on the ground and on the cards,
+   --on-river at 6:1 on --river */
+:root { --ground: #f3ead7; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1; --accent: #146c41; --river: #146c41; --river-2: #146c41;
+        --on-river: #fbf6eb; --green-1: #e6dcc3; --card: #fbf6eb; --focus: #146c41; color-scheme: light; }
 body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 28px 48px;
        font: 400 16px/1.55 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 main { max-width: 1040px; margin: 0 auto; }
@@ -58,7 +59,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 @media (prefers-reduced-motion: reduce) { .btnface, .keyface { transition: none; } }
 .start { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 11, 13, .55); border-radius: 4.4% / 6.9%; }
 .start button { font: 400 1.2rem "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; padding: .6em 1.6em;
-                border: 1px solid var(--ink); background: var(--river); color: var(--ink); cursor: pointer; }
+                border: 1px solid var(--ink); background: var(--river); color: var(--on-river); cursor: pointer; }
 .start button:focus-visible { outline: 3px solid #fdf9e4; outline-offset: 3px; }
 .start[hidden] { display: none; }
 .turn { display: none; margin: 0 0 .8rem; color: var(--muted); font-size: .92rem; }
@@ -66,7 +67,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 .start button:disabled { opacity: .6; cursor: progress; }
 .bar { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; align-items: center; margin: .9rem 0 0; color: var(--muted); font-size: .92rem; }
 .bar button, .reader button { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--ink); padding: .3em .8em; cursor: pointer; }
-.bar button[aria-pressed="true"] { background: var(--river); }
+.bar button[aria-pressed="true"] { background: var(--river); color: var(--on-river); }
 .bar .cpu { font-variant-numeric: tabular-nums; }
 .bar label, .reader label { display: inline-flex; gap: .4rem; align-items: center; color: var(--ink); }
 .reader { margin: 1.2rem 0 0; padding: .8rem 1rem; background: var(--card); border: 1px solid var(--ink); }
