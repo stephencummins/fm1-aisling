@@ -1,18 +1,20 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      AISLING's visualiser: the FM-1's MIDI out (Drone, Sequence, Lead, Sequence 2 on channels 1 to 4, and its clock)
-     painted as a west-coast landscape. One file, no build and nothing fetched but the page itself, so it also runs
-     from a downloaded copy (file:// is a secure context in Chrome, which Web MIDI needs). -->
+     painted as a west-coast landscape, as the Atlantic under the cliffs at sunset, or as deep space. One file, no
+     build, and nothing fetched but the page itself and, when Demo is first pressed, the recording of Skellig beside it
+     (skellig.mp3), so it also runs from a downloaded copy (file:// is a secure context in Chrome, which Web MIDI needs; there the demo
+     paints without its sound). -->
 <html lang="en" data-ground="vellum">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Visualiser · AISLING</title>
-<meta name="description" content="Plug in an FM-1 running AISLING and watch its four layers paint an Irish landscape: the Lead the sky, the hills, the fields, the bog. Web MIDI, in your browser; nothing leaves your computer.">
+<meta name="description" content="Plug in an FM-1 running AISLING and watch its four layers paint an Irish landscape (the Lead the sky, the hills, the fields, the bog), the Atlantic under the cliffs at sunset, or deep space. Web MIDI, in your browser, or a demo of Skellig to hear and watch; nothing leaves your computer.">
 <meta name="theme-color" content="#ece2cb">
-<!-- for link previews only: the page itself fetches nothing -->
+<!-- for link previews only: the page fetches nothing but its demo's sound -->
 <meta property="og:title" content="AISLING's visualiser">
-<meta property="og:description" content="An FM-1 running AISLING paints an Irish landscape from its MIDI: the Lead the sky, the hills, the fields, the bog.">
+<meta property="og:description" content="An FM-1 running AISLING paints an Irish landscape from its MIDI (the Lead the sky, the hills, the fields, the bog), the Atlantic under the cliffs at sunset, or deep space.">
 <meta property="og:image" content="https://aisling.stephen8n.com/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,9 +31,11 @@
 html, body { margin: 0; height: 100%; overflow: hidden; background: #120f17; }
 :root[data-ground="mist"] body { background: #bdbab3; }
 :root[data-ground="vellum"] body { background: #ece2cb; }
+:root[data-ground="space"] body { background: #07070c; }
 body { color: var(--ink); font: 400 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 #pool { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
 #grain { position: fixed; inset: 0; pointer-events: none; mix-blend-mode: overlay; opacity: .55; }
+:root[data-ground="space"] #grain { opacity: .1; }
 #ui { position: fixed; top: 16px; left: 16px; width: min(25rem, calc(100% - 32px)); max-height: calc(100% - 32px);
       overflow: auto; box-sizing: border-box; padding: 14px 16px 12px; background: var(--panel); border: 1px solid var(--rule);
       border-radius: 8px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity .6s; }
@@ -67,10 +71,12 @@ details { margin-top: .4rem; border-top: 1px solid var(--rule); padding-top: .4r
 summary { cursor: pointer; color: var(--muted); }
 details p { font-size: .92rem; }
 a { color: var(--ink); text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+nav#site { font-size: .9rem; color: var(--muted); margin-top: .5rem; border-top: 1px solid var(--rule); padding-top: .45rem; }
 kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-radius: 4px; padding: 0 5px; }
-/* in the emulator's drawer: the emulator is the MIDI, so only the ground, the picture and full screen, top right */
+/* in the emulator's drawer: the emulator is the MIDI, so only the scene, the ground and colours, the picture and full
+   screen, top right */
 body.embed #ui { top: 10px; right: 10px; left: auto; width: auto; padding: 6px; }
-body.embed #ui > :not(#buttons), body.embed #buttons > :not(#ground, #colours, #save, #full) { display: none; }
+body.embed #ui > :not(#buttons), body.embed #buttons > :not(#scene, #ground, #colours, #save, #full) { display: none; }
 body.embed #buttons { margin: 0; gap: 6px; }
 body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
 </style>
@@ -80,12 +86,13 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
 <div id="grain" aria-hidden="true"></div>
 <section id="ui" aria-label="Visualiser">
   <h1>AISLING<span>Visualiser</span></h1>
-  <p>The FM-1's four layers painted as a west-coast landscape.</p>
+  <p id="what">The FM-1's four layers painted as a west-coast landscape.</p>
   <ul class="legend" id="legend"></ul>
   <div class="row" id="buttons">
     <button id="listen" type="button">Listen to the FM-1</button>
     <select id="input" aria-label="MIDI input" hidden></select>
     <button id="demo" type="button" aria-pressed="false">Demo</button>
+    <button id="scene" type="button" title="Change the scene (V)">Seascape</button>
     <button id="ground" type="button" aria-pressed="false" title="Change the ground (M)">Mist</button>
     <button id="colours" type="button" title="Change the colours (C)">Colours</button>
     <button id="full" type="button" title="Full screen (F)">Full screen</button>
@@ -110,6 +117,14 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
     <p>Pitch sets how far across a note lands, how hard it is played sets how much paint, and the FM-1's tempo sets the
        wind. The Drone and the Lead keep painting while their notes are held, so the wind draws them out into strokes.</p>
     <p>Paint with a finger or the mouse too: the band you touch picks the colour.</p>
+    <p>Seascape turns the landscape into the Atlantic under the Cliffs of Moher at sunset: the Lead paints the sky,
+       Sequence 2 the swell, the Sequence the crests coming in, and the Drone the cliffs, in granite greys. The sea
+       rocks with the swell rather than running with the wind, and the sun's path glitters on it.</p>
+    <p>Space turns it into deep space, a field of stars with no horizon: the Drone paints a nebula's glow, the Sequence
+       stars that flare where its notes land, Sequence 2 threads of gas, and the Lead a comet, each note taking it on
+       from where the last left it, up for a higher note and down for a lower, so the air draws its path. The gas goes
+       round in slow eddies instead of blowing across. To paint it, the top of the page is the comet, then the
+       threads, the nebula, and at the foot the stars.</p>
     <p>Save picture keeps the painting as it is now. Record makes a video of it; with the FM-1 plugged in it records the
        FM-1's own sound as well, which comes over the same USB cable (the browser asks to use it as a microphone).
        While it records, the sound moves the wind. Both are saved to this computer and go nowhere else.</p>
@@ -120,15 +135,26 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
        longer than 30 seconds plays at its own speed. Record takes it too, mixed with the FM-1. The file is read in this
        tab and goes nowhere.</p>
     <p>It works in Chrome, Edge and Opera, on a computer or an Android phone. Firefox asks you to allow a site permission
-       first. Safari, and every browser on an iPhone or iPad, has no Web MIDI: watch the demo there.</p>
+       first. Safari, and every browser on an iPhone or iPad, has no Web MIDI: the demo plays there.</p>
+    <p>No FM-1? Press Demo: it plays Skellig, one of AISLING's eight pieces, as the FM-1 plays it (a recording from the
+       same code, 32 bars round and round) and paints its notes as you hear them. It is the one thing the page fetches,
+       and only when you press Demo; from a downloaded copy the demo paints without sound.</p>
     <p>Any MIDI source works: channels 1 to 4 are the Drone, the Sequence, the Lead and Sequence 2, as the FM-1 sends them.</p>
-    <p>Keys: <kbd>F</kbd> full screen, <kbd>M</kbd> the ground (vellum, mist or night), <kbd>C</kbd> the colours (Heather,
-       Atlantic, Kells or Evening: what is painted keeps its own, the next notes take the new), <kbd>D</kbd> demo, <kbd>S</kbd> save picture,
-       <kbd>R</kbd> record, <kbd>A</kbd> add a sample, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel at all
-       (a projector, or a browser source in OBS).</p>
-    <p>Part of <a href="https://github.com/stephencummins/fm1-aisling">AISLING</a> (GPL-3.0). No FM-1? Hear it in the
-       <a href="https://stephencummins.github.io/fm1-aisling/emu/">browser emulator</a>.</p>
+    <p>Keys: <kbd>F</kbd> full screen, <kbd>V</kbd> the scene (the landscape, the seascape or deep space), <kbd>M</kbd> the
+       landscape's ground (vellum, mist or night), <kbd>C</kbd> its colours (Heather, Atlantic, Kells or Evening: what is
+       painted keeps its own, the next notes take the new), <kbd>D</kbd> demo, <kbd>S</kbd> save picture, <kbd>R</kbd>
+       record, <kbd>A</kbd> add a sample, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel
+       at all (a projector, or a browser source in OBS), or <kbd>?scene=seascape</kbd> to open on the sea (<kbd>?scene=space</kbd> on the stars).</p>
+    <p>Part of <a target="_blank" rel="noopener" href="https://github.com/stephencummins/fm1-aisling">AISLING</a> (GPL-3.0). No FM-1? Hear it in the
+       <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/emu/">browser emulator</a>.</p>
   </details>
+  <!-- AISLING's other pages, as their own nav has them; a new tab, so a painting or a recording isn't lost -->
+  <nav id="site"><a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/">AISLING</a> ·
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/install/">Install</a> ·
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/emu/">Try it in the browser</a> ·
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/manual/">Manual</a> ·
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/cheat/">Cheat sheet</a> ·
+    <a target="_blank" rel="noopener" href="https://github.com/stephencummins/fm1-aisling">Source</a></nav>
 </section>
 <script>
 'use strict'
@@ -176,8 +202,59 @@ const NEXT_PALETTE = { evening: 'heather', heather: 'atlantic', atlantic: 'kells
 // vellum first: the default, a page of old calfskin, warm and darkening to its foot
 const GROUNDS = {
   vellum: { top: '#f5edda', bottom: '#d8c9a8', mottle: 9, vignette: 0.16, theme: '#ece2cb' },
-  night: { top: '#17131d', bottom: '#0d0b11', mottle: 8, vignette: 0.4, theme: '#120f17' },
+  night: { top: '#17131d', bottom: '#0d0b11', mottle: 8, vignette: 0.4, theme: '#120f17', dark: true },
   mist: { top: '#d9d6cf', bottom: '#8e8b85', mottle: 7, vignette: 0.12, theme: '#bdbab3' },
+  // the seascape's own, painted by paintSunset: its top and bottom only colour the page around it
+  sunset: { top: '#2a2342', bottom: '#0f1520', mottle: 6, vignette: 0.22, theme: '#2a2236', dark: true, glint: [255, 226, 170] },
+  // deep space's, painted by paintSpace; glint: the colour its glints flash, the sun's on the sea, starlight in space
+  space: { top: '#07070c', bottom: '#05060b', mottle: 4, vignette: 0.3, theme: '#07070c', dark: true, glint: [225, 235, 255] },
+}
+
+/* the scene, a choice (V, or ?scene=). The landscape, the default: each layer a band of it, as LAYERS has them. The
+   seascape: the Atlantic under the Cliffs of Moher at sunset. The Lead the sky, Sequence 2 the swell out to the
+   horizon, the Sequence the crests coming in, and the Drone the cliffs, a wall of headlands from the near one on the
+   right back to the horizon. Its ground and colours are its own (the sunset's, and shades of granite), so the ground
+   and colours buttons are the landscape's. Deep space: no horizon, a field of stars where the paint goes round like
+   gas. The Drone a nebula's glow, the Sequence stars flaring where they land, Sequence 2 threads of gas laid along the
+   way it is going, and the Lead a comet, each note going on from the last. flat: how far a drop spreads up and down
+   for its spread across; size: how big its drops; order: where it comes in the legend, if not by its band; zone: where
+   the brush picks it, if not its band. cliff, comet, flare and along: what is the cliffs, the comet, the stars that
+   flare and the threads */
+const SCENES = {
+  landscape: { next: 'seascape', what: 'a west-coast landscape',
+               layers: LAYERS.slice(0, 4).map(({ place, band, size }) => ({ place, band, size, flat: 0.4, cliff: false, order: null })) },
+  seascape: { next: 'space', what: 'the Atlantic under the cliffs, at sunset', ground: 'sunset', sea: 0.42,
+              layers: [{ place: 'the cliffs', band: [0.12, 0.98], size: 1.3, flat: 0.9, cliff: true, order: 0.97 },
+                       { place: 'the crests', band: [0.6, 0.95], size: 0.5, flat: 0.09, cliff: false, order: null },
+                       { place: 'the sunset', band: [0.04, 0.36], size: 1.05, flat: 0.3, cliff: false, order: null },
+                       { place: 'the swell', band: [0.44, 0.62], size: 0.75, flat: 0.14, cliff: false, order: null }],
+              // granite, shadow to feldspar; dark water to foam; dusk to the sun; the swell, lit from the west
+              colours: [['#262428', '#47424a', '#6b6466', '#918784', '#b9b0a7'], ['#20404b', '#3b676d', '#9cb9b3', '#eeebe0'],
+                        ['#4a2b5e', '#a63f5c', '#e0713c', '#f3b45c', '#f8dc9c'], ['#28455f', '#3d6680', '#698f9e', '#a6bcc2']] },
+  space: { next: 'landscape', what: 'deep space', ground: 'space', space: true,
+           layers: [{ place: 'the nebula', band: [0.12, 0.88], zone: [0.5, 0.75], size: 1.2, flat: 0.85, order: 0.3 },
+                    { place: 'the stars', band: [0.04, 0.96], zone: [0.75, 1], size: 0.35, flat: 1, flare: true, order: 0.4 },
+                    { place: 'the comet', band: [0.06, 0.94], zone: [0, 0.25], size: 0.6, flat: 1, comet: true, order: 0.1 },
+                    { place: 'the threads', band: [0.08, 0.92], zone: [0.25, 0.5], size: 0.7, flat: 0.12, along: true, order: 0.2 }],
+           // the nebula's glow, violet to rose; the stars, red giant to blue; the comet's ice; the threads' teal
+           colours: [['#2a1248', '#5a1e6a', '#9a2f72', '#c85a6e', '#e89a7c'], ['#c8553a', '#f0a860', '#f6e7c8', '#cfe0ff', '#9ec0ff'],
+                     ['#4a6f9a', '#8fb8dc', '#d6ebf6', '#ffffff'], ['#123a4a', '#1f6470', '#3a9a9a', '#8fd0c8']] },
+}
+// what a scene's layer is unless it says: none of the special ones
+const PLAIN = { flat: 0.4, cliff: false, comet: false, flare: false, along: false, order: null, zone: null }
+let SC = SCENES.landscape
+// the cliffs, in fractions of the page: [top, foot, near] of the rock at fx, or null where there is none. The wall
+// runs from the near headland at the right edge back to a point on the horizon, a few headlands one behind another,
+// the far ones narrower. Each rises steeply at its point, over the one behind it, then runs on nearly level; the
+// foot, where the sea meets them, rises to the horizon as they go. near: 0 at the far point, 1 at the near edge
+const CLIFF = { from: 0.58, top: 0.12, foot: 0.98, heads: 4, point: 0.1 }
+function cliffAt(fx) {
+  if (!SC.sea || fx <= CLIFF.from || fx >= 1) return null
+  const s = (fx - CLIFF.from) / (1 - CLIFF.from), hz = SC.sea, h = Math.pow(s, 0.75) * CLIFF.heads
+  const k = Math.floor(h), f = h - k, q = clamp(f / CLIFF.point, 0, 1)
+  const up = (k + 0.6 * q * q * (3 - 2 * q) + 0.4 * f) / CLIFF.heads
+  const top = hz - up * (hz - CLIFF.top) - 0.01 * up * (vnoise(fx * 70, 7 + k) - 0.5)
+  return [Math.min(top, hz - 0.002), hz + Math.pow(s, 1.5) * (CLIFF.foot - hz), up]
 }
 
 function colourOf(L, note) {
@@ -210,26 +287,36 @@ let R = 2
 const ITER = 18, AMAX = 3.2, PN = 64, PK = PN / (2 * Math.PI)
 let W = 0, H = 0, NX = 0, NY = 0, SX = 0, cell = 10, scale = 1, small = false
 let DX = 0, DY = 0
-let u, v, u0, v0, p, dv, cw, eu, ev
+let u, v, u0, v0, p, dv, cw, eu, ev, rock
 let A, CR, CG, CB, TA, TR, TG, TB, UA, UR, UG, UB, VX, VY, G0, G1, G2, colI, colF, rowJ, rowF, img, buf
+// the sun's glints on the sea, in the seascape: where (paint cell), how bright, and when they catch the light
+let glI = new Int32Array(0), glW = new Float32Array(0), glP = new Float32Array(0), glN = 0
+// what the ground does to the paint over it, as a shade: the cliffs' strata show through the Drone's granite. And
+// where it is open sea, where paint fades faster, so the crests come and go as waves do. And how much of the ground
+// paint can hide: on the cliffs, less the further off, so the far headlands keep their haze
+let TX, WET, VEIL
 let simT = 0, windNow = 0.01
 let ground = 'vellum'
 const COV = new Float32Array(1100)
 // opaque past a thin film, so the paint has an edge
 for (let i = 0; i < COV.length; i++) { const t = clamp((i / 256 - 0.03) / 0.42, 0, 1); COV[i] = t * t * (3 - 2 * t) }
+// deep space's gas is light, not paint: how brightly it glows for how much of it there is, never quite to its colour
+const GLOW = new Float32Array(COV.length)
+for (let i = 0; i < GLOW.length; i++) GLOW[i] = 0.8 * (1 - Math.exp(-1.2 * (i / 256)))
 
 function allocate() {
   SX = NX + 2
   const n = SX * (NY + 2)
   u = new Float32Array(n); v = new Float32Array(n); u0 = new Float32Array(n); v0 = new Float32Array(n)
   p = new Float32Array(n); dv = new Float32Array(n); cw = new Float32Array(n); eu = new Float32Array(n); ev = new Float32Array(n)
+  rock = new Uint8Array(n)
   DX = NX * R; DY = NY * R
   const m = DX * DY
   A = new Float32Array(m); CR = new Float32Array(m); CG = new Float32Array(m); CB = new Float32Array(m)
   TA = new Float32Array(m); TR = new Float32Array(m); TG = new Float32Array(m); TB = new Float32Array(m)
   UA = new Float32Array(m); UR = new Float32Array(m); UG = new Float32Array(m); UB = new Float32Array(m)
   VX = new Float32Array(m); VY = new Float32Array(m)
-  G0 = new Float32Array(m); G1 = new Float32Array(m); G2 = new Float32Array(m)
+  G0 = new Float32Array(m); G1 = new Float32Array(m); G2 = new Float32Array(m); TX = new Float32Array(m); WET = new Uint8Array(m); VEIL = new Float32Array(m)
   // where each paint cell sits on the velocity grid (index space: cell c's centre is at c + 1)
   colI = new Int32Array(DX); colF = new Float32Array(DX); rowJ = new Int32Array(DY); rowF = new Float32Array(DY)
   for (let a = 0; a < DX; a++) { const g = (a + 0.5) / R + 0.5; colI[a] = g | 0; colF[a] = g - (g | 0) }
@@ -271,11 +358,17 @@ function layout() {
     }
   }
   for (const b of blooms) b.on = false
-  drips.length = 0
+  drips.length = flares.length = 0
+  comet.x = -1
+  shore()
   paintGround()
 }
 
 function paintGround() {
+  glN = 0
+  TX.fill(1); WET.fill(0); VEIL.fill(1)
+  if (ground === 'sunset') { paintSunset(GROUNDS.sunset); return }
+  if (ground === 'space') { paintSpace(GROUNDS.space); return }
   const g = GROUNDS[ground], t = hex(g.top), bo = hex(g.bottom)
   for (let b = 0, k = 0; b < DY; b++) {
     const fy = b / Math.max(1, DY - 1), py = (b * H) / DY
@@ -292,6 +385,154 @@ function paintGround() {
   }
 }
 
+/* the seascape's ground: the sky warming down to the sun, half set on the horizon, with streaks of cloud lit from
+   under; the sea darkening towards you, with the sun's path across it broken into glints (twinkle lights them); and
+   the cliffs against both in their own shadow, strata running down them and the last light along their tops */
+const SUNSET = { x: 0.3, r: 0.045, light: '#ffd690', disc: '#fff2cc', cloud: '#55304f',
+                 sky: ['#2a2342', '#4f3256', '#9a455c', '#dc7a48', '#f4bd6a'],
+                 sea: ['#7a5866', '#3e3852', '#1d2536', '#0f1520'], rock: ['#1d1b20', '#332e33', '#4d4447'],
+                 haze: '#6e5068' }
+function paintSunset(g) {
+  const hz = SC.sea, sky = SUNSET.sky.map(hex), sea = SUNSET.sea.map(hex), rk = SUNSET.rock.map(hex)
+  const li = hex(SUNSET.light), disc = hex(SUNSET.disc), cloud = hex(SUNSET.cloud), haze = hex(SUNSET.haze)
+  const sx = SUNSET.x * W, sy = hz * H, sr = SUNSET.r * H, c = [0, 0, 0], o = [0, 0, 0], gl = []
+  const ramp = (st, t) => {
+    t = clamp(t, 0, 1) * (st.length - 1)
+    const i = Math.min(st.length - 2, t | 0), f = t - i
+    for (let n = 0; n < 3; n++) c[n] = st[i][n] + (st[i + 1][n] - st[i][n]) * f
+  }
+  const mix = (to, w) => { for (let n = 0; n < 3; n++) c[n] += (to[n] - c[n]) * w }
+  const walls = Array.from({ length: DX }, (_, a) => cliffAt((a + 0.5) / DX))
+  for (let b = 0, k = 0; b < DY; b++) {
+    const fy = (b + 0.5) / DY, py = fy * H
+    for (let a = 0; a < DX; a++, k++) {
+      const px = ((a + 0.5) * W) / DX, dx = px - sx, d = Math.hypot(dx, py - sy) / H, wall = walls[a]
+      const cover = wall ? clamp((fy - wall[0]) * DY + 0.5, 0, 1) * clamp((wall[1] - fy) * DY + 0.5, 0, 1) : 0
+      if (cover < 1 && fy < hz) {
+        ramp(sky, fy / hz)
+        const glow = Math.min(1, 0.6 * Math.exp(-((d / 0.22) ** 2)) + 0.45 * Math.exp(-((d / 0.07) ** 2)))
+        mix(li, glow * 0.75)
+        // streaks of cloud, low in the sky, lit from under near the sun
+        const cv = 0.7 * vnoise(px / 300, py / 11) + 0.3 * vnoise(px / 70 + 9, py / 4)
+        const ca = clamp((cv - 0.56) / 0.16, 0, 1) * clamp((fy / hz - 0.2) / 0.45, 0, 1) * 0.75
+        const lit = Math.min(1, glow * 1.6)
+        if (ca > 0) for (let n = 0; n < 3; n++) c[n] += (cloud[n] + (li[n] - cloud[n]) * lit - c[n]) * ca
+        // the sun, half set
+        if (d * H < sr + 1.5) mix(disc, clamp((sr + 1.5 - d * H) / 3, 0, 1))
+      } else if (cover < 1) {
+        WET[k] = 1
+        const t = (fy - hz) / (1 - hz)
+        ramp(sea, Math.pow(t, 0.55))
+        // ripples, long and thin, finer towards the horizon
+        const rp = 1 + 0.3 * (vnoise(px / (30 + 170 * t), py / (1.1 + 6 * t)) - 0.5)
+        for (let n = 0; n < 3; n++) c[n] *= rp
+        // the sun's path: under it, widening towards you, warm, and broken into glints
+        const hw = (0.012 + 0.22 * t) * W, path = Math.exp(-((dx / hw) ** 2)) * (1 - 0.45 * t)
+        mix(li, path * 0.22)
+        const glint = path * clamp((vnoise(px / (3 + 16 * t), py / (0.7 + 3 * t)) - 0.58) / 0.18, 0, 1)
+        mix(li, glint * 0.45)
+        if (glint > 0.1 && gl.length < 32000) gl.push(k, glint)
+      }
+      if (cover > 0) {
+        o[0] = c[0]; o[1] = c[1]; o[2] = c[2]
+        // the rock: beds of flagstone and shale lying level in the cliff, so they run back to the far point with it;
+        // darker towards the foot, hazier the further off, and the low sun along the top
+        const down = clamp((fy - wall[0]) / (wall[1] - wall[0]), 0, 1)
+        const bed = 0.6 * vnoise(down * 26, px / 260) + 0.25 * vnoise(down * 70 + 3, px / 90) + 0.15 * vnoise(px / 6, py / 2)
+        ramp(rk, bed)
+        for (let n = 0; n < 3; n++) c[n] *= 1 - 0.3 * down
+        mix(haze, 0.55 * (1 - wall[2]) ** 2)
+        mix(li, 0.45 * clamp(1 - ((fy - wall[0]) * H) / 5, 0, 1))
+        if (cover < 1) mix(o, 1 - cover)
+        // and the paint on it takes its grain: the beds, and a speckle as granite has
+        if (cover > 0.5) { TX[k] = 0.7 + 0.55 * bed + 0.18 * (hash2(a, b) - 0.5) - 0.12 * down; WET[k] = 0; VEIL[k] = 0.5 + 0.35 * wall[2] }
+      }
+      const ex = (a + 0.5) / DX - 0.5, ey = fy - 0.5, n = (vnoise(px / 150, py / 24) - 0.5) * g.mottle
+      const vig = 1 - g.vignette * clamp((ex * ex + ey * ey) * 2.2, 0, 1)
+      G0[k] = clamp((c[0] + n) * vig, 0, 255)
+      G1[k] = clamp((c[1] + n) * vig, 0, 255)
+      G2[k] = clamp((c[2] + n * 1.2) * vig, 0, 255)
+    }
+  }
+  glN = gl.length / 2
+  glI = new Int32Array(glN); glW = new Float32Array(glN); glP = new Float32Array(glN)
+  for (let n = 0; n < glN; n++) { glI[n] = gl[2 * n]; glW[n] = gl[2 * n + 1]; glP[n] = hash2(gl[2 * n], 91) }
+}
+/* deep space's ground: black, with dust in drifts, faint blues and violets, most of it in a broad band tilted across
+   the way the Milky Way lies; and stars, more in the band than out of it, most faint and a few bright, red, white or
+   blue, the bright ones with a glow and the brightest with spikes. The paint over it lets a little of them through,
+   and they twinkle as the sun's path glitters */
+function paintSpace(g) {
+  const t = hex(g.top), bo = hex(g.bottom), blue = hex('#18223e'), violet = hex('#2c1a3c')
+  const warm = hex('#ffc08a'), white = hex('#fff6ea'), cold = hex('#bcd2ff'), gl = [], stars = []
+  for (let b = 0, k = 0; b < DY; b++) {
+    const fy = (b + 0.5) / DY, py = fy * H
+    for (let a = 0; a < DX; a++, k++) {
+      const fx = (a + 0.5) / DX, px = fx * W
+      const band = Math.exp(-(((fy - 0.5 - 0.3 * (fx - 0.5)) / 0.2) ** 2))
+      const n = 0.55 * vnoise(px / 240, py / 240) + 0.3 * vnoise(px / 80 + 17, py / 80 - 5) + 0.15 * vnoise(px / 26 + 3, py / 26 + 9)
+      const dust = 0.8 * clamp((n - 0.42) / 0.4, 0, 1) * (0.25 + 0.75 * band), hue = vnoise(px / 400 + 40, py / 400)
+      const ex = fx - 0.5, ey = fy - 0.5, vig = 1 - g.vignette * clamp((ex * ex + ey * ey) * 2.2, 0, 1)
+      const m = (vnoise(px / 150, py / 24) - 0.5) * g.mottle
+      const c0 = t[0] + (bo[0] - t[0]) * fy, c1 = t[1] + (bo[1] - t[1]) * fy, c2 = t[2] + (bo[2] - t[2]) * fy
+      G0[k] = clamp((c0 + (blue[0] + (violet[0] - blue[0]) * hue - c0) * dust + m) * vig, 0, 255)
+      G1[k] = clamp((c1 + (blue[1] + (violet[1] - blue[1]) * hue - c1) * dust + m) * vig, 0, 255)
+      G2[k] = clamp((c2 + (blue[2] + (violet[2] - blue[2]) * hue - c2) * dust + m * 1.2) * vig, 0, 255)
+      if (hash2(a * 3 + 1, b * 7 + 2) < 0.0035 + 0.009 * band) {
+        const br = 0.18 + 0.82 * hash2(a + 5, b + 11) ** 4, tp = hash2(a + 9, b + 3)
+        const from = tp < 0.5 ? warm : white, to = tp < 0.5 ? white : cold, f = tp < 0.5 ? 2 * tp : 2 * tp - 1
+        stars.push([a, b, br, from.map((x, c) => x + (to[c] - x) * f)])
+        if (gl.length < 32000) gl.push(k, 0.6 * br)
+      }
+    }
+  }
+  // their light, screened over the dust
+  const light = (a, b, s, col) => {
+    if (b < 0 || b >= DY || s < 0.01) return
+    const k = ((a % DX) + DX) % DX + DX * b
+    G0[k] = 255 - (255 - G0[k]) * (1 - (s * col[0]) / 255)
+    G1[k] = 255 - (255 - G1[k]) * (1 - (s * col[1]) / 255)
+    G2[k] = 255 - (255 - G2[k]) * (1 - (s * col[2]) / 255)
+  }
+  for (const [a, b, br, col] of stars) {
+    light(a, b, br, col)
+    if (br > 0.55) {
+      const rr = 0.5 + 2.4 * (br - 0.55)
+      for (let dj = -3; dj <= 3; dj++) for (let di = -3; di <= 3; di++) if (di || dj) light(a + di, b + dj, 0.5 * br * Math.exp(-(di * di + dj * dj) / (rr * rr)), col)
+    }
+    if (br > 0.9) for (let d = 2; d <= 5; d++) {
+      const s = 0.3 * br * (1 - d / 6) ** 2
+      light(a + d, b, s, col); light(a - d, b, s, col); light(a, b + d, s, col); light(a, b - d, s, col)
+    }
+  }
+  VEIL.fill(0.85)
+  glN = gl.length / 2
+  glI = new Int32Array(glN); glW = new Float32Array(glN); glP = new Float32Array(glN)
+  for (let n = 0; n < glN; n++) { glI[n] = gl[2 * n]; glW[n] = gl[2 * n + 1]; glP[n] = hash2(gl[2 * n], 91) }
+}
+// the sun's path glitters, and the stars twinkle: each glint comes and goes on its own, wherever no paint lies over it
+function twinkle() {
+  const t = simT * 0.08, [tr, tg, tb] = GROUNDS[ground].glint
+  for (let n = 0; n < glN; n++) {
+    const i = glI[n]
+    if (A[i] > 0.05) continue
+    const s = Math.sin(t * (0.7 + glP[n]) + glP[n] * 60), w = s > 0 ? glW[n] * s * s : 0
+    if (w < 0.02) continue
+    const r = G0[i] + (tr - G0[i]) * w, g = G1[i] + (tg - G1[i]) * w, bl = G2[i] + (tb - G2[i]) * w
+    buf[i] = 0xff000000 | (bl << 16) | (g << 8) | r
+  }
+}
+// which water cells are the seascape's cliffs: there the air and the water barely move, and only the cliffs' own
+// paint spreads
+function shore() {
+  rock.fill(0)
+  if (!SC.sea) return
+  for (let i = 1; i <= NX; i++) {
+    const c = cliffAt((i - 0.5) / NX)
+    if (c) for (let j = 1; j <= NY; j++) { const y = (j - 0.5) / NY; if (y > c[0] && y < c[1]) rock[i + SX * j] = 1 }
+  }
+}
+
 // ghost cells: periodic across, walls above and below (b 2: the vertical velocity reverses there)
 function bnd(b, x) {
   for (let j = 1; j <= NY; j++) { const r = SX * j; x[r] = x[r + NX]; x[r + NX + 1] = x[r + 1] }
@@ -300,21 +541,36 @@ function bnd(b, x) {
 }
 
 function windGoal() {
-  const bpm = clock.running ? clock.bpm : demo.on ? demo.bpm : 0
+  const bpm = clock.running ? clock.bpm : demo.on ? (track.src ? DEMO.bpm : demo.bpm) : 0
   const lv = Math.max(sound.an ? sound.level : -1, smp.buf ? smp.level : -1)
   return (bpm ? 0.012 + 0.08 * clamp(bpm / 100, 0.3, 1.6) : 0.01) * (lv >= 0 ? 0.7 + 1.6 * lv : 1)
 }
 
 function wind(dt) {
   windNow += (windGoal() - windNow) * Math.min(1, 0.008 * dt)
-  const relax = Math.min(1, 0.006 * dt)
+  if (SC.space) { eddies(dt); return }
+  const relax = Math.min(1, 0.006 * dt), still = Math.min(1, 0.05 * dt), hz = SC.sea
   for (let j = 1; j <= NY; j++) {
     const y = (j - 0.5) / NY
-    // strongest across the sky, least down in the bog, and never the same speed in two bands
-    const prof = (1 - 0.55 * y) * (0.62 + 0.38 * Math.sin(j * 0.23 + simT * 0.0041) * Math.cos(j * 0.071 - simT * 0.0023))
-    const goal = windNow * prof
+    let goal
+    if (!hz) {
+      // strongest across the sky, least down in the bog, and never the same speed in two bands
+      const prof = (1 - 0.55 * y) * (0.62 + 0.38 * Math.sin(j * 0.23 + simT * 0.0041) * Math.cos(j * 0.071 - simT * 0.0023))
+      goal = windNow * prof
+    } else if (y < hz) {
+      // the seascape: cloud drifts in off the sea, slower than over the land
+      goal = windNow * 0.5 * (0.75 + 0.25 * Math.sin(j * 0.31 + simT * 0.0037))
+    } else {
+      // and the sea rocks with the swell more than it runs: water goes round as a wave passes, not along with it.
+      // More as it nears, each row a little behind the one beyond it, with a little drift in towards the cliffs
+      goal = windNow * (0.3 + 0.9 * (y - hz)) * (0.2 + Math.sin(simT * 0.006 - j * 0.12))
+    }
     let k = 1 + SX * j
-    for (let i = 1; i <= NX; i++, k++) u[k] += (goal - u[k]) * relax
+    if (!hz) for (let i = 1; i <= NX; i++, k++) u[k] += (goal - u[k]) * relax
+    // the cliffs stand in it: there the air and the water come to rest
+    else for (let i = 1; i <= NX; i++, k++) {
+      if (rock[k]) { u[k] -= u[k] * still; v[k] -= v[k] * still } else u[k] += (goal - u[k]) * relax
+    }
   }
   // and a slow swirl, so still water still breathes
   const amp = 0.0011 * dt, kx = (2 * Math.PI * Math.max(1, Math.round(NX / 110))) / NX, ky = 0.07
@@ -322,10 +578,36 @@ function wind(dt) {
     const sy = Math.sin(j * ky - simT * 0.0017), cy = Math.cos(j * ky - simT * 0.0017)
     let k = 1 + SX * j
     for (let i = 1; i <= NX; i++, k++) {
+      if (hz && rock[k]) continue
       const ax = i * kx + simT * 0.0021
       u[k] += amp * Math.sin(ax) * ky * cy * 12
       v[k] -= amp * kx * Math.cos(ax) * sy * 12
     }
+  }
+}
+
+// deep space has no wind across it: the gas goes round in eddies, two sizes of them that slowly drift and change
+// places, as fast as the wind would blow. Each is a stream function, sin across by sin down, so it never runs into the
+// top or the foot and is already free of divergence
+function eddies(dt) {
+  const relax = Math.min(1, 0.01 * dt), m = Math.max(1, Math.round(NX / 90)), n = Math.max(1, Math.round(NY / 50))
+  const modes = [[m, n, 0.6 * (0.8 + 0.2 * Math.sin(simT * 0.0013)), simT * 0.0011],
+                 [m + 1, n + 1, 0.4 * (0.8 + 0.2 * Math.cos(simT * 0.0009)), 1.3 - simT * 0.0017]]
+  const gu = new Float32Array(SX * (NY + 2)), gv = new Float32Array(SX * (NY + 2))
+  for (const [mx, ny, a, ph] of modes) {
+    const kx = (2 * Math.PI * mx) / NX, ky = (Math.PI * ny) / NY, kn = Math.hypot(kx, ky), s = windNow * 0.8 * a
+    const su = (s * ky) / kn, sv = (s * kx) / kn
+    const sx = new Float32Array(NX + 1), cx = new Float32Array(NX + 1)
+    for (let i = 1; i <= NX; i++) { sx[i] = Math.sin(kx * (i - 0.5) + ph); cx[i] = Math.cos(kx * (i - 0.5) + ph) }
+    for (let j = 1; j <= NY; j++) {
+      const sy = Math.sin(ky * (j - 0.5)), cy = Math.cos(ky * (j - 0.5))
+      let k = 1 + SX * j
+      for (let i = 1; i <= NX; i++, k++) { gu[k] += su * sx[i] * cy; gv[k] -= sv * cx[i] * sy }
+    }
+  }
+  for (let j = 1; j <= NY; j++) {
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) { u[k] += (gu[k] - u[k]) * relax; v[k] += (gv[k] - v[k]) * relax }
   }
 }
 
@@ -448,16 +730,28 @@ function spawn(li, note, vel, at) {
   let b = blooms.find((c) => !c.on)
   if (!b) b = blooms.reduce((a, c) => (!c.held && c.age > a.age ? c : a), blooms.find((c) => !c.held) || blooms[0])
   const t = clamp((note - L.range[0]) / (L.range[1] - L.range[0]), 0, 1)
-  const x = at ? at[0] : (((0.04 + 0.92 * t + (rand() - 0.5) * 0.05) * NX) % NX + NX) % NX
-  const y = at ? at[1] : (L.band[0] + (L.band[1] - L.band[0]) * (0.15 + 0.7 * rand())) * NY
-  const size = L.size * (0.55 + (0.75 * vel) / 127) * (small ? 0.8 : 1)
+  let x = at ? at[0] : (((0.04 + 0.92 * t + (rand() - 0.5) * 0.05) * NX) % NX + NX) % NX
+  let y = at ? at[1] : (L.band[0] + (L.band[1] - L.band[0]) * (0.15 + 0.7 * rand())) * NY
+  if (SC.sea && !at) [x, y] = seaSpot(L, x, y)
+  if (SC.space && L.comet && !at) [x, y] = steer(L, note)
+  const far = SC.sea && !L.cliff && y > SC.sea * NY ? 0.45 + (0.8 * (y / NY - SC.sea)) / (1 - SC.sea) : 1
+  const size = L.size * (0.55 + (0.75 * vel) / 127) * (small ? 0.8 : 1) * far
   Object.assign(b, {
-    on: true, li, x, y, age: 0, flow: 0, held: L.held, key: -1, brush: false,
+    on: true, li, note, vel, x, y, age: 0, flow: 0, held: L.held, key: -1, brush: false,
     q0: (4.2 + rand() * 2) * size * size * scale * scale, tau: 18 + rand() * 12,
     rc: (0.7 + 0.3 * size) * scale, rgb: colourOf(L, note), conc: L.conc * (0.7 + (0.6 * vel) / 127),
-    spin: (rand() - 0.5) * 0.04, shed: 4 + rand() * 6, maxR: 7 * L.size * scale, tx: rand() * 500, ty: rand() * 500,
+    spin: (rand() - 0.5) * 0.04, shed: 4 + rand() * 6, maxR: 7 * L.size * scale, tx: rand() * 500, ty: rand() * 500, ang: 0,
   })
   b.area = Math.PI * b.rc * b.rc
+  if (SC.space) {
+    // deep space: the comet heads its own way; a thread lies along the way the gas is going where it lands; a star flares
+    // the comet's paint is its tail: it barely spreads, and lays more as it goes
+    if (L.comet) { b.q0 *= 0.1; b.conc *= 3; b.rc *= 0.7 }
+    if (L.comet && !at) { b.ang = comet.ang; b.sp = ((0.12 + (0.08 * vel) / 127) * NX) / 140; comet.b = b }
+    if (L.along) { const [su, sv] = sampleVel(x, y); b.ang = su || sv ? Math.atan2(sv, su) : rand() * Math.PI }
+    // a star is mostly its flare, and leaves a faint one behind (the Sequence plays ten notes a second)
+    if (L.flare) { flare(x, y, b.rgb, 0.5 + vel / 254); b.q0 *= 0.12; b.conc *= 0.35 }
+  }
   // an uneven edge: the paint pushes out in fingers
   const k1 = 3 + ((rand() * 4) | 0), p1 = rand() * 6.283, p2 = rand() * 6.283, p3 = rand() * 6.283
   let mn = 1e9, mx = -1e9
@@ -479,9 +773,50 @@ function spawn(li, note, vel, at) {
   return b
 }
 
+// where a note lands in the seascape: the cliffs' on the rock, low notes far off and high ones near; the sea's in
+// rows, a note's pitch its distance (the higher, the further out) and anywhere across, so a figure played over and
+// over draws a line of waves coming in; the sky's as the landscape's. None but the cliffs' on the rock: the sky's go
+// above it, and the sea's below it, or out from it where it stands in deep water
+function seaSpot(L, x, y) {
+  let fx = x / NX, fy = y / NY
+  const rel = (fy - L.band[0]) / (L.band[1] - L.band[0])
+  if (!L.cliff && L.band[0] >= SC.sea) {
+    const t = clamp((fx - 0.04) / 0.92, 0, 1)
+    fy = L.band[1] - (L.band[1] - L.band[0]) * (0.08 + 0.84 * t + 0.08 * (rel - 0.5))
+    fx = 0.02 + 0.96 * rand()
+  }
+  if (L.cliff) {
+    fx = CLIFF.from + 0.05 + (0.94 - CLIFF.from) * fx
+    const c = cliffAt(fx)
+    fy = c[0] + (c[1] - c[0]) * rel
+  } else {
+    const c = cliffAt(fx)
+    if (c && fy > c[0] - 0.02 && fy < c[1] + 0.02) {
+      if (fy < SC.sea) fy = Math.max(0.02, c[0] - 0.02 - 0.08 * rel)
+      else if (c[1] < 0.93) fy = c[1] + 0.02 + (0.95 - c[1]) * rel
+      else fx *= CLIFF.from
+    }
+  }
+  return [fx * NX, fy * NY]
+}
+
+// where deep space's comet goes next: on from where the last note left it, turning up for a higher note and down for a
+// lower, and back off the top and the foot. The first note brings it in at the left
+const comet = { x: -1, y: 0, ang: 0, note: 0, b: null }
+function steer(L, note) {
+  const lo = (L.band[0] + 0.1) * NY, hi = (L.band[1] - 0.1) * NY
+  if (comet.x < 0) { comet.x = NX * (0.04 + 0.16 * rand()); comet.y = NY * (0.3 + 0.4 * rand()); comet.ang = (rand() - 0.5) * 0.5 }
+  else comet.ang = clamp(0.8 * comet.ang - 0.07 * clamp(note - comet.note, -12, 12), -0.9, 0.9)
+  if ((comet.y < lo && comet.ang < 0) || (comet.y > hi && comet.ang > 0)) comet.ang = -comet.ang
+  comet.note = note
+  return [comet.x, comet.y]
+}
+
 function updateBlooms(dt) {
   for (const b of blooms) {
     if (!b.on) continue
+    // the seascape keeps the cliffs' paint on the rock and everyone else's off it
+    const L = LAYERS[b.li], own = SC.sea ? +!!L.cliff : -1
     b.age += dt
     if (!b.held) b.flow += dt
     const rf = Math.sqrt(b.area / Math.PI)
@@ -491,7 +826,7 @@ function updateBlooms(dt) {
     if (!b.held && Q < 0.03 && b.flow > 40) { b.on = false; continue }
     // the spread moves paint, not water: it goes in eu/ev, which carry the paint and are never projected
     const reach = Math.min(rf * 2.2 + 4, 28), reach2 = reach * reach, qf = Q / (2 * Math.PI), rc2 = b.rc * b.rc
-    const box = Math.ceil(reach), ci = Math.floor(b.x), cj = Math.floor(b.y)
+    const box = Math.ceil(reach), ci = Math.floor(b.x), cj = Math.floor(b.y), ca = Math.cos(b.ang), sa = Math.sin(b.ang)
     for (let dj = -box; dj <= box; dj++) {
       const c = cj + dj
       if (c < 0 || c >= NY) continue
@@ -500,14 +835,21 @@ function updateBlooms(dt) {
         const dx = ci + di + 0.5 - b.x, r2 = dx * dx + dy * dy
         if (r2 > reach2) continue
         const k = row + (((ci + di) % NX) + NX) % NX + 1
+        if (own >= 0 && rock[k] !== own) continue
         let pa = Math.atan2(dy, dx) * PK
         if (pa < 0) pa += PN
         const p0 = pa | 0, pf = pa - p0
         const mod = b.prof[p0 % PN] * (1 - pf) + b.prof[(p0 + 1) % PN] * pf
         const f = ((qf * mod) / (r2 + rc2)) * Math.exp((-1.6 * r2) / reach2)
-        // wider than tall, so a drop lies down into its band
-        eu[k] += dx * f - b.spin * dy * f * 6
-        ev[k] += 0.4 * dy * f + b.spin * dx * f * 6
+        // wider than tall, so a drop lies down into its band (flat: how much); or longer along b.ang than across it
+        if (b.ang) {
+          const al = dx * ca + dy * sa, ac = (dy * ca - dx * sa) * L.flat
+          eu[k] += (al * ca - ac * sa) * f - b.spin * dy * f * 6
+          ev[k] += (al * sa + ac * ca) * f + b.spin * dx * f * 6
+        } else {
+          eu[k] += dx * f - b.spin * dy * f * 6
+          ev[k] += L.flat * dy * f + b.spin * dx * f * 6
+        }
       }
     }
     if (Q > 0.08 && (b.shed -= dt) <= 0) {
@@ -517,11 +859,25 @@ function updateBlooms(dt) {
              (rand() < 0.5 ? -1 : 1) * (0.03 + rand() * 0.05) * Math.min(1.5, (3 * Q) / b.q0 + 0.3))
     }
     if (b.held && !b.brush) {
-      // a held note rides the wind, so a drone draws a stroke
-      const [su, sv] = sampleVel(b.x, b.y), L = LAYERS[b.li]
-      b.x = ((b.x + su * dt * 0.75) % NX + NX) % NX
-      b.y = clamp(b.y + sv * dt * 0.25, L.band[0] * NY, L.band[1] * NY)
-      if (rand() < 0.0025 * dt) drip(b.x, b.y)
+      // a held note rides the wind, so a drone draws a stroke; the seascape's cliffs stand where they are, and its sky
+      // goes over them
+      if (SC.space && L.comet) {
+        // deep space's comet keeps on its way, a little blown, and turns back off the top and the foot; its tail is the
+        // paint it leaves
+        const [su, sv] = sampleVel(b.x, b.y), lo = L.band[0] * NY, hi = L.band[1] * NY
+        b.x = ((b.x + (Math.cos(b.ang) * b.sp + 0.3 * su) * dt) % NX + NX) % NX
+        b.y = b.y + (Math.sin(b.ang) * b.sp + 0.3 * sv) * dt
+        if (b.y < lo || b.y > hi) { b.y = clamp(b.y, lo, hi); b.ang = -b.ang }
+        if (comet.b === b) { comet.x = b.x; comet.y = b.y; comet.ang = b.ang }
+      } else if (!L.cliff) {
+        const [su, sv] = sampleVel(b.x, b.y)
+        b.x = ((b.x + su * dt * 0.75) % NX + NX) % NX
+        b.y = clamp(b.y + sv * dt * (SC.space ? 0.75 : 0.25), L.band[0] * NY, L.band[1] * NY)
+        const c = cliffAt(b.x / NX)
+        if (c && b.y > c[0] * NY - 1 && b.y < c[1] * NY) b.y = b.y < SC.sea * NY ? Math.max(0.5, c[0] * NY - 1) : c[1] * NY + 1
+      }
+      // nothing runs down in deep space
+      if (!SC.space && rand() < 0.0025 * dt) drip(b.x, b.y)
     }
     const conc = b.conc * (b.held ? 0.55 : 0.25 + 0.75 * Math.exp(-b.flow / 20))
     const mix = Math.min(1, 0.05 * dt) * (b.held ? 1 : clamp((1.5 * Q) / b.q0, 0, 1))
@@ -533,6 +889,44 @@ function updateBlooms(dt) {
    Paint that runs down the canvas: a run gathers wet paint as it passes through it and leaves a thin trail of it
    behind, slowing as it empties. */
 const drips = []
+/* deep space's light: the Sequence's stars flare where they land and fade in a second and a half, and the comet's head
+   burns while its note is held; light screened over the paint, spikes on a flare */
+const flares = []
+function flare(x, y, rgb, w) {
+  if (flares.length < 40) flares.push({ a: x * R, b: y * R, rgb: rgb.map((c) => c + (255 - c) * 0.5), w, age: 0 })
+}
+function screen(i, f, rgb) {
+  const c = buf[i]
+  const r = 255 - (255 - (c & 255)) * (1 - Math.min(1, (f * rgb[0]) / 255))
+  const g = 255 - (255 - ((c >> 8) & 255)) * (1 - Math.min(1, (f * rgb[1]) / 255))
+  const bl = 255 - (255 - ((c >> 16) & 255)) * (1 - Math.min(1, (f * rgb[2]) / 255))
+  buf[i] = 0xff000000 | ((bl | 0) << 16) | ((g | 0) << 8) | (r | 0)
+}
+function glow(a0, b0, rgb, s, rad, spike) {
+  const ca = Math.round(a0), cb = Math.round(b0), box = Math.ceil(rad * 2.2), inv = 1 / (rad * rad)
+  const at = (a, b) => ((a % DX) + DX) % DX + DX * b
+  for (let dj = -box; dj <= box; dj++) {
+    const b = cb + dj
+    if (b < 0 || b >= DY) continue
+    for (let di = -box; di <= box; di++) {
+      const f = s * Math.exp(-(di * di + dj * dj) * inv)
+      if (f > 0.01) screen(at(ca + di, b), f, rgb)
+    }
+  }
+  // and four spikes, across and up and down, out past the glow
+  for (let d = 1; d <= spike; d++) {
+    const f = 0.6 * s * (1 - d / (spike + 1)) ** 2
+    if (cb >= 0 && cb < DY) { screen(at(ca + d, cb), f, rgb); screen(at(ca - d, cb), f, rgb) }
+    if (cb + d < DY) screen(at(ca, cb + d), f, rgb)
+    if (cb - d >= 0) screen(at(ca, cb - d), f, rgb)
+  }
+}
+function shine() {
+  for (const f of flares) glow(f.a, f.b, f.rgb, f.w * (f.age < 5 ? f.age / 5 : Math.exp(-(f.age - 5) / 22)), R * (1 + 0.8 * f.w), Math.round(R * 5 * f.w))
+  for (const b of blooms) {
+    if (b.on && b.held && LAYERS[b.li].comet) glow(b.x * R, b.y * R, b.rgb.map((c) => c + (255 - c) * 0.6), 0.85, R * 1.7, 0)
+  }
+}
 function drip(x, y) {
   if (drips.length > 48) return
   const a = ((Math.floor(x * R) % DX) + DX) % DX, k = a + DX * clamp(Math.floor(y * R), 0, DY - 1), am = A[k]
@@ -564,9 +958,11 @@ function updateDrips(dt) {
 
 // MacCormack: step the paint forward, step that back, and correct by half of what the round trip lost, held
 // inside the four cells it came from. Plain stepping blurs the paint a little every frame; this keeps its edges.
+// The landscape's paint wraps round, what leaves on the right coming in on the left; the seascape's stops at the
+// sides, so the cliffs running off the right don't come round into the sea
 function advectPaint(dt) {
   bnd(0, eu); bnd(0, ev)
-  const dr = dt * R
+  const dr = dt * R, wrap = !SC.sea, xmax = DX - 1.001
   for (let b = 0, idx = 0; b < DY; b++) {
     const jj = rowJ[b], fy = rowF[b], gy = 1 - fy, base = SX * jj
     for (let a = 0; a < DX; a++, idx++) {
@@ -580,7 +976,7 @@ function advectPaint(dt) {
   for (let b = 0, idx = 0; b < DY; b++) {
     for (let a = 0; a < DX; a++, idx++) {
       let x = a - VX[idx], y = b - VY[idx]
-      x -= DX * Math.floor(x / DX)
+      if (wrap) x -= DX * Math.floor(x / DX); else if (x < 0) x = 0; else if (x > xmax) x = xmax
       if (y < 0) y = 0; else if (y > ymax) y = ymax
       const x0 = x | 0, y0 = y | 0, sx = x - x0, sy = y - y0
       const x1 = x0 + 1 < DX ? x0 + 1 : 0, r0 = DX * y0, r1 = r0 + DX
@@ -603,7 +999,7 @@ function advectPaint(dt) {
     for (let a = 0; a < DX; a++, idx++) {
       // back from where the paint went
       let x = a + VX[idx], y = b + VY[idx]
-      x -= DX * Math.floor(x / DX)
+      if (wrap) x -= DX * Math.floor(x / DX); else if (x < 0) x = 0; else if (x > xmax) x = xmax
       if (y < 0) y = 0; else if (y > ymax) y = ymax
       let x0 = x | 0, y0 = y | 0, sx = x - x0, sy = y - y0
       let x1 = x0 + 1 < DX ? x0 + 1 : 0, r0 = DX * y0, r1 = r0 + DX
@@ -614,7 +1010,7 @@ function advectPaint(dt) {
       const bb = a00 * TB[x0 + r0] + a10 * TB[x1 + r0] + a01 * TB[x0 + r1] + a11 * TB[x1 + r1]
       // the four cells the forward step read
       x = a - VX[idx]; y = b - VY[idx]
-      x -= DX * Math.floor(x / DX)
+      if (wrap) x -= DX * Math.floor(x / DX); else if (x < 0) x = 0; else if (x > xmax) x = xmax
       if (y < 0) y = 0; else if (y > ymax) y = ymax
       x0 = x | 0; y0 = y | 0; x1 = x0 + 1 < DX ? x0 + 1 : 0; r0 = DX * y0; r1 = r0 + DX
       const s00 = x0 + r0, s10 = x1 + r0, s01 = x0 + r1, s11 = x1 + r1
@@ -636,17 +1032,20 @@ function within(x, p, q, r, s) {
   return x < lo ? lo : x > hi ? hi : x
 }
 
-// the paint feathers out, more across than down, and slowly fades, so the picture never fills
+// the paint feathers out, more across than down, and slowly fades, so the picture never fills; deep space's gas
+// feathers out further, as much one way as the other, and fades twice as fast
 function soften(dt) {
-  const keep = Math.pow(0.5, dt / (60 * 32)), d = Math.min(dt, 2.5), kx = 0.009 * d, ky = 0.0025 * d, c = 1 - 2 * kx - 2 * ky
+  const keep = Math.pow(0.5, dt / (60 * (SC.space ? 16 : 32))), keepSea = Math.pow(0.5, dt / (60 * 6)), d = Math.min(dt, 2.5)
+  const kx = (SC.space ? 0.014 : 0.009) * d, ky = (SC.space ? 0.014 : 0.0025) * d, c = 1 - 2 * kx - 2 * ky
+  const l0 = SC.sea ? 0 : DX - 1, r1 = SC.sea ? 0 : 1 - DX
   for (let b = 0, i = 0; b < DY; b++) {
     const up = b > 0 ? -DX : 0, dn = b < DY - 1 ? DX : 0
     for (let a = 0; a < DX; a++, i++) {
-      const l = a > 0 ? -1 : DX - 1, r = a < DX - 1 ? 1 : 1 - DX
-      TA[i] = keep * (c * A[i] + kx * (A[i + l] + A[i + r]) + ky * (A[i + up] + A[i + dn]))
-      TR[i] = keep * (c * CR[i] + kx * (CR[i + l] + CR[i + r]) + ky * (CR[i + up] + CR[i + dn]))
-      TG[i] = keep * (c * CG[i] + kx * (CG[i + l] + CG[i + r]) + ky * (CG[i + up] + CG[i + dn]))
-      TB[i] = keep * (c * CB[i] + kx * (CB[i + l] + CB[i + r]) + ky * (CB[i + up] + CB[i + dn]))
+      const l = a > 0 ? -1 : l0, r = a < DX - 1 ? 1 : r1, kp = WET[i] ? keepSea : keep
+      TA[i] = kp * (c * A[i] + kx * (A[i + l] + A[i + r]) + ky * (A[i + up] + A[i + dn]))
+      TR[i] = kp * (c * CR[i] + kx * (CR[i + l] + CR[i + r]) + ky * (CR[i + up] + CR[i + dn]))
+      TG[i] = kp * (c * CG[i] + kx * (CG[i + l] + CG[i + r]) + ky * (CG[i + up] + CG[i + dn]))
+      TB[i] = kp * (c * CB[i] + kx * (CB[i + l] + CB[i + r]) + ky * (CB[i + up] + CB[i + dn]))
     }
   }
   let t = A; A = TA; TA = t
@@ -660,10 +1059,11 @@ function step(dt) {
   eu.fill(0); ev.fill(0)
   wind(dt)
   updateBlooms(dt)
-  confine(0.06, dt)
+  // deep space's gas curls more, and keeps going up and down as well as across
+  confine(SC.space ? 0.1 : 0.06, dt)
   advectVel(dt)
   project()
-  const du = Math.pow(0.998, dt), dw = Math.pow(0.95, dt)
+  const du = Math.pow(0.998, dt), dw = Math.pow(SC.space ? 0.995 : 0.95, dt)
   for (let i = 0, n = u.length; i < n; i++) {
     u[i] = clamp(u[i] * du || 0, -3, 3)
     v[i] = clamp(v[i] * dw || 0, -3, 3)
@@ -671,24 +1071,36 @@ function step(dt) {
   advectPaint(dt)
   soften(dt)
   updateDrips(dt)
+  if (flares.length) {
+    for (const f of flares) f.age += dt
+    while (flares.length && flares[0].age > 90) flares.shift()
+  }
 }
 
 function render() {
-  const top = COV.length - 1
+  const top = COV.length - 1, space = !!SC.space
   for (let b = 0, i = 0; b < DY; b++) {
     const up = b > 0 ? -DX : 0, dn = b < DY - 1 ? DX : 0
     for (let a = 0; a < DX; a++, i++) {
       const g0 = G0[i], g1 = G1[i], g2 = G2[i], am = A[i]
       let r = g0, g = g1, bl = g2
-      if (am > 0.003) {
+      if (am > 0.003 && space) {
+        // deep space's gas glows over the stars rather than hiding them: screened, with no thickness to light
         let ci = (am * 256) | 0
         if (ci > top) ci = top
-        const cov = COV[ci], inv = 1 / am
+        const s = GLOW[ci] / (am * 255)
+        r = 255 - (255 - g0) * (1 - Math.min(1, CR[i] * s))
+        g = 255 - (255 - g1) * (1 - Math.min(1, CG[i] * s))
+        bl = 255 - (255 - g2) * (1 - Math.min(1, CB[i] * s))
+      } else if (am > 0.003) {
+        let ci = (am * 256) | 0
+        if (ci > top) ci = top
+        const cov = COV[ci] * VEIL[i], inv = 1 / am
         // a wet edge: darker where the amount changes fast
         const l = a > 0 ? i - 1 : i + DX - 1, rr = a < DX - 1 ? i + 1 : i - DX + 1
         const gx = A[rr] - A[l], gy = A[i + dn] - A[i + up]
         // the paint's thickness, lit from the upper left, and a darker wet rim
-        const lit = 1 + clamp(0.16 * (gx + gy), -0.2, 0.24) - 0.1 * Math.min(1, Math.sqrt(gx * gx + gy * gy))
+        const lit = (1 + clamp(0.16 * (gx + gy), -0.2, 0.24) - 0.1 * Math.min(1, Math.sqrt(gx * gx + gy * gy))) * TX[i]
         r = g0 + (CR[i] * inv * lit - g0) * cov
         g = g1 + (CG[i] * inv * lit - g1) * cov
         bl = g2 + (CB[i] * inv * lit - g2) * cov
@@ -696,6 +1108,8 @@ function render() {
       buf[i] = 0xff000000 | ((bl < 0 ? 0 : bl > 255 ? 255 : bl) << 16) | ((g < 0 ? 0 : g > 255 ? 255 : g) << 8) | (r < 0 ? 0 : r > 255 ? 255 : r)
     }
   }
+  if (glN) twinkle()
+  if (SC.space) shine()
   ctx.putImageData(img, 0, 0)
 }
 
@@ -728,7 +1142,7 @@ function noteOn(ch, note, vel) {
   release(key)
   const b = spawn(li, note, vel)
   if (L.held) { b.key = key; held.set(key, b) }
-  if (rand() < (L.held ? 0.22 : 0.1)) drip(b.x, b.y)
+  if (!SC.space && rand() < (L.held ? 0.22 : 0.1)) drip(b.x, b.y)
 }
 function release(key) {
   const b = held.get(key)
@@ -769,12 +1183,98 @@ function onMessage(data, ts) {
   } else if (ty === 0xb0 && (data[1] === 123 || data[1] === 120)) allOff(ch)
 }
 
-/* ---------------- the demo: a little of what the FM-1 plays, silent ---------------- */
+/* ---------------- the demo: Skellig as AISLING plays it, heard and painted ----------------
+   The recording beside the page (fetched when Demo is first pressed, and only then) is a 32-bar loop of the host's
+   render of Skellig, the engine the FM-1 runs, with the notes it played: each painted as it is heard, round and round
+   with the sound. Made by tools/make_demo_track.py, which writes this line: the notes nine characters each, base 36
+   (from the last note's start in ms, channel x 128 + note, how hard, how long in 10 ms for the held layers). Until
+   it arrives, or where it can't (a downloaded copy, or the emulator's drawer), a little of what the FM-1 plays,
+   made up here and silent. */
+const DEMO = { file: 'skellig.mp3', bpm: 76, loop: 101.052630, pad: 0.5, level: 0.8, notes: '5c5825000005f250005h5f0g000005f0g000005f23000005k3a0005h5810000005836000005k100005h580v000005k0v00001581z000005f1z0005h5f12000005f12000005f1v000005k2w0005h581x000005k1r0005i581f000005f1f000005f1m000005f1m0005h5f1l000005k2a000005k2a000005k2g0005h5k1q000015820000005k1a0005h5814000005f14000005f1u000005f1u0005h5f0x000005k1f000005k31000005k310005h5k21000005k210000158130005h580i000005f0i000005f23000005f230005h583b000005f0a000005k0f000005k3b0005i5825000005k250005h5f25000005f250005h583c0005i5825000005f250005h5f25000005k3c0005h5k250005i5f25000005f250005h5k3c000005k3c0005h5k25000005k250005i5f25000005f250005h583c000005k3c0005i5825000005k250005h5f25000005f250005h583c0005i5825000005f250005h5f25000005k3c0005h5k250005i5f25000005f2500000992i0145h5k3c000005k3c0005i5k25000005k25000009b2i0135h5f25000005f250005h583c000005k3c000009d2i0275i5825000005k250005h5f25000005f250005h583c0005i5825000005f25000009d2i01n5h5f25000005k3c0005h5k250005i5f25000005f25000009e2i00k5h5k3c000005k3c000009d2i0145i5k25000005k250005h5f25000005f25000009b2i0145h583c000005k3c0005i5825000005k25000009d2i0275h5f25000005f250005h583c0005i5825000005f250005h5f25000005k3c000009i2i0275i5k250005h5f25000005f250005h5k3c000005k3c0005i5k25000005k2500000992i01n5h5f25000005f250005h583c000005k3c0005i5825000005k25000009b2i00k5h5f25000005f25000009d2i04e5i583c0005h5825000005f250005h5f25000005k3c0005i5k250005h5f25000005f250005h5k3c000005k3c0005i5k25000005k250005h5f25000005f250005h583c000005k3c0005i5825000005k250005h5f25000005f250005i583c0005h5825000005f250005h5f25000005k3c0005i5k250005h5f25000005f2500000992i0145h5k3c000005k3c0005i5k25000005k25000009b2i0145h5f25000005f250005i583c000005k3c000009d2i0275h5825000005k250005h5f25000005f250005i583c0005h5825000005f25000009d2i01n5h5f25000005k3c0005i5k250005h5f25000005f25000009e2i00k5h5k3c000005k3c000009d2i0145i5k25000005k250005h5f25000005f25000009b2i0145i583c000005k3c0005h5825000005k25000009d2i0275h5f25000005f250005i583c0005h5825000005f250005h5f25000005k3c000009i2i0275i5k250005h5f25000005f250005i5k3c000005k3c0005h5k25000005k2500000992i01n5h5f25000005f250005i583c000005k3c0005h5825000005k25000009b2i00k5h5f25000005f25000009b2i08s5i583c0005h5825000005f250005i5f25000005k3c0005h5k250005h5f25000005f250005i5k3c000005k3c0005h5k25000005k250005h5f25000005f250005i583c000005k3c0005h5825000005k250005h5f25000005f250005i583c0005h5825000005f250005i5f25000005k3c0005h5k250005h5f25000005f250005i5k3c000005k3c0005h5k25000005k250005h5f25000005f250005i583c000005k3c0005h5825000005k250005i5f25000005f250005h583c0005h5825000005f250005i5f25000005k3c0005h5k250005h5f25000005f250005i5k3c000005k3c0005h5k25000005k250005h5f25000005f250005i583c000005k3c0005h5825000005k250005i5f25000005f250005h583c0005h5825000005f250005i5f25000005k3c0005h5k250005h5f25000005f250005i5k3c000005k3c0005h5k25000005k250005i5f25000005f250005h583c000005k3c0005h5825000005k250005i5f25000005f250005h583c0005h5825000005f250005i5f25000005k3c0005h5k250005i5f25000005f250005h5k3c000005k3c0005h5k25000005k250005i5f25000005f250005h583c000005k3c0005h5825000005k250005i5f25000005f250005h583c0005h5825000005f250005i5f25000005k3c0005h5k250005i5f25000005f250005h5k3c000005k3c0005h5k25000005k250005i5f25000005f250005h583c000005k3c0005h5825000005k250005i5f25000005f250005h583c0005i5825000005f250005h5f25000005k3c0005h5k250005i5f25000005f250005h5k3c000005k3c0005h5k25000005k250005i5f25000005f250005h583c000005k3c0005i5825000005k250005h5f25000005f250005h583c0005i5825000005f250005h5f25000005k3c0005h5k250005i5f25000005f250005h5k3c000005k3c0005h5k25000005k250005i5f25000005f250005h583c000005k3c0005i5825000005k250005h121y3wd001e1y3wd001l1y3wd001o1y3wd001t1y3wd005525000005f250005h583c0005i55250000058250005h5525000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005i5a25000005a250005h55250000055250005h4y3c000005a3c0005i4y25000005a250005h55250000055250005h4y3c0005i4y250000055250005h5525000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005i5a25000005a250005h55250000055250005h4y3c000005a3c0005i4y25000005a250005h55250000055250005h4y3c0005i4y250000055250005h5525000005a3c0005i5a250005h55250000055250005h5a3c000005a3c0005i5a25000005a250005h55250000055250005h4y3c000005a3c0005i4y25000005a250005h55250000055250005i4y3c0005h4y250000055250005h5525000005a3c0005i5a250005h55250000055250005h5a3c000005a3c0005i5a25000005a250005h55250000055250005h4y3c000005a3c0005i4y25000005a250005h55250000055250005i4y3c0005h4y250000055250005h5525000005a3c0005i5a250005h55250000055250005h5a3c000005a3c0005i5a25000005a250005h55250000055250005i4y3c000005a3c0005h4y25000005a250005h55250000055250005i4y3c0005h4y250000055250005h5525000005a3c0005i5a250005h55250000055250005h5a3c000005a3c0005i5a25000005a250005h55250000055250005i4y3c000005a3c0005h4y25000005a250005h55250000055250005i4y3c000005a3c0005h4y250005h55250000055250005i5a3c000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005h5a25000005a250005i55250000055250005h4y3c000005a3c0005h4y25000005a250005i55250000055250005h4y3c000005a3c0005i4y2500000992i0135h55250000055250005h5a3c000005a3c000009b2i0145i5a250005h5525000005525000009d2i0275h5a3c000005a3c0005i5a25000005a250005h55250000055250005h4y3c000005a3c00000992i04e5i4y25000005a250005h55250000055250005i4y3c000005a3c0005h4y250005h55250000055250005i5a3c000005a3c0005h5a250005h552500000552500000992i04e5i5a3c000005a3c0005h5a25000005a250005i55250000055250005h4y3c000005a3c0005h4y25000005a250005i55250000055250005h4y3c000005a3c0005h4y250005i55250000055250005h5a3c000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005i5a25000005a250005h55250000055250005h4y3c000005a3c00000992i0145i4y25000005a250005h5525000005525000009b2i0145h4y3c000005a3c0005i4y25000009d2i0275h55250000055250005i5a3c000005a3c0005h5a250005h552500000552500000992i04e5i5a3c000005a3c0005h5a25000005a250005h55250000055250005i4y3c000005a3c0005h4y25000005a250005i55250000055250005h4y3c000005a3c0005h4y25000009d2i08s5i55250000055250005h5a3c000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005h5a25000005a250005i55250000055250005h4y3c000005a3c0005i4y25000005a250005h55250000055250005h4y3c000005a3c0005i4y250005h55250000055250005h5a3c000005a3c0005i5a250005h55250000055250005i5a3c000005a3c0005h5a25000005a250005h55250000055250005i4y3c000005a3c0005h4y25000005a250005h55250000055250005i4y3c000005a3c0005h4y250005h55250000055250005i5a3c000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005h5a25000005a250005i55250000055250005h4y3c000005a3c0005h4y25000005a250005i55250000055250005h4y3c000005a3c0005i4y250005h55250000055250005h5a3c000005a3c0005i5a250005h55250000055250005h5a3c000005a3c0005i4y3c000005a250005h4y250000055250005i5525000005a3c0005h4y3c000005a3c0005h4y250005i55250000055250005h5a3c000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005h4y3c000005a250005i4y250000055250005h5525000005a3c0005i4y3c000005a3c0005h4y250005h55250000055250005i5a3c000005a3c0005h5a250005h55250000055250005i5a3c000005a3c0005h4y3c000005a250005i4y250000055250005h5525000005a3c00000992i0145h4y3c000005a3c0005i4y25000009b2i0135h55250000055250005h5a3c000005a3c000009d2i0275i5a250005h55250000055250005h5a3c000005a3c0005i4y3c000005a2500000992i04e5h4y250000055250005i5525000005a3c0005h4y3c000005a3c0005h4y250005i55250000055250005h5a3c000005a3c0005h5a250005i552500000552500000992i04e5h5a3c000005a3c0005i4y3c000005a250005h4y250000055250005h5525000005a3c0005i4y3c000005a3c0005h4y250005h55250000055250005i5a3c000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005h4y3c000005a250005i4y250000055250005h5525000005a3c0005h4y3c000005a3c0005i4y2500000992i0135h55250000055250005h5a3c000005a3c000009b2i0145i5a250005h5525000005525000009d2i0275i5a3c000005a3c0005h4y3c000005a250005h4y250000055250005i5525000005a3c00000992i04e5h4y3c000005a3c0005h4y250005i55250000055250005h5a3c000005a3c0005i5a250005h55250000055250005h5a3c000005a3c0005i4y3c000005a25000009d2i08s5h4y250000055250005h5525000005a3c0005i4y3c000005a3c0005h4y250005h55250000055250005i5a3c000005a3c0005h5a250005i55250000055250005h5a3c000005a3c0005h4y3c000005a250005i4y250000055250005h5525000005a3c0005h4y3c000005a3c0005i4y250005h55250000055250005i101y3wd001c1y3wd001j1y3wd001m1y3wd001s1y3wd005a3c000005k3c0005h5k250005h5525000005f250005i5k3c000005k3c0005h583c000005k250005h5825000005f250005i5f25000005k3c0005h583c000005k3c0005i58250005h5f25000005f250005h5k3c000005k3c0005i5k250005h5f25000005f250005h5k3c000005k3c0005i583c000005k250005h5825000005f250005h5f25000005k3c0005i583c000005k3c0005h58250005i5f25000005f250005h5k3c000005k3c0005h5k250005i5f25000005f250005h5k3c000005k3c0005h583c000005k250005i5825000005f250005h5f25000005k3c0005i583c000005k3c0005h58250005h5f25000005f250005i5k3c000005k3c0005h5k250005h5f25000005f250005i5k3c000005k3c0005h583c000005k250005h5825000005f250005i5f25000005k3c0005h583c000005k3c0005i58250005h5f25000005f250005h5k3c000005k3c0005i5k250005h5f25000005f250005h5k3c000005k3c0005i583c000005k250005h5825000005f250005i5f25000005k3c0005h583c000005k3c0005h58250005i5f25000005f250005h5k3c000005k3c0005h5k250005i5f25000005f250005h5k3c000005k3c0005i583c000005k250005h5825000005f250005h5f25000005k3c0005i583c000005k3c0005h58250005h5f25000005f250005i5k3c000005k3c0005h5k250005h5f25000005f250005i5k3c000005k3c0005h583c000005k25000' }
+const track = { buf: null, loading: false, failed: false, src: null, gain: null, t0: 0, notes: null, ev: null, i: -1, lap: 0, at: 0, six: 0 }
+function trackNotes() {
+  const s = DEMO.notes, L = DEMO.loop * 1000, notes = [], ev = []
+  let t = 0
+  for (let i = 0; i + 9 <= s.length; i += 9) {
+    t += parseInt(s.slice(i, i + 2), 36)
+    const key = parseInt(s.slice(i + 2, i + 4), 36), v = parseInt(s.slice(i + 4, i + 6), 36), d = parseInt(s.slice(i + 6, i + 9), 36) * 10
+    const nt = { t, ch: key >> 7, n: key & 127, v, d }
+    notes.push(nt)
+    ev.push(nt)
+    if (d) ev.push({ t: (t + d) % L, ch: nt.ch, n: nt.n, v: 0 })
+  }
+  track.notes = notes
+  track.ev = ev.sort((a, b) => a.t - b.t || a.v - b.v)   // an end before a start at the same moment
+}
+async function loadTrack() {
+  if (track.buf || track.loading || track.failed || EMBED || !DEMO.notes) return
+  const ac = audioCtx()
+  if (!ac) { track.failed = true; return }
+  track.loading = true
+  try {
+    const r = await fetch(DEMO.file)
+    if (!r.ok) throw new Error(r.status)
+    track.buf = await ac.decodeAudioData(await r.arrayBuffer())
+    trackNotes()
+  } catch { track.failed = true }
+  track.loading = false
+  say()
+}
+function startTrack() {
+  const ac = audio.ac, when = ac.currentTime + 0.05
+  allOff(-1); demo.drone = []; demo.lead = -1; demo.leadLeft = 0; demo.phrase = 0   // the made-up demo's, if it began first
+  sampleRestart()
+  track.gain = ac.createGain()
+  track.gain.gain.setValueAtTime(0, when)
+  track.gain.gain.linearRampToValueAtTime(DEMO.level, when + 1)
+  track.gain.connect(ac.destination)
+  if (rec.mix) track.gain.connect(rec.mix)
+  const src = track.src = ac.createBufferSource()
+  src.buffer = track.buf
+  src.loop = true; src.loopStart = DEMO.pad; src.loopEnd = DEMO.pad + DEMO.loop
+  src.connect(track.gain)
+  src.start(when, DEMO.pad)
+  track.t0 = when; track.i = -1
+  say()
+}
+function stopTrack() {
+  if (!track.src) return
+  const t = audio.ac.currentTime, g = track.gain.gain, gain = track.gain
+  if (g.cancelAndHoldAtTime) g.cancelAndHoldAtTime(t); else g.cancelScheduledValues(t)
+  g.setTargetAtTime(0, t, 0.08)
+  track.src.onended = () => { try { gain.disconnect() } catch {} }
+  try { track.src.stop(t + 0.5) } catch {}
+  track.src = track.gain = null
+}
+// the notes as they come out of the speakers (ms into the track, round and round), and its clock with them
+function trackTick(now) {
+  const L = DEMO.loop * 1000, six = 60000 / DEMO.bpm / 4, p = (toCtx(now) - track.t0) * 1000
+  if (p < 0) return
+  if (track.i < 0 || p - track.at > 2000) {   // just begun, or the tab slept: what sounds now, and on from here
+    allOff(-1)
+    const lp = p % L
+    for (const e of track.notes) if (e.d && (lp - e.t + L) % L < e.d) noteOn(e.ch, e.n, e.v)
+    track.lap = Math.floor(p / L)
+    track.i = track.ev.findIndex((e) => e.t > lp)
+    if (track.i < 0) { track.i = 0; track.lap++ }
+    track.six = Math.floor(p / six)
+  }
+  track.at = p
+  for (let e = track.ev[track.i]; track.lap * L + e.t <= p; e = track.ev[track.i]) {
+    if (e.v) noteOn(e.ch, e.n, e.v); else noteOff(e.ch, e.n)
+    if (++track.i === track.ev.length) { track.i = 0; track.lap++ }
+  }
+  for (; track.six * six <= p; track.six++) if (!clock.running) sampleTick(track.six * 6, now - (p - track.six * six), six / 6, 'demo')
+}
+
 const AEOLIAN = [0, 2, 3, 5, 7, 8, 10]
 const degree = (d, base) => base + 12 * Math.floor(d / 7) + AEOLIAN[((d % 7) + 7) % 7]
 const demo = { on: false, bpm: 84, next: 0, step: 0, drone: [], lead: -1, leadLeft: 0, phrase: 0, leadDeg: 7 }
 function demoTick(now) {
   if (!demo.on) return
+  const ac = audio.ac
+  if (track.buf && !track.src && ac && ac.state === 'running') startTrack()
+  if (track.src) { trackTick(now); return }
   const six = 60000 / demo.bpm / 4
   if (now - demo.next > 1000) demo.next = now
   while (now >= demo.next) {
@@ -813,8 +1313,8 @@ function demoTick(now) {
 function setDemo(on) {
   demo.on = on
   $('demo').setAttribute('aria-pressed', String(on))
-  if (on) { demo.next = performance.now(); demo.step = 0; wake(true) }
-  else { allOff(-1); demo.drone = []; demo.lead = -1; demo.leadLeft = 0; demo.phrase = 0 }
+  if (on) { demo.next = performance.now(); demo.step = 0; wake(true); loadTrack() }
+  else { stopTrack(); allOff(-1); demo.drone = []; demo.lead = -1; demo.leadLeft = 0; demo.phrase = 0 }
   if (smp.from === 'demo') sampleRestart()   // not the FM-1's: its first note ends the demo
   say()
 }
@@ -858,7 +1358,14 @@ let sayTimer = 0
 function say(text) {
   const el = $('status')
   if (text) { el.textContent = text; return }
-  if (demo.on) { el.textContent = smp.buf ? 'Demo: a little of what the FM-1 plays, without its sound, and the sample in time with it.' : 'Demo: a little of what the FM-1 plays, without sound.'; return }
+  if (demo.on) {
+    const also = smp.buf ? ', and the sample in time with it' : ''
+    el.textContent = track.src ? `Demo: Skellig, as AISLING plays it on the FM-1${also}.`
+      : track.buf ? 'Demo: click or press a key to hear it.'
+      : track.loading ? 'Demo: fetching the sound of Skellig…'
+      : `Demo: a little of what the FM-1 plays, without its sound${also}.`
+    return
+  }
   if (!listening) { el.textContent = 'Plug in the FM-1 by USB, then press Listen.'; return }
   const all = inputs()
   if (!all.length) { el.textContent = 'No MIDI devices. Plug in the FM-1: it shows up as DUB-1 FM-1.'; return }
@@ -893,9 +1400,14 @@ if (EMBED) addEventListener('message', (e) => {
 
 /* ---------------- the brush: paint with a finger or the mouse ---------------- */
 const brushes = new Map()
-function layerAt(fy) {
+function layerAt(fx, fy) {
+  // deep space's layers all go everywhere, so the brush picks one by how far down: its zone
+  if (SC.space) return Math.max(0, LAYERS.findIndex((L) => L.zone && fy >= L.zone[0] && (fy < L.zone[1] || L.zone[1] === 1)))
+  // the seascape's cliffs are the Drone's, wherever they stand
+  const c = cliffAt(fx)
+  if (c && fy > c[0] && fy < c[1]) return LAYERS.findIndex((L) => L.cliff)
   let best = 0, bd = 9
-  LAYERS.forEach((L, i) => { const d = Math.abs(fy - (L.band[0] + L.band[1]) / 2) - (L.band[1] - L.band[0]) / 2; if (!L.extra && d < bd) { bd = d; best = i } })
+  LAYERS.forEach((L, i) => { const d = Math.abs(fy - (L.band[0] + L.band[1]) / 2) - (L.band[1] - L.band[0]) / 2; if (!L.extra && !L.cliff && d < bd) { bd = d; best = i } })
   return best
 }
 function push(x, y, du, dv, rad) {
@@ -913,7 +1425,7 @@ function push(x, y, du, dv, rad) {
 canvas.addEventListener('pointerdown', (e) => {
   if (!A || e.button > 0) return
   try { canvas.setPointerCapture(e.pointerId) } catch {}
-  const fx = clamp(e.clientX / W, 0, 1), fy = clamp(e.clientY / H, 0, 1), li = layerAt(fy), L = LAYERS[li]
+  const fx = clamp(e.clientX / W, 0, 1), fy = clamp(e.clientY / H, 0, 1), li = layerAt(fx, fy), L = LAYERS[li]
   const note = Math.round(L.range[0] + (L.range[1] - L.range[0]) * clamp((fx - 0.04) / 0.92, 0, 1))
   const b = spawn(li, note, 70 + 50 * (e.pressure || 0.5), [fx * NX, fy * NY])
   Object.assign(b, { held: true, brush: true, key: -2 })
@@ -949,7 +1461,7 @@ function compose(g, w, h) {
   const pat = g.createPattern(grainCanvas, 'repeat'), k = w / W
   pat.setTransform(new DOMMatrix().scale(k))
   g.globalCompositeOperation = 'overlay'
-  g.globalAlpha = 0.55
+  g.globalAlpha = SC.space ? 0.1 : 0.55
   g.fillStyle = pat
   g.fillRect(0, 0, w, h)
   g.globalCompositeOperation = 'source-over'
@@ -974,7 +1486,7 @@ function savePicture() {
   const g = c.getContext('2d')
   compose(g, c.width, c.height)
   g.font = `${Math.round(12 * k)}px "Helvetica Neue", Helvetica, Arial, sans-serif`
-  g.fillStyle = ground === 'night' ? 'rgba(236, 232, 240, .42)' : 'rgba(28, 26, 33, .5)'
+  g.fillStyle = GROUNDS[ground].dark ? 'rgba(236, 232, 240, .42)' : 'rgba(28, 26, 33, .5)'
   g.textAlign = 'right'
   g.textBaseline = 'bottom'
   g.fillText(`AISLING  ${new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}`, c.width - 14 * k, c.height - 10 * k)
@@ -1290,6 +1802,7 @@ addEventListener('drop', (e) => {
 const rec = { mr: null, chunks: [], c: null, g: null, t0: 0, shown: -1, asking: false, mix: null }
 function endMix() {
   if (rec.mix && smp.gain) try { smp.gain.disconnect(rec.mix) } catch {}
+  if (rec.mix && track.gain) try { track.gain.disconnect(rec.mix) } catch {}
   rec.mix = null
 }
 async function record() {
@@ -1305,15 +1818,18 @@ async function record() {
   rec.g = rec.c.getContext('2d')
   compose(rec.g, rec.c.width, rec.c.height)
   const ac = audioCtx()
-  say('Looking for the FM-1\'s sound (allow the microphone: the FM-1 arrives as one)…')
   let s = null
-  rec.asking = true
-  try { s = await fm1Sound() } catch {}
-  rec.asking = false
-  // the FM-1 and the sample, mixed into one sound for the file (a recorder keeps only the first of two)
+  if (!track.src) {   // the demo's sound is the page's own: no FM-1 to ask for
+    say('Looking for the FM-1\'s sound (allow the microphone: the FM-1 arrives as one)…')
+    rec.asking = true
+    try { s = await fm1Sound() } catch {}
+    rec.asking = false
+  }
+  // the FM-1 (or the demo) and the sample, mixed into one sound for the file (a recorder keeps only the first of two)
   try { rec.mix = ac ? ac.createMediaStreamDestination() : null } catch { rec.mix = null }
   if (s) hearSound(s)
   if (rec.mix && smp.gain) smp.gain.connect(rec.mix)
+  if (rec.mix && track.gain) track.gain.connect(rec.mix)
   const heard = rec.mix ? rec.mix.stream.getAudioTracks() : s ? s.stream.getAudioTracks() : []
   const tracks = [...rec.c.captureStream(30).getVideoTracks(), ...heard]
   const type = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
@@ -1340,7 +1856,8 @@ async function record() {
   $('record').setAttribute('aria-pressed', 'true')
   wake(true)
   const also = smp.buf && rec.mix ? ` and ${smp.name}` : ''
-  say(s ? `Recording, with the sound from ${s.name}${also}.`
+  say(track.src && rec.mix ? `Recording, with the demo's sound${also}.`
+      : s ? `Recording, with the sound from ${s.name}${also}.`
         : also ? `Recording, with ${smp.name} but not the FM-1: no FM-1 audio input was found (or the microphone was not allowed).`
         : 'Recording without the FM-1\'s sound: no FM-1 audio input was found (or the microphone was not allowed). A sample added now is recorded.')
 }
@@ -1364,12 +1881,14 @@ async function wake(on) {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (listening || demo.on)) wake(true) })
 
 // the ground button names the next ground; a choice is kept only when the viewer makes it (pages before vellum saved
-// night on every visit, under the old key, so that key is not read)
+// night on every visit, under the old key, so that key is not read). It is the landscape's: the seascape has its own
 const NEXT_GROUND = { vellum: 'mist', mist: 'night', night: 'vellum' }
+let landGround = 'vellum'
 function setGround(g, picked) {
-  ground = g
-  document.documentElement.dataset.ground = g
-  document.querySelector('meta[name="theme-color"]').content = GROUNDS[g].theme
+  landGround = g
+  ground = SC.ground || g
+  document.documentElement.dataset.ground = ground
+  document.querySelector('meta[name="theme-color"]').content = GROUNDS[ground].theme
   const next = NEXT_GROUND[g]
   $('ground').textContent = next[0].toUpperCase() + next.slice(1)
   if (A) paintGround()
@@ -1379,14 +1898,35 @@ function setGround(g, picked) {
 let palette = 'heather'
 function setPalette(name, picked) {
   palette = name
-  PALETTES[name].forEach((st, i) => { LAYERS[i].stops = st; LAYERS[i].rgb = st.map(hex) })
+  const sets = SC.colours || PALETTES[name]
+  sets.forEach((st, i) => { LAYERS[i].stops = st; LAYERS[i].rgb = st.map(hex) })
   legend()
   if (picked) { store.set('aisling-vis-palette', name); say(`The colours: ${name[0].toUpperCase()}${name.slice(1)}.`) }
+}
+
+// the scene button names the next scene. What is painted fades back, and the notes held move to their new places
+// in their new colours, so the new scene shows at once
+function setScene(name, picked) {
+  SC = SCENES[name]
+  SC.layers.forEach((s, i) => Object.assign(LAYERS[i], PLAIN, s))
+  flares.length = 0
+  comet.x = -1
+  $('scene').textContent = SC.next[0].toUpperCase() + SC.next.slice(1)
+  $('what').textContent = `The FM-1's four layers painted as ${SC.what}.`
+  $('ground').hidden = $('colours').hidden = !!SC.ground
+  if (A) shore()
+  setGround(landGround)
+  setPalette(palette)
+  if (A) {
+    for (let i = 0; i < A.length; i++) { A[i] *= 0.3; CR[i] *= 0.3; CG[i] *= 0.3; CB[i] *= 0.3 }
+    for (const [key, b] of held) { b.on = false; const nb = spawn(b.li, b.note, b.vel); nb.key = key; held.set(key, nb) }
+  }
+  if (picked) { store.set('aisling-vis-scene', name); say(`The scene: ${SC.what}.`) }
 }
 function legend() {
   const ul = $('legend'), sample = $('slegend')
   ul.replaceChildren()
-  for (const L of LAYERS.slice().sort((a, b) => !!a.extra - !!b.extra || a.band[0] - b.band[0])) {
+  for (const L of LAYERS.slice().sort((a, b) => !!a.extra - !!b.extra || (a.order ?? a.band[0]) - (b.order ?? b.band[0]))) {
     const li = document.createElement('li'), sw = document.createElement('i')
     sw.style.setProperty('--c', `linear-gradient(90deg, ${L.stops.join(', ')})`)
     li.append(sw, `${L.name}: ${L.place}`)
@@ -1406,7 +1946,8 @@ for (const ev of ['pointermove', 'pointerdown', 'keydown', 'focusin']) addEventL
 
 $('listen').addEventListener('click', listen)
 $('demo').addEventListener('click', () => setDemo(!demo.on))
-$('ground').addEventListener('click', () => setGround(NEXT_GROUND[ground], true))
+$('scene').addEventListener('click', () => setScene(SC.next, true))
+$('ground').addEventListener('click', () => setGround(NEXT_GROUND[landGround], true))
 $('colours').addEventListener('click', () => setPalette(NEXT_PALETTE[palette], true))
 $('full').addEventListener('click', toggleFull)
 $('save').addEventListener('click', savePicture)
@@ -1426,8 +1967,9 @@ addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return
   const k = e.key.toLowerCase()
   if (k === 'f') toggleFull()
-  else if (k === 'm') setGround(NEXT_GROUND[ground], true)
-  else if (k === 'c') setPalette(NEXT_PALETTE[palette], true)
+  else if (k === 'v') setScene(SC.next, true)
+  else if (k === 'm' && !SC.ground) setGround(NEXT_GROUND[landGround], true)
+  else if (k === 'c' && !SC.colours) setPalette(NEXT_PALETTE[palette], true)
   else if (k === 'd') setDemo(!demo.on)
   else if (k === 's') savePicture()
   else if (k === 'r') record()
@@ -1436,7 +1978,9 @@ addEventListener('keydown', (e) => {
 })
 
 const params = new URLSearchParams(location.search)
-const isGround = (g) => Object.hasOwn(GROUNDS, g ?? '')
+const isScene = (n) => Object.hasOwn(SCENES, n ?? '')
+setScene(isScene(params.get('scene')) ? params.get('scene') : isScene(store.get('aisling-vis-scene')) ? store.get('aisling-vis-scene') : 'landscape')
+const isGround = (g) => Object.hasOwn(NEXT_GROUND, g ?? '')
 setGround(isGround(params.get('ground')) ? params.get('ground') : isGround(store.get('aisling-vis-ground-picked')) ? store.get('aisling-vis-ground-picked') : 'vellum')
 const isPalette = (n) => Object.hasOwn(PALETTES, n ?? '')
 setPalette(isPalette(params.get('palette')) ? params.get('palette') : isPalette(store.get('aisling-vis-palette')) ? store.get('aisling-vis-palette') : 'heather')
