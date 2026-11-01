@@ -100,7 +100,7 @@ const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PAR
  *  1 for the voices that like the 9th (Strings, Harmonium, Glass: regrow). The moves (filter motion spec 9): MW/MT/MR/MI
  *  a layer's Width, Time, Rate and Intro in bars (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2, 4 Atmosphere; the
  *  Sequence's Width is Sweep); the Lead's Width kept low; Bridge the middle section's move. Memory: how much the Lead
- *  keeps its ideas; Ornament: how often its notes are graced, Aran's Chanter most, Tir na nOg's least; Lead air: the
+ *  keeps its ideas; Ornament: how often its notes are graced, Blasket's Voice most, Tir na nOg's least; Lead air: the
  *  piece's air, its theme, AIRS) */
 static const int16_t PC_SKELLIG[] = {         /* Skellig Michael, off Kerry: the sea under a drone on D, a harp's slow
                                                 * ostinato in threes (12 sixteenths, every third accented), a whistle;
@@ -129,14 +129,14 @@ static const int16_t PC_BURREN[] = {          /* the Burren, Clare: bare limesto
     P_MW0, 25, P_MR0, 20, P_MW3, 30, P_MR3, 35, P_MW4, 35, P_MR4, 25,
     P_MI1, 8, P_ARC, 25, P_MOTION, 45, P_LMEM, 55, -1};
 static const int16_t PC_ARAN[] = {            /* Inis Mor: a reed drone on A, a bouzouki in a jig's threes over a
-                                                * bodhran's slip jig of nine, a chanter, a turf fire;
+                                                * bodhran's slip jig of nine, a flute, a turf fire;
                                                 * Am and G in turn, eight bars each */
     P_TEMPO, 96, P_ROOT, 9, P_MODE, MODE_DORIAN,
     P_SVOICE, 6, P_SEQLEN, 12, P_DENSITY, 65, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
     P_SEQ, 59, P_SEQ2, 35, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 80, P_MI3, 8,
     P_CHORD, 46, P_CVOICE, 3, P_CCOL, -15, P_PEDAL, 85, P_PHASER, 10, P_DRIFT, 2,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
-    P_LEAD, 76, P_LVOICE, 5, P_LTONE, 55, P_VIB, 5, P_GLIDE, 5, P_LDENS, 95, P_LDIN, 4, P_ORN, 50, P_AIR, 3,
+    P_LEAD, 76, P_LVOICE, 2, P_VIB, 12, P_GLIDE, 15, P_LDENS, 95, P_LDIN, 4, P_ORN, 35, P_AIR, 3,
     P_NCHAR, 7, P_CRACKLE, 7,
     P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 30, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
     P_ARC, 25, P_MOTION, 55, P_LMEM, 70, -1};
@@ -183,15 +183,17 @@ static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: 
     P_MI0, 8, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
 static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; an organ on G in the gapped minor (no
                                                 * sixth), a harp in a slip jig's nine over a bodhran's eight (three,
-                                                * three and two, darker than Aran's), a fiddle held back; Gm and F in
-                                                * turn, sixteen bars each */
+                                                * three and two, darker than Aran's), a flute held back and low (two
+                                                * octaves down, under a real flute's range), all in a big room with a
+                                                * long echo; Gm and F in turn, sixteen bars each */
     P_TEMPO, 92, P_ROOT, 7, P_MODE, MODE_HEX_MIN,
     P_SVOICE, 5, P_SEQLEN, 9, P_DENSITY, 60, P_SACC0, 0x49, P_DECAY, 75,
     P_SEQ, 59, P_SEQ2, 45, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_SACC1, 0x49, P_S2DEC, 75, P_S2CUT, 0,
     P_MI3, 8,
     P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6,
-    P_LEAD, 60, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4, P_ORN, 35, P_AIR, 7,
+    P_LEAD, 70, P_LVOICE, 2, P_LOCT, -2, P_VIB, 12, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4, P_ORN, 30, P_AIR, 7,
+    P_REVERB, 55, P_SIZE, 85, P_ECHO, 70, P_FEEDBACK, 75,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 30, P_MR0, 30, P_MW3, 30, P_MR3, 35, P_BRIDGE, 40,
     P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
