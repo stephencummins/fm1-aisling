@@ -182,14 +182,16 @@ static const int16_t PC_SAMHAIN[] = {         /* Samhain, the year's dark turn: 
     P_MW0, 45, P_MT0, 70, P_MR0, 40, P_MW2, 10, P_BRIDGE, 30,
     P_MI0, 8, P_ARC, 15, P_MOTION, 35, P_LMEM, 40, -1};
 static const int16_t PC_CONNEMARA[] = {       /* Connemara: bog, lake and rain; an organ on G in the gapped minor (no
-                                                * sixth), a harp in a slip jig's nine over another of eight an octave
-                                                * down, a fiddle; Gm and F in turn, sixteen bars each */
+                                                * sixth), a harp in a slip jig's nine over a bodhran's eight (three,
+                                                * three and two, darker than Aran's), a fiddle held back; Gm and F in
+                                                * turn, sixteen bars each */
     P_TEMPO, 92, P_ROOT, 7, P_MODE, MODE_HEX_MIN,
     P_SVOICE, 5, P_SEQLEN, 9, P_DENSITY, 60, P_SACC0, 0x49, P_DECAY, 75,
-    P_SEQ, 59, P_SEQ2, 42, P_S2VOICE, 6, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_S2DEC, 85, P_MI3, 8,
+    P_SEQ, 59, P_SEQ2, 45, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 8, P_SACC1, 0x49, P_S2DEC, 75, P_S2CUT, 0,
+    P_MI3, 8,
     P_CHORD, 38, P_CVOICE, 0, P_PEDAL, 80, P_PHASER, 35, P_DRIFT, 3,
     P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 6,
-    P_LEAD, 76, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4, P_ORN, 35, P_AIR, 7,
+    P_LEAD, 60, P_LVOICE, 6, P_LTONE, 50, P_VIB, 15, P_GLIDE, 30, P_LDENS, 95, P_LDIN, 4, P_ORN, 35, P_AIR, 7,
     P_NCHAR, 6, P_CRACKLE, 7,
     P_MW0, 30, P_MR0, 30, P_MW3, 30, P_MR3, 35, P_BRIDGE, 40,
     P_ARC, 20, P_MOTION, 50, P_LMEM, 50, -1};
@@ -781,6 +783,7 @@ static int chord_slot = -1;                     /* the slot whose chord sounds (
 typedef struct {
     uint8_t note;
     float ph, ph2, dt, gl, gr, s[2], f1[2], f2[2], vp;   /* (vp: Choir's slow drift, its phase; Pipes' tenor drone's) */
+    float fy0, fy1;                              /* (the Harmonium's last two outputs at half the rate: render_drone) */
 } drv_t;
 static drv_t drv[2][NDR];
 static uint8_t dr_bank, dr_on[2];
@@ -788,6 +791,7 @@ static uint8_t ch_live;                          /* (Choir, below) 0: from rest 
                                                   * should be) */
 static float dr_lvl[2], dr_up = 0.0001f, dr_down = 0.00005f, ph_depth, ph_lfo, phz[2][6], ph_last[2];
 static float hm_ph, hm_ph2;                      /* (Harmonium) the bellows: two slow turns, a swell from both */
+static uint32_t hm_n;                            /* (Harmonium) the samples rendered: its half rate's parity */
 static uint32_t dr_rng = 0x6A09E667u;
 static float dr_pedal = 0.7f, dr_rev = 1.0f, dr_echo = 1.0f;   /* (the pedal's level; the sends, x1 at 50) */          /* (its own: the voices' phases leave the music's draws alone) */
 
@@ -827,6 +831,7 @@ static void drone_chord(void)                    /* the chord as voiced (stab[].
         v->ph2 = (float)(seq_rand(&dr_rng) >> 8) * (1.0f / 16777216.0f);
         v->vp = v->ph;                           /* (Choir's drift from a place of its own: no new draw, so every
                                                   * voice's phases stay as they were) */
+        v->fy0 = v->fy1 = 0.0f;
         v->gl = fm_cosf(p);
         v->gr = fm_sinf(p);
         if (dr_heard())
@@ -1580,32 +1585,51 @@ static float ks2_string(float dt, float s, float lad, int nl, uint16_t *r, float
                        fm_sqrtf((1.0f - 2.0f * s * (1.0f - s) * cw) * (1.0f - 2.0f * *fr * (1.0f - *fr) * cw)),
                    0.9995f);
 }
+/* the burst's sample i of nb before its one-pole, its dice from *r: the hammer's raised cosine (h0, hw) or the
+ * plectrum's triangle (apex), the noise on it. (The hammer's place divided out only near it, the same there: the
+ * FM-1's CPU, a low note's line some 1400 samples, two passes over it, a division each) */
+static float ks2_x(int i, int nb, int hammer, uint32_t *r, float apex, float h0, float hw)
+{
+    float x;
+    *r = *r * 1664525u + 1013904223u;
+    x = (float)(int32_t)*r * (1.0f / 2147483648.0f);
+    if (hammer) {
+        const float d = (float)i - h0, u = d >= 0.0f && d < 2.0f * hw ? d / hw : -1.0f;
+        x = 0.92f * (u >= 0.0f && u < 1.0f ? 0.5f - 0.5f * fm_cosf(FM_TWO_PI * u) : 0.0f) + 0.08f * x;
+    } else
+        x = 0.7f * ((float)i < apex ? (float)i / apex : (float)(nb - i) / ((float)nb - apex)) + 0.3f * x;
+    return x;
+}
 /* the burst through the one-pole b, its dice from *rng: into the nb samples under top, less m, times g (the line's
- * units); or top NULL, its mean into *m and its variance back */
-static float ks2_burst(int16_t *top, int nb, float b, int hammer, uint32_t *rng, float g, float *m)
+ * units) */
+static void ks2_burst(int16_t *top, int nb, float b, int hammer, uint32_t *rng, float g, float m)
 {
     const float apex = 0.13f * (float)nb, h0 = 0.03f * (float)nb, hw = fm_maxf(0.12f * (float)nb, 3.0f);
-    float lp = 0.0f, s = 0.0f, s2 = 0.0f;
+    float lp = 0.0f;
     uint32_t r = *rng;
     int i;
     for (i = 0; i < nb; i++) {
-        const float u = ((float)i - h0) / hw;
-        float x;
-        r = r * 1664525u + 1013904223u;
-        x = (float)(int32_t)r * (1.0f / 2147483648.0f);
-        if (hammer)
-            x = 0.92f * (u >= 0.0f && u < 1.0f ? 0.5f - 0.5f * fm_cosf(FM_TWO_PI * u) : 0.0f) + 0.08f * x;
-        else
-            x = 0.7f * ((float)i < apex ? (float)i / apex : (float)(nb - i) / ((float)nb - apex)) + 0.3f * x;
-        lp += b * (x - lp);
-        if (top)
-            top[-1 - i] = (int16_t)((lp - *m) * g);
-        else
-            s += lp, s2 += lp * lp;
+        lp += b * (ks2_x(i, nb, hammer, &r, apex, h0, hw) - lp);
+        top[-1 - i] = (int16_t)((lp - m) * g);
     }
     *rng = r;
-    if (top)
-        return 0.0f;
+}
+/* the burst's mean (*m) and variance (back) through the one-pole b, and its variance through KS2_BREF's (*vr): the
+ * two from one pass of the dice from rng */
+static float ks2_var(int nb, float b, int hammer, uint32_t rng, float *m, float *vr)
+{
+    const float apex = 0.13f * (float)nb, h0 = 0.03f * (float)nb, hw = fm_maxf(0.12f * (float)nb, 3.0f);
+    float lp = 0.0f, s = 0.0f, s2 = 0.0f, lq = 0.0f, q = 0.0f, q2 = 0.0f, mq;
+    int i;
+    for (i = 0; i < nb; i++) {
+        const float x = ks2_x(i, nb, hammer, &rng, apex, h0, hw);
+        lq += KS2_BREF * (x - lq);
+        q += lq, q2 += lq * lq;
+        lp += b * (x - lp);
+        s += lp, s2 += lp * lp;
+    }
+    mq = q / (float)nb;
+    *vr = q2 / (float)nb - mq * mq;
     *m = s / (float)nb;
     return s2 / (float)nb - *m * *m;
 }
@@ -1615,12 +1639,9 @@ static float ks2_burst(int16_t *top, int nb, float b, int hammer, uint32_t *rng,
 static void ks2_fill(int16_t *top, int nb, float b, int hammer)
 {
     uint32_t r = ks_rng;
-    float m, vr = ks2_burst(0, nb, KS2_BREF, hammer, &r, 0.0f, &m), v;
-    r = ks_rng;
-    v = ks2_burst(0, nb, b, hammer, &r, 0.0f, &m);
-    r = ks_rng;
-    (void)ks2_burst(top, nb, b, hammer, &r, KS_Q * fm_sqrtf(vr / fm_maxf(v, vr * (1.0f / 64.0f))), &m);   /* (at
-                                                  * most 8 times: the darkest, as the Harp's darkest, dark) */
+    float m, vr, v = ks2_var(nb, b, hammer, ks_rng, &m, &vr);
+    ks2_burst(top, nb, b, hammer, &r, KS_Q * fm_sqrtf(vr / fm_maxf(v, vr * (1.0f / 64.0f))), m);   /* (at most 8
+                                                  * times: the darkest, as the Harp's darkest, dark) */
     ks_rng = r;
 }
 static void ks2_strike(pluck_t *v, int16_t *line)
@@ -4251,7 +4272,8 @@ void en_init(void)
     dr_on[0] = dr_on[1] = dr_midi[0] = dr_midi[1] = 0;
     dr_lvl[0] = dr_lvl[1] = 0.0f;
     ch_live = 0;                                 /* (Choir from rest) */
-    hm_ph = hm_ph2 = 0.0f;                       /* (AISLING: the Harmonium's bellows from the top) */
+    hm_ph = hm_ph2 = 0.0f;                       /* (AISLING: the Harmonium's bellows from the top, its half rate too) */
+    hm_n = 0;
     plate_init();
     for (i = 0; i < TAPE_N; i++)
         tape[i] = 0;
@@ -5876,7 +5898,8 @@ int en_dr_ok(void)                               /* (host tests) the Drone's voi
         for (i = 0; i < NDR; i++) {
             const drv_t *v = &drv[b][i];
             ok &= ks_fine(v->ph) & ks_fine(v->ph2) & ks_fine(v->vp) & ks_fine(v->s[0]) & ks_fine(v->s[1]) &
-                  ks_fine(v->f1[0]) & ks_fine(v->f1[1]) & (v->ph >= 0.0f && v->ph < 1.0f) &
+                  ks_fine(v->f1[0]) & ks_fine(v->f1[1]) & ks_fine(v->fy0) & ks_fine(v->fy1) &
+                  (v->ph >= 0.0f && v->ph < 1.0f) &
                   (v->ph2 >= 0.0f && v->ph2 < 1.0f) & (v->vp >= 0.0f && v->vp < 1.0f);
         }
     return ok;
@@ -6021,7 +6044,8 @@ static void render_drone(uint32_t n)
     const int cv = cvoice < EN_NCV ? cvoice : 0;
     float g = mutes & EN_M_CHORD ? 0.0f : chord_vol * 0.072f, fc = 1800.0f * fm_exp2f(2.0f * rel(P_CCOL)) * fo_mul(FO_DRONE);
     const float k = fm_clampf(1.2f - 0.9f * rel(P_CRES), 0.2f, 2.0f);
-    float c[4], cf1[4], cf2[4];
+    const uint32_t hm_odd = hm_n & 1u;
+    float c[4], ch[4], cf1[4], cf2[4];
     uint32_t j;
     int b, i;
     if (!dr_on[0] && !dr_on[1] && dr_lvl[0] <= 0.0f && dr_lvl[1] <= 0.0f) {
@@ -6040,6 +6064,8 @@ static void render_drone(uint32_t n)
             hm_ph2 -= 1.0f;
     }
     svf_coefs(c, fc, k);
+    if (cv == 3)
+        svf_coefs(ch, 2.0f * fc, k);             /* (the Harmonium's low-pass at half the rate) */
     svf_coefs(cf1, 700.0f, 1.0f);                /* (Pipes: the regulators' formant, low and soft (the user: a fifth
                                                   * pulse at 1.3 kHz was harsh; 1-2 kHz now 6 dB down); the drones' buzz) */
     svf_coefs(cf2, 700.0f, 0.8f);
@@ -6081,17 +6107,24 @@ static void render_drone(uint32_t n)
                     }
                     break;
                 }
-                case 3: {                        /* Harmonium: a free reed, a saw and a pulse in one, two ranks */
-                    float u = v->ph + 0.3f, u2 = v->ph2 + 0.3f;
-                    const float d2 = v->dt * 1.003f;
-                    if (u >= 1.0f)
-                        u -= 1.0f;
-                    if (u2 >= 1.0f)
-                        u2 -= 1.0f;
-                    x = 0.5f * (blep_saw(v->ph, v->dt) - 0.7f * blep_saw(u, v->dt) +
-                                0.7f * (blep_saw(v->ph2, d2) - 0.7f * blep_saw(u2, d2)));
+                case 3:                          /* Harmonium: a free reed, a saw and a pulse in one, two ranks; at
+                                                  * half the rate with its low-pass, every other sample between two
+                                                  * (the FM-1's CPU: four saws a voice, ten voices in a crossfade;
+                                                  * the Drone's notes are low, Colour's low-pass on them) */
+                    if (!((j ^ hm_odd) & 1u)) {
+                        float u = v->ph + 0.3f, u2 = v->ph2 + 0.3f;
+                        const float d = 2.0f * v->dt, d2 = d * 1.003f;
+                        if (u >= 1.0f)
+                            u -= 1.0f;
+                        if (u2 >= 1.0f)
+                            u2 -= 1.0f;
+                        v->fy0 = v->fy1;
+                        v->fy1 = svf_lp(ch, v->s, 0.5f * (blep_saw(v->ph, d) - 0.7f * blep_saw(u, d) +
+                                                          0.7f * (blep_saw(v->ph2, d2) - 0.7f * blep_saw(u2, d2))), &bp);
+                        x = v->fy0;
+                    } else
+                        x = 0.5f * (v->fy0 + v->fy1);
                     break;
-                }
                 default: x = sine(v->ph + 2.0f + 0.7f * sine(v->ph2)); break;
                 }
                 v->ph += v->dt;
@@ -6100,13 +6133,16 @@ static void render_drone(uint32_t n)
                 v->ph2 += P2[cv] * v->dt;
                 if (v->ph2 >= 1.0f)
                     v->ph2 -= (float)(int)v->ph2;
-                x = svf_lp(c, v->s, x, &bp) * a * (i == EN_NPAD ? dr_pedal : 1.0f);
+                if (cv != 3)                     /* (the Harmonium's low-pass: above, at half the rate) */
+                    x = svf_lp(c, v->s, x, &bp);
+                x = x * a * (i == EN_NPAD ? dr_pedal : 1.0f);
                 drl[j] += x * v->gl;
                 drr[j] += x * v->gr;
             }
         }
         dr_lvl[b] = lvl;
     }
+    hm_n += n;
     if (cv == 1 || cv == CV_CHOIR) {             /* Strings and Choir: the ensemble */
         const float r = 0.6f * (1.0f / EN_SR), r2 = 6.0f * (1.0f / EN_SR);
         for (j = 0; j < n; j++) {
