@@ -14,7 +14,7 @@ By CU_STE · [www.stephen8n.com](https://www.stephen8n.com)
 ## What?
 
 AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps over a held drone, and a flute, a
-fiddle, a chanter or a voice leading, in the old modes, with the weather of the west coast behind them. It plays
+fiddle or a voice leading, in the old modes, with the weather of the west coast behind them. It plays
 itself from the moment it's switched on, and it never ends. You can play with it: the white keys give you the Lead,
 always in the piece's scale, and it answers you. (An *aisling*, said "ash-ling", is an Irish vision poem.)
 
@@ -58,13 +58,13 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 
 | # | Piece | Named for | Key, tempo | What you hear |
 |---|---|---|---|---|
-| 1 | Skellig | Skellig Michael, off Kerry | D minor, 76 | An organ drone, one harp in a jig's threes, the surf; Dm and C in turn |
+| 1 | Skellig | Skellig Michael, off Kerry | D minor, 76 | The pipes' drones, one harp in a jig's threes, a flute, the surf; Dm and C in turn |
 | 2 | Burren | The Burren, Clare | G Mixolydian, 84 | A choir, two harps of 12 and 11 drifting apart, a fiddle's slow air, the wind |
-| 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a bouzouki's jig of 12 over a bodhrán's slip jig of 9, the chanter, a turf fire; Am and G in turn |
+| 3 | Aran | Inis Mór | A Dorian, 96 | A reed drone, a bouzouki's jig of 12 over a bodhrán's slip jig of 9, a flute, a turf fire; Am and G in turn |
 | 4 | Carolan | Turlough O'Carolan, the harper | D major, 88 | Strings, two harps of 16 and 15, rain, a planxty's chords |
 | 5 | Blasket | The Blasket Islands, Kerry | E Dorian, 70 | A choir, slow dulcimers, a singer's slow air over the surf; Em and D in turn |
-| 6 | Samhain | The year's dark turn | B minor, 64 | A low, beating organ, one low harp over a bodhrán's heartbeat, a low voice, the wind |
-| 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a slip jig's 9 over 8, a fiddle, rain; Gm and F in turn |
+| 6 | Samhain | The year's dark turn | B minor, 64 | The pipes' drones, low and beating, one low harp over a bodhrán's heartbeat, a low voice, the wind |
+| 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a harp's slip jig of 9 over a low bodhrán's 8, a low flute held back in a long echo, rain; Gm and F in turn |
 | 8 | Tir na nOg | The land of the young, over the western sea | D hexatonic major, 80 | A phased glass drone, two harps, a long reverb, a curlew far out over the bog; D and G in turn |
 
 The keys, modes and tempos are starting points, tuned by ear. Each piece's Lead opens on an air, the first phrase of a
@@ -75,7 +75,7 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 
 | | |
 |---|---|
-| White keys | Play the Lead (the piece's flute, fiddle, chanter or voice), in the piece's scale (the key it sounds is lit) |
+| White keys | Play the Lead (the piece's flute, fiddle or voice), in the piece's scale (the key it sounds is lit) |
 | Black keys | Eleven effects, each while held (lit; dark while held): Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, then Rise, Close, Transpose (in PERFORM: the solos) |
 | PLAY · REC · EDIT | Play / rest · a tap: hold (the echo repeats what it holds), held: the effects grid (16 effects on the white keys) · a tap: the Chords page, held: the next chord |
 | SEL | PERFORM: the knobs Filter, Wet, Energy, Sweep; white 1–5 mute the Drone, Sequence, Lead, Sequence 2, Atmosphere; black 1–5 solo them; white 6 held: the levels; white 7–11 held: Sweep, Open, Shut, Drop (both sequences out), Echo; the top key (G): the Lead forgets its ideas and its theme. Held: Lock |

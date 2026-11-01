@@ -1,7 +1,7 @@
 # AISLING
 
 AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps over a held drone, and a flute, a
-fiddle, a chanter or a voice leading, in the old modes, with the weather of the west coast behind them. It plays
+fiddle or a voice leading, in the old modes, with the weather of the west coast behind them. It plays
 itself from the moment it's switched on. A harp's ostinato runs over the drone, often in a jig's threes, its notes
 repeated by the echo; a second harp, a step shorter and an octave down, drifts against it like the harper's other
 hand; the Lead plays long phrases far back in the reverb; surf, wind, rain, a turf fire or a curlew pass behind. The chords
@@ -70,14 +70,14 @@ updater, M-UPGRADE, puts the stock firmware back. M-UPGRADE shows AISLING as v14
 
 AISLING starts playing as soon as it's on. A few minutes with it:
 
-1. **Listen.** The first piece, Skellig (D minor, 76), begins with its drone, an organ on D, and the surf.
+1. **Listen.** The first piece, Skellig (D minor, 76), begins with its drone, the pipes' drones on D, and the surf.
    Its harp is there from the start, twelve notes with every third accented (a jig's lilt), behind a closed
    filter that opens over the first 8 bars (about 25 seconds). Then the harp runs, its notes repeated by the
    echo, and within the first minute the flute comes in. Nothing is hidden: no layer is turned down behind your back, only filters move. Turn
    MASTER for the volume.
 2. **Try another piece.** Turn PRESETS. Each of the eight has its own key, tempo, voices, sequences and
-   arc. Aran and Carolan start their strings at once (Aran's a bouzouki over a bodhrán); Skellig and Samhain
-   have one harp only (Samhain's over a bodhrán's heartbeat), and in Samhain even the drone opens slowly out of
+   arc. Aran and Carolan start their strings at once (Aran's a bouzouki over a bodhrán); Skellig, Samhain and
+   Connemara have one harp only (Samhain's over a bodhrán's heartbeat, Connemara's over a low bodhrán), and in Samhain even the drone opens slowly out of
    the dark.
 3. **Play the lead.** Press a white key: the lead plays that step of the scale, from the root up, and its
    key lights while it sounds. It glides from note to note, deep in the reverb and the echo. Play three notes or more
@@ -236,8 +236,8 @@ phaser sweeps it slowly (**Phaser**). The chord walks from degree to degree ever
 breath, and a chiff as each note starts; the **Chanter** a nasal reed, bright as each note starts, each note stopped
 and opened again, and let go short; the **Fiddle** a bowed string through its body, the bow's hiss loudest as each
 note starts; the **Voice** a singer's, its vowel easing from note to note (Tone opens it). The four are matched in
-loudness. Skellig, Carolan and Tir na nOg play the Flute, Burren and Connemara the Fiddle, Aran the Chanter,
-Blasket and Samhain the Voice.
+loudness. Skellig, Aran, Carolan, Connemara and Tir na nOg play the Flute, Burren the Fiddle, Blasket and Samhain
+the Voice; the Chanter is there to choose.
 
 Its notes are ornamented, as trad players do. **Ornament** (0–100) is the chance that a note an eighth or longer
 gets one: a **cut** (a grace note a step above, about 30 ms), a **tap** (the same from below), a **roll** on a long
@@ -386,7 +386,7 @@ filter's usable range.
 ## 7. The pieces
 
 Each piece is a place in the west, or a harper, and each plays the same band: a drone, one or two harps (the
-Sequence and Sequence 2), the Lead (a flute, a fiddle, the chanter or a voice), and the weather behind. The Irish of it is in four things: the modes
+Sequence and Sequence 2; in Aran, Samhain and Connemara, Sequence 2 is a bodhrán), the Lead (a flute, a fiddle or a voice), and the weather behind. The Irish of it is in four things: the modes
 (major, Mixolydian, Dorian, minor, and two gapped scales of six notes), the drone held under everything, the double
 tonic (the chords swinging between two, a long while each: the Chords page in Loop) and the jig's threes (harps of
 12 and 9 steps, every third accented).
@@ -399,15 +399,15 @@ tonic (the chords swinging between two, a long while each: the Chords page in Lo
 | 4 | **Carolan** | Turlough O'Carolan, the blind harper (1670–1738) | D major, 88 | Two, of 16 and 15 sixteenths; the first straight in | Strings | Rain | A planxty's: I IV I V vi IV V I, 8 bars each |
 | 5 | **Blasket** | The Blasket Islands, Kerry, left in 1953 | E Dorian, 70 | Two slow dulcimers of 12 and 11; the second opens over 12 bars, after the first | Choir | Surf | Em and D in turn, 32 bars each |
 | 6 | **Samhain** | The year's dark turn | B minor, 64 | One low harp of 8 over a bodhrán's heartbeat of 8 (its first two steps, the rest ghosts) | Pipes, dark, opening over 8 bars | Wind | Bm, G, A, 32 bars each |
-| 7 | **Connemara** | Bog, lake and rain | G hexatonic minor (no sixth), 92 | A slip jig's 9 over 8, an octave down | Organ | Rain | Gm and F in turn, 16 bars each |
+| 7 | **Connemara** | Bog, lake and rain | G hexatonic minor (no sixth), 92 | A harp's slip jig of 9 over a low, dark bodhrán of 8 (three, three and two) | Organ; a long echo | Rain | Gm and F in turn, 16 bars each |
 | 8 | **Tir na nOg** | Tír na nÓg, the land of the young over the western sea | D hexatonic major (no seventh), 80 | Two, of 12 and 11 sixteenths | Glass, phased; a long reverb | Curlew, far out over the bog | D and G in turn, 16 bars each |
 
-In every piece but Aran (Bouzouki) and Blasket (Dulcimer) the Sequence plays the Harp. The Lead is the Flute in Skellig, Carolan and Tir na nOg, the Fiddle in Burren and
-Connemara, the Chanter in Aran and the Voice in Blasket and Samhain, coming in within the first minute (Lead in
-4 to 8 bars); its Width is low, so it stays gentle. Its **Memory** (the Arc page): Skellig 60, Burren 55, Aran 70,
-Carolan 70, Blasket 65, Samhain 40, Connemara 50, Tir na nOg 55 (Aran's chanter and Carolan's flute hold on to
-their ideas, Samhain's voice wanders). Its **Ornament**: Aran 50 (the chanter is the most graced), Blasket 45, Burren
-40, Skellig and Connemara 35, Carolan and Samhain 30, Tir na nOg 25. The keys are the pipes' and the whistle's (D, G, A, E, B). The keys, modes and tempos
+In every piece but Aran (Bouzouki) and Blasket (Dulcimer) the Sequence plays the Harp. The Lead is the Flute in Skellig, Aran, Carolan, Connemara (two octaves down) and Tir na nOg, the
+Fiddle in Burren and the Voice in Blasket and Samhain, coming in within the first minute (Lead in 4 to 8 bars); its
+Width is low, so it stays gentle. Its **Memory** (the Arc page): Skellig 60, Burren 55, Aran 70, Carolan 70,
+Blasket 65, Samhain 40, Connemara 50, Tir na nOg 55 (Aran's and Carolan's flutes hold on to their ideas, Samhain's
+voice wanders). Its **Ornament**: Blasket 45 (the voice is the most graced), Burren 40, Skellig and Aran 35,
+Carolan, Samhain and Connemara 30, Tir na nOg 25. The keys are the pipes' and the whistle's (D, G, A, E, B). The keys, modes and tempos
 are starting points, to be tuned by ear.
 
 Each piece's Lead opens on an air, its first theme: the opening of a public-domain tune, traditional or O'Carolan's,
@@ -668,7 +668,9 @@ must also share its source code.
   [AMB-1](https://github.com/charlesvestal/fm1-amb) by Charles Vestal (GPL-3.0-only), whose echo chain,
   plate, pieces system, chord walk, UI and platform they keep.
 - The music is Irish traditional music's, as heard: its modes, its drones, its double tonic, the jig's threes,
-  the harp, the flute, the fiddle, the chanter and the singing voice. No tune is quoted.
+  the harp, the flute, the fiddle, the chanter and the singing voice. Each piece's Lead opens on the first phrase of
+  an old air from Captain Francis O'Neill's *O'Neill's Music of Ireland* (Chicago, 1903), in the public domain;
+  [The pieces](#7-the-pieces) lists them.
 - NACHTFAHRT's way of playing a sequence (the root accented, sparse notes, a dotted-eighth repeat as loud as the
   note, two delays filling the spaces), which AISLING's harps keep, owes much to Synth Seeker's videos on Berlin
   School sequencing.
