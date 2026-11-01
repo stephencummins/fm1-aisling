@@ -37,17 +37,20 @@ remembers and answers) and changes what it plays:
   of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 0.1, a first test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 0.2, the second test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://stephencummins.github.io/fm1-aisling/install/), and
 in the [browser emulator](https://stephencummins.github.io/fm1-aisling/emu/), from the same code.
 
 **The visualiser.** [aisling.stephen8n.com](https://aisling.stephen8n.com) paints what the FM-1 plays as a west-coast
-landscape in oils: the Lead is the sky, Sequence 2 the hills, the Sequence the fields, the Drone the bog. Plug the FM-1
+landscape in oils: the Lead is the sky, Sequence 2 the hills, the Sequence the fields, the Drone the bog. Or as the
+Atlantic under the Cliffs of Moher at sunset, or as deep space, a comet drawn by the Lead. No FM-1? Demo plays a
+recording of Skellig and paints it as you hear it. Plug the FM-1
 into a computer or Android phone, open the page in Chrome or Edge and press Listen; it reads the FM-1's MIDI out
 (on by default) in your browser, and nothing is sent anywhere. You can paint into it with a finger or the mouse, save a
 picture, record a video with the FM-1's own sound from its USB audio, and drop a sound file on it to mix in: it loops in
 time with the FM-1 and paints as the weather. It is one file,
-[web/visualiser/index.html](web/visualiser/index.html), which also works opened straight from disk, offline.
+[web/visualiser/index.html](web/visualiser/index.html), with the demo's recording beside it, and it also works opened
+straight from disk, offline (there the demo paints without sound).
 
 **Saved pieces.** AISLING saves its eight pieces in the same place in the FM-1's memory as NACHTFAHRT, DUB-1 and
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds

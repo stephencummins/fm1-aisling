@@ -19,7 +19,7 @@ AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https:/
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 0.1, the first test version.** It runs on the FM-1 (install it from the web installer) and in the
+**This is 0.2, the second test version.** It runs on the FM-1 (install it from the web installer) and in the
 browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -579,15 +579,21 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
 
 [aisling.stephen8n.com](https://aisling.stephen8n.com) turns the MIDI out into a painting of the west of Ireland: the
 Lead's notes fall into the sky, Sequence 2's into the hills, the Sequence's into the fields and the Drone's into the bog.
-A note's pitch sets how far across it lands, how hard it's played how much paint, and the tempo the wind. Connect the FM-1 by USB, open the
+A note's pitch sets how far across it lands, how hard it's played how much paint, and the tempo the wind.
+The scene's button, which names the next (**Seascape** at first), or V turns the scene: the Atlantic under the Cliffs of Moher at sunset (the Lead the sky, Sequence 2 the
+swell, the Sequence the crests coming in, the Drone the cliffs), then deep space (the Drone a nebula's glow, the
+Sequence stars that flare where its notes land, Sequence 2 threads of gas, and the Lead a comet, up for a higher note
+and down for a lower), then the landscape again. Connect the FM-1 by USB, open the
 page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
-**Demo** paints without an FM-1. Paint into it with a finger or the mouse; **Save picture** keeps a still, and
+**Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
+page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save picture** keeps a still, and
 **Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
 USB audio appears). Drop a sound file on the page (or press **Add a sample**) to mix it in: a WAV, AIFF, FLAC or MP3
 loops out of the computer and paints as the weather, low sounds low and high sounds high. While the FM-1 plays (or the
 demo) **In time** fits it to the tempo like tape, to the nearest 1, 2, 4 … 64 beats, starting on the FM-1's Start and
 stopping with it; a sample longer than 30 seconds plays at its own speed. **Record** takes it too, mixed with the FM-1.
-Everything stays on your computer. Add `?clean` to the address for the painting alone, for a projector or a stream.
+Everything stays on your computer. Add `?clean` to the address for the painting alone, for a projector or a stream, and `?scene=seascape` or
+`?scene=space` to open on that scene.
 
 ### Screen reader
 
