@@ -32,10 +32,12 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #120f17; }
 :root[data-ground="mist"] body { background: #bdbab3; }
 :root[data-ground="vellum"] body { background: #ece2cb; }
 :root[data-ground="space"] body { background: #07070c; }
+:root[data-ground="water"] body { background: #14161a; }
 body { color: var(--ink); font: 400 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 #pool { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
 #grain { position: fixed; inset: 0; pointer-events: none; mix-blend-mode: overlay; opacity: .55; }
 :root[data-ground="space"] #grain { opacity: .1; }
+:root[data-ground="water"] #grain { opacity: .35; }
 #ui { position: fixed; top: 16px; left: 16px; width: min(25rem, calc(100% - 32px)); max-height: calc(100% - 32px);
       overflow: auto; box-sizing: border-box; padding: 14px 16px 12px; background: var(--panel); border: 1px solid var(--rule);
       border-radius: 8px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity .6s; }
@@ -58,6 +60,17 @@ button, select { font: inherit; color: var(--ink); background: var(--btn); borde
 select { max-width: 100%; }
 select option { color: #1c1a21; background: #fff; }
 button#listen { border-color: var(--accent); }
+/* the buttons: start, then the scene, then its look, then the quiet ones that keep what is painted */
+#buttons { display: grid; gap: 8px; margin: .7rem 0 .5rem; }
+#buttons .row { margin: 0; }
+#scene { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+#scene button { border: 0; border-radius: 0; }
+#scene button + button { border-left: 1px solid var(--rule); }
+#scene button:focus-visible { outline-offset: -2px; }
+#keep { gap: 2px; margin-left: -6px !important; }
+#keep button { background: none; border-color: transparent; padding: 7px 6px; color: var(--muted); }
+#keep button:hover { color: var(--ink); }
+#keep button[aria-pressed="true"] { background: var(--btn-on); border-color: var(--accent); color: var(--ink); }
 button[aria-pressed="true"] { background: var(--btn-on); border-color: var(--accent); }
 button#record[aria-pressed="true"]::before { content: ""; display: inline-block; width: .6em; height: .6em; border-radius: 50%;
                  background: #e0452f; margin-right: .45em; vertical-align: .05em; animation: blink 1.2s steps(2) infinite; }
@@ -76,8 +89,11 @@ kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-rad
 /* in the emulator's drawer: the emulator is the MIDI, so only the scene, the ground and colours, the picture and full
    screen, top right */
 body.embed #ui { top: 10px; right: 10px; left: auto; width: auto; padding: 6px; }
-body.embed #ui > :not(#buttons), body.embed #buttons > :not(#scene, #ground, #colours, #save, #full) { display: none; }
-body.embed #buttons { margin: 0; gap: 6px; }
+body.embed #ui > :not(#buttons), body.embed #start, body.embed #record, body.embed #sample { display: none; }
+body.embed #buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; margin: 0; gap: 6px; }
+body.embed #look, body.embed #keep { gap: 6px; }
+body.embed #keep { margin-left: 0 !important; }
+body.embed #scene { min-width: 11.5rem; }
 body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
 </style>
 </head>
@@ -88,17 +104,27 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
   <h1>AISLING<span>Visualiser</span></h1>
   <p id="what">The FM-1's four layers painted as a west-coast landscape.</p>
   <ul class="legend" id="legend"></ul>
-  <div class="row" id="buttons">
-    <button id="listen" type="button">Listen to the FM-1</button>
-    <select id="input" aria-label="MIDI input" hidden></select>
-    <button id="demo" type="button" aria-pressed="false">Demo</button>
-    <button id="scene" type="button" title="Change the scene (V)">Space</button>
-    <button id="ground" type="button" aria-pressed="false" title="Change the ground (M)">Mist</button>
-    <button id="colours" type="button" title="Change the colours (C)">Colours</button>
-    <button id="full" type="button" title="Full screen (F)">Full screen</button>
-    <button id="save" type="button" title="Save the picture (S)">Save picture</button>
-    <button id="record" type="button" aria-pressed="false" title="Record a video, with the FM-1's sound (R)">Record</button>
-    <button id="sample" type="button" title="Mix in a sound file, or drop one on the page (A)">Add a sample</button>
+  <div id="buttons">
+    <div class="row" id="start">
+      <button id="listen" type="button">Listen to the FM-1</button>
+      <select id="input" aria-label="MIDI input" hidden></select>
+      <button id="demo" type="button" aria-pressed="false">Demo</button>
+    </div>
+    <div id="scene" role="group" aria-label="The scene" title="Change the scene (V)">
+      <button type="button" data-scene="landscape" aria-pressed="true">Land</button>
+      <button type="button" data-scene="water" aria-pressed="false">Sea</button>
+      <button type="button" data-scene="space" aria-pressed="false">Space</button>
+    </div>
+    <div class="row" id="look">
+      <button id="ground" type="button" title="Change the ground (M)">Ground</button>
+      <button id="colours" type="button" title="Change the colours (C)">Colours</button>
+    </div>
+    <div class="row" id="keep">
+      <button id="save" type="button" title="Save the picture (S)">Save</button>
+      <button id="record" type="button" aria-pressed="false" title="Record a video, with the FM-1's sound (R)">Record</button>
+      <button id="sample" type="button" title="Mix in a sound file, or drop one on the page (A)">Sample</button>
+      <button id="full" type="button" title="Full screen (F)">Full screen</button>
+    </div>
   </div>
   <div class="row" id="srow" hidden>
     <button id="splay" type="button">Pause</button>
@@ -122,10 +148,10 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
        from where the last left it, up for a higher note and down for a lower, so the air draws its path. The gas goes
        round in slow eddies instead of blowing across. To paint it, the top of the page is the comet, then the
        threads, the nebula, and at the foot the stars.</p>
-    <p>Save picture keeps the painting as it is now. Record makes a video of it; with the FM-1 plugged in it records the
+    <p>Save keeps the painting as it is now. Record makes a video of it; with the FM-1 plugged in it records the
        FM-1's own sound as well, which comes over the same USB cable (the browser asks to use it as a microphone).
        While it records, the sound moves the wind. Both are saved to this computer and go nowhere else.</p>
-    <p>Drop a sound file on the page, or press Add a sample, to mix it in: a WAV, AIFF, FLAC or MP3. It loops out of this
+    <p>Drop a sound file on the page, or press Sample, to mix it in: a WAV, AIFF, FLAC or MP3. It loops out of this
        computer's speakers and paints as the weather, low sounds low and high sounds high, each hit a drop where a slow
        sweep across the page has reached. While the FM-1 plays (or the demo), In time fits it to the tempo: sped up or
        slowed like tape, pitch and all, to the nearest 1, 2, 4, 8, 16, 32 or 64 beats, and kept on the beat. A sample
@@ -137,11 +163,16 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
        same code, 32 bars round and round) and paints its notes as you hear them. It is the one thing the page fetches,
        and only when you press Demo; from a downloaded copy the demo paints without sound.</p>
     <p>Any MIDI source works: channels 1 to 4 are the Drone, the Sequence, the Lead and Sequence 2, as the FM-1 sends them.</p>
-    <p>Keys: <kbd>F</kbd> full screen, <kbd>V</kbd> the scene (the landscape or deep space), <kbd>M</kbd> the
+    <p>Sea is the Atlantic from above, under a storm: the water goes round in two great eddies, as hard as the clock
+       drives it. The Drone lays the swell in long broad strokes, the Sequence the foam on the eddies, each note of
+       Sequence 2 spins up an eddy where it lands and draws a dark stroke round it, and the Lead is the light: under
+       the cloud for a high note, down in an eddy's eye for a low one. A few faint strokes keep going round, and the
+       cloud keeps blowing, when nothing is played.</p>
+    <p>Keys: <kbd>F</kbd> full screen, <kbd>V</kbd> the scene (land, sea or space), <kbd>M</kbd> the
        landscape's ground (vellum, mist or night), <kbd>C</kbd> its colours (Heather, Atlantic, Kells or Evening: what is
-       painted keeps its own, the next notes take the new), <kbd>D</kbd> demo, <kbd>S</kbd> save picture, <kbd>R</kbd>
-       record, <kbd>A</kbd> add a sample, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel
-       at all (a projector, or a browser source in OBS), or <kbd>?scene=space</kbd> to open on the stars.</p>
+       painted keeps its own, the next notes take the new), <kbd>D</kbd> demo, <kbd>S</kbd> save, <kbd>R</kbd>
+       record, <kbd>A</kbd> a sample, <kbd>H</kbd> hide this panel. Add <kbd>?clean</kbd> to the address for no panel
+       at all (a projector, or a browser source in OBS), or <kbd>?scene=space</kbd> to open on the stars, <kbd>?scene=water</kbd> on the sea.</p>
     <p>Part of <a target="_blank" rel="noopener" href="https://github.com/stephencummins/fm1-aisling">AISLING</a> (GPL-3.0). No FM-1? Hear it in the
        <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/emu/">browser emulator</a>.</p>
   </details>
@@ -203,6 +234,8 @@ const GROUNDS = {
   mist: { top: '#d9d6cf', bottom: '#8e8b85', mottle: 7, vignette: 0.12, theme: '#bdbab3' },
   // deep space's, painted by paintSpace; glint: the colour its stars flash
   space: { top: '#07070c', bottom: '#05060b', mottle: 4, vignette: 0.3, theme: '#07070c', dark: true, glint: [225, 235, 255] },
+  // the Atlantic's, painted by paintWater
+  water: { top: '#1c212a', bottom: '#131113', mottle: 5, vignette: 0.4, theme: '#14161a', dark: true, glint: [225, 235, 255] },
 }
 
 /* the scene, a choice (V, or ?scene=). The landscape, the default: each layer a band of it, as LAYERS has them. Deep
@@ -213,7 +246,7 @@ const GROUNDS = {
    the brush picks it, if not its band. comet, flare and along: what is the comet, the stars that flare and the
    threads */
 const SCENES = {
-  landscape: { next: 'space', what: 'a west-coast landscape',
+  landscape: { next: 'water', what: 'a west-coast landscape',
                layers: LAYERS.slice(0, 4).map(({ place, band, size }) => ({ place, band, size, flat: 0.4, order: null })) },
   space: { next: 'landscape', what: 'deep space', ground: 'space', space: true,
            layers: [{ place: 'the nebula', band: [0.12, 0.88], zone: [0.5, 0.75], size: 1.2, flat: 0.85, order: 0.3 },
@@ -223,9 +256,20 @@ const SCENES = {
            // the nebula's glow, violet to rose; the stars, red giant to blue; the comet's ice; the threads' teal
            colours: [['#2a1248', '#5a1e6a', '#9a2f72', '#c85a6e', '#e89a7c'], ['#c8553a', '#f0a860', '#f6e7c8', '#cfe0ff', '#9ec0ff'],
                      ['#4a6f9a', '#8fb8dc', '#d6ebf6', '#ffffff'], ['#123a4a', '#1f6470', '#3a9a9a', '#8fd0c8']] },
+  // the Atlantic from above: the Drone the swell in long broad strokes, the Sequence the foam on the eddies, Sequence 2
+  // the eddies themselves, each note spinning one up, and the Lead the light, under the cloud or down in an eye
+  water: { next: 'space', what: 'the Atlantic from above', ground: 'water', water: true,
+           layers: [{ place: 'the swell', band: [0.42, 0.97], zone: [0.78, 1], size: 1.3, flat: 1, order: 0.4, kind: 'swell' },
+                    { place: 'the foam', band: [0.42, 0.95], zone: [0.58, 0.78], size: 0.7, flat: 1, order: 0.3, kind: 'foam' },
+                    { place: 'the light', band: [0.36, 0.9], zone: [0, 0.38], size: 0.8, flat: 1, order: 0.1, kind: 'light' },
+                    { place: 'the eddies', band: [0.42, 0.95], zone: [0.38, 0.58], size: 0.8, flat: 1, order: 0.2, kind: 'whirl' }],
+           colours: [['#1a1614', '#2f2a20', '#494b3a', '#6a6d5a'],
+                     ['#8e9084', '#c0c1b9', '#e6e2d6', '#f6f3ea'],
+                     ['#6e3a14', '#a8501a', '#d4762a', '#f2a850'],
+                     ['#131113', '#241d17', '#3a2f22', '#59513f']] },
 }
 // what a scene's layer is unless it says: none of the special ones
-const PLAIN = { flat: 0.4, comet: false, flare: false, along: false, order: null, zone: null }
+const PLAIN = { flat: 0.4, comet: false, flare: false, along: false, order: null, zone: null, kind: null }
 let SC = SCENES.landscape
 
 function colourOf(L, note) {
@@ -335,6 +379,7 @@ function paintGround() {
   glN = 0
   VEIL.fill(1)
   if (ground === 'space') { paintSpace(GROUNDS.space); return }
+  if (ground === 'water') { paintWater(GROUNDS.water); return }
   const g = GROUNDS[ground], t = hex(g.top), bo = hex(g.bottom)
   for (let b = 0, k = 0; b < DY; b++) {
     const fy = b / Math.max(1, DY - 1), py = (b * H) / DY
@@ -428,9 +473,392 @@ function windGoal() {
   return (bpm ? 0.012 + 0.08 * clamp(bpm / 100, 0.3, 1.6) : 0.01) * (lv >= 0 ? 0.7 + 1.6 * lv : 1)
 }
 
+/* ---------------- the Atlantic, from above ----------------
+   Seen from high up, and leaning: storm cloud over the top third, a burnt orange light under it, and below that dark
+   water going round in two great eddies. The water is real flow (stream functions, so it runs into nothing), the
+   clock sets how hard it turns, and Sequence 2's notes spin up smaller eddies among them. The paint is put on with a
+   brush rather than dropped: each note is a brush that runs on along the water, faster than the water goes, so what
+   it lays is a curved stroke, with bristle lines down it and two colours in it, and thick enough to catch the light. */
+const HZ = 0.33
+const whirls = []
+const tides = []
+let whirlKey = -1, gu = null, gv = null, seaSeeded = false, tideDue = 0, cloudDue = 0, heartDue = 0, lastWhirl = -1e9
+const wet01 = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t) }
+const wetMix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
+const wetRamp = (st, t) => {
+  const f = clamp(t, 0, 1) * (st.length - 1), i = Math.min(st.length - 2, f | 0)
+  return wetMix(st[i], st[i + 1], f - i)
+}
+const seaSize = () => Math.min(NY, NX * 0.7)
+// how big a stroke is for how far off it is: the far water, up by the cloud, is small
+const seaFar = (y) => clamp(0.5 + (0.75 * (y / NY - HZ)) / (1 - HZ), 0.45, 1.25)
+const wrapped = (d) => (d > NX / 2 ? d - NX : d < -NX / 2 ? d + NX : d)
+const SEA_TONES = ['#2c261e', '#3b3b2f', '#494b3a', '#686b59', '#1a1614', '#737469', '#2f2a20', '#59513f'].map(hex)
+const CLOUD_TONES = ['#1c212a', '#2b323c', '#3b414b', '#5c626a', '#8a8f96', '#b0b4ba'].map(hex)
+const BONE_TONES = ['#c0c1b9', '#d8d6ca', '#f0ece0'].map(hex)
+const RUST = hex('#6a4426')
+
+function setWhirls() {
+  const d = seaSize()
+  whirls.length = 0
+  // as the painting has them: the far one smaller and flatter, the near one larger, turning the other way; the cloud's
+  whirls.push({ x: 0.65 * NX, y: 0.57 * NY, r: 0.25 * d, q: 0.62, s: 1, st: 1, fixed: true, ph: 0 })
+  whirls.push({ x: 0.38 * NX, y: 0.75 * NY, r: 0.29 * d, q: 0.74, s: -1, st: 1, fixed: true, ph: 2.1 })
+  whirls.push({ x: 0.72 * NX, y: 0.15 * NY, r: 0.26 * d, q: 0.5, s: 1, st: 0.5, fixed: true, sky: true, ph: 4 })
+  for (const e of whirls) { e.cx = e.x; e.cy = e.y }
+  tides.length = 0
+  gu = new Float32Array(SX * (NY + 2)); gv = new Float32Array(SX * (NY + 2))
+  whirlKey = NX * 1000 + NY
+}
+function nearWhirl(x, y) {
+  let best = whirls[0], bd = 1e9
+  for (const e of whirls) {
+    if (e.sky) continue
+    const dx = wrapped(x - e.cx) / e.r, dy = (y - e.cy) / (e.r * e.q), d = dx * dx + dy * dy
+    if (d < bd) { bd = d; best = e }
+  }
+  return best
+}
+// from (x, y) part of the way to the ring f of the way out of its nearest eddy
+function toRing(x, y, pull, f) {
+  const e = nearWhirl(x, y), dx = wrapped(x - e.cx), dy = y - e.cy, a = Math.atan2(dy / e.q, dx)
+  return [x + (e.cx + Math.cos(a) * f * e.r - e.cx - dx) * pull, y + (e.cy + Math.sin(a) * f * e.r * e.q - e.cy - dy) * pull]
+}
+
+// where the water is going: the eddies, a long swell, a slow drift; over the cloud base, the wind across and the cloud's own
+// slow turn. The clock is how hard it all goes
+function seaGoal(dt) {
+  gu.fill(0); gv.fill(0)
+  const pv = seaSize() / 89, hard = 1 + 12 * windNow, wind0 = 0.012 + 0.25 * windNow
+  const kx1 = (2 * Math.PI * 2) / NX, ky1 = (2 * Math.PI) / (0.5 * NY), kx2 = (2 * Math.PI * 3) / NX, ky2 = (-2 * Math.PI) / (0.33 * NY)
+  const n1 = Math.hypot(kx1, ky1), n2 = Math.hypot(kx2, ky2), sp1 = 0.02 * pv * hard, sp2 = 0.012 * pv * hard
+  for (let j = 1; j <= NY; j++) {
+    const fy = (j - 0.5) / NY, sea = wet01(HZ - 0.03, HZ + 0.03, fy), p1 = ky1 * (j - 0.5) - simT * 0.009, p2 = ky2 * (j - 0.5) - simT * 0.006
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) {
+      const c1 = Math.cos(kx1 * (i - 0.5) + p1) * sea, c2 = Math.cos(kx2 * (i - 0.5) + p2) * sea
+      gu[k] = sp1 * (ky1 / n1) * c1 + sp2 * (ky2 / n2) * c2 + wind0 * (1 - sea) + 0.006 * sea
+      gv[k] = -sp1 * (kx1 / n1) * c1 - sp2 * (kx2 / n2) * c2
+    }
+  }
+  for (let n = whirls.length - 1; n >= 0; n--) {
+    const e = whirls[n]
+    if (e.fixed) {
+      e.cx = e.x + Math.sin(simT * 0.0011 + e.ph) * 0.015 * NX
+      e.cy = e.y + Math.cos(simT * 0.0009 + e.ph) * 0.012 * NY
+    } else {
+      e.age += dt
+      e.st = e.peak * Math.min(1, e.age / 60) * Math.exp(-Math.max(0, e.age - 60) / 420)
+      if (e.age > 90 && e.st < 0.04) { whirls.splice(n, 1); continue }
+    }
+    // a tight core inside a wide one, so it turns faster towards the middle and winds what is on it into a spiral
+    const w2 = 0.003 * hard * e.st * (e.fixed ? 1 : 1.5), w1 = 2.2 * w2, r2 = e.r * e.r, q2 = e.q * e.q, r1 = 0.45 * e.r, r12 = r1 * r1
+    const bx = Math.ceil(e.r * 2.4), by = Math.ceil(e.r * e.q * 2.4), ci = Math.floor(e.cx), cj = Math.floor(e.cy), inn = e.sky ? 0 : 0.08 * e.s
+    for (let c = Math.max(0, cj - by); c <= Math.min(NY - 1, cj + by); c++) {
+      const fy = (c + 0.5) / NY, keep = e.sky ? wet01(HZ, HZ - 0.06, fy) : wet01(HZ + 0.01, HZ + 0.07, fy)
+      if (keep <= 0) continue
+      const dy = c + 0.5 - e.cy, row = SX * (c + 1), yy = (dy * dy) / q2, ey1 = keep * Math.exp(-yy / r12), ey2 = keep * Math.exp(-yy / r2)
+      for (let d = -bx; d <= bx; d++) {
+        const dx = ci + d + 0.5 - e.cx, xx = dx * dx, F = e.s * (w1 * ey1 * Math.exp(-xx / r12) + w2 * ey2 * Math.exp(-xx / r2))
+        const k = row + (((ci + d) % NX) + NX) % NX + 1
+        gu[k] -= (F * dy) / q2
+        gv[k] += F * dx
+        // and the paint is drawn in towards the middle, a little, which the water itself can't be
+        eu[k] -= inn * F * dx
+        ev[k] -= inn * F * dy
+      }
+    }
+  }
+}
+function swirl(dt) {
+  if (whirlKey !== NX * 1000 + NY) setWhirls()
+  if (!seaSeeded) seedSea()
+  seaGoal(dt)
+  const relax = Math.min(1, 0.02 * dt)
+  for (let j = 1; j <= NY; j++) {
+    let k = 1 + SX * j
+    for (let i = 1; i <= NX; i++, k++) { u[k] += (gu[k] - u[k]) * relax; v[k] += (gv[k] - v[k]) * relax }
+  }
+  moveTides(dt)
+  // runs down from under the cloud
+  if (rand() < 0.012 * dt) drip(rand() * NX, (HZ * (0.85 + 0.35 * rand())) * NY)
+}
+
+// a brush's dab: flat and bristled, its bristles lying the way it is heading, with its two colours in them. Fresh thick
+// paint pushes the old aside (knife), so strokes lie over one another rather than muddying
+function dab(x, y, rad, b, amt) {
+  if (!(amt > 0)) return
+  const ax = x * R, ay = y * R, rd = Math.max(0.9, rad * R), r2 = rd * rd, box = Math.ceil(rd * (b.soft ? 2.2 : 1.6)), bv = 1.15 / R
+  const ca = b.ca, sa = b.sa, c0 = b.rgb, c1 = b.rgb2, kn = b.knife, soft = b.soft, fa = Math.floor(ax)
+  const b0 = Math.max(0, Math.floor(ay) - box), b1 = Math.min(DY - 1, Math.floor(ay) + box)
+  for (let bb = b0; bb <= b1; bb++) {
+    const dy = bb + 0.5 - ay
+    for (let a = fa - box; a <= fa + box; a++) {
+      const dx = a + 0.5 - ax, al = dx * ca + dy * sa, ac = dy * ca - dx * sa, q = (al * al * 1.6 + ac * ac) / r2
+      let w = (soft ? Math.exp(-q) : Math.exp(-q * q)) * amt
+      if (w < 0.002) continue
+      const n = soft ? 0 : vnoise(b.tx + al * 0.035, b.ty + ac * bv) - 0.5
+      w *= 1 + 1.6 * n
+      const f = clamp(0.5 + 2.2 * n, 0, 1), j = 1 + 0.45 * n, k = ((a % DX) + DX) % DX + DX * bb
+      if (kn) { const o = 1 - Math.min(0.85, w * kn); A[k] *= o; CR[k] *= o; CG[k] *= o; CB[k] *= o }
+      let na = A[k] + w
+      CR[k] += w * (c0[0] + (c1[0] - c0[0]) * f) * j; CG[k] += w * (c0[1] + (c1[1] - c0[1]) * f) * j; CB[k] += w * (c0[2] + (c1[2] - c0[2]) * f) * j
+      if (na > AMAX) { const s = AMAX / na; CR[k] *= s; CG[k] *= s; CB[k] *= s; na = AMAX }
+      A[k] = na
+    }
+  }
+}
+// a brush near an eddy rides a ring of it, working slowly inwards, so it draws part of a spiral. A ring that would reach
+// the light under the cloud isn't ridden
+function lockRing(b, inn) {
+  const e = nearWhirl(b.x, b.y), rho = Math.hypot(wrapped(b.x - e.cx) / e.r, (b.y - e.cy) / (e.r * e.q))
+  if (rho < Math.min(1.7, (e.cy - b.lo) / (e.r * e.q))) { b.e = e; b.rho = rho; b.inn = inn } else b.e = null
+}
+// on along the water, faster than it goes, a little across it
+function ride(b, dt, taper) {
+  const [su, sv] = sampleVel(b.x, b.y), sp = Math.hypot(su, sv)
+  if (b.e) {
+    const e = b.e, dx = wrapped(b.x - e.cx), dy = b.y - e.cy, q2 = e.q * e.q, n = Math.hypot(dy / q2, dx) || 1
+    b.ca = (-e.s * dy) / q2 / n; b.sa = (e.s * dx) / n
+  } else if (sp > 1e-3) {
+    const c = Math.cos(b.off), s = Math.sin(b.off), k = Math.min(1, 0.2 * dt)
+    b.ca += ((su * c - sv * s) / sp - b.ca) * k; b.sa += ((su * s + sv * c) / sp - b.sa) * k
+    const n = Math.hypot(b.ca, b.sa) || 1
+    b.ca /= n; b.sa /= n
+  }
+  const go = Math.max(b.pace, 2.4 * sp) * dt
+  b.x = ((b.x + b.ca * go) % NX + NX) % NX
+  b.y += b.sa * go
+  if (b.e) {
+    const e = b.e, dx = wrapped(b.x - e.cx), dy = b.y - e.cy, rr = Math.hypot(dx / e.r, dy / (e.r * e.q)) || 1
+    b.rho = Math.max(0.05, b.rho - b.inn * dt)
+    const f = b.rho / rr
+    b.x = ((e.cx + dx * f) % NX + NX) % NX; b.y = e.cy + dy * f
+  }
+  b.y = clamp(b.y, b.lo, b.hi)
+  // and it lifts before an edge, so nothing is ever drawn along one
+  const t = taper * wet01(b.lo, b.lo + 3, b.y) * wet01(b.hi, b.hi - 3, b.y)
+  dab(b.x, b.y, b.rad * Math.sqrt(taper), b, b.amt * t * dt)
+}
+function heading(b) {
+  const [su, sv] = sampleVel(b.x, b.y), sp = Math.hypot(su, sv)
+  if (sp > 1e-6) { b.ca = su / sp; b.sa = sv / sp } else { b.ca = 1; b.sa = 0 }
+}
+
+// where a note's brush comes down, and what it carries
+function wetPlace(b, L) {
+  const t = b.t, v = b.vel / 127, pv = seaSize() / 89, s = scale * (small ? 0.8 : 1)
+  let x = ((0.04 + 0.92 * t + (rand() - 0.5) * 0.05) * NX % NX + NX) % NX
+  let y = (L.band[0] + (L.band[1] - L.band[0]) * (0.1 + 0.8 * rand())) * NY
+  b.lo = (HZ + 0.05) * NY; b.hi = 0.985 * NY; b.off = (rand() - 0.5) * 0.45; b.e = null
+  let eye = null
+  if (L.kind === 'foam') {
+    // the foam gathers on the hearts of the eddies, a note's pitch saying which and where round it
+    const f = rand(); [x, y] = toRing(x, y, 1, 0.1 + 0.62 * f * f)
+  } else if (L.kind === 'swell') {
+    [x, y] = toRing(x, y, 0.3, 0.5 + 1.2 * rand())
+  } else if (L.kind === 'whirl') {
+    [x, y] = toRing(x, y, 0.5, 0.35 + 0.9 * rand())
+  } else if (L.kind === 'light') {
+    // high, the light under the cloud; low, down in an eddy's eye
+    if (t >= 0.5) { y = (HZ + 0.005 + 0.05 * rand()) * NY; b.lo = (HZ - 0.04) * NY; b.hi = (HZ + 0.1) * NY; b.off = 0 }
+    else { eye = nearWhirl(x, 0.6 * NY); const a = rand() * 6.283; x = eye.cx + Math.cos(a) * 0.14 * eye.r; y = eye.cy + Math.sin(a) * 0.14 * eye.r * eye.q }
+  }
+  b.x = ((x % NX) + NX) % NX; b.y = clamp(y, b.lo, b.hi)
+  if (eye) { b.e = eye; b.rho = 0.14; b.inn = 0 }
+  else if (L.kind !== 'light') lockRing(b, 0.0006 + 0.0008 * rand())
+  b.tx = rand() * 500; b.ty = rand() * 500
+  const p = seaFar(b.y)
+  if (L.kind === 'foam') Object.assign(b, { rad: (0.45 + 0.55 * v) * p * s, amt: 0.24 * (0.6 + 0.6 * v), knife: 0.5, pace: 0.2 * pv })
+  else if (L.kind === 'swell') Object.assign(b, { rad: (2 + 2 * v) * p * s, amt: 0.09 * (0.8 + 0.4 * v), knife: 0.25, pace: 0.3 * pv })
+  else if (L.kind === 'whirl') Object.assign(b, { rad: (0.8 + 1 * v) * p * s, amt: 0.22, knife: 0.5, pace: 0.25 * pv })
+  else if (L.kind === 'light') Object.assign(b, { rad: (0.8 + 0.8 * v) * p * s, amt: 0.16, knife: 0.4, pace: 0.2 * pv })
+  else Object.assign(b, { rad: (0.5 + 0.7 * v) * p * s, amt: 0.3, knife: 0.3, pace: 0.2 * pv })
+  heading(b)
+}
+function wetSpawn(b, L, note, vel, at) {
+  if (whirlKey !== NX * 1000 + NY) setWhirls()
+  const t = clamp((note - L.range[0]) / (L.range[1] - L.range[0]), 0, 1), v = vel / 127
+  b.t = t; b.wet = true; b.soft = false
+  b.rgb2 = colourOf(L, note + (L.range[1] - L.range[0]) * 0.3 * (rand() < 0.5 ? -1 : 1))
+  b.span = 260 + rand() * 260
+  wetPlace(b, L)
+  if (at) { b.x = at[0]; b.y = at[1]; b.lo = 0; b.hi = NY; b.e = null; heading(b) }
+  const life = L.kind === 'foam' ? 24 + 20 * v : L.kind === 'whirl' ? 70 + 60 * v : 30
+  b.left = L.held ? 40 : life
+  b.tail = L.held ? 40 : life * 0.35
+  if (L.kind === 'whirl' && !at && simT - lastWhirl > 18) {
+    // Sequence 2 spins up an eddy where it lands; one already there is only made stronger
+    lastWhirl = simT
+    const x = b.x, y = b.y, d = seaSize()
+    const here = whirls.find((e) => !e.fixed && Math.hypot(wrapped(x - e.cx), y - e.cy) < e.r)
+    if (here) { here.peak = Math.max(here.st, 0.5 + 0.6 * v); here.age = Math.min(here.age, 60) }
+    else {
+      const made = whirls.filter((e) => !e.fixed)
+      if (made.length >= 6) whirls.splice(whirls.indexOf(made[0]), 1)
+      whirls.push({ x, y, cx: x, cy: y, r: (0.1 + 0.05 * v) * d, q: 0.7, s: note % 2 ? 1 : -1, peak: 0.5 + 0.6 * v, st: 0, age: 0, fixed: false, ph: 0 })
+    }
+  }
+}
+function wetBloom(b, L, dt) {
+  if (!b.wet) { b.on = false; return }
+  if (b.brush) { dab(b.x, b.y, b.rad, b, b.amt * dt); return }
+  let taper
+  if (b.held) {
+    // a long stroke ends: the brush lifts and comes down again within the note's reach
+    if ((b.span -= dt) <= 0) { b.span = 260 + rand() * 260; b.age = 0; wetPlace(b, L) }
+    taper = Math.min(1, b.age / 14)
+    if (rand() < 0.003 * dt) drip(b.x, b.y)
+  } else {
+    if ((b.left -= dt) <= 0) { b.on = false; return }
+    taper = Math.min(1, b.age / 5) * Math.min(1, b.left / b.tail)
+  }
+  ride(b, dt, taper)
+}
+// the Lead's light shines a little past its paint
+function gleam() {
+  for (const b of blooms) if (b.on && b.wet && b.held && LAYERS[b.li].kind === 'light') glow(b.x * R, b.y * R, b.rgb.map((c) => c + (255 - c) * 0.25), 0.35, R * 2.4, 0)
+}
+
+// the sea keeps moving when nothing is played: a few faint strokes always going round on it, and the cloud blowing over
+// the cloud is lit from high on the left, and goes to charcoal at its base and round its own slow turn
+const cloudTone = (x, y) => {
+  const fx = x / NX, up = 1 - clamp(y / NY / HZ, 0, 1)
+  return 0.2 + 0.8 * up * (0.3 + 0.7 * Math.exp(-(((fx - 0.25) / 0.34) ** 2))) + 0.5 * (vnoise(x / 15 + 3, y / 6 + 9) - 0.5)
+}
+function newTide(cloud) {
+  const pv = seaSize() / 89, s = scale * (small ? 0.8 : 1), b = { soft: cloud, off: (rand() - 0.5) * 0.5, age: 0, tx: rand() * 500, ty: rand() * 500, e: null }
+  if (cloud) {
+    const x = rand() * NX, y = (0.02 + (HZ - 0.13) * rand()) * NY
+    Object.assign(b, { x, y, lo: 0, hi: (HZ - 0.08) * NY, rad: (4 + 4 * rand()) * s, amt: 0.02, knife: 0, pace: 0.25 * pv, life: 240 + rand() * 200 })
+    b.rgb = wetRamp(CLOUD_TONES, cloudTone(x, y)); b.rgb2 = b.rgb
+  } else {
+    let x = rand() * NX, y = (HZ + 0.07 + (0.98 - HZ - 0.07) * rand()) * NY
+    if (rand() < 0.7) [x, y] = toRing(x, y, 1, 0.3 + 1.3 * rand())
+    const lr = wet01(0.5, 0.85, x / NX) * wet01(0.62, 0.9, y / NY)
+    let c0 = SEA_TONES[(rand() * SEA_TONES.length) | 0]
+    const c1 = SEA_TONES[(rand() * SEA_TONES.length) | 0]
+    if (rand() < lr) c0 = RUST
+    Object.assign(b, { x: ((x % NX) + NX) % NX, y: clamp(y, (HZ + 0.05) * NY, 0.985 * NY), lo: (HZ + 0.05) * NY, hi: 0.985 * NY, rad: (1.2 + 1.8 * rand()) * seaFar(y) * s, amt: 0.045, knife: 0.2, pace: 0.25 * pv, life: 180 + rand() * 120, rgb: c0, rgb2: c1 })
+    lockRing(b, 0.0005 + 0.0008 * rand())
+  }
+  heading(b)
+  return b
+}
+// a stroke of the pale paint on the heart of a great eddy
+function newHeart(e) {
+  const pv = seaSize() / 89, s = scale * (small ? 0.8 : 1), a = rand() * 6.283, f = rand(), rho = 0.1 + 0.5 * f * f
+  const x = e.cx + Math.cos(a) * rho * e.r, y = e.cy + Math.sin(a) * rho * e.r * e.q
+  const b = { soft: false, off: 0, age: 0, tx: rand() * 500, ty: rand() * 500, e, rho, inn: 0.0006, x: ((x % NX) + NX) % NX, y, lo: (HZ + 0.05) * NY, hi: 0.985 * NY,
+              rad: (0.9 + 1.1 * rand()) * seaFar(y) * s, amt: 0.35, knife: 0.5, pace: 0.2 * pv, life: 60 + rand() * 60, rgb: BONE_TONES[(rand() * 3) | 0], rgb2: BONE_TONES[(rand() * 3) | 0] }
+  heading(b)
+  return b
+}
+function moveTides(dt) {
+  // as many as keeps the water about half covered, on any screen, for how long its paint lasts
+  const s = scale * (small ? 0.8 : 1), sea = NX * NY * (1 - HZ), each = 80 * (seaSize() / 89) * 4.3 * s
+  tideDue += dt * ((2.6 * sea) / each / (29 * 60))
+  cloudDue += dt * 0.004
+  heartDue += dt * 0.012
+  while (tideDue >= 1) { tideDue -= 1; if (tides.length < 40) tides.push(newTide(false)) }
+  while (cloudDue >= 1) { cloudDue -= 1; if (tides.length < 40) tides.push(newTide(true)) }
+  while (heartDue >= 1) { heartDue -= 1; if (tides.length < 40) tides.push(newHeart(whirls[rand() < 0.5 ? 0 : 1])) }
+  for (let n = tides.length - 1; n >= 0; n--) {
+    const b = tides[n]
+    b.age += dt
+    if (b.age >= b.life) { tides.splice(n, 1); continue }
+    ride(b, dt, Math.min(1, b.age / 20) * Math.min(1, (b.life - b.age) / 40))
+  }
+}
+// on coming to the sea, the picture is already there: strokes laid along the water as it goes
+function seedSea() {
+  seaSeeded = true
+  tides.length = 0
+  seaGoal(1)
+  u.set(gu); v.set(gv); eu.fill(0); ev.fill(0)
+  const s = scale * (small ? 0.8 : 1), sea = NX * NY * (1 - HZ), each = 80 * (seaSize() / 89) * 4.3 * s
+  const run = (b, gap) => { for (b.age = 0; b.age < b.life; b.age += gap) ride(b, gap, Math.min(1, b.age / 20) * Math.min(1, (b.life - b.age) / 40)) }
+  for (let n = Math.round((1.2 * sea) / each); n > 0; n--) run(newTide(false), 2)
+  for (let n = 8; n > 0; n--) run(newTide(true), 5)
+  // and the pale paint on the two great eddies
+  for (const e of whirls.slice(0, 2)) for (let n = 0; n < 14; n++) run(newHeart(e), 1)
+}
+// pale paint goes first: foam doesn't lie on the water for long
+function fadeFoam(dt) {
+  const gone = 1 - Math.pow(0.5, dt / (60 * 14))
+  for (let i = 0, n = A.length; i < n; i++) {
+    const am = A[i]
+    if (am < 0.02) continue
+    const pale = (CR[i] + CG[i] + CB[i]) / (am * 765)
+    if (pale <= 0.5) continue
+    const k = 1 - gone * (pale >= 0.72 ? 1 : (pale - 0.5) / 0.22)
+    A[i] *= k; CR[i] *= k; CG[i] *= k; CB[i] *= k
+  }
+}
+
+/* its ground: slate cloud with a slow turn in it, charcoal at its base, a broken burnt orange under that, grey rain at
+   the sides, and down the water near-black and umber with rust under it; the eddies are there from the first, in
+   strokes that lie along their spirals, with their pale hearts and the near one's orange eye */
+function paintWater(g) {
+  setWhirls()
+  const SKY = ['#14181f', '#1c212a', '#2b323c', '#3b414b', '#5c626a', '#8a8f96', '#a8acb2'].map(hex)
+  const SEA = ['#0d0b0c', '#171312', '#211c17', '#2c261e', '#3b3b2f', '#494b3a', '#5d604e'].map(hex)
+  const ORANGE = hex('#a85a26'), EMBER = hex('#e08a3c'), RST = hex('#4a3420'), RAIN = hex('#7d8085'), BONE = hex('#c8c8bc'), EYE = hex('#7a5220'), TEAL = hex('#484c43'), DRIP = hex('#585a58')
+  const [a0, a1, cl] = whirls
+  const arm = (x, y, e, n) => {
+    const dx = (x - e.x) / e.r, dy = (y - e.y) / (e.r * e.q), rho = Math.hypot(dx, dy), s = Math.atan2(dy, dx) + e.s * 2.5 * Math.log(rho + 0.04)
+    const c = Math.cos(s), d = Math.sin(s)
+    return [0.68 * vnoise(40 + n * c + rho * 1.4, 70 + n * d + rho * 1.4) + 0.32 * vnoise(9 + 2.7 * n * c + rho * 3, 23 + 2.7 * n * d + rho * 3), rho]
+  }
+  for (let b = 0, k = 0; b < DY; b++) {
+    const fy = (b + 0.5) / DY, gy = fy * NY, py = fy * H
+    for (let a = 0; a < DX; a++, k++) {
+      const fx = (a + 0.5) / DX, gx = fx * NX, px = fx * W, wa = vnoise(fx * 4 + 11, fy * 5 + 3) - 0.5
+      const bg = 0.55 * vnoise(px / 170, py / 34) + 0.45 * vnoise(px / 52 + 31, py / 12 - 7)
+      let c
+      const seaW = wet01(HZ - 0.025, HZ + 0.025, fy + wa * 0.035)
+      // the cloud: lighter up in it, charcoal at its base
+      const [ca] = arm(gx, gy, cl, 3.5), sk = 0.6 * ca + 0.4 * bg
+      const up = 1 - clamp(fy / HZ, 0, 1), sky = wetRamp(SKY, (sk - 0.18) * (0.5 + 0.9 * up) + 0.42 * up * Math.exp(-(((fx - 0.25) / 0.34) ** 2)))
+      // the water
+      const [v0, r0] = arm(gx, gy, a0, 14), [v1, r1] = arm(gx, gy, a1, 14)
+      const w0 = Math.exp(-(r0 * r0) / 2.6), w1 = Math.exp(-(r1 * r1) / 2.6), wb = Math.max(0, 1 - w0 - w1)
+      const v2 = (v0 * w0 + v1 * w1 + bg * wb) / (w0 + w1 + wb)
+      const near = Math.max(Math.exp(-(r0 * r0) / 0.7), Math.exp(-(r1 * r1) / 0.7))
+      const tone = (0.14 + 1.15 * (v2 - 0.3) + 0.22 * near + 0.12 * (1 - wet01(HZ, 0.6, fy))) * (1 - 0.6 * wet01(0.72, 1, fy))
+      let sea = wetRamp(SEA, tone)
+      sea = wetMix(sea, RST, wet01(0.5, 0.85, fx) * wet01(0.62, 0.9, fy) * (0.3 + 0.7 * vnoise(fx * 7 + 5, fy * 11)) * 0.75)
+      sea = wetMix(sea, TEAL, wet01(0.3, 0.05, fx) * wet01(0.38, 0.48, fy) * (1 - wet01(0.62, 0.75, fy)) * 0.4)
+      // the pale hearts, in strokes, and the near one's eye
+      const hv = v0 * (r0 < r1 ? 1 : 0) + v1 * (r0 < r1 ? 0 : 1), hr = Math.min(r0, r1)
+      sea = wetMix(sea, BONE, wet01(0.54, 0.72, hv) * Math.exp(-(hr * hr) / 0.28) * 0.8)
+      const eye1 = wet01(0.2, 0.06, r1), eye0 = wet01(0.13, 0.04, r0)
+      sea = wetMix(sea, EYE, eye1 * 0.9)
+      sea = wetMix(sea, EYE, eye0 * 0.45)
+      c = wetMix(sky, sea, seaW)
+      // the burnt orange under the cloud, broken up, and a touch of it far over on the right
+      const ob = clamp(Math.exp(-(((fy - (HZ + 0.012 + wa * 0.03)) / 0.03) ** 2)) * Math.exp(-(((fx - 0.52) / 0.36) ** 2)) * (0.35 + 1.1 * vnoise(fx * 9, fy * 30 + 2)), 0, 1)
+      c = wetMix(c, wetMix(ORANGE, EMBER, vnoise(fx * 22 + 7, fy * 40)), ob)
+      c = wetMix(c, ORANGE, Math.exp(-(((fy - 0.6) / 0.05) ** 2)) * wet01(0.84, 1, fx) * 0.5 * vnoise(fx * 12 + 3, fy * 18))
+      // rain falling at the sides, in streaks
+      const rw = (Math.exp(-((fx / 0.17) ** 2)) + Math.exp(-(((1 - fx) / 0.15) ** 2))) * wet01(0.26, 0.36, fy) * (1 - wet01(0.5, 0.68, fy)) * (0.2 + 0.8 * vnoise(fx * 70, fy * 3.5))
+      c = wetMix(c, RAIN, clamp(rw, 0, 1) * 0.75)
+      // the light, the rain and the near eye come through whatever is painted on them
+      VEIL[k] = (1 - 0.85 * ob) * (1 - 0.6 * clamp(rw, 0, 1)) * (1 - 0.8 * eye1 * seaW)
+      // and what has run down
+      c = wetMix(c, DRIP, wet01(0.68, 0.84, vnoise(fx * 150 + 9, fy * 2.2)) * 0.14 * wet01(HZ - 0.08, HZ, fy))
+      const ex = fx - 0.5, ey = fy - 0.5, vig = 1 - g.vignette * clamp((ex * ex + ey * ey) * 2.2, 0, 1), m = (vnoise(px / 5, py / 5) - 0.5) * g.mottle
+      G0[k] = clamp((c[0] + m) * vig, 0, 255)
+      G1[k] = clamp((c[1] + m) * vig, 0, 255)
+      G2[k] = clamp((c[2] + m) * vig, 0, 255)
+    }
+  }
+}
+
 function wind(dt) {
   windNow += (windGoal() - windNow) * Math.min(1, 0.008 * dt)
   if (SC.space) { eddies(dt); return }
+  if (SC.water) { swirl(dt); return }
   const relax = Math.min(1, 0.006 * dt)
   for (let j = 1; j <= NY; j++) {
     const y = (j - 0.5) / NY
@@ -605,9 +1033,10 @@ function spawn(li, note, vel, at) {
     on: true, li, note, vel, x, y, age: 0, flow: 0, held: L.held, key: -1, brush: false,
     q0: (4.2 + rand() * 2) * size * size * scale * scale, tau: 18 + rand() * 12,
     rc: (0.7 + 0.3 * size) * scale, rgb: colourOf(L, note), conc: L.conc * (0.7 + (0.6 * vel) / 127),
-    spin: (rand() - 0.5) * 0.04, shed: 4 + rand() * 6, maxR: 7 * L.size * scale, tx: rand() * 500, ty: rand() * 500, ang: 0,
+    spin: (rand() - 0.5) * 0.04, shed: 4 + rand() * 6, maxR: 7 * L.size * scale, tx: rand() * 500, ty: rand() * 500, ang: 0, wet: false,
   })
   b.area = Math.PI * b.rc * b.rc
+  if (SC.water) { wetSpawn(b, L, note, vel, at); return b }
   if (SC.space) {
     // deep space: the comet heads its own way; a thread lies along the way the gas is going where it lands; a star flares
     // the comet's paint is its tail: it barely spreads, and lays more as it goes
@@ -655,6 +1084,7 @@ function updateBlooms(dt) {
     if (!b.on) continue
     const L = LAYERS[b.li]
     b.age += dt
+    if (SC.water) { wetBloom(b, L, dt); continue }
     if (!b.held) b.flow += dt
     const rf = Math.sqrt(b.area / Math.PI)
     let Q = b.q0 * (b.held ? 0.3 : Math.exp(-b.flow / b.tau))
@@ -867,10 +1297,12 @@ function within(x, p, q, r, s) {
 // the paint feathers out, more across than down, and slowly fades, so the picture never fills; deep space's gas
 // feathers out further, as much one way as the other, and fades twice as fast
 function soften(dt) {
-  const keep = Math.pow(0.5, dt / (60 * (SC.space ? 16 : 32))), d = Math.min(dt, 2.5)
-  const kx = (SC.space ? 0.014 : 0.009) * d, ky = (SC.space ? 0.014 : 0.0025) * d, c = 1 - 2 * kx - 2 * ky
+  const water = !!SC.water, keep = Math.pow(0.5, dt / (60 * (SC.space ? 16 : water ? 20 : 32))), d = Math.min(dt, 2.5)
+  let kx = (SC.space ? 0.014 : 0.009) * d, ky = (SC.space ? 0.014 : 0.0025) * d, c = 1 - 2 * kx - 2 * ky
   for (let b = 0, i = 0; b < DY; b++) {
     const up = b > 0 ? -DX : 0, dn = b < DY - 1 ? DX : 0
+    // the cloud is wet on wet; the strokes on the water keep their edges
+    if (water) { const sky = wet01(HZ + 0.03, HZ - 0.03, (b + 0.5) / DY); kx = ky = (0.001 + 0.05 * sky) * d; c = 1 - 2 * kx - 2 * ky }
     for (let a = 0; a < DX; a++, i++) {
       const l = a > 0 ? -1 : DX - 1, r = a < DX - 1 ? 1 : 1 - DX
       TA[i] = keep * (c * A[i] + kx * (A[i + l] + A[i + r]) + ky * (A[i + up] + A[i + dn]))
@@ -891,16 +1323,17 @@ function step(dt) {
   wind(dt)
   updateBlooms(dt)
   // deep space's gas curls more, and keeps going up and down as well as across
-  confine(SC.space ? 0.1 : 0.06, dt)
+  confine(SC.space || SC.water ? 0.1 : 0.06, dt)
   advectVel(dt)
   project()
-  const du = Math.pow(0.998, dt), dw = Math.pow(SC.space ? 0.995 : 0.95, dt)
+  const du = Math.pow(0.998, dt), dw = Math.pow(SC.space || SC.water ? 0.995 : 0.95, dt)
   for (let i = 0, n = u.length; i < n; i++) {
     u[i] = clamp(u[i] * du || 0, -3, 3)
     v[i] = clamp(v[i] * dw || 0, -3, 3)
   }
   advectPaint(dt)
   soften(dt)
+  if (SC.water) fadeFoam(dt)
   updateDrips(dt)
   if (flares.length) {
     for (const f of flares) f.age += dt
@@ -909,7 +1342,7 @@ function step(dt) {
 }
 
 function render() {
-  const top = COV.length - 1, space = !!SC.space
+  const top = COV.length - 1, space = !!SC.space, water = !!SC.water
   for (let b = 0, i = 0; b < DY; b++) {
     const up = b > 0 ? -DX : 0, dn = b < DY - 1 ? DX : 0
     for (let a = 0; a < DX; a++, i++) {
@@ -923,6 +1356,18 @@ function render() {
         r = 255 - (255 - g0) * (1 - Math.min(1, CR[i] * s))
         g = 255 - (255 - g1) * (1 - Math.min(1, CG[i] * s))
         bl = 255 - (255 - g2) * (1 - Math.min(1, CB[i] * s))
+      } else if (am > 0.003 && water) {
+        // the Atlantic's paint is laid on thick: its ridges lit from the upper left, the light catching the highest
+        let ci = (am * 256) | 0
+        if (ci > top) ci = top
+        const cov = COV[ci] * VEIL[i], inv = 1 / am
+        const l = a > 0 ? i - 1 : i + DX - 1, rr = a < DX - 1 ? i + 1 : i - DX + 1
+        const gx = A[rr] - A[l], gy = A[i + dn] - A[i + up], sl = gx + gy
+        const lit = 1 + clamp(0.46 * sl, -0.5, 0.6) - 0.08 * Math.min(1, Math.sqrt(gx * gx + gy * gy))
+        const hi = sl > 0.7 ? Math.min(1, sl - 0.7) * 46 * cov : 0
+        r = g0 + (CR[i] * inv * lit - g0) * cov + hi
+        g = g1 + (CG[i] * inv * lit - g1) * cov + hi
+        bl = g2 + (CB[i] * inv * lit - g2) * cov + hi
       } else if (am > 0.003) {
         let ci = (am * 256) | 0
         if (ci > top) ci = top
@@ -941,6 +1386,7 @@ function render() {
   }
   if (glN) twinkle()
   if (SC.space) shine()
+  if (SC.water) gleam()
   ctx.putImageData(img, 0, 0)
 }
 
@@ -1233,7 +1679,7 @@ if (EMBED) addEventListener('message', (e) => {
 const brushes = new Map()
 function layerAt(fx, fy) {
   // deep space's layers all go everywhere, so the brush picks one by how far down: its zone
-  if (SC.space) return Math.max(0, LAYERS.findIndex((L) => L.zone && fy >= L.zone[0] && (fy < L.zone[1] || L.zone[1] === 1)))
+  if (SC.space || SC.water) return Math.max(0, LAYERS.findIndex((L) => L.zone && fy >= L.zone[0] && (fy < L.zone[1] || L.zone[1] === 1)))
   let best = 0, bd = 9
   LAYERS.forEach((L, i) => { const d = Math.abs(fy - (L.band[0] + L.band[1]) / 2) - (L.band[1] - L.band[0]) / 2; if (!L.extra && d < bd) { bd = d; best = i } })
   return best
@@ -1289,7 +1735,7 @@ function compose(g, w, h) {
   const pat = g.createPattern(grainCanvas, 'repeat'), k = w / W
   pat.setTransform(new DOMMatrix().scale(k))
   g.globalCompositeOperation = 'overlay'
-  g.globalAlpha = SC.space ? 0.1 : 0.55
+  g.globalAlpha = SC.space ? 0.1 : SC.water ? 0.35 : 0.55
   g.fillStyle = pat
   g.fillRect(0, 0, w, h)
   g.globalCompositeOperation = 'source-over'
@@ -1581,7 +2027,6 @@ async function loadSample(file) {
   Object.assign(smp, { buf, name: file.name, playing: true, held: false, until: 0, endTick: -1, lastTick: -1, from: '', level: 0, gap: 0 })
   $('splay').textContent = 'Pause'
   for (const id of ['srow', 'sinfo', 'slegend']) $(id).hidden = false
-  $('sample').textContent = 'Another sample'
   wake(true)
   sampleInfo()
   say()
@@ -1590,7 +2035,6 @@ function removeSample() {
   if (audio.ac) hush(audio.ac.currentTime, 'all')
   Object.assign(smp, { buf: null, playing: false, until: 0, endTick: -1, lastTick: -1, level: 0 })
   for (const id of ['srow', 'sinfo', 'slegend']) $(id).hidden = true
-  $('sample').textContent = 'Add a sample'
 }
 function playSample(on) {
   if (!smp.buf) return
@@ -1708,7 +2152,7 @@ async function wake(on) {
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && (listening || demo.on)) wake(true) })
 
-// the ground button names the next ground; a choice is kept only when the viewer makes it (pages before vellum saved
+// the ground button names the ground it is on; a choice is kept only when the viewer makes it (pages before vellum saved
 // night on every visit, under the old key, so that key is not read). It is the landscape's: deep space has its own
 const NEXT_GROUND = { vellum: 'mist', mist: 'night', night: 'vellum' }
 let landGround = 'vellum'
@@ -1717,8 +2161,7 @@ function setGround(g, picked) {
   ground = SC.ground || g
   document.documentElement.dataset.ground = ground
   document.querySelector('meta[name="theme-color"]').content = GROUNDS[ground].theme
-  const next = NEXT_GROUND[g]
-  $('ground').textContent = next[0].toUpperCase() + next.slice(1)
+  $('ground').textContent = `Ground: ${g[0].toUpperCase()}${g.slice(1)}`
   if (A) paintGround()
   if (picked) store.set('aisling-vis-ground-picked', g)
 }
@@ -1729,19 +2172,22 @@ function setPalette(name, picked) {
   const sets = SC.colours || PALETTES[name]
   sets.forEach((st, i) => { LAYERS[i].stops = st; LAYERS[i].rgb = st.map(hex) })
   legend()
+  $('colours').textContent = `Colours: ${name[0].toUpperCase()}${name.slice(1)}`
   if (picked) { store.set('aisling-vis-palette', name); say(`The colours: ${name[0].toUpperCase()}${name.slice(1)}.`) }
 }
 
-// the scene button names the next scene. What is painted fades back, and the notes held move to their new places
+// the scene's buttons show the one it is on. What is painted fades back, and the notes held move to their new places
 // in their new colours, so the new scene shows at once
 function setScene(name, picked) {
   SC = SCENES[name]
   SC.layers.forEach((s, i) => Object.assign(LAYERS[i], PLAIN, s))
   flares.length = 0
   comet.x = -1
-  $('scene').textContent = SC.next[0].toUpperCase() + SC.next.slice(1)
+  if (SC.water) seaSeeded = false
+  else tides.length = 0
+  for (const b of $('scene').children) b.setAttribute('aria-pressed', String(b.dataset.scene === name))
   $('what').textContent = `The FM-1's four layers painted as ${SC.what}.`
-  $('ground').hidden = $('colours').hidden = !!SC.ground
+  $('look').hidden = !!SC.ground
   setGround(landGround)
   setPalette(palette)
   if (A) {
@@ -1773,7 +2219,7 @@ for (const ev of ['pointermove', 'pointerdown', 'keydown', 'focusin']) addEventL
 
 $('listen').addEventListener('click', listen)
 $('demo').addEventListener('click', () => setDemo(!demo.on))
-$('scene').addEventListener('click', () => setScene(SC.next, true))
+for (const b of $('scene').children) b.addEventListener('click', () => setScene(b.dataset.scene, true))
 $('ground').addEventListener('click', () => setGround(NEXT_GROUND[landGround], true))
 $('colours').addEventListener('click', () => setPalette(NEXT_PALETTE[palette], true))
 $('full').addEventListener('click', toggleFull)

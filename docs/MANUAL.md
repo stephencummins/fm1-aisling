@@ -580,19 +580,20 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
 [aisling.stephen8n.com](https://aisling.stephen8n.com) turns the MIDI out into a painting of the west of Ireland: the
 Lead's notes fall into the sky, Sequence 2's into the hills, the Sequence's into the fields and the Drone's into the bog.
 A note's pitch sets how far across it lands, how hard it's played how much paint, and the tempo the wind.
-The scene's button (**Space**) or V turns it to deep space: the Drone a nebula's glow, the
-Sequence stars that flare where its notes land, Sequence 2 threads of gas, and the Lead a comet, up for a higher note
-and down for a lower. Press it again for the landscape. Connect the FM-1 by USB, open the
+**Land**, **Sea** and **Space** change the scene, and V steps through them. Sea is the Atlantic from above, under a
+storm: the Drone lays the swell, the Sequence the foam, each note of Sequence 2 spins up an eddy, and the Lead is the
+light. Space is deep space: the Drone a nebula's glow, the Sequence stars that flare where its notes land, Sequence 2
+threads of gas, and the Lead a comet, up for a higher note and down for a lower. Connect the FM-1 by USB, open the
 page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
-page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save picture** keeps a still, and
+page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save** keeps a still, and
 **Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
-USB audio appears). Drop a sound file on the page (or press **Add a sample**) to mix it in: a WAV, AIFF, FLAC or MP3
+USB audio appears). Drop a sound file on the page (or press **Sample**) to mix it in: a WAV, AIFF, FLAC or MP3
 loops out of the computer and paints as the weather, low sounds low and high sounds high. While the FM-1 plays (or the
 demo) **In time** fits it to the tempo like tape, to the nearest 1, 2, 4 … 64 beats, starting on the FM-1's Start and
 stopping with it; a sample longer than 30 seconds plays at its own speed. **Record** takes it too, mixed with the FM-1.
-Everything stays on your computer. Add `?clean` to the address for the painting alone, for a projector or a stream, and `?scene=space` to open
-on deep space.
+Everything stays on your computer. Add `?clean` to the address for the painting alone, for a projector or a stream, and `?scene=space` or `?scene=water` to open
+on deep space or the sea.
 
 ### Screen reader
 
