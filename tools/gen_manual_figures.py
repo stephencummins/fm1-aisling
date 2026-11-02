@@ -9,8 +9,9 @@
 
 From X0X's: the panel layout follows the FM-1: two knob pairs and the octave buttons on the left, the
 screen in the middle, four knobs and two rows of six buttons on the right, and the keys below: 11
-black keys in groups of 3, 2, 3, 2, 1 over 16 white keys (F to G). The words under the controls are in
-the rivers' blue of the Music for Airports cover."""
+black keys in groups of 3, 2, 3, 2, 1 over 16 white keys (F to G). The orange FM-1, in the emulator's
+colours (web/emu/index.html). The words under the controls are dark on the body, as its labels are, and
+the colour of a lit button on the trays, where dark wouldn't read."""
 import base64
 import io
 import sys
@@ -22,8 +23,9 @@ SRC = Path(__file__).resolve().parents[1]
 OUT = SRC / "docs" / "img"
 FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
 
-BODY, TRAY, KEY_W, KEY_B, KNOB, BTN, LABEL = "#3a3d42", "#26282c", "#d9dadc", "#c9cacd", "#1f2124", "#2e3135", "#e8e8ea"
-WHAT = "#9fd3cf"
+BODY, TRAY, KEY_W, KEY_B, KNOB, BTN, LABEL = "#cb6b45", "#85473c", "#8f4d40", "#8f4d40", "#1c1614", "#8f4d40", "#24110a"
+BTN_INK, KNOB_FOOT, KNOB_EDGE, BTN_EDGE = "#fbf0e4", "#ab5636", "#3a2a24", "#5a2c23"
+WHAT_TRAY = "#ffe8c2"
 WHITE_N = 16
 BLACK_AFTER = [0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14]          # black key k sits after white key BLACK_AFTER[k]
 WHITE_NOTES = "F G A B C D E F G A B C D E F G".split()
@@ -39,18 +41,18 @@ def png_data_uri(path, scale=1):
     return "data:image/png;base64," + base64.b64encode(b.getvalue()).decode()
 
 
-def what(x, y, t):
+def what(x, y, t, cls="what"):
     """what a control does, under it (one or two lines, split at |)"""
     a, _, b = t.partition("|")
-    return (f'<text x="{x}" y="{y}" text-anchor="middle" class="what">{a}</text>' +
-            (f'<text x="{x}" y="{y + 15}" text-anchor="middle" class="what">{b}</text>' if b else ""))
+    return (f'<text x="{x}" y="{y}" text-anchor="middle" class="{cls}">{a}</text>' +
+            (f'<text x="{x}" y="{y + 15}" text-anchor="middle" class="{cls}">{b}</text>' if b else ""))
 
 
 def knob(x, y, r, label, does=None):
     """a knob: its name above, what it does in AISLING below"""
-    return (f'<g><circle cx="{x}" cy="{y}" r="{r + 5}" fill="{TRAY}"/>'
-            f'<circle cx="{x}" cy="{y}" r="{r}" fill="{KNOB}" stroke="#44474c" stroke-width="2"/>'
-            f'<line x1="{x}" y1="{y - r + 5}" x2="{x}" y2="{y - r + 15}" stroke="{LABEL}" stroke-width="3" stroke-linecap="round"/>'
+    return (f'<g><circle cx="{x}" cy="{y}" r="{r + 5}" fill="{KNOB_FOOT}"/>'
+            f'<circle cx="{x}" cy="{y}" r="{r}" fill="{KNOB}" stroke="{KNOB_EDGE}" stroke-width="2"/>'
+            f'<line x1="{x}" y1="{y - r + 5}" x2="{x}" y2="{y - r + 15}" stroke="{BTN_INK}" stroke-width="3" stroke-linecap="round"/>'
             f'<text x="{x}" y="{y - r - 12}" text-anchor="middle" class="lbl">{label}</text>'
             + (what(x, y + r + 22, does) if does else "") + '</g>')
 
@@ -59,7 +61,7 @@ def button(x, y, w, h, label, two=None):
     t = (f'<text x="{x + w / 2}" y="{y + h / 2 + 5}" text-anchor="middle" class="btn">{label}</text>' if not two else
          f'<text x="{x + w / 2}" y="{y + h / 2 - 1}" text-anchor="middle" class="btn small">{label}</text>'
          f'<text x="{x + w / 2}" y="{y + h / 2 + 12}" text-anchor="middle" class="btn small">{two}</text>')
-    return f'<g><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="9" fill="{BTN}" stroke="#4a4d52" stroke-width="1.5"/>{t}</g>'
+    return f'<g><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="9" fill="{BTN}" stroke="{BTN_EDGE}" stroke-width="1.5"/>{t}</g>'
 
 
 def keybed(x0, y0, w, h):
@@ -69,19 +71,19 @@ def keybed(x0, y0, w, h):
     kw = pitch * 0.78
     for i in range(WHITE_N):
         x = x0 + 12 + i * pitch + (pitch - kw) / 2
-        s.append(f'<rect x="{x:.1f}" y="{y0 + h * 0.43:.1f}" width="{kw:.1f}" height="{h * 0.52:.1f}" rx="{kw / 2:.1f}" fill="{KEY_W}"/>')
+        s.append(f'<rect x="{x:.1f}" y="{y0 + h * 0.43:.1f}" width="{kw:.1f}" height="{h * 0.52:.1f}" rx="{kw / 2:.1f}" fill="{KEY_W}" stroke="{BTN_EDGE}" stroke-width="1.5"/>')
         s.append(f'<text x="{x + kw / 2:.1f}" y="{y0 + h * 0.43 + h * 0.52 * 0.72:.1f}" text-anchor="middle" class="key">{WHITE_NOTES[i]}</text>')
     for k, a in enumerate(BLACK_AFTER):
         x = x0 + 12 + (a + 1) * pitch - kw / 2
-        s.append(f'<rect x="{x:.1f}" y="{y0 + h * 0.06:.1f}" width="{kw:.1f}" height="{h * 0.33:.1f}" rx="{kw / 2:.1f}" fill="{KEY_B}"/>')
+        s.append(f'<rect x="{x:.1f}" y="{y0 + h * 0.06:.1f}" width="{kw:.1f}" height="{h * 0.33:.1f}" rx="{kw / 2:.1f}" fill="{KEY_B}" stroke="{BTN_EDGE}" stroke-width="1.5"/>')
         s.append(f'<text x="{x + kw / 2:.1f}" y="{y0 + h * 0.06 + h * 0.33 * 0.62:.1f}" text-anchor="middle" class="key small">{BLACK_NOTES[k]}</text>')
     return "".join(s)
 
 
 STYLE = (f"<style>.lbl{{font:600 16px {FONT};fill:{LABEL};letter-spacing:.06em}}"
-         f".btn{{font:600 14px {FONT};fill:{LABEL};letter-spacing:.05em}}.btn.small{{font-size:11px}}"
-         f".key{{font:600 16px {FONT};fill:#2a2c30}}.key.small{{font-size:13px}}"
-         f".what{{font:400 13px {FONT};fill:{WHAT}}}</style>")
+         f".btn{{font:600 14px {FONT};fill:{BTN_INK};letter-spacing:.05em}}.btn.small{{font-size:11px}}"
+         f".key{{font:600 16px {FONT};fill:{BTN_INK}}}.key.small{{font-size:13px}}"
+         f".what{{font:400 13px {FONT};fill:{LABEL}}}.what-tray{{font:400 12px {FONT};fill:{WHAT_TRAY}}}</style>")
 
 
 def panel(screen_png):
@@ -102,17 +104,17 @@ def panel(screen_png):
     s.append(f'<rect x="568" y="146" width="400" height="236" rx="18" fill="{TRAY}"/>')
     top = [("FX", "Space"), ("SEL", "Perform|held: Lock"), ("ENV", "Drone"), ("LFO", "Lead"), ("EDIT", "Chords|held: next"),
            ("GLO", "Setup, Arc|held: save")]
-    bot = [("HOME", "Aisling, Key"), ("SAVE", "Atmosphere"), ("ARP", "Sequence"), ("SEQ", "Sequence 2"),
+    bot = [("HOME", "Aisling,|Key"), ("SAVE", "Atmosphere"), ("ARP", "Sequence"), ("SEQ", "Sequence|2"),
            (("PLAY", "STOP"), "Play /|rest"), ("REC", "Hold|held: effects")]
     for i in range(6):
         x = 582 + i * 63
         s.append(button(x, 158, 54, 48, top[i][0]))
         if top[i][1]:
-            s.append(what(x + 27, 224, top[i][1]))
+            s.append(what(x + 27, 224, top[i][1], "what-tray"))
         b = bot[i][0]
         s.append(button(x, 264, 54, 48, b[0], b[1]) if isinstance(b, tuple) else button(x, 264, 54, 48, b))
         if bot[i][1]:
-            s.append(what(x + 27, 330, bot[i][1]))
+            s.append(what(x + 27, 330, bot[i][1], "what-tray"))
     s.append(keybed(36, 400, W - 72, 270))
     s.append(what(W / 2, 698, "White keys: the Lead, in the scale (lit: the note it plays)   ·   "
                               "REC held: the sixteen effects on the white keys"))
