@@ -20,7 +20,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://aisling.stephen8n.com/">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23120f17'/%3E%3Crect x='4' y='6' width='24' height='5' rx='2' fill='%23b8622a'/%3E%3Crect x='4' y='11' width='24' height='4' rx='2' fill='%234a4272'/%3E%3Crect x='4' y='15' width='24' height='6' rx='2' fill='%23536a2a'/%3E%3Crect x='4' y='21' width='24' height='5' rx='2' fill='%236a2a3c'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23167848'/%3E%3Cpath fill='%23e8b034' d='M2 1h2v1H2zM2 2h1v1H2zM4 2h2v1H4zM13 2h1v1H13zM1 3h2v1H1zM6 3h2v1H6zM12 3h2v1H12zM1 4h1v1H1zM9 4h3v1H9zM13 4h1v1H13zM1 5h1v1H1zM11 5h1v1H11zM1 6h1v1H1zM10 6h1v1H10zM1 7h1v1H1zM9 7h1v1H9zM1 8h1v1H1zM8 8h1v1H8zM2 9h1v1H2zM7 9h1v1H7zM2 10h1v1H2zM6 10h1v1H6zM2 11h1v1H2zM5 11h1v1H5zM2 12h1v1H2zM4 12h1v1H4zM3 13h1v1H3zM2 14h3v1H2z'/%3E%3Cpath fill='%23ffe278' d='M3 2h1v1H3zM12 2h1v1H12zM5 3h1v1H5zM11 3h1v1H11zM2 4h1v1H2zM8 4h1v1H8zM12 4h1v1H12zM10 5h1v1H10zM9 6h1v1H9zM8 7h1v1H8zM2 8h1v1H2zM7 8h1v1H7zM6 9h1v1H6zM5 10h1v1H5zM4 11h1v1H4zM3 12h1v1H3zM2 13h1v1H2zM1 14h1v1H1z'/%3E%3Cpath fill='%23b0761a' d='M4 3h1v1H4zM14 3h1v1H14zM7 4h1v1H7zM12 5h1v1H12zM11 6h1v1H11zM10 7h1v1H10zM9 8h1v1H9zM8 9h1v1H8zM7 10h1v1H7zM6 11h1v1H6zM5 12h1v1H5zM4 13h1v1H4zM5 14h1v1H5z'/%3E%3Cpath fill='%23fad682' d='M4 4h1v1H4zM6 4h1v1H6zM4 5h1v1H4zM6 5h1v1H6zM8 5h1v1H8zM4 6h1v1H4zM6 6h1v1H6zM8 6h1v1H8zM4 7h1v1H4zM6 7h1v1H6zM4 8h1v1H4zM6 8h1v1H6zM4 9h1v1H4zM4 10h1v1H4z'/%3E%3C/svg%3E">
 <style>
 :root { --panel: rgba(16, 13, 21, .74); --ink: #ece8f0; --muted: #b3abbd; --rule: rgba(236, 232, 240, .16);
         --accent: #d98a3c; --btn: rgba(236, 232, 240, .08); --btn-on: rgba(217, 138, 60, .26); color-scheme: dark; }
@@ -43,7 +43,8 @@ body { color: var(--ink); font: 400 15px/1.5 "Helvetica Neue", Helvetica, Arial,
       border-radius: 8px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity .6s; }
 body.quiet #ui { opacity: 0; pointer-events: none; }
 body.quiet { cursor: none; }
-h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: .14em; margin: 0; line-height: 1.1; }
+h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: .14em; margin: 0; line-height: 1.1; display: flex; align-items: baseline; }
+h1 .mark { align-self: center; flex: none; width: 30px; height: 30px; margin-right: .55rem; background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAIAAAC0Ujn1AAABf0lEQVR42uWWP2uDUBDAL+UVpHQsqTh3kpChk7gZRLo15AP4CTJl6lA65AM4+Qmks8Q1iNkkk2NGx0Agi1C6dOlw5fGi7708RafedBzH7/54d8/R+O0FhpEbGEwGRJOmyYwzVA6LWZ9oM8526Qp1xw2ovUMYwrWeihQAaAwMw6WbcSaKSkQx9/kR8gh1yzZ26YotggrauXQi4vqlDgDn9fzhY1Mt3SSM2CLY+kR0ImmW9jRG5efrzi/1CiAJI9bBso19frSATyfqnwUDYB3n9fz2/jsJI6T7n1uYTjTJXON44DeUywW31NkSZStDvUVSBd5Vrmwbud61fOWeXRadcuXFtUNXgXcqUpYrSrmOPixmjhu8Lv0q8OglYVuhzhVmnYRRMZ1w87VsQ97iLg1B7tX5aYdWmeKmjJoPGL2rjhtsN+/duLKssd3qU9ziqFq2gQdPcYqVssYRfHzmcNVT5qPpkfq7mcrT1uaVuVR6eBuxIbWV6QeNdO2f/j0NiP4F0EHjabHANWIAAAAASUVORK5CYII=") center / 100% no-repeat; image-rendering: pixelated; }
 h1 span { font-weight: 400; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-left: .6em; }
 p { margin: .5rem 0; }
 #status { color: var(--muted); min-height: 1.5em; }
@@ -84,7 +85,7 @@ details { margin-top: .4rem; border-top: 1px solid var(--rule); padding-top: .4r
 summary { cursor: pointer; color: var(--muted); }
 details p { font-size: .92rem; }
 a { color: var(--ink); text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-nav#site { font-size: .9rem; color: var(--muted); margin-top: .5rem; border-top: 1px solid var(--rule); padding-top: .45rem; }
+nav#site { display: flex; flex-wrap: wrap; gap: 0 .85rem; font: 400 .8rem/1.9 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); margin-top: .5rem; border-top: 1px solid var(--rule); padding-top: .45rem; }
 kbd { font: inherit; font-size: .85em; border: 1px solid var(--rule); border-radius: 4px; padding: 0 5px; }
 /* in the emulator's drawer: the emulator is the MIDI, so only the scene, the ground and colours, the picture and full
    screen, top right */
@@ -101,7 +102,7 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
 <canvas id="pool" aria-hidden="true"></canvas>
 <div id="grain" aria-hidden="true"></div>
 <section id="ui" aria-label="Visualiser">
-  <h1>AISLING<span>Visualiser</span></h1>
+  <h1><i class="mark" aria-hidden="true"></i>AISLING<span>Visualiser</span></h1>
   <p id="what">The FM-1's four layers painted as a west-coast landscape.</p>
   <ul class="legend" id="legend"></ul>
   <div id="buttons">
@@ -177,12 +178,13 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
        <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/emu/">browser emulator</a>.</p>
   </details>
   <!-- AISLING's other pages, as their own nav has them; a new tab, so a painting or a recording isn't lost -->
-  <nav id="site"><a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/">AISLING</a> ·
-    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/install/">Install</a> ·
-    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/emu/">Try it in the browser</a> ·
-    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/manual/">Manual</a> ·
-    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/cheat/">Cheat sheet</a> ·
-    <a target="_blank" rel="noopener" href="https://github.com/stephencummins/fm1-aisling">Source</a></nav>
+  <nav id="site"><a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/">home</a>
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/emu/">emulator</a>
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/install/">install</a>
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/manual/">manual</a>
+    <a target="_blank" rel="noopener" href="https://stephencummins.github.io/fm1-aisling/cheat/">cheat sheet</a>
+    <a target="_blank" rel="noopener" href="https://github.com/stephencummins/fm1-aisling">source</a>
+    <a target="_blank" rel="noopener" href="https://www.stephen8n.com">stephen8n</a></nav>
 </section>
 <script>
 'use strict'

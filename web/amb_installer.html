@@ -10,10 +10,10 @@
 <title>Install · AISLING</title>
 <style>
   /* AISLING's colours, as the site, the emulator and the manual: vellum, a dark iron-gall ink, the triskele's green */
-  :root { --bg: #f3ead7; --fg: #2b2219; --dim: #66594a; --accent: #146c41; --on-accent: #fbf6eb; --sheet: #fbf6eb; --river-2: #146c41; color-scheme: light; }
+  :root { --bar-bleed: 0; --bg: #f3ead7; --fg: #2b2219; --dim: #66594a; --accent: #146c41; --on-accent: #fbf6eb; --sheet: #fbf6eb; --river-2: #146c41; color-scheme: light; }
   body { margin: 0; background: var(--bg); color: var(--fg);
          font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }
-  main { max-width: 520px; margin: 0 auto; padding: 48px 16px; }
+  main { max-width: 520px; margin: 0 auto; padding: 0 16px 48px; }
   h1 { font-size: 28px; font-weight: 300; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 24px; }
   .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; color: var(--dim); }
   p { margin: 0 0 16px; }
@@ -34,17 +34,12 @@
   pre:empty { display: none; }
   h2 { font-size: 16px; font-weight: 400; text-transform: uppercase; letter-spacing: .06em; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--fg); }
   ol { margin: 0 0 16px; padding-left: 20px; }
-  .site { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1.2rem; margin: 0 0 1.6rem; padding-bottom: .5rem; border-bottom: 1px solid var(--fg); }
-  .site .home { font-size: 1.05rem; font-weight: 400; letter-spacing: .08em; color: var(--fg); text-decoration: none; }
-  .site .home:hover { color: var(--river-2); background: none; }
-  .site nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: .2rem 1rem; font-size: .92rem; }
-  .site nav a { color: var(--fg); text-decoration-color: var(--river-2); text-underline-offset: 3px; }
-  .site nav a[aria-current] { text-decoration: none; color: var(--river-2); }
 </style>
+<!--AISLING-HEAD-->
 </head>
 <body>
+<!--AISLING-BAR-->
 <main>
-  <header class="site"><a class="home" href="../">AISLING</a><nav aria-label="AISLING"><a href="../emu/">Emulator</a><a href="../install/" aria-current="page">Install</a><a href="../manual/">Manual</a><a href="../cheat/">Cheat sheet</a><a href="https://github.com/stephencummins/fm1-aisling">Source</a></nav></header>
   <button class="lang" id="lang" type="button"></button>
   <h1>Install AISLING</h1>
   <p data-t="intro"></p>

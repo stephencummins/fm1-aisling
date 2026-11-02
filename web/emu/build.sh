@@ -17,7 +17,7 @@ emcc -O2 -ffp-contract=off -std=gnu99 -Wall -Wno-unused-function -Wno-unused-par
     --no-entry -sSTANDALONE_WASM -sSTACK_SIZE=1048576 -sINITIAL_MEMORY=33554432 -sFILESYSTEM=0 \
     -o build/emu/amb.wasm web/emu/amb_web.c firmware/src/dsp/amb.c
 cp web/emu/index.html web/emu/worklet.js build/emu/
-cp docs/card.png build/emu/card.png    # the header's harp and the tab's icon
+cp docs/card.png build/emu/card.png    # make_artifact.py's harp; on the site, the bar has it (tools/site_brand.py)
 cp web/visualiser/index.html build/emu/visualiser.html
 READER="${FM1_READER:-../fm1-reader/web}"
 rm -rf build/emu/reader

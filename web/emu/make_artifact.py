@@ -23,7 +23,8 @@ s = s.replace(old, "Promise.resolve(Uint8Array.from(atob(AMB_WASM), (c) => c.cha
 s = s.replace('<script>\n"use strict";', f'<script>\n"use strict";\nconst AMB_WASM = "{wasm}";', 1)
 s = s.replace("<title>Emulator · AMB-1</title>", "<title>AMB-1 Emulator</title>", 1)
 card = "data:image/png;base64," + base64.b64encode((EMU / "card.png").read_bytes()).decode()
-s = s.replace('src="card.png"', f'src="{card}"').replace('href="card.png"', f'href="{card}"')
+# the site's bar and its files are the site's: here, one file, the harp as the tab's icon
+s = s.replace("<!--AISLING-HEAD-->\n", f'<link rel="icon" href="{card}">\n').replace("<!--AISLING-BAR-->\n", "")
 (OUT / "index.html").write_text(s)
 (OUT / "worklet.js").write_text((EMU / "worklet.js").read_text())
 print(f"artifact: {OUT / 'index.html'} ({len(s)} B), worklet.js")

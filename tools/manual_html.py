@@ -17,6 +17,8 @@ import re
 import sys
 from pathlib import Path
 
+from site_brand import stamp
+
 SRC = Path(__file__).resolve().parents[1]
 PART_COLOURS = {}                                     # (X0X marks its parts with a swatch; AISLING has none)
 
@@ -31,7 +33,7 @@ CSS = """
 body {
   background: var(--paper); color: var(--ink); margin: 0;
   font: 400 17px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  padding-inline: 16px; padding-block: 32px 64px;
+  padding-inline: 16px; padding-block: 0 64px;
 }
 main { max-width: 46rem; margin: 0 auto; }
 h1, h2, h3 { font-family: inherit; text-wrap: balance; line-height: 1.2; }
@@ -49,9 +51,8 @@ strong { font-weight: 600; }
 a { color: var(--ink); text-decoration-color: var(--river-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 a:hover { background: var(--green-1); }
 a:focus-visible, summary:focus-visible, pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.skip { position: absolute; left: 16px; top: -100px; background: var(--sheet); border: 1px solid var(--ink); padding: 6px 12px; z-index: 1; }
+.skip { position: absolute; left: 16px; top: -100px; background: var(--sheet); border: 1px solid var(--ink); padding: 6px 12px; z-index: 30; }
 .skip:focus { top: 8px; }
-header.site { max-width: 46rem; margin-inline: auto; }
 code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86em; }
 code { background: var(--sheet); padding: .08em .35em; border: 1px solid var(--rule); }
 pre { background: var(--sheet); border: 1px solid var(--ink); padding: 14px 16px; overflow-x: auto; line-height: 1.45; margin: 0 0 1.2rem; }
@@ -65,12 +66,6 @@ td:first-child { white-space: nowrap; }
 .lede { margin-bottom: 1.6rem; }
 .status { background: var(--sheet); border: 1px solid var(--ink); padding: 12px 16px; }
 .status p { margin: 0; }
-.site { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem 1.2rem; margin: 0 0 1.6rem; padding-bottom: .5rem; border-bottom: 1px solid var(--ink); }
-.site .home { font-size: 1.05rem; font-weight: 400; letter-spacing: .08em; color: var(--ink); text-decoration: none; }
-.site .home:hover { color: var(--river-2); background: none; }
-.site nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: .2rem 1rem; font-size: .92rem; }
-.site nav a { color: var(--ink); text-decoration-color: var(--river-2); text-underline-offset: 3px; }
-.site nav a[aria-current] { text-decoration: none; color: var(--river-2); }
 a.home { color: inherit; text-decoration: none; }
 a.home:hover { background: none; color: var(--river-2); }
 main > a.home { display: inline-block; font-size: .9rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 .4rem; }
@@ -100,6 +95,8 @@ def inline(t):
     t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
     t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
     t = re.sub(r"(?<![\w*])\*([^*\s][^*]*)\*(?![\w*])", r"<em>\1</em>", t)
+    # a link up to another of the repo's documents (../EMULATOR.md) works on GitHub; from the site it goes to GitHub
+    t = re.sub(r"\]\(\.\./([A-Z]+\.md)\)", r"](https://github.com/stephencummins/fm1-aisling/blob/main/\1)", t)
     t = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: f'<a href="{m.group(2)}">{m.group(1)}</a>', t)
     for name, col in PART_COLOURS.items():          # a part named at the start of a table cell gets its swatch
         t = re.sub(rf"^<strong>{name}</strong>", f'<span class="swatch" style="background:{col}"></span><strong>{name}</strong>', t)
@@ -175,8 +172,7 @@ def convert(md):
             continue
         if ln.startswith("# "):                         # the title; AISLING's own a way home (the site's root)
             t = ln[2:].strip()
-            if t == NAME:                               # the site's header (home, the other pages), then the title
-                out.append(f'<header class="site"><a class="home" href="../">{NAME}</a><nav aria-label="{NAME}"><a href="../emu/">Emulator</a><a href="../install/">Install</a><a href="../manual/" aria-current="page">Manual</a><a href="../cheat/">Cheat sheet</a><a href="https://github.com/stephencummins/fm1-aisling">Source</a></nav></header>')
+            if t == NAME:                               # the site's bar is the page's way home
                 out.append('<h1>Manual</h1>')
             else:
                 out.append(f'<a class="home" href="../">{NAME}</a>\n<h1>{inline(t)}</h1>')
@@ -250,21 +246,19 @@ def main():
     h1 = re.search(r"^# (.+)$", md, re.M)
     title, what = (f"Manual · {NAME}", "The manual") if not h1 or h1.group(1) == NAME else (f"{NAME}: {h1.group(1)}", h1.group(1))
     body = convert(md)
-    # the site's header (if any) before <main>, and a way past it
-    header, sep, rest = body.partition("</header>\n")
-    if not sep:
-        header, rest = "", body
-    else:
-        header += sep
+    # the site's bar before <main>, and a way past it
     skip = '<a class="skip" href="#content">Skip to content</a>\n'
     page = (f"<title>{html.escape(title)}</title>\n"
             f'<meta name="description" content="{html.escape(what)} for {NAME}, a generative Irish ambient instrument for the M-VAVE FM-1.">\n'
-            f'<style>{CSS}</style>\n{skip}{header}<main id="content">\n{rest}\n</main>\n')
+            f'<style>{CSS}</style>\n{skip}<!--AISLING-BAR-->\n<main id="content">\n{body}\n</main>\n')
     if not fragment:
         head, _, rest = page.partition("</style>\n")
         page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
                 '<meta name="viewport" content="width=device-width, initial-scale=1">\n' + head + "</style>\n" +
-                "</head>\n<body>\n" + rest + "</body>\n</html>\n")
+                "<!--AISLING-HEAD-->\n</head>\n<body>\n" + rest + "</body>\n</html>\n")
+        page = stamp(page, "../", "manual")
+    else:
+        page = page.replace("<!--AISLING-BAR-->\n", "")
     dst.write_text(page)
     print(f"{dst}: {len(page)} bytes")
 

@@ -1,0 +1,39 @@
+/* AISLING's site, the part every page shares: the bar along the top, the fonts, the print rule. Written once here and
+   in tools/site_brand.py, in the manner of the gnomes' sites (one bar, a framed mark, a small mono nav, hairlines and
+   square corners) in AISLING's own colours: vellum, iron-gall ink, the card's green. Text reads at 4.5:1 or more. */
+@font-face { font-family: "Barlow Semi Condensed"; font-weight: 600; font-display: swap;
+             src: url(fonts/BarlowSemiCondensed-SemiBold.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap;
+             src: url(fonts/IBMPlexMono-Regular.woff2) format("woff2"); }
+:root { --brand-ground: #f3ead7; --brand-ink: #2b2219; --brand-rule: #d9ccb1; --brand-green: #146c41;
+        --brand-display: "Barlow Semi Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        --brand-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; }
+h1, h2 { font-family: var(--brand-display); font-weight: 600; }
+p.sub { font-family: var(--brand-mono); text-transform: none; letter-spacing: 0; font-size: .82rem; }
+
+/* --bar-bleed cancels the page's gutter, so the rule runs edge to edge; a page with no gutter on its body sets it to 0 */
+.sitebar { background: var(--brand-ground); border-bottom: 1px solid var(--brand-rule);
+       margin: 0 var(--bar-bleed, -16px) 1.6rem; }
+.sitebar-in { max-width: 1040px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center;
+          gap: 2px 20px; }
+.sitebar a { color: var(--brand-ink); }
+.sitebar a:hover { background: none; }
+.sitebar a:focus-visible { outline: 2px solid var(--brand-ink); outline-offset: 2px; }
+.sitebar-home { display: inline-flex; align-items: center; gap: 10px; min-height: 32px; text-decoration: none; }
+.sitebar-mark { display: block; flex: none; box-sizing: content-box; border: 1px solid var(--brand-rule);
+            image-rendering: pixelated; }
+.sitebar-name { font: 600 1.3rem/1 var(--brand-display); letter-spacing: .14em; }
+.sitebar-by { font: 400 .78rem/1 var(--brand-mono); color: var(--brand-green); white-space: nowrap; }
+.sitebar-home:hover .sitebar-name { color: var(--brand-green); }
+.sitebar-nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: 0 14px; font: 400 .8rem/1 var(--brand-mono); }
+.sitebar-nav a { display: inline-block; padding: 8px 0; text-decoration: underline; text-decoration-thickness: 1px;
+             text-decoration-color: var(--brand-rule); text-underline-offset: 3px; white-space: nowrap; }
+.sitebar-nav a:hover { text-decoration-color: currentColor; color: var(--brand-green); }
+.sitebar-nav a[aria-current] { color: var(--brand-green); text-decoration: none; }
+@media (max-width: 47.99rem) { .sitebar-nav { margin-left: 0; width: 100%; } }
+/* one row from here up, so it can stay at the top, and a jump to a heading stops clear of it */
+@media (min-width: 48rem) and (min-height: 32rem) {
+  html { scroll-padding-top: 4.5rem; }
+  .sitebar { position: sticky; top: 0; z-index: 20; }
+}
+@media print { .sitebar { display: none; } }

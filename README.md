@@ -112,7 +112,8 @@ python3 tools/fm1_install.py build/amb.fwsc     # install it over USB
 
 `build/host/amb_host SCRIPT OUTDIR` runs the whole app on a computer from a script
 (`tests/scenarios/*.amb`), with audio and screenshots coming out; `build/host/en_render OUT.wav SECS piece=N`
-renders the engine alone. `tools/make_card.py` draws the harp on the card ([docs/card.png](docs/card.png)).
+renders the engine alone. `tools/make_card.py` draws the harp on the card ([docs/card.png](docs/card.png)), and `tools/make_brand.py` makes the
+site's icons from it.
 
 ## Credits
 
