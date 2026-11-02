@@ -4,7 +4,7 @@
 FM-1's panel (the web emulator's drawing, web/emu/index.html) with the screen, the lights and the buttons and
 keys as they are pressed, encoded with ffmpeg.
 
-  tools/film.py FILM WAV OUT.mp4 [--layout split|panel|screen|vertical|center] [--fps 30]
+  tools/film.py FILM WAV OUT.mp4 [--layout split|panel|bare|screen|vertical|center] [--fps 30]
   tools/film.py FILM - OUT.mp4 ...        (WAV "-" or --no-audio: the video alone, to mux later)
 
 Layouts: split (1920x1080: the panel on the left, the screen large on the right), panel (1920x1080: the
@@ -32,10 +32,13 @@ ENC = {"SELECT": 0, "ALGORITHM": 1, "PRESETS": 2, "KNOB1": 3, "KNOB2": 4, "KNOB3
 WHITE_K = [0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26]
 BLACK_K = [1, 3, 5, 8, 10, 13, 15, 17, 20, 22, 25]
 BLACK_AFTER = [0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 14]
-BODY, TRAY, KEY_W, KEY_B, KNOB, BTNC, LABEL = "#3a3d42", "#26282c", "#d9dadc", "#c9cacd", "#1f2124", "#2e3135", "#e8e8ea"
-LIT_BTN, LIT_TXT, LIT_KW, LIT_KB, HELD = "#f28a5a", "#2a140a", "#f6b48e", "#4cc3b6", "#f28a5a"
+# the orange FM-1, as the emulator draws it (web/emu/index.html)
+BODY, TRAY, KEY_W, KEY_B, KNOB, BTNC, LABEL = "#cb6b45", "#85473c", "#8f4d40", "#8f4d40", "#1c1614", "#8f4d40", "#24110a"
+BTN_INK, KNOB_FOOT, KNOB_EDGE, BTN_EDGE, SLIT = "#fbf0e4", "#ab5636", "#3a2a24", "#5a2c23", "#2c1a17"
+LIT_BTN, LIT_TXT, LIT_KW, LIT_KB, HELD = "#ffe8c2", "#2a140a", "#f6b48e", "#4cc3b6", "#ffe8c2"
 GROUND = (13, 16, 20)
 RIP_C, RIP_FR = (92, 196, 204), 20            # a press's ripple: the screen's teal (K_ACC), 2/3 s at 30 fps
+RIP_P = (255, 232, 194)                       # the ripple on the panel: the held key's cream, as teal over rust fades to grey
 FONT = os.path.join(os.path.dirname(__file__), "..", "assets", "fonts", "BarlowSemiCondensed-SemiBold.ttf")
 CAP_FONT = os.path.join(os.path.dirname(__file__), "..", "assets", "fonts", "BarlowSemiCondensed-Medium.ttf")
 CAP_C, CAP_A, CAP_S, CAP_F = (222, 228, 232), 0.85, 10.0, 1.5   # a caption: light grey at 85%, 10 s, 1.5 s fades
@@ -88,8 +91,8 @@ class Panel:
         R(568, 160, 400, 140, 18, fill=TRAY)
         R(36, 340, 928, 270, 18, fill=TRAY)
         for x, y, r, label, _ in self.knobs:
-            d.ellipse(((x - r - 5) * s, (y - r - 5) * s, (x + r + 5) * s, (y + r + 5) * s), fill=TRAY)
-            d.ellipse(((x - r) * s, (y - r) * s, (x + r) * s, (y + r) * s), fill=KNOB, outline="#44474c", width=int(2 * s))
+            d.ellipse(((x - r - 5) * s, (y - r - 5) * s, (x + r + 5) * s, (y + r + 5) * s), fill=KNOB_FOOT)
+            d.ellipse(((x - r) * s, (y - r) * s, (x + r) * s, (y + r) * s), fill=KNOB, outline=KNOB_EDGE, width=int(2 * s))
             d.text((x * s, (y - r - 12) * s), label, font=font(17 * s), fill=LABEL, anchor="ms")
         im = im.resize((int(1000 * self.s), int(640 * self.s)), Image.LANCZOS)
         for b in self.buttons:
@@ -115,10 +118,10 @@ class Panel:
         x, y, w, h, label, two = b
 
         def draw(d, P, s):
-            stroke, sw = (HELD, 4) if held else ("#4a4d52", 1.5)
+            stroke, sw = (HELD, 4) if held else (BTN_EDGE, 1.5)
             d.rounded_rectangle((*P(x, y), *P(x + w, y + h)), 9 * s, fill=LIT_BTN if lit else BTNC,
                                 outline=stroke, width=max(1, int(sw * s)))
-            c = LIT_TXT if lit else LABEL
+            c = LIT_TXT if lit else BTN_INK
             if two:
                 d.text(P(x + w / 2, y + h / 2 - 1), label, font=font(12 * s), fill=c, anchor="ms")
                 d.text(P(x + w / 2, y + h / 2 + 12), two, font=font(12 * s), fill=c, anchor="ms")
@@ -134,7 +137,9 @@ class Panel:
             if held:                           # pressed: the outline, and a little darker
                 fill = mix(fill, "#000000", 0.18)
             d.rounded_rectangle((*P(x, y), *P(x + w, y + h)), w / 2 * s, fill=fill,
-                                outline=HELD if held else None, width=int(4 * s) if held else 0)
+                                outline=HELD if held else BTN_EDGE, width=int(4 * s) if held else max(1, int(1.5 * s)))
+            sy, sh = (y + h * 0.23, h * 0.54) if white else (y + h * 0.18, h * 0.64)   # the slit, as the emulator has it
+            d.rounded_rectangle((*P(x + w / 2 - 3, sy), *P(x + w / 2 + 3, sy + sh)), 3 * s, fill=SLIT)
         return self.sprite(x, y, w, h, draw)
 
 
@@ -271,7 +276,7 @@ def main():
     ap.add_argument("film")
     ap.add_argument("wav")
     ap.add_argument("out")
-    ap.add_argument("--layout", default="split", choices=["split", "panel", "screen", "vertical", "center"])
+    ap.add_argument("--layout", default="split", choices=["split", "panel", "bare", "screen", "vertical", "center"])
     ap.add_argument("--no-audio", action="store_true", help="the video alone (as WAV '-'), to mux later")
     ap.add_argument("--captions", help="FILE.tsv: seconds<TAB>text, a caption in the lower left")
     ap.add_argument("--crf", type=int, default=14)
@@ -292,6 +297,9 @@ def main():
         W, H, ps = 1080 * k, 1920 * k, 0.9 * k  # Shorts' own overlays (the bottom fifth, the right edge's buttons)
         scr = (180 * k, 170 * k, 720 * k)
         off = (90 * k, 930 * k)                 # (centred, as the screen)
+    elif a.layout == "bare":                   # the panel alone, filling the frame, to be laid over something else
+        W, H, ps, off = 1000 * k, 640 * k, 1.0 * k, (0, 0)
+        scr = (int(318 * ps), int(62 * ps), int(200 * ps))
     elif a.layout == "panel":
         W, H, ps = 1920 * k, 1080 * k, 1.8 * k
         off = ((W - int(1000 * ps)) // 2, (H - int(640 * ps)) // 2)
@@ -378,9 +386,9 @@ def main():
                     p0 = (cx + np.sin(t) * (r - 5) * ps, cy - np.cos(t) * (r - 5) * ps)
                     p1 = (cx + np.sin(t) * (r - 15) * ps, cy - np.cos(t) * (r - 15) * ps)
                     wd = max(2, int(3 * ps))
-                    d.line((p0, p1), fill=LABEL, width=wd)
+                    d.line((p0, p1), fill=BTN_INK, width=wd)
                     for q in (p0, p1):
-                        d.ellipse((q[0] - wd / 2, q[1] - wd / 2, q[0] + wd / 2, q[1] + wd / 2), fill=LABEL)
+                        d.ellipse((q[0] - wd / 2, q[1] - wd / 2, q[0] + wd / 2, q[1] + wd / 2), fill=BTN_INK)
                 if rip:
                     lay = Image.new("RGBA", im.size, (0, 0, 0, 0))
                     dl = ImageDraw.Draw(lay)
@@ -391,10 +399,10 @@ def main():
                         box = (off[0] + x * ps - g, off[1] + y * ps - g, off[0] + (x + w) * ps + g, off[1] + (y + hh) * ps + g)
                         wd = max(2, int(round(3.5 * ps * (1 - 0.5 * t))))
                         if kind == "ring":
-                            dl.ellipse(box, outline=RIP_C + (al,), width=wd)
+                            dl.ellipse(box, outline=RIP_P + (al,), width=wd)
                         else:
                             rad = min(w, hh) * ps / 2 + g if w < 30 else 9 * ps + g
-                            dl.rounded_rectangle(box, rad, outline=RIP_C + (al,), width=wd)
+                            dl.rounded_rectangle(box, rad, outline=RIP_P + (al,), width=wd)
                     im = Image.alpha_composite(im.convert("RGBA"), lay).convert("RGB")
                     d = ImageDraw.Draw(im)
                 if a.layout in ("split", "vertical"):   # the panel's own screen, small
