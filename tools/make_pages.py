@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
-"""Make the AISLING site for GitHub Pages (https://stephencummins.github.io/fm1-aisling/), as NACHTFAHRT's is made:
+"""Make the AISLING site, as NACHTFAHRT's is made. Its home is https://aisling.stephen8n.com/ (Cloudflare Pages); the same
+files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), where the links already out there point
+(tools/publish_pages.sh). Its links between pages are relative, and every page names the home as its canonical address.
 
-  favicon.svg, favicon-32.png, apple-touch-icon.png, mark.png, site.css, fonts/
-                              the harp, the bar and the fonts every page shares (web/brand, tools/site_brand.py)
+  favicon.svg, favicon-32.png, apple-touch-icon.png, mark.png, site.css, wall.js, fonts/
+                              the harp, the bar, the look and the fonts every page shares (web/brand, tools/site_brand.py)
+  _headers, _redirects        Cloudflare's (web/brand); GitHub Pages serves them as two stray files
+  visualiser/                 the visualiser (web/visualiser)
   index.html                  what AISLING is, and the ways in: install, try, the visualiser; then the help (manual,
                               cheat sheet, troubleshooting), the download and the source
   img/                        screenshots (docs/img), the card (docs/card.png, tools/make_card.py) and the
@@ -31,11 +35,10 @@ from pathlib import Path
 SRC = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SRC / "web"))
 sys.path.insert(0, str(SRC / "tools"))
-from site_brand import stamp  # noqa: E402
+from site_brand import NAV, SITE, stamp  # noqa: E402
 from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the package format)
 
 REPO = "https://github.com/stephencummins/fm1-aisling"
-SITE = "https://stephencummins.github.io/fm1-aisling/"
 BY = 'by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
 
 LANDING = """<!doctype html>
@@ -43,6 +46,7 @@ LANDING = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>{ const q = new URLSearchParams(location.search); if (['embed', 'clean', 'scene', 'ground', 'palette', 'demo'].some((k) => q.has(k))) location.replace('visualiser/' + location.search + location.hash) }</script>
 <title>AISLING · Irish ambient for the FM-1</title>
 <meta name="description" content="A generative Irish ambient instrument for the M-VAVE FM-1: harps and a flute over a held drone, in the old modes, with the weather of the west coast behind them. Let it play for hours, or play the flute with it on the keys.">
 <meta property="og:title" content="AISLING · Irish ambient for the FM-1">
@@ -53,76 +57,76 @@ LANDING = """<!doctype html>
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-/* AISLING's colours: vellum, a dark iron-gall ink, the triskele's green (darkened to read on the vellum) for the accent,
-   the layers' colours for the list. Text reads at 4.5:1 or more on the ground and the cards, the markers at 3:1 */
-:root { --ground: #f3ead7; --card: #fbf6eb; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1; --acc: #146c41;
-        --drone: #6a44b3; --seq: #b02f7c; --lead: #9a6400; --seq2: #1d6a94; --atmos: #7a6a54; color-scheme: light; }
-body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 0 64px;
-       font: 400 17px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }
-header { max-width: 42rem; margin: 0 auto; display: flex; gap: 20px; align-items: center; }
-.card { width: 120px; height: 120px; image-rendering: pixelated; flex: none; }
-main { max-width: 42rem; margin: 0 auto; }
-h1 { font-size: 2.6rem; font-weight: 600; letter-spacing: .12em; margin: 0 0 .2rem; }
-.sub { text-transform: uppercase; letter-spacing: .1em; font-size: .9rem; color: var(--acc); margin: 0 0 1.2rem;
-       padding-bottom: .8rem; border-bottom: 1px solid var(--rule); }
-h2 { font-size: 1.05rem; font-weight: 400; text-transform: uppercase; letter-spacing: .08em; margin: 2.4rem 0 .6rem;
-     padding-top: .6rem; border-top: 1px solid var(--rule); color: var(--acc); }
-.lede { font-size: 1.15rem; margin: 0 0 1.6rem; }
-.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 1.8rem; }
-.shots img { width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--rule); }
-.ways { display: grid; gap: 10px; margin: 0 0 1rem; }
-.ways a { display: block; text-decoration: none; color: var(--ink); background: var(--card); border: 1px solid var(--rule);
-          padding: 12px 16px; }
-.ways a:first-child { border-color: var(--acc); }
-.ways a:hover, .ways a:focus-visible { border-color: var(--acc); }
-a:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
-.ways strong { font: 600 1.15rem/1.3 var(--brand-display); text-transform: uppercase; letter-spacing: .06em; display: block; }
-.ways span { color: var(--muted); font-size: .95rem; }
-.ways em.v { font-style: normal; text-transform: none; letter-spacing: 0; }
-/* the visualiser's card shows a strip of its painting; the help's cards sit two to a row where there's room */
-.ways a.pic img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover;
-                  margin: 2px 0 10px; }
-.ways.help { grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
-.ways.help a:first-child { border-color: var(--rule); }
-.ways.help a:hover, .ways.help a:focus-visible { border-color: var(--acc); }
-ul.layers { padding-left: 1.2rem; margin: 0 0 1rem; }
-ul.layers li { margin: 0 0 .45rem; }
+/* The landing page's own: what it is beside the screens, the ways in as a hairline grid, the layers' colours on the list
+   (3:1 or more on the vellum). The rest is the site's (web/brand/site.css) */
+:root { --drone: #6a44b3; --seq: #b02f7c; --lead: #9a6400; --seq2: #1d6a94; --atmos: #7a6a54; }
+.what { display: flex; gap: 16px; align-items: flex-start; }
+.card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.lede { margin: 0; font-size: 14.5px; }
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-content: start; }
+.shots img { display: block; box-sizing: border-box; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.ways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
+.ways a { display: block; padding: 12px 16px 14px; background: var(--brand-ground); color: var(--brand-ink); text-decoration: none; }
+.ways a:hover { background: var(--brand-strip); color: var(--brand-ink); }
+.ways a:focus-visible { outline-offset: -3px; }
+.ways strong { display: block; font-weight: 400; margin-bottom: 2px; }
+.ways span { display: block; font-size: 12.5px; color: var(--brand-muted); }
+.ways em.v { font-style: normal; }
+.ways a.go, .ways a.go span { background: var(--brand-green); color: var(--brand-ground); }
+.ways a.go:hover, .ways a.go:hover span { background: #0f5332; }
+.ways a.go:focus-visible { outline-color: var(--brand-ground); }
+/* the visualiser's way in shows a strip of its painting */
+.ways a.pic img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; margin: 2px 0 10px; }
+.block .bh { padding: 12px 16px 0; margin: 0 0 10px; }
+.block .ways { border-top: 1px solid var(--brand-rule); }
+.pane p { margin: 0 0 10px; }
+.pane p:last-child { margin-bottom: 0; }
+ul.layers { list-style: square; padding-left: 1.2rem; margin: 0 0 10px; }
+ul.layers li { margin: 0 0 6px; }
+ul.layers b { font-weight: 400; color: var(--brand-ink); }
 ul.layers li.d::marker { color: var(--drone); } ul.layers li.s::marker { color: var(--seq); }
 ul.layers li.l::marker { color: var(--lead); } ul.layers li.t::marker { color: var(--seq2); }
 ul.layers li.a::marker { color: var(--atmos); }
-p.small { color: var(--muted); font-size: .9rem; }
-a { color: var(--ink); text-decoration-color: var(--acc); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-code { font-size: .9em; }
-@media (max-width: 23rem) { .card { width: 90px; height: 90px; } header { gap: 14px; } h1 { font-size: 2.2rem; } }
+p.small { color: var(--brand-muted); font-size: 12.5px; }
+.pane b { font-weight: 400; color: var(--brand-green); }
+@media (max-width: 59.99rem) {
+  .two.hero { grid-template-columns: minmax(0, 1fr); }
+  .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
+}
+@media (max-width: 47.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 30rem) and (max-width: 47.99rem) { .ways.help { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 26rem) { .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; } }
 </style>
 <!--AISLING-HEAD-->
 </head>
 <body>
 <!--AISLING-BAR-->
-<header>
-<img class="card" src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
-<div>
-<h1>AISLING</h1>
-<p class="sub">Irish ambient for the M-VAVE FM-1 · __BY__</p>
+<main class="bench">
+<div class="strip">
+<h1 class="lab"><b>aisling</b> · Irish ambient for the M-VAVE FM-1</h1>
+<p class="lab">v__VERSION__ · __BY__</p>
 </div>
-</header>
-<main>
+<div class="two hero">
+<div class="pane what">
+<img class="card" src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
 <p class="lede">A generative instrument after the harpers and the west of Ireland. A harp's ostinato runs over a held
 drone, often in a jig's threes; a second harp drifts against it, an octave down; a flute plays long phrases far back in
 the reverb, with surf, wind or rain behind. Let it play for hours, or play with it: the white keys give you the flute,
 always in the piece's scale, and it answers you.</p>
-<div class="shots">
+</div>
+<div class="pane shots">
   <img src="img/screen-launch.png" width="240" height="240" alt="The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com">
   <img src="img/screen-main.png" width="240" height="240" alt="The main screen: the chord's name among orbiting dots, the five layers' meters, the two harps' lanes">
   <img src="img/screen-perform.png" width="240" height="240" alt="PERFORM: Filter, Wet, Energy and Sweep on the knobs">
 </div>
 <nav class="ways" aria-label="Get AISLING">
-  <a href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge (also Chrome on Android), with the FM-1 connected by USB. Nothing to install.</span></a>
+  <a class="go" href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge (also Chrome on Android), with the FM-1 connected by USB. Nothing to install.</span></a>
   <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed. Slide the visualiser up beneath it to watch what it plays painted.</span></a>
-  <a class="pic" href="https://aisling.stephen8n.com"><img src="img/visualiser.jpg" width="1200" height="630" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills and fields, the drone the bog. Chrome or Edge; Demo paints without an FM-1. Nothing leaves your computer.</span></a>
+  <a class="pic" href="visualiser/"><img src="img/visualiser.jpg" width="1200" height="630" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills and fields, the drone the bog. Chrome or Edge; Demo paints without an FM-1. Nothing leaves your computer.</span></a>
 </nav>
 
-<h2>Help, and the files</h2>
+<section class="block" aria-labelledby="helph">
+<h2 class="bh" id="helph">help, and the files</h2>
 <nav class="ways help" aria-label="Help and the files">
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
   <a href="cheat/"><strong>Cheat sheet</strong><span>Every control and the eight pieces on one page, to print.</span></a>
@@ -131,16 +135,19 @@ always in the piece's scale, and it answers you.</p>
   <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>The package itself, for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. A fork of NACHTFAHRT, by way of DUB-1 and AMB-1.</span></a>
 </nav>
-
-<h2>Listen, and play</h2>
+</section>
+<div class="two">
+<section class="pane">
+<h2 class="bh">listen, and play</h2>
 <p>AISLING plays itself from the moment it is switched on, and it never ends: each piece opens from the drone,
 flows, gives the flute its turn, crosses a bridge and starts its long rise again. You are invited in. The <b>white
 keys</b> play the flute in the piece's scale, so every note fits; play a phrase and it becomes the flute's theme. The
 <b>black keys</b> are effects while held: Ceo (fog), Macalla (an echo), Fras (a burst of rain), Rise and Close sweep
 every filter, Transpose lifts the harps, and more. SELECT turns the level of the layer you are looking at; PERFORM (SEL)
 mutes and solos the layers and pushes Filter, Wet and Energy.</p>
-
-<h2>What it plays</h2>
+</section>
+<section class="pane">
+<h2 class="bh">what it plays</h2>
 <ul class="layers">
   <li class="d"><b>Drone.</b> Organ, strings, a reed drone, glass or a choir whose vowel moves, with the root an octave below; its chords swing slowly between two tonics, as the old tunes do.</li>
   <li class="s"><b>Sequence.</b> The harp: a wire-strung harp's ostinato, often twelve notes in a jig's threes, repeated by the echo, its filter wandering.</li>
@@ -151,13 +158,17 @@ mutes and solos the layers and pushes Filter, Wet and Energy.</p>
 <p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain, Connemara and Tir na nOg, in the old modes and the
 pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders
 relative to the knob you set.</p>
+</section>
+</div>
+<div class="pane">
 <p class="small">AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>). It is a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, based on
 <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> by sbegueria, itself based on
 <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a> by Charles Vestal; its granular cloud follows JIANT's;
 the platform is Felucca by Leo Kuroshita (Hügelton Instruments). GPL-3.0.
 M-VAVE and FM-1 are trademarks of their owners. AISLING is not affiliated with M-VAVE, Hügelton Instruments or
-NACHTFAHRT's author.</p>
+NACHTFAHRT's author. Its faces are Barlow Semi Condensed and IBM Plex Mono (SIL OFL 1.1).</p>
+</div>
 </main>
 </body>
 </html>
@@ -171,42 +182,42 @@ CHEAT = """<!doctype html>
 <title>AISLING cheat sheet</title>
 <meta name="description" content="AISLING's controls and its eight pieces on one page.">
 <style>
-/* the landing page's colours on screen; black on white to print, small enough for one sheet */
-:root { --ground: #f3ead7; --card: #fbf6eb; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1; --acc: #146c41; color-scheme: light; }
-body { background: var(--ground); color: var(--ink); margin: 0; padding: 0 16px 48px;
-       font: 400 15px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif; }
-main { max-width: 60rem; margin: 0 auto; }
-h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: .12em; margin: 0; }
-p.sub { color: var(--acc); text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; margin: .2rem 0 1.2rem; }
-h2 { font-size: .95rem; font-weight: 400; text-transform: uppercase; letter-spacing: .08em; color: var(--acc);
-     margin: 1.6rem 0 .4rem; }
+/* On the site's bench on screen (web/brand/site.css); black on white to print, small enough for one sheet */
 .wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; }
-th, td { text-align: left; vertical-align: top; padding: 5px 8px; border-top: 1px solid var(--rule); }
-th { font-weight: 400; color: var(--muted); }
-td:first-child { white-space: nowrap; font-weight: 600; }
-a { color: var(--ink); text-decoration-color: var(--acc); text-underline-offset: 3px; }
+th, td { text-align: left; vertical-align: top; padding: 5px 8px 5px 0; border-top: 1px solid var(--brand-rule); }
+th { font-weight: 400; font-size: 12.5px; color: var(--brand-muted); border-top: 0; }
+td b, td i { font-weight: 400; font-style: normal; color: var(--brand-green); }
+td:first-child { white-space: nowrap; }
 @media print {
-  :root { --ground: #fff; --ink: #000; --muted: #444; --rule: #bbb; --acc: #1a7a44; color-scheme: light; }
-  body { font-size: 8pt; line-height: 1.3; padding: 0; }
-  p.sub { margin-bottom: .6rem; }
-  h2 { margin: .9rem 0 .2rem; }
-  th, td { padding: 3px 6px; }
+  body.cheat { font-size: 7.5pt; line-height: 1.3; }
+  body.cheat .pane { padding: 0; margin-top: .6rem; }
+  body.cheat .bench > * + * { border-top: 0; }
+  body.cheat .lab, body.cheat .bh { font-size: 7.5pt; }
+  body.cheat .bh { margin-bottom: 2px; }
+  th { font-size: 7.5pt; }
+  th, td { padding: 2px 6px 2px 0; }
   tr { break-inside: avoid; }
   @page { margin: 10mm; }
 }
 </style>
 <!--AISLING-HEAD-->
 </head>
-<body>
+<body class="cheat">
 <!--AISLING-BAR-->
-<main>
-<h1>AISLING</h1>
-<p class="sub">Cheat sheet · v__VERSION__ · __BY__</p>
-<h2>The controls</h2>
+<main class="bench">
+<div class="strip">
+<h1 class="lab"><b>cheat sheet</b> · AISLING v__VERSION__</h1>
+<p class="lab">__BY__</p>
+</div>
+<section class="pane">
+<h2 class="bh">the controls</h2>
 <div class="wrap">__CONTROLS__</div>
-<h2>The pieces</h2>
+</section>
+<section class="pane">
+<h2 class="bh">the pieces</h2>
 <div class="wrap">__PIECES__</div>
+</section>
 </main>
 </body>
 </html>
@@ -239,7 +250,19 @@ def cheat_sheet(version):
             .replace("__CONTROLS__", md_table("In short")).replace("__PIECES__", md_table("The pieces")))
 
 
+def check_visualiser_bar():
+    """The visualiser carries its own copy of the bar, because it fetches nothing. Stop if it no longer says what NAV says
+    (a new page in NAV, say): it would be published with one page missing."""
+    page = (SRC / "web" / "visualiser" / "index.html").read_text(encoding="utf-8")
+    nav = re.search(r'<nav class="sitebar-nav".*?</nav>', page, re.S)
+    found = re.findall(r'href="([^"]+)"[^>]*>([^<]+)</a>', nav.group(0)) if nav else []
+    want = [(href if href.startswith("https:") else SITE + href, label) for _, label, href, _ in NAV]
+    if found != want:
+        raise SystemExit(f"web/visualiser/index.html: its bar differs from NAV in tools/site_brand.py:\n  {found}\n  {want}")
+
+
 def main(pkg, version, out):
+    check_visualiser_bar()
     pkg, out = Path(pkg), Path(out)
     raw = pkg.read_bytes()
     product = product_of(raw)
@@ -281,12 +304,14 @@ def main(pkg, version, out):
         raise SystemExit("no build/emu/amb.wasm: run web/emu/build.sh (needs Emscripten)")
     shutil.copytree(emu, out / "emu")
     (out / "emu" / "index.html").write_text(stamp((emu / "index.html").read_text(encoding="utf-8"), "../", "emu"), encoding="utf-8")
-    # the harp, the bar's style and the fonts, at the root, for every page
+    # the harp, the bar's style and the fonts, at the root, for every page; Cloudflare's two files with them
     shutil.copytree(SRC / "web" / "brand", out, dirs_exist_ok=True)
+    # the visualiser, as it is
+    shutil.copytree(SRC / "web" / "visualiser", out / "visualiser")
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
-    print(f"site: {out}: index.html, install/ ({product}), manual/, cheat/, emu/, words/, firmware/{name} ({len(raw)} B)")
+    print(f"site: {out}: index.html, install/ ({product}), manual/, cheat/, emu/, visualiser/, words/, firmware/{name} ({len(raw)} B)")
 
 
 if __name__ == "__main__":

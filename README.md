@@ -2,12 +2,12 @@
 
 <img src="docs/card.png" width="240" height="240" alt="AISLING: a gold 8-bit harp on green">
 
-**[Install](https://stephencummins.github.io/fm1-aisling/install/)** (Chrome or Edge, also Chrome on Android or
-Chromebook; the FM-1 on USB) · **[Try it in the browser](https://stephencummins.github.io/fm1-aisling/emu/)** ·
-**[Manual](https://stephencummins.github.io/fm1-aisling/manual/)** ·
-**[Cheat sheet](https://stephencummins.github.io/fm1-aisling/cheat/)** ·
-**[Visualiser](https://aisling.stephen8n.com)** ·
-**[Website](https://stephencummins.github.io/fm1-aisling/)**
+**[Install](https://aisling.stephen8n.com/install/)** (Chrome or Edge, also Chrome on Android or
+Chromebook; the FM-1 on USB) · **[Try it in the browser](https://aisling.stephen8n.com/emu/)** ·
+**[Manual](https://aisling.stephen8n.com/manual/)** ·
+**[Cheat sheet](https://aisling.stephen8n.com/cheat/)** ·
+**[Visualiser](https://aisling.stephen8n.com/visualiser/)** ·
+**[Website](https://aisling.stephen8n.com/)**
 
 By CU_STE · [www.stephen8n.com](https://www.stephen8n.com)
 
@@ -38,10 +38,10 @@ remembers and answers) and changes what it plays:
 - a green triskele on the launch screen and the main page.
 
 **Status: 0.3, the third test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
-It runs on the FM-1, installed from the [web installer](https://stephencummins.github.io/fm1-aisling/install/), and
-in the [browser emulator](https://stephencummins.github.io/fm1-aisling/emu/), from the same code.
+It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
+in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
-**The visualiser.** [aisling.stephen8n.com](https://aisling.stephen8n.com) paints what the FM-1 plays as a west-coast
+**[The visualiser](https://aisling.stephen8n.com/visualiser/)** paints what the FM-1 plays as a west-coast
 landscape in oils: the Lead is the sky, Sequence 2 the hills, the Sequence the fields, the Drone the bog. Or as
 the Atlantic from above, eddies spun up by Sequence 2, or as deep space, a comet drawn by the Lead. No FM-1? Demo plays a
 recording of Skellig and paints it as you hear it. Plug the FM-1
@@ -95,7 +95,7 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | SELECT | On a layer's pages, its level; on the Aisling page, Energy (elsewhere nothing) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, its octave (lit while it's above or below where the piece was loaded) |
 
-The [manual](docs/MANUAL.md) has the rest; the [cheat sheet](https://stephencummins.github.io/fm1-aisling/cheat/)
+The [manual](docs/MANUAL.md) has the rest; the [cheat sheet](https://aisling.stephen8n.com/cheat/)
 is this table on one page, to print.
 
 ## Building and testing
@@ -105,7 +105,7 @@ The toolchain is the same as NACHTFAHRT's and DUB-1's (see [BUILDING.md](BUILDIN
 ```
 tests/run_tests.sh      # the engine, the platform pieces, the app in a simulator, the web builds
 web/emu/build.sh        # the browser emulator: build/emu (serve it, open index.html)
-web/visualiser/         # the visualiser: one file, no build (Cloudflare Pages: wrangler pages deploy web/visualiser --project-name aisling)
+web/visualiser/         # the visualiser: one file, no build (published with the site: tools/publish_pages.sh)
 ./build.sh              # build/amb.fwsc, for the FM-1
 python3 tools/fm1_install.py build/amb.fwsc     # install it over USB
 ```

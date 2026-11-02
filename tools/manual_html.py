@@ -23,71 +23,86 @@ SRC = Path(__file__).resolve().parents[1]
 PART_COLOURS = {}                                     # (X0X marks its parts with a swatch; AISLING has none)
 
 CSS = """
-/* AISLING's colours, as the site's cover: vellum, a dark iron-gall ink, the triskele's green (the names kept from AMB-1's) */
-:root {
-  --paper: #f3ead7; --sheet: #fbf6eb; --green-1: #e6dcc3; --green-3: #146c41;
-  --river: #146c41; --river-2: #146c41; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1;
-  color-scheme: light;
-  /* --river-2 and --muted read on the paper and the cards (the green 5.4:1, the muted brown 5.7:1 on the vellum) */
-}
-body {
-  background: var(--paper); color: var(--ink); margin: 0;
-  font: 400 17px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  padding-inline: 16px; padding-block: 0 64px;
-}
-main { max-width: 46rem; margin: 0 auto; }
-h1, h2, h3 { font-family: inherit; text-wrap: balance; line-height: 1.2; }
-h1 { font-size: 2.2rem; font-weight: 300; margin: 0 0 .4rem; letter-spacing: .04em; text-transform: uppercase; }
-h2 { font-size: 1.3rem; font-weight: 400; margin: 3rem 0 .8rem; padding-top: .8rem; border-top: 1px solid var(--ink);
-     text-transform: uppercase; letter-spacing: .04em; }
-h2 .num { color: var(--river-2); margin-right: .25em; font-variant-numeric: tabular-nums; }
-h3 { font-size: 1.1rem; font-weight: 600; margin: 2rem 0 .5rem; }
-p, li { max-width: 65ch; }
-p { margin: 0 0 1rem; }
-ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
-li { margin: .2rem 0; }
-li::marker { color: var(--river-2); }
-strong { font-weight: 600; }
-a { color: var(--ink); text-decoration-color: var(--river-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-a:hover { background: var(--green-1); }
-a:focus-visible, summary:focus-visible, pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.skip { position: absolute; left: 16px; top: -100px; background: var(--sheet); border: 1px solid var(--ink); padding: 6px 12px; z-index: 30; }
+/* The manual's own, on the site's bench (web/brand/site.css): the contents down the side, the text beside them */
+html { scroll-padding-top: 4rem; }
+.prose { font-size: 14px; line-height: 1.65; }
+.prose > :first-child { margin-top: 0; }
+.prose h2, .prose h3 { font-family: var(--brand-display); font-weight: 600; text-wrap: balance; line-height: 1.25; color: var(--brand-ink); }
+.prose h2 { font-size: 19px; letter-spacing: .02em; margin: 2.4rem 0 .7rem; padding-top: .8rem; border-top: 1px solid var(--brand-rule); }
+.prose h2 .num { color: var(--brand-green); margin-right: .25em; font-variant-numeric: tabular-nums; }
+.prose h3 { font-size: 16px; letter-spacing: .01em; margin: 1.7rem 0 .4rem; }
+.prose p, .prose li { max-width: 78ch; }
+.prose p { margin: 0 0 .9rem; }
+.prose ul, .prose ol { padding-left: 1.3rem; margin: 0 0 .9rem; }
+.prose li { margin: .2rem 0; }
+.prose li::marker { color: var(--brand-green); }
+.skip { position: absolute; left: 16px; top: -100px; background: var(--brand-ground); border: 1px solid var(--brand-ink); padding: 6px 12px; z-index: 30; }
 .skip:focus { top: 8px; }
-code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86em; }
-code { background: var(--sheet); padding: .08em .35em; border: 1px solid var(--rule); }
-pre { background: var(--sheet); border: 1px solid var(--ink); padding: 14px 16px; overflow-x: auto; line-height: 1.45; margin: 0 0 1.2rem; }
-pre code { background: none; padding: 0; border: 0; font-size: inherit; }
-hr { display: none; }
-.table { overflow-x: auto; margin: 0 0 1.3rem; }
-table { border-collapse: collapse; width: 100%; font-size: .95rem; font-variant-numeric: tabular-nums; }
-th, td { text-align: left; vertical-align: top; padding: .45rem .7rem .45rem 0; border-bottom: 1px solid var(--rule); }
-th { font-weight: 400; text-transform: uppercase; letter-spacing: .06em; font-size: .8rem; color: var(--muted); border-bottom-color: var(--ink); }
-td:first-child { white-space: nowrap; }
-.lede { margin-bottom: 1.6rem; }
-.status { background: var(--sheet); border: 1px solid var(--ink); padding: 12px 16px; }
-.status p { margin: 0; }
-a.home { color: inherit; text-decoration: none; }
-a.home:hover { background: none; color: var(--river-2); }
-main > a.home { display: inline-block; font-size: .9rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 .4rem; }
-.callout { border-left: 4px solid var(--river); background: var(--sheet); padding: 10px 16px; margin: 0 0 1.2rem; max-width: 65ch; }
-.callout p { margin: 0; }
-details { border: 1px solid var(--ink); background: var(--sheet); padding: 0 16px; margin: 0 0 1.2rem; }
-details > summary { cursor: pointer; padding: 10px 0; }
-details[open] > summary { margin-bottom: .4rem; }
-details > :last-child { margin-bottom: 1rem; }
-.swatch { display: inline-block; width: .7em; height: .7em; margin-right: .4em; vertical-align: .02em; box-shadow: 0 0 0 1px var(--ink); }
-nav.contents ol { columns: 2 14rem; column-gap: 2rem; padding-left: 1.3rem; }
-.figs { display: flex; flex-wrap: wrap; gap: 20px; margin: .4rem 0 1.6rem; }
-figure { margin: 0; flex: 0 1 auto; }
-figure img { display: block; max-width: 100%; height: auto; }
-figure.shot img { width: 300px; image-rendering: pixelated; border: 1px solid var(--ink); }
-figure.wide { flex-basis: 100%; }
-figure.wide img { width: 100%; }
-figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; max-width: 300px; }
-figure.wide figcaption { max-width: none; }
-nav.contents li { break-inside: avoid; }
+.prose code, .prose pre { font-family: inherit; font-size: .93em; }
+.prose code { background: var(--brand-strip); padding: .05em .3em; border: 1px solid var(--brand-rule); }
+.prose pre { background: var(--brand-strip); border: 1px solid var(--brand-rule); padding: 12px 14px; overflow-x: auto; line-height: 1.45; margin: 0 0 1.1rem; }
+.prose pre code { background: none; padding: 0; border: 0; font-size: inherit; }
+.prose pre:focus-visible, .prose summary:focus-visible { outline: 2px solid var(--brand-green); outline-offset: 2px; }
+.prose hr { display: none; }
+.table { overflow-x: auto; margin: 0 0 1.2rem; }
+.prose table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+.prose th, .prose td { text-align: left; vertical-align: top; padding: .4rem .7rem .4rem 0; border-bottom: 1px solid var(--brand-rule); }
+.prose th { font-weight: 400; font-size: 12.5px; color: var(--brand-muted); border-bottom-color: var(--brand-muted); }
+.prose td:first-child { white-space: nowrap; }
+.prose .lede { font-size: 14.5px; margin-bottom: 1.2rem; }
+.status, .callout { background: var(--brand-strip); border: 1px solid var(--brand-rule); padding: 10px 14px; margin: 0 0 1.1rem; max-width: 78ch; }
+.callout { border-left: 3px solid var(--brand-green); }
+.status p, .callout p { margin: 0; }
+.prose details { border: 1px solid var(--brand-rule); background: var(--brand-strip); padding: 0 14px; margin: 0 0 1.1rem; }
+.prose details > summary { cursor: pointer; padding: 9px 0; }
+.prose details[open] > summary { margin-bottom: .4rem; }
+.prose details > :last-child { margin-bottom: 1rem; }
+.swatch { display: inline-block; width: .7em; height: .7em; margin-right: .4em; vertical-align: .02em; box-shadow: 0 0 0 1px var(--brand-ink); }
+.figs { display: flex; flex-wrap: wrap; gap: 16px; margin: .4rem 0 1.4rem; }
+.prose figure { margin: 0; flex: 0 1 auto; }
+.prose figure img { display: block; max-width: 100%; height: auto; }
+.prose figure.shot img { width: 300px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.prose figure.wide { flex-basis: 100%; }
+.prose figure.wide img { width: 100%; }
+.prose figcaption { color: var(--brand-muted); font-size: 12.5px; margin-top: .35rem; max-width: 300px; }
+.prose figure.wide figcaption { max-width: none; }
+/* the contents: down the side, staying in sight as the text goes by; first on a phone */
+nav.contents { padding: 14px 16px 16px; font-size: 12.5px; line-height: 1.45; }
+nav.contents ol { list-style: none; margin: 0; padding: 0; }
+nav.contents li { margin: 0; }
+nav.contents a { display: block; padding: 3px 0; color: var(--brand-ink); text-decoration: none; }
+nav.contents a:hover { color: var(--brand-green); text-decoration: underline; }
+@media (min-width: 48rem) { nav.contents { position: sticky; top: 3.5rem; max-height: calc(100vh - 4rem); overflow-y: auto; box-sizing: border-box; } }
+@media (max-width: 47.99rem) { nav.contents ol { columns: 2 12rem; column-gap: 1.2rem; } nav.contents li { break-inside: avoid; } }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 """
+# --fragment: no site.css, so the page brings the little of it the text above stands on
+FRAGMENT_CSS = """
+:root { --brand-ground: #f3ead7; --brand-strip: #ece2cb; --brand-ink: #2b2219; --brand-muted: #5b4a3a; --brand-rule: #d9ccb1;
+        --brand-green: #146c41; --brand-display: "Helvetica Neue", Helvetica, Arial, sans-serif; color-scheme: light; }
+body { margin: 0; padding: 0 16px 48px; background: var(--brand-ground); color: var(--brand-ink);
+       font: 400 15px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+main { max-width: 46rem; margin: 0 auto; }
+h1 { font-size: 20px; font-weight: 600; }
+"""
+
+
+def on_the_bench(body):
+    """The page's text as the site's bench has it: its title in the strip, the contents down the side."""
+    h1 = re.search(r'(?:<a class="home"[^>]*>[^<]*</a>\n)?<h1>(.*?)</h1>\n', body)
+    title = h1.group(1) if h1 else NAME
+    body = body.replace(h1.group(0), "", 1) if h1 else body
+    nav = re.search(r'<nav class="contents".*?</nav>\n(?:<hr>\n)?', body, re.S)
+    side = ""
+    if nav:
+        body = body.replace(nav.group(0), "", 1)
+        contents = nav.group(0).replace('<h2 id="contents">Contents</h2>', '<h2 class="bh" id="contents">contents</h2>')
+        contents = contents.replace("<hr>\n", "")
+        side = f'<aside class="side">\n{contents}</aside>\n'
+    strip = (f'<div class="strip">\n<h1 class="lab"><b>{title.lower()}</b> · {NAME}, Irish ambient for the M-VAVE FM-1</h1>\n'
+             f'<a class="btn" href="../cheat/">cheat sheet</a>\n</div>\n')
+    text = f'<article class="pane prose">\n{body}\n</article>\n'
+    return strip + (f'<div class="cols">\n{side}{text}</div>\n' if side else text)
 
 
 def inline(t):
@@ -246,11 +261,15 @@ def main():
     h1 = re.search(r"^# (.+)$", md, re.M)
     title, what = (f"Manual · {NAME}", "The manual") if not h1 or h1.group(1) == NAME else (f"{NAME}: {h1.group(1)}", h1.group(1))
     body = convert(md)
+    if not fragment:
+        body = on_the_bench(body)
     # the site's bar before <main>, and a way past it
+    main_class = "" if fragment else ' class="bench"'
     skip = '<a class="skip" href="#content">Skip to content</a>\n'
     page = (f"<title>{html.escape(title)}</title>\n"
             f'<meta name="description" content="{html.escape(what)} for {NAME}, a generative Irish ambient instrument for the M-VAVE FM-1.">\n'
-            f'<style>{CSS}</style>\n{skip}<!--AISLING-BAR-->\n<main id="content">\n{body}\n</main>\n')
+            f'<style>{(FRAGMENT_CSS if fragment else "") + CSS}</style>\n{skip}<!--AISLING-BAR-->\n'
+            f'<main id="content"{main_class}>\n{body}\n</main>\n')
     if not fragment:
         head, _, rest = page.partition("</style>\n")
         page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'

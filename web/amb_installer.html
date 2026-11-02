@@ -9,54 +9,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Install · AISLING</title>
 <style>
-  /* AISLING's colours, as the site, the emulator and the manual: vellum, a dark iron-gall ink, the triskele's green */
-  :root { --bar-bleed: 0; --bg: #f3ead7; --fg: #2b2219; --dim: #66594a; --accent: #146c41; --on-accent: #fbf6eb; --sheet: #fbf6eb; --river-2: #146c41; color-scheme: light; }
-  body { margin: 0; background: var(--bg); color: var(--fg);
-         font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }
-  main { max-width: 520px; margin: 0 auto; padding: 0 16px 48px; }
-  h1 { font-size: 28px; font-weight: 300; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 24px; }
-  .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; color: var(--dim); }
-  p { margin: 0 0 16px; }
-  button, a.btn { font: inherit; background: var(--accent); color: var(--on-accent); border: 1px solid var(--fg); padding: 6px 22px; cursor: pointer; }
-  a.btn { display: inline-block; text-decoration: none; }
-  button:disabled { opacity: .3; cursor: default; }
-  #status, #alert { margin-top: 16px; min-height: 1.6em; }
+  /* The install page's own; the rest is the site's (web/brand/site.css). What to read on one side, the button and how it
+     is going on the other */
+  body { --brand-bench: 960px; }
+  @media (min-width: 48rem) { main .two { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); } }
+  .pane p { margin: 0 0 12px; }
+  .pane p:last-child { margin-bottom: 0; }
+  .small { color: var(--brand-muted); font-size: 12.5px; }
+  .small a { color: inherit; }
+  #status, #alert { margin: 12px 0 0; min-height: 1.6em; }
   #alert:empty { display: none; }
-  #alert { font-weight: 600; }
+  #alert { color: var(--brand-rust); }
   #alert::before { content: "⚠ "; }
-  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  label.bar { display: block; font-size: 13px; color: var(--dim); margin-top: 16px; }
-  label.bar progress { margin-top: 4px; }
-  .small { color: var(--dim); font-size: 13px; }
-  progress { width: 100%; height: 6px; margin-top: 16px; accent-color: var(--river-2); }
-  pre { color: var(--dim); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 16px; }
+  label.bar { display: block; font-size: 12.5px; color: var(--brand-muted); margin-top: 14px; }
+  progress { display: block; width: 100%; height: 6px; margin-top: 4px; accent-color: var(--brand-green); }
+  pre { color: var(--brand-muted); font: inherit; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0 0; }
   pre:empty { display: none; }
-  h2 { font-size: 16px; font-weight: 400; text-transform: uppercase; letter-spacing: .06em; margin: 40px 0 12px; padding-top: 8px; border-top: 1px solid var(--fg); }
-  ol { margin: 0 0 16px; padding-left: 20px; }
+  ol { margin: 0 0 12px; padding-left: 20px; }
+  ol li { margin: 0 0 4px; }
 </style>
 <!--AISLING-HEAD-->
 </head>
 <body>
 <!--AISLING-BAR-->
-<main>
-  <button class="lang" id="lang" type="button"></button>
-  <h1>Install AISLING</h1>
+<main class="bench">
+  <div class="strip">
+    <h1 class="lab"><b>install</b> · put AISLING on your FM-1</h1>
+    <button class="btn" id="lang" type="button"></button>
+  </div>
+  <div class="two">
+  <section class="pane">
   <p data-t="intro"></p>
   <p class="small" data-t="perm"></p>
   <p data-t="warn"></p>
   <p class="small" data-t="direct"></p>
   <p class="small" data-t="beta"></p>
   <p class="small"><span data-t="brick"></span>
-    <a href="../manual/#recovering-an-fm-1-that-won-t-start" style="color:inherit" data-t="bricklink"></a></p>
+    <a href="../manual/#recovering-an-fm-1-that-won-t-start" data-t="bricklink"></a></p>
   <p class="small" data-t="back"></p>
-  <p><button id="go" disabled data-t="install"></button></p>
+  </section>
+  <section class="pane">
+  <p><button class="btn go" id="go" disabled data-t="install"></button></p>
   <label class="bar" for="bar"><span data-t="progress"></span>
     <progress id="bar" max="100" value="0"></progress></label>
   <p id="status" role="status"></p>
   <p id="alert" role="alert"></p>
   <pre id="log"></pre>
-  <h2 data-t="stockh"></h2>
+  </section>
+  </div>
+  <section class="pane">
+  <h2 class="bh" data-t="stockh"></h2>
   <p class="small" data-t="stockwhy"></p>
   <ol class="small">
     <li data-t="stock1"></li>
@@ -64,12 +67,15 @@
     <li data-t="stock3"></li>
   </ol>
   <p><a class="btn" href="https://www.m-vave.com/download" target="_blank" rel="noopener"><span data-t="stockgo"></span><span class="sr" data-t="newtab"></span></a></p>
-  <p><a href="../" style="color:inherit" data-t="manual"></a></p>
-  <p class="small">AISLING is by CU_STE, <a href="https://www.stephen8n.com" target="_blank" rel="noopener" style="color:inherit">www.stephen8n.com<span class="sr" data-t="newtab"></span></a>.
-    It is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener" style="color:inherit">Hügelton Instruments<span class="sr" data-t="newtab"></span></a>,
-    by way of X0X, FoMni, AMB-1, DUB-1 and <a href="https://github.com/FartyPants/fm1-nachtfahrt" target="_blank" rel="noopener" style="color:inherit">NACHTFAHRT<span class="sr" data-t="newtab"></span></a>.<br>
-    Fonts: Barlow Semi Condensed (SIL OFL 1.1). M-VAVE and FM-1 are trademarks of their respective owners.<br>
-    <span data-t="license"></span> <a href="https://github.com/stephencummins/fm1-aisling" target="_blank" rel="noopener" style="color:inherit">github.com/stephencummins/fm1-aisling<span class="sr" data-t="newtab"></span></a></p>
+  </section>
+  <section class="pane">
+  <p class="small"><a href="../" data-t="manual"></a></p>
+  <p class="small">AISLING is by CU_STE, <a href="https://www.stephen8n.com" target="_blank" rel="noopener">www.stephen8n.com<span class="sr" data-t="newtab"></span></a>.
+    It is built on Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments<span class="sr" data-t="newtab"></span></a>,
+    by way of X0X, FoMni, AMB-1, DUB-1 and <a href="https://github.com/FartyPants/fm1-nachtfahrt" target="_blank" rel="noopener">NACHTFAHRT<span class="sr" data-t="newtab"></span></a>.<br>
+    Fonts: Barlow Semi Condensed and IBM Plex Mono (SIL OFL 1.1). M-VAVE and FM-1 are trademarks of their respective owners.<br>
+    <span data-t="license"></span> <a href="https://github.com/stephencummins/fm1-aisling" target="_blank" rel="noopener">github.com/stephencummins/fm1-aisling<span class="sr" data-t="newtab"></span></a></p>
+  </section>
 </main>
 <script type="module">
 /*LIB*/

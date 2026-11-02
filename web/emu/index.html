@@ -12,17 +12,12 @@
 /* AISLING's colours: vellum, a dark iron-gall ink and the card's green (docs/card.png), darkened to read on the vellum;
    the FM-1 itself stays as it is. --muted and --river-2 read at 4.5:1 or more on the ground and on the cards,
    --on-river at 6:1 on --river */
-:root { --ground: #f3ead7; --ink: #2b2219; --muted: #66594a; --rule: #d9ccb1; --accent: #146c41; --river: #146c41; --river-2: #146c41;
+:root { --ground: #f3ead7; --ink: #2b2219; --muted: #5b4a3a; --rule: #d9ccb1; --accent: #146c41; --river: #146c41; --river-2: #146c41;
         --on-river: #fbf6eb; --green-1: #e6dcc3; --card: #fbf6eb; --focus: #146c41; color-scheme: light; }
-body { background: var(--ground); color: var(--ink); margin: 0; padding-inline: 16px; padding-block: 0 48px;
-       font: 400 16px/1.55 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+body { --brand-bench: 1040px; }
 main { max-width: 1040px; margin: 0 auto; }
-header { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.2rem; margin: 0 0 1rem; }
-header .brand { display: flex; align-items: center; gap: 1rem; min-width: 0; }
-h1 { font-size: 2rem; font-weight: 600; line-height: 1.1; letter-spacing: .12em; margin: 0; text-transform: uppercase; }
-header p { margin: .2rem 0 0; color: var(--muted); font-size: .92rem; }
-header p.sub { color: var(--accent); }
-a { color: var(--ink); text-decoration-color: var(--river-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 20px 0 1rem;
+         padding: 8px 14px; background: var(--brand-strip); border: 1px solid var(--brand-rule); }
 a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 /* on a phone held upright the FM-1 goes edge to edge, and no narrower than 388 px: its buttons then sit 24 px
@@ -69,45 +64,47 @@ body.zoomed.zoom-above .stage:fullscreen { align-items: stretch; }
 .lit .keyface.black { fill: #4cc3b6; }
 @media (prefers-reduced-motion: reduce) { .btnface, .keyface { transition: none; } }
 .start { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 11, 13, .15); border-radius: 4.4% / 6.9%; }
-.start button { font: 400 1.2rem "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; padding: .6em 1.6em;
-                border: 1px solid var(--ink); background: var(--river); color: var(--on-river); cursor: pointer; }
+.start button { font: 400 14px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: lowercase; padding: .6em 1.4em;
+                border: 1px solid var(--river); background: var(--river); color: var(--on-river); cursor: pointer; }
 .start button:focus-visible { outline: 3px solid #fdf9e4; outline-offset: 3px; }
 .start[hidden] { display: none; }
-.turn { display: none; margin: 0 0 .8rem; color: var(--muted); font-size: .92rem; }
+.turn { display: none; margin: 0 0 .8rem; color: var(--muted); font-size: 12.5px; }
 @media (orientation: portrait) and (max-width: 700px) { .turn { display: block; } }
 .start button:disabled { opacity: .6; cursor: progress; }
-.bar { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; align-items: center; margin: .9rem 0 0; color: var(--muted); font-size: .92rem; }
-.bar button, .reader button { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--ink); padding: .3em .8em; cursor: pointer; }
+.bar { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; align-items: center; margin: .9rem 0 0; color: var(--muted); font-size: 12.5px; }
+.bar button, .reader button { font: 400 12.5px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: lowercase; color: var(--ink); background: var(--ground); border: 1px solid var(--rule); border-radius: 0; min-height: 32px; cursor: pointer; padding: .3em .8em; }
+.bar button:hover, .reader button:hover, .vis-bar button:hover { border-color: var(--ink); }
 .bar button[aria-pressed="true"] { background: var(--river); color: var(--on-river); }
 .bar .cpu { font-variant-numeric: tabular-nums; }
 .bar label, .reader label { display: inline-flex; gap: .4rem; align-items: center; color: var(--ink); }
-.reader { margin: 1.2rem 0 0; padding: .8rem 1rem; background: var(--card); border: 1px solid var(--ink); }
-.reader h2 { font: 600 1.1rem "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 0 .3rem; }
-.reader .said { margin: 0 0 .6rem; font-size: 1.1rem; min-height: 1.55em; overflow-wrap: anywhere; }
-.reader .said .lbl { color: var(--muted); font-size: .92rem; }
+.reader { margin: 1.2rem 0 0; padding: .8rem 1rem; border: 1px solid var(--rule); }
+.reader h2, .help h2 { font: 400 12.5px/1.55 var(--brand-mono); letter-spacing: .045em; text-transform: lowercase; color: var(--muted); margin: 0 0 .4rem; }
+.reader .said { margin: 0 0 .6rem; font-size: 14.5px; min-height: 1.55em; overflow-wrap: anywhere; }
+.reader .said .lbl { color: var(--muted); font-size: 12.5px; }
 .reader fieldset { border: 0; padding: 0; margin: 0 0 .5rem; display: flex; flex-wrap: wrap; gap: .2rem 1.2rem; }
-.reader legend { padding: 0; margin: 0 0 .2rem; font-weight: 600; }
+.reader legend { padding: 0; margin: 0 0 .2rem; }
 .reader .row { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; }
-.reader p.note { margin: .5rem 0 0; color: var(--muted); font-size: .92rem; }
+.reader p.note { margin: .5rem 0 0; color: var(--muted); font-size: 12.5px; }
 input[type="radio"], input[type="checkbox"] { accent-color: var(--river-2); width: 1.05em; height: 1.05em; }
-.help h2 { font: 600 1.1rem "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 0 .3rem; }
 .help { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem 2rem; margin: 1.6rem 0 0; }
 .help p, .help ul { margin: 0; color: var(--muted); max-width: 60ch; }
 .help ul { padding-left: 1.1rem; }
 .help .knobs { grid-column: 1 / -1; }
 .knobs .pages { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .8rem 2rem; margin-top: .4rem; }
-.knobs h3 { font: 600 1rem "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0 0 .2rem; color: var(--ink); }
-.knobs h3 span { color: var(--muted); font-weight: 400; }
+.knobs h3 { font: 400 13.5px/1.5 var(--brand-mono); margin: 0 0 .2rem; color: var(--ink); }
+.knobs h3 span { color: var(--muted); }
 .knobs dl { margin: 0; color: var(--muted); }
-.knobs dt { color: var(--ink); font-weight: 600; }
+.knobs dt { color: var(--ink); }
 .knobs dd { margin: 0 0 .45rem; }
-kbd { font: 600 .85em ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--ink); padding: 0 .3em; color: var(--ink); }
+kbd { font: 400 .92em var(--brand-mono); background: var(--brand-strip); border: 1px solid var(--rule); padding: 0 .3em; color: var(--ink); }
+/* the screen, large, is wider than the page: the wall stands back for it */
+body.zoomed .wall { opacity: 0; }
 /* the visualiser: a drawer up from the foot of the window, its height dragged by its bar; while it is open the FM-1
    shrinks to fit above it, so the two are seen together */
 :root { --vis-h: 45vh; }
 .bar button[aria-expanded="true"] { background: var(--river); color: var(--on-river); }
 .vis { position: fixed; left: 0; right: 0; bottom: 0; height: var(--vis-h); z-index: 30; display: flex; flex-direction: column;
-       background: var(--ground); border-top: 1px solid var(--ink); box-shadow: 0 -6px 18px rgba(43, 34, 25, .18);
+       background: var(--ground); border-top: 1px solid var(--ink);
        transform: translateY(100%); visibility: hidden; transition: transform .35s ease, visibility 0s .35s; }
 body.vis-open .vis { transform: none; visibility: visible; transition: transform .35s ease; }
 body.vis-open { padding-bottom: calc(var(--vis-h) + 24px); }
@@ -116,12 +113,12 @@ body.vis-open main { max-width: clamp(360px, calc((100vh - var(--vis-h) - 2.5rem
 main { transition: max-width .35s ease; }
 @media (prefers-reduced-motion: reduce) { .vis, body.vis-open .vis, main { transition: none; } }
 .vis-bar { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem; padding: 12px 16px 7px;
-           cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none; font-size: .92rem; color: var(--muted); }
-.vis-bar .grip { position: absolute; top: 3px; left: 50%; width: 48px; height: 5px; margin-left: -24px; border-radius: 3px; background: var(--muted); }
+           cursor: ns-resize; touch-action: none; user-select: none; -webkit-user-select: none; font-size: 12.5px; color: var(--muted); }
+.vis-bar .grip { position: absolute; top: 3px; left: 50%; width: 48px; height: 5px; margin-left: -24px; background: var(--muted); }
 .vis-bar .grip:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
-.vis-bar b { color: var(--ink); font-weight: 600; }
+.vis-bar b { color: var(--ink); font-weight: 400; }
 .vis-bar a { margin-left: auto; cursor: pointer; }
-.vis-bar button { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--ink); padding: .2em .8em; cursor: pointer; }
+.vis-bar button { font: 400 12.5px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: lowercase; color: var(--ink); background: var(--ground); border: 1px solid var(--rule); border-radius: 0; min-height: 32px; cursor: pointer; padding: .2em .8em; }
 .vis iframe { flex: 1; min-height: 0; width: 100%; border: 0; border-top: 1px solid var(--rule); display: block; }
 </style>
 <!--AISLING-HEAD-->
@@ -130,13 +127,8 @@ main { transition: max-width .35s ease; }
 <!--AISLING-BAR-->
 <main>
 <header>
-  <div class="brand">
-    <div>
-      <h1>Emulator</h1>
-      <p class="sub">Irish ambient for the M-VAVE FM-1</p>
-      <p>In the browser: the same code the FM-1 runs</p>
-    </div>
-  </div>
+  <h1 class="lab"><b>emulator</b> · Irish ambient for the M-VAVE FM-1</h1>
+  <p class="lab">in the browser: the same code the FM-1 runs</p>
 </header>
 
 <h2 class="sr" id="h-device">The FM-1</h2>
@@ -316,7 +308,7 @@ main { transition: max-width .35s ease; }
          aria-label="The visualiser's height (up and down arrows)" aria-valuemin="20" aria-valuemax="85" aria-valuenow="45"></div>
     <span><b>Visualiser</b> <span id="vis-piece"></span></span>
     <span>what the emulator plays, painted as a west-coast landscape</span>
-    <a href="https://aisling.stephen8n.com/" target="_blank" rel="noopener">With your own FM-1</a>
+    <a href="https://aisling.stephen8n.com/visualiser/" target="_blank" rel="noopener">With your own FM-1</a>
     <button id="vis-close" type="button">Close</button>
   </div>
   <iframe id="vis-frame" title="AISLING's visualiser, painting what the emulator plays" allow="fullscreen"></iframe>
@@ -850,7 +842,7 @@ $("reset").addEventListener("click", () => {
 });
 
 // ---------------------------------------------------------------- the visualiser
-// AISLING's visualiser (visualiser.html: the page at aisling.stephen8n.com) in the drawer, painting what the emulator
+// AISLING's visualiser (visualiser.html: the page at aisling.stephen8n.com/visualiser/) in the drawer, painting what the emulator
 // plays. While it is open the worklet sends the FM-1's MIDI out (the USB packets), each with the audio time it is
 // heard at; here that becomes the computer's clock, the speakers' delay included, and the visualiser waits for it.
 const vis = $("vis"), visFrame = $("vis-frame"), visOpen = $("vis-open"), visGrip = $("vis-grip");

@@ -12,7 +12,7 @@ theme and grows new ideas out of it; pick a piece and a key, thin or fill the ha
 echo, mute and solo the layers.
 
 Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling)
-and [stephencummins.github.io/fm1-aisling](https://stephencummins.github.io/fm1-aisling/). AISLING is by CU_STE
+and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CU_STE
 ([www.stephen8n.com](https://www.stephen8n.com)).
 
 AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt)
@@ -577,7 +577,7 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
 
 ### The visualiser
 
-[aisling.stephen8n.com](https://aisling.stephen8n.com) turns the MIDI out into a painting of the west of Ireland: the
+[The visualiser](https://aisling.stephen8n.com/visualiser/) turns the MIDI out into a painting of the west of Ireland: the
 Lead's notes fall into the sky, Sequence 2's into the hills, the Sequence's into the fields and the Drone's into the bog.
 A note's pitch sets how far across it lands, how hard it's played how much paint, and the tempo the wind.
 **Land**, **Sea** and **Space** change the scene, and V steps through them. Sea is the Atlantic from above, under a
@@ -662,7 +662,7 @@ bootloader or the FM-1's own settings. If the FM-1 never shows up at all, Felucc
 ## 14. Credits
 
 Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling)
-and [stephencummins.github.io/fm1-aisling](https://stephencummins.github.io/fm1-aisling/). AISLING is by CU_STE:
+and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CU_STE:
 [www.stephen8n.com](https://www.stephen8n.com).
 
 AISLING is free software under the GNU General Public License, version 3. If you share the firmware, you

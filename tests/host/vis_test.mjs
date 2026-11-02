@@ -13,7 +13,7 @@ for (const [, attrs, body] of scripts) {
   if (/\bsrc\s*=/.test(attrs)) bad.push("a script loaded from elsewhere");
   try { new vm.Script(body); } catch (e) { bad.push("script: " + e.message); }
 }
-for (const [tag] of page.matchAll(/<link\b[^>]*>/g)) if (!/href="data:/.test(tag)) bad.push("link: " + tag.slice(0, 60));
+for (const [tag] of page.matchAll(/<link\b[^>]*>/g)) if (!/href="data:|rel="canonical"/.test(tag)) bad.push("link: " + tag.slice(0, 60));
 for (const [tag] of page.matchAll(/<(img|iframe|audio|video|source|object|embed)\b[^>]*>/g)) bad.push("loads: " + tag.slice(0, 60));
 // the one fetch: the demo's sound, a file beside the page, with its notes for the page to paint
 const fetches = [...page.matchAll(/\bfetch\s*\(([^)]*)\)/g)].map((m) => m[1].trim());

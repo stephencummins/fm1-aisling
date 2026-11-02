@@ -77,11 +77,9 @@ def main():
     vis = SRC / "web" / "visualiser" / "index.html"
     page = vis.read_text(encoding="utf-8")
     icon = '<link rel="icon" href="data:image/svg+xml,' + urllib.parse.quote(s, safe="=:/' ") + '">'
-    img = ('<img class="mark" src="data:image/png;base64,' + base64.b64encode(mark).decode() +
-           '" width="30" height="30" alt="">')
     page, n = re.subn(r'<link rel="icon" href="data:image/svg\+xml,[^"]*">', lambda _: icon, page)
-    page, m = re.subn(r'<img class="mark" src="data:image/png;base64,[^"]*" width="30" height="30" alt="">',
-                      lambda _: img, page)
+    harp = "data:image/png;base64," + base64.b64encode(mark).decode()
+    page, m = re.subn(r'(\.mark \{[^}]*?url\(")data:image/png;base64,[^"]*("\))', lambda g: g.group(1) + harp + g.group(2), page)
     if n != 1 or m != 1:
         raise SystemExit(f"web/visualiser/index.html: found {n} icon(s) and {m} harp(s), not one of each")
     vis.write_text(page, encoding="utf-8")
