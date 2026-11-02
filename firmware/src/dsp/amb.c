@@ -6242,22 +6242,29 @@ static void render_lead(uint32_t n)
         svf_coefs(lead.c5, 2800.0f, 1.1f);
     } else if (lv == 7) {                        /* the Voice: the vowel eased toward the note's (Tone and the filter
                                                   * motion open it), its three formants the Choir's, and its gain
-                                                  * (lv_level) */
-        const float want = fm_clampf(lead.vwt + 1.5f * (tb - 1.0f), 0.0f, 4.0f);
+                                                  * (lv_level). A high note's harmonics stand further apart than these
+                                                  * formants are wide, so a harmonic either met one or missed it: 36 dB
+                                                  * of gain between notes, up to 29 dB in a chunk as a slide met one,
+                                                  * the gain a chunk behind, and the level spiked. So each formant is at
+                                                  * least a third of the note wide and climbs with it, as a soprano's
+                                                  * do: none under the note, its octave or the harmonic above that, in
+                                                  * turn. Under note 58 nothing changes */
+        const float want = fm_clampf(lead.vwt + 1.5f * (tb - 1.0f), 0.0f, 4.0f), f0 = mtof(lead.cur);
         float fr, gt;
         int f, v0;
         lead.vw += (want - lead.vw) * fm_minf((float)n * (1.0f / 11025.0f), 1.0f);   /* (~0.25 s) */
         v0 = lead.vw >= 3.0f ? 3 : (int)lead.vw;
         fr = lead.vw - (float)v0;
         for (f = 0; f < 3; f++) {
-            const float hz = CH_F[v0][f] + fr * (CH_F[v0 + 1][f] - CH_F[v0][f]),
-                        bw = CH_B[v0][f] + fr * (CH_B[v0 + 1][f] - CH_B[v0][f]), r = fm_expf(-FM_PI * bw * (1.0f / EN_SR));
+            const float hz = fm_maxf(CH_F[v0][f] + fr * (CH_F[v0 + 1][f] - CH_F[v0][f]), (float)(f + 1) * f0),
+                        bw = fm_maxf(CH_B[v0][f] + fr * (CH_B[v0 + 1][f] - CH_B[v0][f]), 0.35f * f0),
+                        r = fm_expf(-FM_PI * bw * (1.0f / EN_SR));
             rc[f][1] = 2.0f * r * fm_cosf(FM_TWO_PI * hz * (1.0f / EN_SR));
             rc[f][2] = -r * r;
             rc[f][0] = 1.0f - rc[f][1] - rc[f][2];
         }
         svf_coefs(lead.c1, 5000.0f * tb, 0.9f);
-        gt = lv_level(rc, lead.c1, mtof(lead.cur));
+        gt = lv_level(rc, lead.c1, f0);
         if (lead.vg <= 0.0f)
             lead.vg = gt;
         vdg = (gt - lead.vg) / (float)n;

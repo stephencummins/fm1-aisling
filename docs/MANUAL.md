@@ -235,8 +235,8 @@ phaser sweeps it slowly (**Phaser**). The chord walks from degree to degree ever
 **Chanter**, **Fiddle**, **Voice**. The **Flute** is a soft tone with a little of its second and third harmonics,
 breath, and a chiff as each note starts; the **Chanter** a nasal reed, bright as each note starts, each note stopped
 and opened again, and let go short; the **Fiddle** a bowed string through its body, the bow's hiss loudest as each
-note starts; the **Voice** a singer's, its vowel easing from note to note (Tone opens it). The four are matched in
-loudness. Skellig, Aran, Carolan, Connemara and Tir na nOg play the Flute, Burren the Fiddle, Blasket and Samhain
+note starts; the **Voice** a singer's, its vowel easing from note to note (Tone opens it), its resonances climbing
+with the high notes, as a soprano's do. The four are matched in loudness. Skellig, Aran, Carolan, Connemara and Tir na nOg play the Flute, Burren the Fiddle, Blasket and Samhain
 the Voice; the Chanter is there to choose.
 
 Its notes are ornamented, as trad players do. **Ornament** (0–100) is the chance that a note an eighth or longer

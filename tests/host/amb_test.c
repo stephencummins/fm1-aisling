@@ -3190,6 +3190,44 @@ int main(void)
         }
     }
 
+    /* (AISLING) The Voice steady: Blasket's and Samhain's Lead alone and dry, 300 s from its first note, its peak under
+     * 10 dB over its level. A high note's harmonics stand further apart than the formants are wide, and one meeting a
+     * formant spiked the level, up to 29 dB in a chunk; with the formants narrow and fixed, as they were, these two
+     * read 18.4 and 11.8 dB, and the Flute 14.7 and 13.5 */
+    {
+        static const int PC[2] = {4, 5};
+        static const char *const PN[2] = {"Blasket", "Samhain"};
+        int k;
+        for (k = 0; k < 2; k++) {
+            int16_t pp[P_NPARAMS];
+            uint16_t pl;
+            uint32_t ons;
+            double pk = 0.0, ms = 0.0, over;
+            int n, b, j;
+            fresh();
+            en_piece(PC[k], pp, &pl);
+            pp[P_CHORD] = pp[P_SEQ] = pp[P_SEQ2] = pp[P_CRACKLE] = 0;
+            pp[P_LDREV] = pp[P_LDECHO] = pp[P_ECHO] = pp[P_REVERB] = pp[P_EWIDTH] = 0;
+            apply(pp, pl);
+            en_play(1);
+            for (ons = ld_ons, n = 0; ld_ons == ons && n < 600 * 172; n++)
+                run(256.0f / 44100.0f);
+            for (b = 0; b < (int)(300.0f * 44100.0f / 256.0f); b++) {
+                en_render(buf, 256, 2048);
+                for (j = 0; j < 512; j++) {
+                    const double y = (double)buf[j] / 8388608.0;
+                    pk = fmax(pk, fabs(y));
+                    ms += y * y;
+                }
+            }
+            over = 20.0 * log10(pk / sqrt(ms / ((double)b * 512.0)));
+            printf("  lead: %s's Voice alone and dry, 300 s: peak %.3f, %.1f dB over its level\n", PN[k], pk, over);
+            CHECK(ld_ons != ons && over < 10.0, "test_lead_voice_steady: %s's Voice peaks %.1f dB over its level (%u "
+                  "notes)", PN[k], over, ld_ons - ons);
+            en_play(0);
+        }
+    }
+
     /* (AISLING, step 5) Ornament, every piece 180 s at Ornament 0 and at 100 (and Skellig's Lead on the Theremin). (i)
      * The Lead's notes the same, note for note: their sixteenths, their phrases and motif slots, every MIDI message
      * (the scale, the motifs, the memory untouched: an ornament lives inside a note); (ii) at 0, none; at 100, every
