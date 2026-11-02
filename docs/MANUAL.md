@@ -580,10 +580,9 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
 [aisling.stephen8n.com](https://aisling.stephen8n.com) turns the MIDI out into a painting of the west of Ireland: the
 Lead's notes fall into the sky, Sequence 2's into the hills, the Sequence's into the fields and the Drone's into the bog.
 A note's pitch sets how far across it lands, how hard it's played how much paint, and the tempo the wind.
-The scene's button, which names the next (**Seascape** at first), or V turns the scene: the Atlantic under the Cliffs of Moher at sunset (the Lead the sky, Sequence 2 the
-swell, the Sequence the crests coming in, the Drone the cliffs), then deep space (the Drone a nebula's glow, the
+The scene's button (**Space**) or V turns it to deep space: the Drone a nebula's glow, the
 Sequence stars that flare where its notes land, Sequence 2 threads of gas, and the Lead a comet, up for a higher note
-and down for a lower), then the landscape again. Connect the FM-1 by USB, open the
+and down for a lower. Press it again for the landscape. Connect the FM-1 by USB, open the
 page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
 page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save picture** keeps a still, and
@@ -592,8 +591,8 @@ USB audio appears). Drop a sound file on the page (or press **Add a sample**) to
 loops out of the computer and paints as the weather, low sounds low and high sounds high. While the FM-1 plays (or the
 demo) **In time** fits it to the tempo like tape, to the nearest 1, 2, 4 … 64 beats, starting on the FM-1's Start and
 stopping with it; a sample longer than 30 seconds plays at its own speed. **Record** takes it too, mixed with the FM-1.
-Everything stays on your computer. Add `?clean` to the address for the painting alone, for a projector or a stream, and `?scene=seascape` or
-`?scene=space` to open on that scene.
+Everything stays on your computer. Add `?clean` to the address for the painting alone, for a projector or a stream, and `?scene=space` to open
+on deep space.
 
 ### Screen reader
 

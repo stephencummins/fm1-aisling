@@ -42,8 +42,8 @@ It runs on the FM-1, installed from the [web installer](https://stephencummins.g
 in the [browser emulator](https://stephencummins.github.io/fm1-aisling/emu/), from the same code.
 
 **The visualiser.** [aisling.stephen8n.com](https://aisling.stephen8n.com) paints what the FM-1 plays as a west-coast
-landscape in oils: the Lead is the sky, Sequence 2 the hills, the Sequence the fields, the Drone the bog. Or as the
-Atlantic under the Cliffs of Moher at sunset, or as deep space, a comet drawn by the Lead. No FM-1? Demo plays a
+landscape in oils: the Lead is the sky, Sequence 2 the hills, the Sequence the fields, the Drone the bog. Or as
+deep space, a comet drawn by the Lead. No FM-1? Demo plays a
 recording of Skellig and paints it as you hear it. Plug the FM-1
 into a computer or Android phone, open the page in Chrome or Edge and press Listen; it reads the FM-1's MIDI out
 (on by default) in your browser, and nothing is sent anywhere. You can paint into it with a finger or the mouse, save a
