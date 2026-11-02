@@ -143,7 +143,7 @@ body.embed button { min-height: 30px; padding: 4px 10px; font-size: .9rem; }
     <p>Pitch sets how far across a note lands, how hard it is played sets how much paint, and the FM-1's tempo sets the
        wind. The Drone and the Lead keep painting while their notes are held, so the wind draws them out into strokes.</p>
     <p>Paint with a finger or the mouse too: the band you touch picks the colour.</p>
-    <p>Space turns it into deep space, a field of stars with no horizon: the Drone paints a nebula's glow, the Sequence
+    <p>Space turns it into deep space in a space telescope's colours, stars crowding round a bright heart, with no horizon: the Drone paints a nebula's glow, the Sequence
        stars that flare where its notes land, Sequence 2 threads of gas, and the Lead a comet, each note taking it on
        from where the last left it, up for a higher note and down for a lower, so the air draws its path. The gas goes
        round in slow eddies instead of blowing across. To paint it, the top of the page is the comet, then the
@@ -233,7 +233,7 @@ const GROUNDS = {
   night: { top: '#17131d', bottom: '#0d0b11', mottle: 8, vignette: 0.4, theme: '#120f17', dark: true },
   mist: { top: '#d9d6cf', bottom: '#8e8b85', mottle: 7, vignette: 0.12, theme: '#bdbab3' },
   // deep space's, painted by paintSpace; glint: the colour its stars flash
-  space: { top: '#07070c', bottom: '#05060b', mottle: 4, vignette: 0.3, theme: '#07070c', dark: true, glint: [225, 235, 255] },
+  space: { top: '#0a0828', bottom: '#060519', mottle: 4, vignette: 0.45, theme: '#08071e', dark: true, glint: [240, 230, 255] },
   // the Atlantic's, painted by paintWater
   water: { top: '#1c212a', bottom: '#131113', mottle: 5, vignette: 0.4, theme: '#14161a', dark: true, glint: [225, 235, 255] },
 }
@@ -253,9 +253,10 @@ const SCENES = {
                     { place: 'the stars', band: [0.04, 0.96], zone: [0.75, 1], size: 0.35, flat: 1, flare: true, order: 0.4 },
                     { place: 'the comet', band: [0.06, 0.94], zone: [0, 0.25], size: 0.6, flat: 1, comet: true, order: 0.1 },
                     { place: 'the threads', band: [0.08, 0.92], zone: [0.25, 0.5], size: 0.7, flat: 0.12, along: true, order: 0.2 }],
-           // the nebula's glow, violet to rose; the stars, red giant to blue; the comet's ice; the threads' teal
-           colours: [['#2a1248', '#5a1e6a', '#9a2f72', '#c85a6e', '#e89a7c'], ['#c8553a', '#f0a860', '#f6e7c8', '#cfe0ff', '#9ec0ff'],
-                     ['#4a6f9a', '#8fb8dc', '#d6ebf6', '#ffffff'], ['#123a4a', '#1f6470', '#3a9a9a', '#8fd0c8']] },
+           // the nebula's glow, royal blue through violet to crimson and rose; the stars, pink through gold to blue-white; the
+           // comet's lilac to white; the threads, the filaments' blue to their pink
+           colours: [['#16247e', '#2f3cc0', '#5e2cae', '#b01c50', '#ee5a84'], ['#ff5a7c', '#ff94c0', '#ffcf7e', '#fff6e6', '#b8d0ff'],
+                     ['#6f5ce0', '#b09cf4', '#f2d8f4', '#ffffff'], ['#1c3cb0', '#3f78e8', '#c04496', '#ff7cb0']] },
   // the Atlantic from above: the Drone the swell in long broad strokes, the Sequence the foam on the eddies, Sequence 2
   // the eddies themselves, each note spinning one up, and the Lead the light, under the cloud or down in an eye
   water: { next: 'space', what: 'the Atlantic from above', ground: 'water', water: true,
@@ -396,35 +397,80 @@ function paintGround() {
   }
 }
 
-/* deep space's ground: black, with dust in drifts, faint blues and violets, most of it in a broad band tilted across
-   the way the Milky Way lies; and stars, more in the band than out of it, most faint and a few bright, red, white or
-   blue, the bright ones with a glow and the brightest with spikes. The paint over it lets a little of them through,
-   and they twinkle */
+/* deep space, as the telescopes show it: indigo-black, and royal-blue gas that reddens as it nears the heart, where the
+   light gathers white-hot among a crowd of stars. Filaments of blue and pink in a shell round it, as a star's remains
+   are; lanes of black dust; a far spiral, lilac round a pink-white core, a dark ring between; and stars, gold, pink,
+   white and blue, the bright ones with diffraction spikes. All from the noise and the hash, so it is the same every
+   time and draws nothing from the dice. Its size goes by the height, or on a tall screen the width, so a phone shows the same sky. The paint over it
+   lets a little through, and the stars twinkle */
 function paintSpace(g) {
-  const t = hex(g.top), bo = hex(g.bottom), blue = hex('#18223e'), violet = hex('#2c1a3c')
-  const warm = hex('#ffc08a'), white = hex('#fff6ea'), cold = hex('#bcd2ff'), gl = [], stars = []
+  const t = hex(g.top), bo = hex(g.bottom), royal = hex('#1f33a8'), violet = hex('#4b2aa0'), crimson = hex('#a0143c')
+  const rose = hex('#e8447c'), gold = hex('#ffc878'), hot = hex('#fff4e2'), fblue = hex('#3f7bff'), fpink = hex('#ff5a94')
+  const lilac = hex('#b49cf0'), pinkw = hex('#ffd6e4')
+  const STARS = [hex('#ff6a8a'), hex('#ff9ac4'), hex('#ffd08a'), hex('#fff6ea'), hex('#bcd2ff')]
+  const unit = Math.min(H, W / 1.2), QW = W / unit, QH = H / unit, hx = 0.63 * QW, hy = 0.42 * QH, sx = 0.2 * QW, sy = 0.71 * QH, ca = Math.cos(0.5), sa = Math.sin(0.5)
+  const gl = [], stars = []
+  let r = 0, gr = 0, bl = 0
+  const to = (c, f) => { r += (c[0] - r) * f; gr += (c[1] - gr) * f; bl += (c[2] - bl) * f }
+  const add = (c, f) => { r = 255 - (255 - r) * (1 - (f * c[0]) / 255); gr = 255 - (255 - gr) * (1 - (f * c[1]) / 255); bl = 255 - (255 - bl) * (1 - (f * c[2]) / 255) }
+  const star = (a, b, br, col) => { stars.push([a, b, br, col]); if (gl.length < 32000) gl.push(a + DX * b, 0.6 * br) }
   for (let b = 0, k = 0; b < DY; b++) {
-    const fy = (b + 0.5) / DY, py = fy * H
+    const fy = (b + 0.5) / DY, qy = fy * QH, py = fy * H
     for (let a = 0; a < DX; a++, k++) {
-      const fx = (a + 0.5) / DX, px = fx * W
-      const band = Math.exp(-(((fy - 0.5 - 0.3 * (fx - 0.5)) / 0.2) ** 2))
-      const n = 0.55 * vnoise(px / 240, py / 240) + 0.3 * vnoise(px / 80 + 17, py / 80 - 5) + 0.15 * vnoise(px / 26 + 3, py / 26 + 9)
-      const dust = 0.8 * clamp((n - 0.42) / 0.4, 0, 1) * (0.25 + 0.75 * band), hue = vnoise(px / 400 + 40, py / 400)
-      const ex = fx - 0.5, ey = fy - 0.5, vig = 1 - g.vignette * clamp((ex * ex + ey * ey) * 2.2, 0, 1)
-      const m = (vnoise(px / 150, py / 24) - 0.5) * g.mottle
+      const fx = (a + 0.5) / DX, qx = fx * QW, px = fx * W
+      // the gas, its noise warped so that it billows
+      const wx = vnoise(qx * 1.9 + 7.3, qy * 1.9 + 1.1) - 0.5, wy = vnoise(qx * 1.9 - 4.1, qy * 1.9 + 9.7) - 0.5
+      const ux = qx * 2.6 + 2.2 * wx, uy = qy * 2.6 + 2.2 * wy
+      const n = 0.55 * vnoise(ux, uy) + 0.3 * vnoise(ux * 2.3 + 17, uy * 2.3 - 5) + 0.15 * vnoise(ux * 5.1 + 3, uy * 5.1 + 9)
+      const gas = clamp((n - 0.45) / 0.24, 0, 1), dx = qx - hx, dy = qy - hy, rr = dx * dx + dy * dy, far = Math.sqrt(rr)
+      const near = Math.exp(-rr / 0.15), mid = Math.exp(-rr / 0.045), core = Math.exp(-rr / 0.003)
+      const band = Math.exp(-(((fy - 0.5 - 0.3 * (fx - 0.5)) / 0.42) ** 2)), dens = gas * gas * (0.12 + 0.88 * Math.max(band * band, near))
       const c0 = t[0] + (bo[0] - t[0]) * fy, c1 = t[1] + (bo[1] - t[1]) * fy, c2 = t[2] + (bo[2] - t[2]) * fy
-      G0[k] = clamp((c0 + (blue[0] + (violet[0] - blue[0]) * hue - c0) * dust + m) * vig, 0, 255)
-      G1[k] = clamp((c1 + (blue[1] + (violet[1] - blue[1]) * hue - c1) * dust + m) * vig, 0, 255)
-      G2[k] = clamp((c2 + (blue[2] + (violet[2] - blue[2]) * hue - c2) * dust + m * 1.2) * vig, 0, 255)
-      if (hash2(a * 3 + 1, b * 7 + 2) < 0.0035 + 0.009 * band) {
-        const br = 0.18 + 0.82 * hash2(a + 5, b + 11) ** 4, tp = hash2(a + 9, b + 3)
-        const from = tp < 0.5 ? warm : white, to = tp < 0.5 ? white : cold, f = tp < 0.5 ? 2 * tp : 2 * tp - 1
-        stars.push([a, b, br, from.map((x, c) => x + (to[c] - x) * f)])
-        if (gl.length < 32000) gl.push(k, 0.6 * br)
+      r = c0; gr = c1; bl = c2
+      const blue = 1 - 0.9 * near * near
+      to(royal, 0.8 * dens * blue)
+      to(violet, 0.55 * dens * blue * clamp(vnoise(qx * 1.1 + 40, qy * 1.1) * 1.6 - 0.3, 0, 1))
+      to(crimson, clamp(near * near * (0.45 + 0.8 * gas), 0, 0.92))
+      to(rose, 0.8 * mid * (0.35 + 0.65 * gas))
+      // the black dust, thin lanes of it across the gas
+      const lane = 1 - Math.abs(2 * vnoise(qx * 2.2 + 61 + wx, qy * 3.4 + 37 + wy) - 1)
+      const dark = 1 - 0.85 * clamp((lane - 0.84) / 0.16, 0, 1) * clamp(dens * 1.6, 0, 1) * (1 - mid)
+      r *= dark; gr *= dark; bl *= dark
+      // the filaments, hairlines of it in a shell round the heart
+      const fil = (1 - Math.abs(2 * vnoise(ux * 2.1 + 31, uy * 2.1 + 13) - 1)) ** 10
+      const shell = Math.exp(-(((far - 0.5) / 0.2) ** 2)) * clamp(vnoise(qx * 1.3 + 9, qy * 1.3 + 21) * 2 - 0.4, 0, 1)
+      if (fil * shell > 0.01) add(vnoise(qx * 1.6 + 50, qy * 1.6 + 50) < 0.5 ? fblue : fpink, 0.8 * fil * shell)
+      // the heart
+      to(gold, 0.85 * core ** 0.5)
+      to(hot, core)
+      // the far spiral
+      const ex = qx - sx, ey = qy - sy, ex2 = ex * ca + ey * sa, ey2 = (ey * ca - ex * sa) / 0.45, er = Math.sqrt(ex2 * ex2 + ey2 * ey2)
+      if (er < 0.26) {
+        const arm = 0.5 + 0.5 * Math.sin(2 * Math.atan2(ey2, ex2) + er * 46)
+        add(lilac, 0.75 * Math.exp(-(((er - 0.105) / 0.035) ** 2)) * (0.5 + 0.5 * arm) + 0.2 * Math.exp(-((er / 0.17) ** 2)))
+        const ring = 1 - 0.8 * Math.exp(-(((er - 0.058) / 0.012) ** 2))
+        r *= ring; gr *= ring; bl *= ring
+        add(pinkw, Math.exp(-((er / 0.03) ** 2)))
+      }
+      const ex0 = fx - 0.5, ey0 = fy - 0.5, vig = 1 - g.vignette * clamp((ex0 * ex0 + ey0 * ey0) * 2.2, 0, 1)
+      const m = (vnoise(px / 150, py / 24) - 0.5) * g.mottle
+      G0[k] = clamp((r + m) * vig, 0, 255)
+      G1[k] = clamp((gr + m) * vig, 0, 255)
+      G2[k] = clamp((bl + m * 1.2) * vig, 0, 255)
+      if (hash2(a * 3 + 1, b * 7 + 2) < 0.003 + 0.006 * band + 0.012 * near) {
+        const tp = hash2(a + 9, b + 3)
+        star(a, b, Math.min(1, 0.18 + 0.82 * hash2(a + 5, b + 11) ** 4), STARS[Math.floor(tp * (hash2(a + 2, b + 8) < 0.6 * near ? 3 : 5))])
       }
     }
   }
-  // their light, screened over the dust
+  // the crowd round the heart, thick at the middle, reds and pinks and gold
+  const crowd = Math.min(240, Math.round((DX * DY) / 280))
+  for (let n = 0; n < crowd; n++) {
+    const u = Math.sqrt(-2 * Math.log(Math.max(1e-4, hash2(n + 3, 17)))) * 0.11, v = 6.2832 * hash2(n + 7, 29)
+    const a = Math.floor(((hx + u * Math.cos(v)) / QW) * DX), b = Math.floor(((hy + u * Math.sin(v)) / QH) * DY)
+    if (a >= 0 && a < DX && b >= 0 && b < DY) star(a, b, Math.min(1, 0.25 + 0.75 * hash2(n + 11, 41) ** 3), STARS[Math.floor(hash2(n + 13, 53) * 3)])
+  }
+  // their light, screened over the gas; a spike's falls between cells, so it is shared among four
   const light = (a, b, s, col) => {
     if (b < 0 || b >= DY || s < 0.01) return
     const k = ((a % DX) + DX) % DX + DX * b
@@ -432,17 +478,26 @@ function paintSpace(g) {
     G1[k] = 255 - (255 - G1[k]) * (1 - (s * col[1]) / 255)
     G2[k] = 255 - (255 - G2[k]) * (1 - (s * col[2]) / 255)
   }
+  const AX4 = [[1, 0], [0, 1]], AX6 = [[0, 1], [0.866, 0.5], [0.866, -0.5]]
+  const spikes = (a, b, s, col, axes, len) => {
+    for (const [ax, ay] of axes) for (let d = 1; d <= len; d++) {
+      const f = s * (1 - d / (len + 1)) ** 2
+      for (const w of [1, -1]) {
+        const x = a + w * ax * d, y = b + w * ay * d, x0 = Math.floor(x), y0 = Math.floor(y), tx = x - x0, ty = y - y0
+        light(x0, y0, f * (1 - tx) * (1 - ty), col); light(x0 + 1, y0, f * tx * (1 - ty), col)
+        light(x0, y0 + 1, f * (1 - tx) * ty, col); light(x0 + 1, y0 + 1, f * tx * ty, col)
+      }
+    }
+  }
   for (const [a, b, br, col] of stars) {
     light(a, b, br, col)
     if (br > 0.55) {
-      const rr = 0.5 + 2.4 * (br - 0.55)
-      for (let dj = -3; dj <= 3; dj++) for (let di = -3; di <= 3; di++) if (di || dj) light(a + di, b + dj, 0.5 * br * Math.exp(-(di * di + dj * dj) / (rr * rr)), col)
+      const rad = 0.5 + 2.4 * (br - 0.55)
+      for (let dj = -3; dj <= 3; dj++) for (let di = -3; di <= 3; di++) if (di || dj) light(a + di, b + dj, 0.5 * br * Math.exp(-(di * di + dj * dj) / (rad * rad)), col)
     }
-    if (br > 0.9) for (let d = 2; d <= 5; d++) {
-      const s = 0.3 * br * (1 - d / 6) ** 2
-      light(a + d, b, s, col); light(a - d, b, s, col); light(a, b + d, s, col); light(a, b - d, s, col)
-    }
+    if (br > 0.82) spikes(a, b, 0.42 * br, col, br > 0.96 ? AX6 : AX4, Math.round(4 + (40 * (br - 0.82)) * R / 2))
   }
+  spikes(Math.floor(0.63 * DX), Math.floor(0.42 * DY), 0.6, hot, AX6, 9 * R)
   VEIL.fill(0.85)
   glN = gl.length / 2
   glI = new Int32Array(glN); glW = new Float32Array(glN); glP = new Float32Array(glN)
@@ -1156,7 +1211,7 @@ const drips = []
    burns while its note is held; light screened over the paint, spikes on a flare */
 const flares = []
 function flare(x, y, rgb, w) {
-  if (flares.length < 40) flares.push({ a: x * R, b: y * R, rgb: rgb.map((c) => c + (255 - c) * 0.5), w, age: 0 })
+  if (flares.length < 40) flares.push({ a: x * R, b: y * R, rgb: rgb.map((c) => c + (255 - c) * 0.3), w, age: 0 })
 }
 function screen(i, f, rgb) {
   const c = buf[i]
@@ -1185,7 +1240,7 @@ function glow(a0, b0, rgb, s, rad, spike) {
   }
 }
 function shine() {
-  for (const f of flares) glow(f.a, f.b, f.rgb, f.w * (f.age < 5 ? f.age / 5 : Math.exp(-(f.age - 5) / 22)), R * (1 + 0.8 * f.w), Math.round(R * 5 * f.w))
+  for (const f of flares) glow(f.a, f.b, f.rgb, f.w * (f.age < 5 ? f.age / 5 : Math.exp(-(f.age - 5) / 22)), R * (1 + 0.8 * f.w), Math.round(R * 7 * f.w))
   for (const b of blooms) {
     if (b.on && b.held && LAYERS[b.li].comet) glow(b.x * R, b.y * R, b.rgb.map((c) => c + (255 - c) * 0.6), 0.85, R * 1.7, 0)
   }
