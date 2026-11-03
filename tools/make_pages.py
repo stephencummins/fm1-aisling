@@ -17,7 +17,8 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
   install/index.html          the web installer (web/amb_installer.html, with fm1pkg.js, fm1ota.js and
                               the package's metadata inlined; Chrome or Edge, Web MIDI)
   manual/index.html, img/     the manual (tools/manual_html.py, from docs/MANUAL.md)
-  cheat/index.html            the cheat sheet: the README's "In short" and pieces tables on one page, to print
+  cheat/index.html            the cheat sheet: the README's "In short" and pieces tables on one page, to print, and
+                              the flows, four drawings of the steps (web/cheat/), a printed page each
   firmware/aisling-VERSION.fwsc   the package the installer writes; also the download
 
   tools/make_pages.py build/aisling-0.1.fwsc 0.1 OUT_DIR
@@ -128,7 +129,7 @@ always in the piece's scale, and it answers you.</p>
 <h2 class="bh" id="helph">Help, and the files</h2>
 <nav class="ways help" aria-label="Help and the files">
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
-  <a href="cheat/"><strong>Cheat sheet</strong><span>Every control and the eight pieces on one page, to print.</span></a>
+  <a href="cheat/"><strong>Cheat sheet</strong><span>Every control and the eight pieces on one page, to print, and the steps drawn as flows.</span></a>
   <a href="manual/#s13"><strong>If it goes wrong</strong><span>Update mode, calibration, safe mode, and bringing back an FM-1 that won't start.</span></a>
   <a href="https://www.m-vave.com/download"><strong>Back to stock</strong><span>M-VAVE's updater, M-UPGRADE, puts the official firmware back.</span></a>
   <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>The package itself, for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
@@ -179,7 +180,7 @@ CHEAT = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AISLING cheat sheet</title>
-<meta name="description" content="AISLING's controls and its eight pieces on one page.">
+<meta name="description" content="AISLING's controls and its eight pieces on one page, and the steps drawn as flows: changing a sound, mute and solo, every button's pages.">
 <style>
 /* On the site's bench on screen (web/brand/site.css); black on white to print, small enough for one sheet */
 .wrap { overflow-x: auto; }
@@ -188,7 +189,17 @@ th, td { text-align: left; vertical-align: top; padding: 5px 8px 5px 0; border-t
 th { font-weight: 400; font-size: 12.5px; color: var(--brand-muted); border-top: 0; }
 td b, td i { font-weight: 400; font-style: normal; color: var(--brand-green); }
 td:first-child { white-space: nowrap; }
-@media print {
+.jump { line-height: 1.8; }
+@media (min-width: 56.25rem) { .jump-hint { display: none; } }
+/* The flows: four drawings, each drawn at 1123 by 794 (A4 landscape) and scaled to the bench by the script at the end of the
+   page. They stop shrinking while they can still be read, and from there each scrolls sideways in its own box */
+.flow { overflow-x: auto; overflow-y: hidden; }
+.flow:focus-visible { outline: 2px solid var(--brand-ink); outline-offset: -2px; }
+.flow-size { width: calc(1123px * var(--s, 1)); height: calc(794px * var(--s, 1)); }
+.flow-board { position: relative; width: 1123px; height: 794px; overflow: hidden; background: #fff; color: #2b2219;
+              font: 400 12px/16px var(--brand-mono); transform: scale(var(--s, 1)); transform-origin: 0 0;
+              -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+__FLOWS_CSS__@media print {
   body.cheat { font-size: 7.5pt; line-height: 1.3; }
   body.cheat .pane { padding: 0; margin-top: .6rem; }
   body.cheat .bench > * + * { border-top: 0; }
@@ -198,6 +209,12 @@ td:first-child { white-space: nowrap; }
   th, td { padding: 2px 6px 2px 0; }
   tr { break-inside: avoid; }
   @page { margin: 10mm; }
+  /* after the sheet, a landscape page each. (A hair under A4, or each brings a blank page with it) */
+  @page flow { size: A4 landscape; margin: 0; }
+  body.cheat .jump { display: none; }
+  body.cheat .flow { page: flow; break-before: page; overflow: visible; }
+  .flow-size { width: auto; height: auto; }
+  .flow-board { width: 1122px; height: 793px; transform: none; }
 }
 </style>
 <!--AISLING-HEAD-->
@@ -209,6 +226,7 @@ td:first-child { white-space: nowrap; }
 <h1 class="lab"><b>cheat sheet</b> · AISLING v__VERSION__</h1>
 <p class="lab">__BY__</p>
 </div>
+<nav class="pane lab jump" aria-label="The flows">The steps, drawn: <a href="#flow-lead">change the Lead's instrument</a> · <a href="#flow-layers">any layer's sound</a> · <a href="#flow-perform">mute, solo, push</a> · <a href="#flow-pages">every button's pages</a><span class="jump-hint"> (on a small screen, scroll each one sideways)</span></nav>
 <section class="pane">
 <h2 class="bh">The controls</h2>
 <div class="wrap">__CONTROLS__</div>
@@ -217,7 +235,19 @@ td:first-child { white-space: nowrap; }
 <h2 class="bh">The pieces</h2>
 <div class="wrap">__PIECES__</div>
 </section>
+__FLOWS__
 </main>
+<script>
+// each flow to the bench's width, as far down as it can still be read
+(function () {
+  var flows = document.querySelectorAll(".flow");
+  function fit() {
+    flows.forEach(function (f) { f.style.setProperty("--s", Math.max(f.clientWidth / 1123, 0.8)); });
+  }
+  fit();
+  addEventListener("resize", fit);
+}());
+</script>
 </body>
 </html>
 """
@@ -244,9 +274,20 @@ def md_table(section):
     return f"<table>\n<thead><tr>{head}</tr></thead>\n<tbody>\n{body}</tbody>\n</table>"
 
 
+def flows():
+    """The cheat sheet's flows: the drawings. Their screens are docs/img/flow-*.png (tests/listen/flowshots.amb)."""
+    page = (SRC / "web" / "cheat" / "flows.html").read_text(encoding="utf-8")
+    for name in re.findall(r'src="\.\./img/([^"]+)"', page):
+        if not (SRC / "docs" / "img" / name).is_file():
+            raise SystemExit(f"web/cheat/flows.html: no docs/img/{name}")
+    return page
+
+
 def cheat_sheet(version):
     return (CHEAT.replace("__VERSION__", html.escape(version)).replace("__BY__", BY)
-            .replace("__CONTROLS__", md_table("In short")).replace("__PIECES__", md_table("The pieces")))
+            .replace("__CONTROLS__", md_table("In short")).replace("__PIECES__", md_table("The pieces"))
+            .replace("__FLOWS_CSS__", (SRC / "web" / "cheat" / "flows.css").read_text(encoding="utf-8"))
+            .replace("__FLOWS__", flows()))
 
 
 def check_visualiser_bar():
