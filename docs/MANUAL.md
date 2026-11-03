@@ -638,9 +638,10 @@ The screen asks you to press each button and turn each knob in turn.
 AFTER A CRASH and an address (PC ...) for a moment; if you report the problem, include it and what you were
 doing.
 
-**No USB audio on an older Mac:** up to macOS 15, a Mac could find the FM-1's MIDI and miss its audio, because of the
-order the FM-1 listed them in. AISLING now lists the audio first, as Felucca does. That hasn't been tried on such a Mac
-yet, so if the FM-1 still doesn't appear as a sound device, please say so in an issue.
+**No USB audio on an older Mac:** in a simple test on macOS 13.7.8, the FM-1's MIDI appeared but no sound device did,
+so expect no USB sound or recording there. AISLING lists the audio first, as Felucca does, and that didn't fix it.
+macOS 14 and 15 haven't been tried, so if you try one, please say in an issue whether the FM-1 appears as a sound
+device.
 
 **Safe mode:** if AISLING crashes twice in a row while starting, it starts in SAFE MODE: no sound, but USB
 works, so you can reinstall with `tools/fm1_install.py` or put the stock firmware back with M-UPGRADE. Press

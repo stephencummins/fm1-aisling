@@ -147,7 +147,9 @@ static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
  * AppleUSBAudio walks the header's list by its original count and removes a MIDI interface from it as it goes:
  * with MIDI first, the walk runs off the shortened list before it reaches audio, so no audio device appears
  * though MIDI works. With MIDI last, it is removed at the end of the walk. The class spec gives the order no
- * meaning. tests/host/usb_desc_test.c holds a reduced model of that parser. */
+ * meaning. tests/host/usb_desc_test.c holds a reduced model of that parser.
+ * A simple test on macOS 13.7.8 (Intel iMac, 2026-11-03): not enough. MIDI appears, the audio driver quits within a
+ * millisecond of attaching, and no audio device appears. macOS 14 and 15 not tried. */
 #define CDC_IF (2 + FELUCCA_UAC)
 #define UAC_AS_IF 2u
 #define CFG_LEN (101 + 74 * FELUCCA_CDC + 74 * FELUCCA_UAC)
