@@ -37,7 +37,7 @@ remembers and answers) and changes what it plays:
   of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 0.3, the third test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 0.4, the fourth test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -51,6 +51,11 @@ picture, record a video with the FM-1's own sound from its USB audio, and drop a
 time with the FM-1 and paints as the weather. It is one file,
 [web/visualiser/index.html](web/visualiser/index.html), with the demo's recording beside it, and it also works opened
 straight from disk, offline (there the demo paints without sound).
+
+**MIDI.** A note on any channel, over USB or the TRS jack, plays the Lead as a white key does, and the sequences
+follow MIDI clock, start, continue and stop. MIDI out goes over USB: the Drone, the Sequence, the Lead and Sequence 2
+on channels 1 to 4, and clock. The TRS jack has been tried with Type A, from a Korg nanoKEY Fold; Type B hasn't been
+tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 
 **Saved pieces.** AISLING saves its eight pieces in the same place in the FM-1's memory as NACHTFAHRT, DUB-1 and
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds

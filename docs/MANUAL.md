@@ -19,7 +19,7 @@ AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https:/
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 0.3, the third test version.** It runs on the FM-1 (install it from the web installer) and in the
+**This is 0.4, the fourth test version.** It runs on the FM-1 (install it from the web installer) and in the
 browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -566,7 +566,8 @@ A page's button leaves. (SEL again stays: PERFORM is one page.)
 
 ## 11. MIDI
 
-MIDI comes in over USB and the TRS jack, and goes out over USB.
+MIDI comes in over USB and the TRS jack, and goes out over USB. The TRS jack has been tried with Type A: notes and
+clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tried.
 
 - **Out** (on by default; a muted layer sends nothing): the Drone on channel 1, the Sequence (and its repeats) on 2, the Lead on 3,
   Sequence 2 on 4, and, on its own tempo, clock with start and stop.
@@ -593,7 +594,8 @@ page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari 
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
 page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save** keeps a still, and
 **Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
-USB audio appears). Drop a sound file on the page (or press **Sample**) to mix it in: a WAV, AIFF, FLAC or MP3
+USB audio appears). The USB audio comes after MASTER, so MASTER sets the recording's level: at a comfortable headphone
+level a recording comes out very quiet, so take your headphones off and turn MASTER up before you record. Drop a sound file on the page (or press **Sample**) to mix it in: a WAV, AIFF, FLAC or MP3
 loops out of the computer and paints as the weather, low sounds low and high sounds high. While the FM-1 plays (or the
 demo) **In time** fits it to the tempo like tape, to the nearest 1, 2, 4 … 64 beats, starting on the FM-1's Start and
 stopping with it; a sample longer than 30 seconds plays at its own speed. **Record** takes it too, mixed with the FM-1.
