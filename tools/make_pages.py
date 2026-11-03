@@ -69,7 +69,7 @@ LANDING = """<!doctype html>
 .ways a { display: block; padding: 12px 16px 14px; background: var(--brand-ground); color: var(--brand-ink); text-decoration: none; }
 .ways a:hover { background: var(--brand-strip); color: var(--brand-ink); }
 .ways a:focus-visible { outline-offset: -3px; }
-.ways strong { display: block; font-weight: 400; margin-bottom: 2px; }
+.ways strong { display: block; margin-bottom: 4px; font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; }
 .ways span { display: block; font-size: 12.5px; color: var(--brand-muted); }
 .ways em.v { font-style: normal; }
 .ways a.go, .ways a.go span { background: var(--brand-green); color: var(--brand-ground); }
@@ -82,13 +82,12 @@ LANDING = """<!doctype html>
 .pane p { margin: 0 0 10px; }
 .pane p:last-child { margin-bottom: 0; }
 ul.layers { list-style: square; padding-left: 1.2rem; margin: 0 0 10px; }
-ul.layers li { margin: 0 0 6px; }
-ul.layers b { font-weight: 400; color: var(--brand-ink); }
+ul.layers li { margin: 0 0 10px; }
 ul.layers li.d::marker { color: var(--drone); } ul.layers li.s::marker { color: var(--seq); }
 ul.layers li.l::marker { color: var(--lead); } ul.layers li.t::marker { color: var(--seq2); }
 ul.layers li.a::marker { color: var(--atmos); }
 p.small { color: var(--brand-muted); font-size: 12.5px; }
-.pane b { font-weight: 400; color: var(--brand-green); }
+.pane p b { font-weight: 400; color: var(--brand-green); }
 @media (max-width: 59.99rem) {
   .two.hero { grid-template-columns: minmax(0, 1fr); }
   .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
@@ -126,7 +125,7 @@ always in the piece's scale, and it answers you.</p>
 </nav>
 
 <section class="block" aria-labelledby="helph">
-<h2 class="bh" id="helph">help, and the files</h2>
+<h2 class="bh" id="helph">Help, and the files</h2>
 <nav class="ways help" aria-label="Help and the files">
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
   <a href="cheat/"><strong>Cheat sheet</strong><span>Every control and the eight pieces on one page, to print.</span></a>
@@ -138,7 +137,7 @@ always in the piece's scale, and it answers you.</p>
 </section>
 <div class="two">
 <section class="pane">
-<h2 class="bh">listen, and play</h2>
+<h2 class="bh">Listen, and play</h2>
 <p>AISLING plays itself from the moment it is switched on, and it never ends: each piece opens from the drone,
 flows, gives the flute its turn, crosses a bridge and starts its long rise again. You are invited in. The <b>white
 keys</b> play the flute in the piece's scale, so every note fits; play a phrase and it becomes the flute's theme. The
@@ -147,13 +146,13 @@ every filter, Transpose lifts the harps, and more. SELECT turns the level of the
 mutes and solos the layers and pushes Filter, Wet and Energy.</p>
 </section>
 <section class="pane">
-<h2 class="bh">what it plays</h2>
+<h2 class="bh">What it plays</h2>
 <ul class="layers">
-  <li class="d"><b>Drone.</b> Organ, strings, a reed drone, glass or a choir whose vowel moves, with the root an octave below; its chords swing slowly between two tonics, as the old tunes do.</li>
-  <li class="s"><b>Sequence.</b> The harp: a wire-strung harp's ostinato, often twelve notes in a jig's threes, repeated by the echo, its filter wandering.</li>
-  <li class="t"><b>Sequence 2.</b> A second harp, a step shorter and often an octave down, so the two drift apart and meet again.</li>
-  <li class="l"><b>Lead.</b> The flute, far back in the reverb, phrasing in calls and answers; or your own melody on the keys.</li>
-  <li class="a"><b>Atmosphere.</b> Surf, wind, rain, a turf fire or a curlew, where a piece wants it.</li>
+  <li class="d"><b class="lead">Drone.</b> Organ, strings, a reed drone, glass or a choir whose vowel moves, with the root an octave below; its chords swing slowly between two tonics, as the old tunes do.</li>
+  <li class="s"><b class="lead">Sequence.</b> The harp: a wire-strung harp's ostinato, often twelve notes in a jig's threes, repeated by the echo, its filter wandering.</li>
+  <li class="t"><b class="lead">Sequence 2.</b> A second harp, a step shorter and often an octave down, so the two drift apart and meet again.</li>
+  <li class="l"><b class="lead">Lead.</b> The flute, far back in the reverb, phrasing in calls and answers; or your own melody on the keys.</li>
+  <li class="a"><b class="lead">Atmosphere.</b> Surf, wind, rain, a turf fire or a curlew, where a piece wants it.</li>
 </ul>
 <p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain, Connemara and Tir na nOg, in the old modes and the
 pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders
@@ -211,11 +210,11 @@ td:first-child { white-space: nowrap; }
 <p class="lab">__BY__</p>
 </div>
 <section class="pane">
-<h2 class="bh">the controls</h2>
+<h2 class="bh">The controls</h2>
 <div class="wrap">__CONTROLS__</div>
 </section>
 <section class="pane">
-<h2 class="bh">the pieces</h2>
+<h2 class="bh">The pieces</h2>
 <div class="wrap">__PIECES__</div>
 </section>
 </main>

@@ -204,11 +204,11 @@ body.bench input[type="range"]::-moz-range-track { height: 3px; background: var(
 body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; background: var(--accent); border: 0; border-radius: 0; }
 /* the guide, below the bench: numbered steps, all of them open, in as many columns as fit */
 #guide { padding: 6px 16px 16px; border-top: 1px solid var(--rule); }
-#guide .bh { margin: 8px 0 12px; }
+#guide .bh { margin: 8px 0 12px; font: 600 17px/1.3 var(--display); letter-spacing: .02em; color: var(--ink); }
 #guide ol { list-style: none; margin: 0; padding: 0; columns: 19rem 3; column-gap: 32px; }
 #guide li { break-inside: avoid; padding: 0 0 14px; }
-#guide h3 { margin: 0 0 4px; font: 400 13.5px/1.5 var(--mono); color: var(--ink); }
-#guide h3 b { font-weight: 400; color: var(--accent); margin-right: 10px; }
+#guide h3 { margin: 0 0 4px; font: 600 16px/1.3 var(--display); letter-spacing: .02em; color: var(--ink); }
+#guide h3 b { font-weight: 600; color: var(--accent); margin-right: 10px; }
 #guide li p, #guide p.foot { margin: 0 0 6px; font: 400 12.5px/1.6 var(--mono); color: var(--muted); }
 #guide p.foot { margin: 6px 0 0; padding-top: 10px; border-top: 1px solid var(--soft); }
 #guide a { text-decoration-color: var(--rule); text-decoration-thickness: 1px; }
@@ -307,46 +307,46 @@ body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; bac
     </div>
   </div>
   <section id="guide" aria-labelledby="guideh">
-    <h2 class="bh" id="guideh">how it works</h2>
+    <h2 class="bh" id="guideh">How it works</h2>
     <ol>
-      <li><h3><b>01</b>listen to the fm-1</h3>
+      <li><h3><b>01</b>Listen to the FM-1</h3>
         <p>Plug the FM-1 into this computer with USB, press Listen to the FM-1 and allow MIDI when the browser asks. MIDI
            out is on unless you turned it off (GLO, Setup).</p>
         <p>The notes go from the FM-1 to this tab and no further: the page sends nothing anywhere.</p>
       </li>
-      <li><h3><b>02</b>no fm-1?</h3>
+      <li><h3><b>02</b>No FM-1?</h3>
         <p>No FM-1? Press Demo: it plays Skellig, one of AISLING's eight pieces, as the FM-1 plays it (a recording from the
            same code, 32 bars round and round) and paints its notes as you hear them. It is the one thing the page fetches,
            and only when you press Demo; from a downloaded copy the demo paints without sound.</p>
         <p>Any MIDI source works: channels 1 to 4 are the Drone, the Sequence, the Lead and Sequence 2, as the FM-1 sends them.</p>
       </li>
-      <li><h3><b>03</b>what paints what</h3>
+      <li><h3><b>03</b>What paints what</h3>
         <p>Pitch sets how far across a note lands, how hard it is played sets how much paint, and the FM-1's tempo sets the
            wind. The Drone and the Lead keep painting while their notes are held, so the wind draws them out into strokes.</p>
       </li>
-      <li><h3><b>04</b>paint by hand</h3>
+      <li><h3><b>04</b>Paint by hand</h3>
         <p>Paint with a finger or the mouse too: the band you touch picks the colour.</p>
       </li>
-      <li><h3><b>05</b>the sea</h3>
+      <li><h3><b>05</b>The sea</h3>
         <p>Sea is the Atlantic from above, under a storm: the water goes round in two great eddies, as hard as the clock
            drives it. The Drone lays the swell in long broad strokes, the Sequence the foam on the eddies, each note of
            Sequence 2 spins up an eddy where it lands and draws a dark stroke round it, and the Lead is the light: under
            the cloud for a high note, down in an eddy's eye for a low one. A few faint strokes keep going round, and the
            cloud keeps blowing, when nothing is played.</p>
       </li>
-      <li><h3><b>06</b>space</h3>
+      <li><h3><b>06</b>Space</h3>
         <p>Space turns it into deep space in a space telescope's colours, stars crowding round a bright heart, with no horizon: the Drone paints a nebula's glow, the Sequence
            stars that flare where its notes land, Sequence 2 threads of gas, and the Lead a comet, each note taking it on
            from where the last left it, up for a higher note and down for a lower, so the air draws its path. The gas goes
            round in slow eddies instead of blowing across. To paint it, the top of the page is the comet, then the
            threads, the nebula, and at the foot the stars.</p>
       </li>
-      <li><h3><b>07</b>save and record</h3>
+      <li><h3><b>07</b>Save and record</h3>
         <p>Save keeps the painting as it is now. Record makes a video of it; with the FM-1 plugged in it records the
            FM-1's own sound as well, which comes over the same USB cable (the browser asks to use it as a microphone).
            While it records, the sound moves the wind. Both are saved to this computer and go nowhere else.</p>
       </li>
-      <li><h3><b>08</b>mix in a sound</h3>
+      <li><h3><b>08</b>Mix in a sound</h3>
         <p>Drop a sound file on the page, or press Sample, to mix it in: a WAV, AIFF, FLAC or MP3. It loops out of this
            computer's speakers and paints as the weather, low sounds low and high sounds high, each hit a drop where a slow
            sweep across the page has reached. While the FM-1 plays (or the demo), In time fits it to the tempo: sped up or
@@ -354,11 +354,11 @@ body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; bac
            longer than 30 seconds plays at its own speed. Record takes it too, mixed with the FM-1. The file is read in this
            tab and goes nowhere.</p>
       </li>
-      <li><h3><b>09</b>which browsers</h3>
+      <li><h3><b>09</b>Which browsers</h3>
         <p>It works in Chrome, Edge and Opera, on a computer or an Android phone. Firefox asks you to allow a site permission
            first. Safari, and every browser on an iPhone or iPad, has no Web MIDI: the demo plays there.</p>
       </li>
-      <li><h3><b>10</b>keys</h3>
+      <li><h3><b>10</b>Keys</h3>
         <p>Keys: <kbd>F</kbd> full screen, <kbd>V</kbd> the scene (land, sea or space), <kbd>M</kbd> the
            landscape's ground (vellum, mist or night), <kbd>C</kbd> its colours (Heather, Atlantic, Kells or Evening: what is
            painted keeps its own, the next notes take the new), <kbd>D</kbd> demo, <kbd>S</kbd> save, <kbd>R</kbd>

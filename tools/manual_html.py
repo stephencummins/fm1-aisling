@@ -34,7 +34,7 @@ html { scroll-padding-top: 4rem; }
 .prose p, .prose li { max-width: 78ch; }
 .prose p { margin: 0 0 .9rem; }
 .prose ul, .prose ol { padding-left: 1.3rem; margin: 0 0 .9rem; }
-.prose li { margin: .2rem 0; }
+.prose li { margin: .55rem 0; }
 .prose li::marker { color: var(--brand-green); }
 .skip { position: absolute; left: 16px; top: -100px; background: var(--brand-ground); border: 1px solid var(--brand-ink); padding: 6px 12px; z-index: 30; }
 .skip:focus { top: 8px; }
@@ -84,6 +84,7 @@ body { margin: 0; padding: 0 16px 48px; background: var(--brand-ground); color: 
        font: 400 15px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }
 main { max-width: 46rem; margin: 0 auto; }
 h1 { font-size: 20px; font-weight: 600; }
+.lead { font: 600 1.1em/1 var(--brand-display); color: var(--brand-ink); }
 """
 
 
@@ -96,7 +97,7 @@ def on_the_bench(body):
     side = ""
     if nav:
         body = body.replace(nav.group(0), "", 1)
-        contents = nav.group(0).replace('<h2 id="contents">Contents</h2>', '<h2 class="bh" id="contents">contents</h2>')
+        contents = nav.group(0).replace('<h2 id="contents">Contents</h2>', '<h2 class="bh" id="contents">Contents</h2>')
         contents = contents.replace("<hr>\n", "")
         side = f'<aside class="side">\n{contents}</aside>\n'
     strip = (f'<div class="strip">\n<h1 class="lab"><b>{title.lower()}</b> · {NAME}, Irish ambient for the M-VAVE FM-1</h1>\n'
@@ -116,6 +117,11 @@ def inline(t):
     for name, col in PART_COLOURS.items():          # a part named at the start of a table cell gets its swatch
         t = re.sub(rf"^<strong>{name}</strong>", f'<span class="swatch" style="background:{col}"></span><strong>{name}</strong>', t)
     return t
+
+
+def lead(t):
+    """Bold at the very start of a paragraph or a list item is its heading (web/brand/site.css)."""
+    return re.sub(r"^<strong>", '<strong class="lead">', t)
 
 
 def slug(title):
@@ -230,7 +236,7 @@ def convert(md):
             if contents:
                 items = [f'<a href="#{sections.get(t.strip(), slug(t))}">{inline(t)}</a>' for t in items]
             else:
-                items = [inline(t) for t in items]
+                items = [lead(inline(t)) for t in items]
             tag = "ol" if ordered else "ul"
             out.append(f"<{tag}>" + "".join(f"<li>{t}</li>" for t in items) + f"</{tag}>")
             continue
@@ -245,7 +251,7 @@ def convert(md):
             elif out and out[-1].startswith("<h1>"):
                 out.append(f'<p class="lede">{text}</p>')
             else:
-                out.append(f"<p>{text}</p>")
+                out.append(f"<p>{lead(text)}</p>")
         i += 1
     return "\n".join(out)
 
