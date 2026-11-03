@@ -27,6 +27,8 @@ run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/h
 run uart-dma sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uart_dma_test tests/host/uart_dma_test.c && $OUT/uart_dma_test"
 # the same test against the old poll must fail, or it proves nothing
 run uart-dma-control sh -c "$CC -O2 -w -DLEGACY_CONTROL -Ifirmware/src -Ifirmware/hal -o $OUT/uart_dma_legacy tests/host/uart_dma_test.c && ! $OUT/uart_dma_legacy"
+run usb-desc sh -c "$CC -O2 -w -DT_CDC=0 -Ifirmware/src -Ifirmware/hal -o $OUT/usb_desc_test tests/host/usb_desc_test.c -lm && $OUT/usb_desc_test"
+run usb-desc-cdc sh -c "$CC -O2 -w -DT_CDC=1 -Ifirmware/src -Ifirmware/hal -o $OUT/usb_desc_cdc tests/host/usb_desc_test.c -lm && $OUT/usb_desc_cdc"
 run amb sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
     -o $OUT/amb_test tests/host/amb_test.c firmware/src/dsp/amb.c -lm && $OUT/amb_test"
 run golden sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
