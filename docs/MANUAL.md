@@ -122,7 +122,7 @@ second.
 | HOME | The Aisling page; again, the Key page |
 | ENV | The Drone; again, its sound page; again, its Move page |
 | ARP | The Sequence; again, its sound page; again, its Repeats; again, its Move page |
-| LFO | The Lead; again, its sound page; again, its Move page |
+| LFO | The Lead; again, its sound page; again, its style page; again, its Move page |
 | SEQ | Sequence 2; again, its sound page; again, the Pattern page; again, its Move page |
 | SAVE | The Atmosphere; again, its sound page; again, its Move page |
 | FX | The Space page; again, the Echo page |
@@ -560,7 +560,7 @@ that do something are lit:
   and plays again within a few bars. Nothing else changes (no setting, nothing saved). The key is lit, and dark
   while you hold it.
 
-SEL again, or a page's button, leaves.
+A page's button leaves. (SEL again stays: PERFORM is one page.)
 
 ---
 
