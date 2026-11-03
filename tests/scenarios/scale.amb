@@ -31,16 +31,13 @@ shot d_aeolian.png
 spin K3 4
 expect par20 7
 expect pool 0x4A9
-# MIDI in, channel 1: D pent min (D F G A C); F (note 53) out, G (55) out, A (57) would leave two: stays
+# MIDI in no longer touches the scale (it plays the Lead: midilead.amb): D pent min (D F G A C), channel 1 too
 midi 90 35 64
 midi 90 37 64
 wait 20
-expect pool 0x481
-midi 90 39 64
+expect pool 0x4A9
+midi 80 35 00
+midi 80 37 00
 wait 20
-expect pool 0x481
-# G back in
-midi 90 37 64
-wait 20
-expect pool 0x4A1
+expect pool 0x4A9
 expect dirty 1

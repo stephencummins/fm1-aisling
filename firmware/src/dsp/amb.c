@@ -489,7 +489,7 @@ const char *en_chord_name(const int *pcs, int n, char *buf)
 }
 
 /* ------------------------------------------------------------ commands --- */
-enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_MOVE, C_LFORGET };
+enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET };
 #define QN 512u                                 /* (a piece is every parameter at once: room for twice over and more) */
 _Static_assert(QN >= 2u * (P_NPARAMS + 8), "the command queue can't hold a piece's parameters twice over");
 static uint32_t q[QN];
@@ -600,11 +600,14 @@ static float ec_g = 0.6f, ec_lpc = 0.68f, ec_wide = 1.0f;   /* the echo's Blur, 
 static int8_t mac[EN_NMAC];                     /* the master actions, -50..50 */
 volatile int8_t en_mac[EN_NMAC];
 static int8_t pofs[P_NPARAMS];
+static int dd_off;                              /* (Density's slow drift, below: added to Density as heard) */
 static float dub_up;                            /* Dub turned up, 0..1: the echo darker, feeding back past its knob */                  /* what they add to the piece's parameters */
 static int pe(int p)                            /* a parameter as heard: the piece's, moved by the master actions */
 {
     int v = par[p] + (par[p] || (p != P_SEQ && p != P_SEQ2) ? pofs[p] : 0);   /* (a sequence the piece keeps silent,
                                                   * level 0, stays silent: Energy doesn't wake it) */
+    if (p == P_DENSITY)
+        v += dd_off;
     return v < PARAMS[p].lo ? PARAMS[p].lo : v > PARAMS[p].hi ? PARAMS[p].hi : v;
 }
 static uint32_t pool = 0xAADu;                  /* Ionian until told */
@@ -1296,10 +1299,12 @@ static void fo_step(uint32_t n)                  /* once a chunk: the clock on, 
     }
 }
 
+static void dd_reset(void);
 static void ar_start(void)                       /* the arc from its start: Emerge (an Intro opening), or Flow at once;
                                                   * the intros and the long rise from their start */
 {
     int i;
+    dd_reset();                                  /* (Density's drift from nothing too) */
     ar_bar = 0;
     ar_pos = 0.0f;
     ar_cue = 0;
@@ -1340,6 +1345,44 @@ static void s2o_section(void)
         d = -d;
     en_s2oct_shift = (int8_t)d;
 }
+/* (after NACHTFAHRT's a783278, by FartyPants) Density drifts: a slow wander about the knob's value, a harp filling out and
+ * thinning over a minute or two. Every bar the wander eases (12 bars to most of the way) towards a target drawn at random,
+ * a new target every 16 to 39 bars, the first after 4; its own dice, so the Lead and the Drone play what they'd have played. NACHTFAHRT's
+ * goes 85% of the way to 100 and to 0: an old air's accompaniment wants less, so here 42%, of the way to the nearer
+ * end, either way, so a knob turned right up or right down holds. Motion gives the reach (30 or more all of it, less in
+ * proportion, 0 holds). Carolan's alone, while it's tried, known by its air: no new parameter, so saves carry over.
+ * (Not every piece can show it: Skellig's steps fall either side of a gap this never crosses, and not a note changes) */
+#define DD_REACH 0.42f
+#define DD_AIR 4
+static uint32_t dd_rng;
+static float dd_w, dd_t;
+static int dd_left;
+static void dd_reset(void)
+{
+    dd_w = dd_t = 0.0f;
+    dd_left = 4;
+    dd_off = 0;
+}
+static void dd_tick_bar(void)
+{
+    if (par[P_AIR] != DD_AIR) {
+        dd_reset();
+        return;
+    }
+    if (--dd_left <= 0) {
+        dd_t = (float)(seq_rand(&dd_rng) >> 8) * (2.0f / 16777216.0f) - 1.0f;
+        dd_left = 16 + (int)(seq_rand(&dd_rng) % 24u);
+    }
+    dd_w += (dd_t - dd_w) * 0.08f;
+    {
+        const int d = par[P_DENSITY], room = d < 100 - d ? d : 100 - d;
+        const float reach = fm_minf((float)par[P_MOTION] * (1.0f / 30.0f), 1.0f) * DD_REACH;
+        dd_off = (int)(dd_w * reach * (float)room + (dd_w < 0.0f ? -0.5f : 0.5f));
+    }
+}
+#ifdef EN_HOST
+int en_dd_off(void) { return dd_off; }
+#endif
 static void ar_tick_bar(void)                    /* a bar line (the first, at the start, already counted) */
 {
     if (ar_first) {
@@ -1347,6 +1390,7 @@ static void ar_tick_bar(void)                    /* a bar line (the first, at th
         return;
     }
     ar_bar++;
+    dd_tick_bar();
     if (--ar_left <= 0) {
         const float r = (float)(seq_rand(&ar_rng) >> 8) * (1.0f / 16777216.0f);
         const uint8_t was = ar_sec;
@@ -1977,7 +2021,9 @@ void (*en_grace_fn)(int kind, int grace, uint32_t at, uint32_t len, uint32_t nle
 #define LD_MOTN (((CP_MAX > 8 ? CP_MAX : 8) + 1) & ~1)   /* (a motif's room: the keys' theme's, or the generator's
                                                   * 8; even, for its first half twice: ld_frag) */
 static uint8_t ld_note[LD_MOTN], ld_dur[LD_MOTN], ld_n, ld_i, ld_left, ld_rest;
-static int8_t ld_dg[LD_MOTN], ld_key = -1;       /* (the phrase's degrees; the degree held on the keys, -1: none) */
+static int8_t ld_dg[LD_MOTN];                    /* (the phrase's degrees) */
+static int16_t ld_key = -1;                      /* (what holds the Lead: a white key's step, LD_MKEY + a MIDI note; -1: none) */
+#define LD_MKEY 16
 volatile int8_t en_lead_deg = -1;                /* (the degree the Lead sounds, for the keys' light; -1: none) */
 static uint32_t ld_rng = 0x3C6EF372u;
 /* (BERLIN, the Lead's memory: the report's "remembered-motif Lead") four motifs, each up to LD_MOTN entries (a drawn
@@ -2215,6 +2261,7 @@ static void lead_off(void)                       /* the note let go (a grace sou
     en_lead_deg = -1;
 }
 void en_lead_key(int d, int on) { post(C_LKEY, d, on); }
+void en_lead_midi(int note, int on) { post(C_LMIDI, note, on); }
 void en_lead_forget(void) { post(C_LFORGET, 0, 0); }
 
 static int ld_deg_raw(int d)                     /* scale degree d (any) as a note, in the Lead's register */
@@ -3368,6 +3415,44 @@ static void orn_plan(int dg, int dur)
 #endif
 }
 
+/* a key down on the Lead (id: a white key's step, or LD_MKEY + a MIDI note; d: its scale degree) and let go. Its own
+ * phrase let go, the key's note played (legato over one held), written on the figure; once it's let go, two bars' quiet
+ * before its own phrases come back. (Shared with MIDI in after NACHTFAHRT's 9ae6dce.) */
+static void lead_press(int id, int d)
+{
+    const int held = ld_key >= 0;
+    ld_n = 0;                                    /* (its own phrase let go, its pair too; the keys' answer too) */
+    ld_due = 0;
+    ld_cap &= (uint8_t)~(CP_ANS | CP_NEXT);
+    ld_key = (int16_t)id;
+    lead_note(ld_deg_note(d));
+    en_lead_deg = lead.on && d >= 0 && d < 16 ? (int8_t)d : -1;   /* (the key's light: the white keys' degrees) */
+    cp_key(d, held);                             /* (written down once it sounds: the keys play as they did) */
+}
+static void lead_release(int id)
+{
+    if (id == ld_key) {
+        ld_key = -1;
+        lead_off();
+        ld_rest = 2;                             /* (its own phrases back after two bars) */
+        cp_off();
+    }
+}
+/* a MIDI note's scale degree from the root (0: the octave of middle C, so a note sounds as played with the Lead's Octave at
+ * 0): the scale's nearest note, the lower of two as near */
+static int ld_midi_deg(int note)
+{
+    const int ns = nsteps ? nsteps : 7, rel = note - (60 + par[P_ROOT] % 12);
+    const int oc = rel >= 0 ? rel / 12 : -((11 - rel) / 12), pc = rel - 12 * oc;
+    int s, k, bd = 99, bt = 0, bk = 0, bs = 0;
+    for (s = -1; s <= 1; s++)
+        for (k = 0; k < ns; k++) {
+            const int t = (nsteps ? steps[k] : 2 * k) + 12 * s, dist = pc > t ? pc - t : t - pc;
+            if (dist < bd || (dist == bd && t < bt))
+                bd = dist, bt = t, bk = k, bs = s;
+        }
+    return (oc + bs) * ns + bk;
+}
 static void lead_tick(void)                      /* a sixteenth: the phrase goes on, or the breath */
 {
     int planned = 0;
@@ -4253,6 +4338,8 @@ void en_init(void)
     atm_reset();                                 /* (the voices batch: its wanderings and filters too) */
     ar_rng = 0x510E527Fu;
     s2o_rng = 0x9B05688Cu;
+    dd_rng = 0xA54FF53Au;
+    dd_reset();
     en_s2oct_shift = 0;
     for (i = 0; i < NFO; i++) {                  /* (the filter motion: its dice and its offsets from the top) */
         fo_rng[i] = FO_SEED[i];
@@ -4462,21 +4549,21 @@ static void drain(void)
             break;
         case C_PANIC: quiet(); break;
         case C_LKEY:                             /* (the white keys: the Lead, in the scale) */
-            if (b) {
-                const int held = ld_key >= 0;
-                ld_n = 0;                        /* (its own phrase let go, its pair too; the keys' answer too) */
-                ld_due = 0;
-                ld_cap &= (uint8_t)~(CP_ANS | CP_NEXT);
-                ld_key = (int8_t)a;
-                lead_note(ld_deg_note(a));
-                en_lead_deg = lead.on ? (int8_t)a : -1;
-                cp_key(a, held);                 /* (written down once it sounds: the keys play as they did) */
-            } else if (a == ld_key) {
-                ld_key = -1;
-                lead_off();
-                ld_rest = 2;                     /* (its own phrases back after two bars) */
-                cp_off();
-            }
+            if (b)
+                lead_press(a, a);
+            else
+                lead_release(a);
+            break;
+        case C_LMIDI:                            /* (MIDI in: as the keys, one at a time: the last one held sounds, its
+                                                  * release lets go; a figure played is taken as a theme) */
+            if (a == 0xFF) {                     /* (-1, in the queue's 8 bits: all notes off) */
+                if (ld_key >= LD_MKEY)
+                    lead_release(ld_key);
+            } else if (!b)
+                lead_release(LD_MKEY + a);
+            else if (ld_key != LD_MKEY + a)      /* (a note on for the note it holds: nothing. A computer sending the Lead's
+                                                  * own notes straight back can't then run away) */
+                lead_press(LD_MKEY + a, ld_midi_deg(a));
             break;
         case C_SEQSET:                           /* a pattern written: played as written, from its first step */
             sq[a & 1] = sq_pend[a & 1];

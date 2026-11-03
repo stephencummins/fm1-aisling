@@ -19,7 +19,7 @@ AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https:/
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 0.3, the third test version.** It runs on the FM-1 (install it from the web installer) and in the
+**This is 0.4, the fourth test version.** It runs on the FM-1 (install it from the web installer) and in the
 browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -122,7 +122,7 @@ second.
 | HOME | The Aisling page; again, the Key page |
 | ENV | The Drone; again, its sound page; again, its Move page |
 | ARP | The Sequence; again, its sound page; again, its Repeats; again, its Move page |
-| LFO | The Lead; again, its sound page; again, its Move page |
+| LFO | The Lead; again, its sound page; again, its style page; again, its Move page |
 | SEQ | Sequence 2; again, its sound page; again, the Pattern page; again, its Move page |
 | SAVE | The Atmosphere; again, its sound page; again, its Move page |
 | FX | The Space page; again, the Echo page |
@@ -198,7 +198,7 @@ highest octaves, from about C7, a string rings short whatever Decay is set to, a
 picked pairs of strings a hair apart, beating slowly as a course does, darker and shorter than the Harp; or
 **Dulcimer**, hammered pairs, bright, with a short clang at the strike (both ring as the Harp does, Cutoff and Decay
 the same; the lowest notes, under about C2, on one string). The
-root step is accented and the others quieter (Accent, on the Pattern page). Density decides how many of the steps sound, the least important dropping out first. Now and then
+root step is accented and the others quieter (Accent, on the Pattern page). Density decides how many of the steps sound, the least important dropping out first. In Carolan it also drifts, a slow wander about the knob's value, so the harps fill out and thin over a minute or two (Motion sets how far and 0 holds it; so does a knob right up or right down). Now and then
 (Evolve, Motion) a step changes, a note moves, an octave jumps, the sequence comes round early; it follows the Drone's chord
 (Transpose, on the Key page). Its cutoff wanders slowly over minutes, around the Cutoff you set (its Move page, below; its Width is the
 **Sweep**, also on PERFORM).
@@ -560,20 +560,26 @@ that do something are lit:
   and plays again within a few bars. Nothing else changes (no setting, nothing saved). The key is lit, and dark
   while you hold it.
 
-SEL again, or a page's button, leaves.
+A page's button leaves. (SEL again stays: PERFORM is one page.)
 
 ---
 
 ## 11. MIDI
 
-MIDI comes in over USB and the TRS jack, and goes out over USB.
+MIDI comes in over USB and the TRS jack, and goes out over USB. The TRS jack has been tried with Type A: notes and
+clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tried.
 
 - **Out** (on by default; a muted layer sends nothing): the Drone on channel 1, the Sequence (and its repeats) on 2, the Lead on 3,
   Sequence 2 on 4, and, on its own tempo, clock with start and stop.
 - **In, clock:** the sequences follow MIDI clock, and start, continue and stop start, continue and stop
   the music. The screen shows EXT for the tempo; when the clock stops, AISLING goes back to its own.
-- **In, channel 1:** a note adds or removes its note from the scale ("ADDED", "REMOVED"; the root stays,
-  three notes at least). The keys no longer do this; they play the Lead.
+- **In, notes:** a note on any channel plays the Lead, as a white key does, on whatever page you're on: the scale's
+  nearest note (the lower of two as near), one at a time, the newest taking over. Velocity is ignored. The Lead's
+  Octave shifts it, a figure becomes its theme as the keys' does, and a muted Lead stays silent. All notes off and
+  all sound off (CC 123 and 120) let it go. In earlier versions a note on channel 1 changed the scale; the Key page
+  does that now.
+- **Don't send it straight back:** if a computer returns the FM-1's own MIDI out (a DAW's thru, say), every layer's
+  notes play the Lead. Turn thru off, or MIDI out off on GLO's Setup page.
 
 ### The visualiser
 
@@ -588,7 +594,8 @@ page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari 
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
 page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save** keeps a still, and
 **Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
-USB audio appears). Drop a sound file on the page (or press **Sample**) to mix it in: a WAV, AIFF, FLAC or MP3
+USB audio appears). The USB audio comes after MASTER, so MASTER sets the recording's level: at a comfortable headphone
+level a recording comes out very quiet, so take your headphones off and turn MASTER up before you record. Drop a sound file on the page (or press **Sample**) to mix it in: a WAV, AIFF, FLAC or MP3
 loops out of the computer and paints as the weather, low sounds low and high sounds high. While the FM-1 plays (or the
 demo) **In time** fits it to the tempo like tape, to the nearest 1, 2, 4 … 64 beats, starting on the FM-1's Start and
 stopping with it; a sample longer than 30 seconds plays at its own speed. **Record** takes it too, mixed with the FM-1.
@@ -632,6 +639,11 @@ The screen asks you to press each button and turn each knob in turn.
 **After a crash:** AISLING shows a red CRASH screen and restarts by itself. The next start shows RESTARTED
 AFTER A CRASH and an address (PC ...) for a moment; if you report the problem, include it and what you were
 doing.
+
+**No USB audio on an older Mac:** in a simple test on macOS 13.7.8, the FM-1's MIDI appeared but no sound device did,
+so expect no USB sound or recording there. AISLING lists the audio first, as Felucca does, and that didn't fix it.
+macOS 14 and 15 haven't been tried, so if you try one, please say in an issue whether the FM-1 appears as a sound
+device.
 
 **Safe mode:** if AISLING crashes twice in a row while starting, it starts in SAFE MODE: no sound, but USB
 works, so you can reinstall with `tools/fm1_install.py` or put the stock firmware back with M-UPGRADE. Press

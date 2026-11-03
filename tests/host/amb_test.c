@@ -1686,6 +1686,179 @@ static void grace_seen(int kind, int grace, uint32_t at, uint32_t len, uint32_t 
         gr_out += grace < 36 || grace > 100 || !(gr_pool >> ((uint32_t)(grace + 120) - gr_root) % 12u & 1u);
 }
 
+/* MIDI in plays the Lead (after NACHTFAHRT's 9ae6dce). The nearest note of the scale worked out here another way:
+ * outwards from the note, the lower first */
+static int near_scale(int note, int root, uint32_t pl)
+{
+    int d, n;
+    for (d = 0; d < 12; d++) {
+        n = note - d;
+        if (pl >> ((n - root + 120) % 12) & 1u)
+            return n;
+        n = note + d;
+        if (pl >> ((n - root + 120) % 12) & 1u)
+            return n;
+    }
+    return note;
+}
+static int near_lead(int note, int root, uint32_t pl)   /* (the Lead's range: 36 .. 100) */
+{
+    const int n = near_scale(note, root, pl);
+    return n < 36 ? 36 : n > 100 ? 100 : n;
+}
+static void test_midi_lead(void)
+{
+    static const int ROOT[] = {0, 2, 11};
+    int r, m, note, k;
+    uint32_t ons, bad;
+
+    for (m = 0; m < EN_NMODES; m++)
+        for (r = 0; r < 3; r++) {
+            const uint32_t pl = EN_MODE_POOL[m];
+            fresh();
+            en_set(P_MOTION, 0);
+            en_set(P_LDIN, 0);
+            en_set(P_LOCT, 0);
+            en_set(P_ROOT, ROOT[r]);
+            en_pool(pl);
+            en_play(1);
+            run(0.1f);
+            for (note = 36; note <= 96; note++) {
+                en_lead_midi(note, 1);
+                run(0.01f);
+                CHECK(ld_on_now && last_lead == near_lead(note, ROOT[r], pl), "test_midi_lead: mode %d root %d: note %d sounded %d, not %d",
+                      m, ROOT[r], note, last_lead, near_lead(note, ROOT[r], pl));
+                en_lead_midi(note, 0);
+                run(0.01f);
+                CHECK(!ld_on_now, "test_midi_lead: note %d's release left it on", note);
+            }
+        }
+
+    fresh();
+    en_set(P_MOTION, 0);
+    en_set(P_LDIN, 0);
+    en_set(P_LOCT, 0);
+    en_play(1);
+    run(1.0f);
+    en_lead_midi(60, 1);                         /* one at a time: the last held sounds, its release lets go */
+    run(0.05f);
+    en_lead_midi(65, 1);
+    run(0.05f);
+    CHECK(ld_on_now && last_lead == 65, "test_midi_lead: the second note held %d", last_lead);
+    en_lead_midi(60, 0);
+    run(0.05f);
+    CHECK(ld_on_now && last_lead == 65, "test_midi_lead: the first note's release let the second go");
+    ons = ld_ons;
+    en_lead_midi(65, 1);                         /* a note on for the note it holds: nothing, so no echo can run away */
+    run(0.05f);
+    CHECK(ld_ons == ons, "test_midi_lead: a repeat note on sounded again");
+    en_lead_midi(-1, 0);                         /* all notes off */
+    run(0.05f);
+    CHECK(!ld_on_now, "test_midi_lead: all notes off left it sounding");
+
+    en_lead_key(3, 1);                           /* a key and MIDI note 3: not the same */
+    run(0.05f);
+    en_lead_midi(3, 0);
+    en_lead_midi(-1, 0);
+    run(0.05f);
+    CHECK(ld_on_now, "test_midi_lead: MIDI let go of the white key");
+    en_lead_key(3, 0);
+    run(0.05f);
+    CHECK(!ld_on_now, "test_midi_lead: the key's release");
+
+    en_mute(EN_M_BASS);                          /* a muted Lead: nothing */
+    run(0.05f);
+    ons = ld_ons;
+    en_lead_midi(60, 1);
+    run(0.3f);
+    CHECK(ld_ons == ons, "test_midi_lead: MIDI played the muted Lead");
+    en_lead_midi(60, 0);
+    en_mute(0);
+    run(0.05f);
+
+    /* a figure of the extremes, far outside the keys' degrees: taken as the theme, its answer and offspring still in the
+     * scale, one at a time, within the Lead's range */
+    bad = ld_mono_bad + ld_outscale;
+    {
+        static const uint8_t F[] = {0, 127, 1, 126, 2, 125};
+        for (k = 0; k < 6; k++) {
+            en_lead_midi(F[k], 1);
+            run(0.2f);
+            en_lead_midi(F[k], 0);
+            run(0.05f);
+        }
+    }
+    ons = ld_ons;
+    run(60.0f);
+    CHECK(ld_ons > ons, "test_midi_lead: no answer to a figure from MIDI");
+    CHECK(ld_mono_bad + ld_outscale == bad, "test_midi_lead: after a figure of extremes, %u bad notes", ld_mono_bad + ld_outscale - bad);
+    en_play(0);
+    run(0.1f);
+}
+
+/* Density's slow drift (after NACHTFAHRT's a783278): Carolan's alone for now, about the knob's value, at most 42% of the way
+ * to the nearer end; Motion's reach, 0 holding; the ends of the knob holding; easing, not stepping; the Sequence's notes
+ * following it */
+static void dd_run(int air, int motion, int density, float sec, int *mn, int *mx, int *away, int *jump, int *lo, int *hi)
+{
+    static int32_t b[2048];
+    const int blocks = (int)(sec * 44100.0f / 256.0f);
+    int k, last = 0;
+    fresh();
+    en_set(P_TEMPO, 250);
+    en_set(P_AIR, air);
+    en_set(P_MOTION, motion);
+    en_set(P_DENSITY, density);
+    en_set(P_LEAD, 0);
+    en_set(P_CHORD, 0);
+    en_play(1);
+    *mn = 999, *mx = -999, *away = 0, *jump = 0, *lo = 99, *hi = 0;
+    for (k = 0; k < blocks; k++) {
+        int o, g, n = 0;
+        en_render(b, 256, 2048);
+        o = en_dd_off();
+        *mn = o < *mn ? o : *mn;
+        *mx = o > *mx ? o : *mx;
+        *away += o > 4 || o < -4;
+        if (!(k % 165)) {                        /* (about a bar at 250) */
+            *jump = o - last > *jump ? o - last : last - o > *jump ? last - o : *jump;
+            last = o;
+        }
+        g = en_seq_lane[0];
+        for (; g; g >>= 1)
+            n += g & 1;
+        if (n) {
+            *lo = n < *lo ? n : *lo;
+            *hi = n > *hi ? n : *hi;
+        }
+    }
+    en_play(0);
+}
+static void test_density_drift(void)
+{
+    int mn, mx, away, jump, lo, hi, lo0, hi0;
+
+    dd_run(4, 0, 60, 300.0f, &mn, &mx, &away, &jump, &lo0, &hi0);
+    CHECK(mn == 0 && mx == 0, "test_density_drift: Motion 0 moved it, %d .. %d", mn, mx);
+    dd_run(1, 100, 60, 300.0f, &mn, &mx, &away, &jump, &lo, &hi);
+    CHECK(mn == 0 && mx == 0, "test_density_drift: another piece's air moved it, %d .. %d", mn, mx);
+    dd_run(4, 100, 0, 300.0f, &mn, &mx, &away, &jump, &lo, &hi);
+    CHECK(mn == 0 && mx == 0, "test_density_drift: Density 0 moved, %d .. %d", mn, mx);
+    dd_run(4, 100, 100, 300.0f, &mn, &mx, &away, &jump, &lo, &hi);
+    CHECK(mn == 0 && mx == 0, "test_density_drift: Density 100 moved, %d .. %d", mn, mx);
+    dd_run(4, 15, 50, 600.0f, &mn, &mx, &away, &jump, &lo, &hi);
+    CHECK(mn >= -11 && mx <= 11 && mx - mn >= 4, "test_density_drift: Motion 15's half reach, %d .. %d", mn, mx);
+
+    dd_run(4, 50, 60, 600.0f, &mn, &mx, &away, &jump, &lo, &hi);
+    printf("  density drift at Carolan's Motion 50, Density 60: %d .. %d, %d%% of the time over 4 away, biggest step a bar %d;"
+           " the Sequence's steps %d .. %d (held: %d .. %d)\n",
+           mn, mx, 100 * away / (int)(600.0f * 44100.0f / 256.0f), jump, lo, hi, lo0, hi0);
+    CHECK(mn >= -17 && mx <= 17 && mn <= -7 && mx >= 7, "test_density_drift: range %d .. %d (within +-17, reaching +-7)", mn, mx);
+    CHECK(away > (int)(30.0f * 44100.0f / 256.0f), "test_density_drift: away from the middle for %d blocks only", away);
+    CHECK(jump <= 4, "test_density_drift: a bar moved it by %d", jump);
+    CHECK(hi - lo > hi0 - lo0, "test_density_drift: the Sequence's steps %d .. %d, as held %d .. %d", lo, hi, lo0, hi0);
+}
+
 int main(void)
 {
     int pcs[4], n, i;
@@ -3459,6 +3632,8 @@ int main(void)
 
     /* (BERLIN) PERFORM finished: the Lead muted stops its note (and a key held while muted plays nothing); the Drone
      * muted sends no MIDI (its notes let go at the mute); Energy's Repeat B works; Wet moves every layer's echo alike */
+    test_midi_lead();
+    test_density_drift();
     {
         uint32_t ons;
         int k, held = 0;

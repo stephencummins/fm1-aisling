@@ -195,11 +195,14 @@ extern const char *const EN_SV_NAME[EN_NS2V];   /* all ten: 2600 .. Glass, Sub, 
 extern volatile uint8_t en_seq_len[2];          /* each sequence's return point as it plays (the performer's moves) */
 extern volatile int8_t en_s2oct_shift;          /* Sequence 2's octave away from its knob's (home): -1, 0, 1 (Motion's,
                                                  * at the section changes; the UI shows the knob as home + it) */
+int en_dd_off(void);                             /* (host tests) Density's slow drift now, in its units */
 extern volatile uint16_t en_seq_lane[5], en_seq_acc[2];   /* the Pattern page's lanes as Auto plays them: the
                                                           * Sequence's and Sequence 2's steps, their octaves, the
                                                           * Sequence's skips; their accents */
 void en_lead_key(int degree, int on);           /* the white keys: the Lead plays scale degree `degree` (0: the
                                                  * root) from the root up, in its register; on 0 lets it go */
+void en_lead_midi(int note, int on);            /* MIDI in, a note on or off: the Lead, to the scale's nearest note;
+                                                 * note -1: an all notes off, whichever MIDI note it holds let go */
 extern volatile int8_t en_lead_deg;             /* the degree the Lead sounds (played or its own): -1 none */
 void en_lead_forget(void);                      /* (PERFORM's top key) the Lead forgets all it remembers:
                                                  * its ideas and its theme (the keys' too), a figure on the keys,
