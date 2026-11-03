@@ -198,7 +198,7 @@ highest octaves, from about C7, a string rings short whatever Decay is set to, a
 picked pairs of strings a hair apart, beating slowly as a course does, darker and shorter than the Harp; or
 **Dulcimer**, hammered pairs, bright, with a short clang at the strike (both ring as the Harp does, Cutoff and Decay
 the same; the lowest notes, under about C2, on one string). The
-root step is accented and the others quieter (Accent, on the Pattern page). Density decides how many of the steps sound, the least important dropping out first. Now and then
+root step is accented and the others quieter (Accent, on the Pattern page). Density decides how many of the steps sound, the least important dropping out first. In Carolan it also drifts, a slow wander about the knob's value, so the harps fill out and thin over a minute or two (Motion sets how far and 0 holds it; so does a knob right up or right down). Now and then
 (Evolve, Motion) a step changes, a note moves, an octave jumps, the sequence comes round early; it follows the Drone's chord
 (Transpose, on the Key page). Its cutoff wanders slowly over minutes, around the Cutoff you set (its Move page, below; its Width is the
 **Sweep**, also on PERFORM).

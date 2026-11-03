@@ -600,11 +600,14 @@ static float ec_g = 0.6f, ec_lpc = 0.68f, ec_wide = 1.0f;   /* the echo's Blur, 
 static int8_t mac[EN_NMAC];                     /* the master actions, -50..50 */
 volatile int8_t en_mac[EN_NMAC];
 static int8_t pofs[P_NPARAMS];
+static int dd_off;                              /* (Density's slow drift, below: added to Density as heard) */
 static float dub_up;                            /* Dub turned up, 0..1: the echo darker, feeding back past its knob */                  /* what they add to the piece's parameters */
 static int pe(int p)                            /* a parameter as heard: the piece's, moved by the master actions */
 {
     int v = par[p] + (par[p] || (p != P_SEQ && p != P_SEQ2) ? pofs[p] : 0);   /* (a sequence the piece keeps silent,
                                                   * level 0, stays silent: Energy doesn't wake it) */
+    if (p == P_DENSITY)
+        v += dd_off;
     return v < PARAMS[p].lo ? PARAMS[p].lo : v > PARAMS[p].hi ? PARAMS[p].hi : v;
 }
 static uint32_t pool = 0xAADu;                  /* Ionian until told */
@@ -1296,10 +1299,12 @@ static void fo_step(uint32_t n)                  /* once a chunk: the clock on, 
     }
 }
 
+static void dd_reset(void);
 static void ar_start(void)                       /* the arc from its start: Emerge (an Intro opening), or Flow at once;
                                                   * the intros and the long rise from their start */
 {
     int i;
+    dd_reset();                                  /* (Density's drift from nothing too) */
     ar_bar = 0;
     ar_pos = 0.0f;
     ar_cue = 0;
@@ -1340,6 +1345,44 @@ static void s2o_section(void)
         d = -d;
     en_s2oct_shift = (int8_t)d;
 }
+/* (after NACHTFAHRT's a783278, by FartyPants) Density drifts: a slow wander about the knob's value, a harp filling out and
+ * thinning over a minute or two. Every bar the wander eases (12 bars to most of the way) towards a target drawn at random,
+ * a new target every 16 to 39 bars, the first after 4; its own dice, so the Lead and the Drone play what they'd have played. NACHTFAHRT's
+ * goes 85% of the way to 100 and to 0: an old air's accompaniment wants less, so here 42%, of the way to the nearer
+ * end, either way, so a knob turned right up or right down holds. Motion gives the reach (30 or more all of it, less in
+ * proportion, 0 holds). Carolan's alone, while it's tried, known by its air: no new parameter, so saves carry over.
+ * (Not every piece can show it: Skellig's steps fall either side of a gap this never crosses, and not a note changes) */
+#define DD_REACH 0.42f
+#define DD_AIR 4
+static uint32_t dd_rng;
+static float dd_w, dd_t;
+static int dd_left;
+static void dd_reset(void)
+{
+    dd_w = dd_t = 0.0f;
+    dd_left = 4;
+    dd_off = 0;
+}
+static void dd_tick_bar(void)
+{
+    if (par[P_AIR] != DD_AIR) {
+        dd_reset();
+        return;
+    }
+    if (--dd_left <= 0) {
+        dd_t = (float)(seq_rand(&dd_rng) >> 8) * (2.0f / 16777216.0f) - 1.0f;
+        dd_left = 16 + (int)(seq_rand(&dd_rng) % 24u);
+    }
+    dd_w += (dd_t - dd_w) * 0.08f;
+    {
+        const int d = par[P_DENSITY], room = d < 100 - d ? d : 100 - d;
+        const float reach = fm_minf((float)par[P_MOTION] * (1.0f / 30.0f), 1.0f) * DD_REACH;
+        dd_off = (int)(dd_w * reach * (float)room + (dd_w < 0.0f ? -0.5f : 0.5f));
+    }
+}
+#ifdef EN_HOST
+int en_dd_off(void) { return dd_off; }
+#endif
 static void ar_tick_bar(void)                    /* a bar line (the first, at the start, already counted) */
 {
     if (ar_first) {
@@ -1347,6 +1390,7 @@ static void ar_tick_bar(void)                    /* a bar line (the first, at th
         return;
     }
     ar_bar++;
+    dd_tick_bar();
     if (--ar_left <= 0) {
         const float r = (float)(seq_rand(&ar_rng) >> 8) * (1.0f / 16777216.0f);
         const uint8_t was = ar_sec;
@@ -4294,6 +4338,8 @@ void en_init(void)
     atm_reset();                                 /* (the voices batch: its wanderings and filters too) */
     ar_rng = 0x510E527Fu;
     s2o_rng = 0x9B05688Cu;
+    dd_rng = 0xA54FF53Au;
+    dd_reset();
     en_s2oct_shift = 0;
     for (i = 0; i < NFO; i++) {                  /* (the filter motion: its dice and its offsets from the top) */
         fo_rng[i] = FO_SEED[i];
