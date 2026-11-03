@@ -2,7 +2,10 @@
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* FM-1 UART1 as MIDI IN: PH8 -> input
  * channel 1 -> UART1 RX, 31250 baud, RX DMA into a ring, polled (no IRQ).
- * The MIDI parser is src/midi_uart.c. Untested on hardware.
+ * The MIDI parser is src/midi_uart.c.
+ * Register widths, the 32-byte event threshold and the pending gate below are Felucca's fix for TRS
+ * MIDI in (its #264, 1.8.1, docs/trs-uart-events.md there), as the wl82 SDK does it. Checked here by
+ * tests/host/uart_dma_test.c against a model of the DMA; only an FM-1 with a TRS cable proves it.
  *
  *   fm1_uart1_midi_init(ring, len)   len a power of two, ring aligned 16;
  *                                    before TIMER5 starts (PORTH RMW)
@@ -12,14 +15,14 @@
 #include <stdint.h>
 #include "fm1_cc.h"
 
-#define FM1_UT1_CON0   (*(volatile uint32_t *)0x12100u)
-#define FM1_UT1_CON1   (*(volatile uint32_t *)0x12104u)
-#define FM1_UT1_BAUD   (*(volatile uint32_t *)0x12108u)
+#define FM1_UT1_CON0   (*(volatile uint16_t *)0x12100u)
+#define FM1_UT1_CON1   (*(volatile uint16_t *)0x12104u)
+#define FM1_UT1_BAUD   (*(volatile uint16_t *)0x12108u)
 #define FM1_UT1_OTCNT  (*(volatile uint32_t *)0x12110u)
 #define FM1_UT1_RXSADR (*(volatile uint32_t *)0x1211Cu)
 #define FM1_UT1_RXEADR (*(volatile uint32_t *)0x12120u)
 #define FM1_UT1_RXCNT  (*(volatile uint32_t *)0x12124u)
-#define FM1_UT1_HRXCNT (*(volatile uint32_t *)0x12128u)
+#define FM1_UT1_HRXCNT (*(volatile uint16_t *)0x12128u)
 #define FM1_UM_CLK_CON1  (*(volatile uint32_t *)0x10010u)   /* [11:10] UART clock: 1 = PLL48M */
 #define FM1_UM_IOMAP2    (*(volatile uint32_t *)0x51024u)   /* input ch1 source [13:8] */
 #define FM1_UM_IOMAP3    (*(volatile uint32_t *)0x51028u)   /* UT1: b7 fixed IO, [6:4] RX select */
@@ -27,6 +30,10 @@
 #define FM1_UM_PH_DIE    (*(volatile uint32_t *)0x501CCu)
 #define FM1_UM_PH_PU     (*(volatile uint32_t *)0x501D0u)
 #define FM1_UM_PH_PD     (*(volatile uint32_t *)0x501D4u)
+
+/* An event every 32 bytes, not only at a full ring: TIMER5 can hold off the poll while audio renders,
+ * and 32 of 128 leaves 96 bytes of margin. RXCNT is the event's threshold, not where the ring wraps. */
+#define FM1_UART1_RX_FRAME 32u
 
 FM1_INLINE void fm1_uart1_midi_init(volatile uint8_t *ring, uint32_t len)
 {
@@ -42,7 +49,7 @@ FM1_INLINE void fm1_uart1_midi_init(volatile uint8_t *ring, uint32_t len)
     FM1_UM_PH_PU |= 1u << 8;
     FM1_UT1_RXSADR = (uint32_t)(uintptr_t)ring;
     FM1_UT1_RXEADR = (uint32_t)(uintptr_t)ring + len;
-    FM1_UT1_RXCNT = len;
+    FM1_UT1_RXCNT = len < FM1_UART1_RX_FRAME ? len : FM1_UART1_RX_FRAME;
     FM1_UT1_BAUD = 48000000u / 31250u / 4u - 1u;       /* 383 */
     FM1_UT1_OTCNT = 60000u;
     __asm__ volatile("csync" ::: "memory");
@@ -51,10 +58,23 @@ FM1_INLINE void fm1_uart1_midi_init(volatile uint8_t *ring, uint32_t len)
     FM1_UT1_CON0 |= 1u;                                /* UTEN last */
 }
 
+/* The host test replaces these four accesses, not the policy below or the parser. */
+#ifndef FM1_UART1_CON_READ
+#define FM1_UART1_CON_READ() (FM1_UT1_CON0)
+#define FM1_UART1_CON_WRITE(v) (FM1_UT1_CON0 = (uint16_t)(v))
+#define FM1_UART1_COUNT_READ() (FM1_UT1_HRXCNT)
+#define FM1_UART1_SYNC() __asm__ volatile("csync" ::: "memory")
+#endif
+
 FM1_INLINE uint32_t fm1_uart1_rx_take(void)
 {
-    FM1_UT1_CON0 |= 0x80u;                             /* RDC: latch the count */
-    __asm__ volatile("csync" ::: "memory");
-    FM1_UT1_CON0 |= 0x1400u;                           /* clear RPND / OTPND */
-    return FM1_UT1_HRXCNT & 0xFFFFu;
+    /* Only after an event: RX pending (bit 14) or timed out (bit 11). HRXCNT outside an event isn't a
+     * new batch: counting it again walks the reader past what the DMA wrote, and old bytes in the ring
+     * replay as MIDI. Polled from TIMER5 with the UART's interrupts off, so the pendings are read here. */
+    if (!(FM1_UART1_CON_READ() & 0x4800u))
+        return 0;
+    FM1_UART1_CON_WRITE(FM1_UART1_CON_READ() | 0x80u);     /* RDC: latch the count */
+    FM1_UART1_SYNC();
+    FM1_UART1_CON_WRITE(FM1_UART1_CON_READ() | 0x1400u);   /* clear RPND / OTPND together */
+    return FM1_UART1_COUNT_READ();
 }

@@ -24,6 +24,9 @@ run fastmath sh -c "$CC -O2 -ffp-contract=off -Wall -Wextra -Werror -o $OUT/fast
 run encoder sh -c "$CC -O2 -w -Ifirmware/hal -o $OUT/encoder_test tests/host/encoder_test.c && $OUT/encoder_test"
 run uac sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uac_test tests/host/uac_test.c -lm && $OUT/uac_test"
 run trs sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/trs_test tests/host/trs_test.c && $OUT/trs_test"
+run uart-dma sh -c "$CC -O2 -w -Ifirmware/src -Ifirmware/hal -o $OUT/uart_dma_test tests/host/uart_dma_test.c && $OUT/uart_dma_test"
+# the same test against the old poll must fail, or it proves nothing
+run uart-dma-control sh -c "$CC -O2 -w -DLEGACY_CONTROL -Ifirmware/src -Ifirmware/hal -o $OUT/uart_dma_legacy tests/host/uart_dma_test.c && ! $OUT/uart_dma_legacy"
 run amb sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
     -o $OUT/amb_test tests/host/amb_test.c firmware/src/dsp/amb.c -lm && $OUT/amb_test"
 run golden sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
