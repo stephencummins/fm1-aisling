@@ -1686,6 +1686,116 @@ static void grace_seen(int kind, int grace, uint32_t at, uint32_t len, uint32_t 
         gr_out += grace < 36 || grace > 100 || !(gr_pool >> ((uint32_t)(grace + 120) - gr_root) % 12u & 1u);
 }
 
+/* MIDI in plays the Lead (after NACHTFAHRT's 9ae6dce). The nearest note of the scale worked out here another way:
+ * outwards from the note, the lower first */
+static int near_scale(int note, int root, uint32_t pl)
+{
+    int d, n;
+    for (d = 0; d < 12; d++) {
+        n = note - d;
+        if (pl >> ((n - root + 120) % 12) & 1u)
+            return n;
+        n = note + d;
+        if (pl >> ((n - root + 120) % 12) & 1u)
+            return n;
+    }
+    return note;
+}
+static int near_lead(int note, int root, uint32_t pl)   /* (the Lead's range: 36 .. 100) */
+{
+    const int n = near_scale(note, root, pl);
+    return n < 36 ? 36 : n > 100 ? 100 : n;
+}
+static void test_midi_lead(void)
+{
+    static const int ROOT[] = {0, 2, 11};
+    int r, m, note, k;
+    uint32_t ons, bad;
+
+    for (m = 0; m < EN_NMODES; m++)
+        for (r = 0; r < 3; r++) {
+            const uint32_t pl = EN_MODE_POOL[m];
+            fresh();
+            en_set(P_MOTION, 0);
+            en_set(P_LDIN, 0);
+            en_set(P_LOCT, 0);
+            en_set(P_ROOT, ROOT[r]);
+            en_pool(pl);
+            en_play(1);
+            run(0.1f);
+            for (note = 36; note <= 96; note++) {
+                en_lead_midi(note, 1);
+                run(0.01f);
+                CHECK(ld_on_now && last_lead == near_lead(note, ROOT[r], pl), "test_midi_lead: mode %d root %d: note %d sounded %d, not %d",
+                      m, ROOT[r], note, last_lead, near_lead(note, ROOT[r], pl));
+                en_lead_midi(note, 0);
+                run(0.01f);
+                CHECK(!ld_on_now, "test_midi_lead: note %d's release left it on", note);
+            }
+        }
+
+    fresh();
+    en_set(P_MOTION, 0);
+    en_set(P_LDIN, 0);
+    en_set(P_LOCT, 0);
+    en_play(1);
+    run(1.0f);
+    en_lead_midi(60, 1);                         /* one at a time: the last held sounds, its release lets go */
+    run(0.05f);
+    en_lead_midi(65, 1);
+    run(0.05f);
+    CHECK(ld_on_now && last_lead == 65, "test_midi_lead: the second note held %d", last_lead);
+    en_lead_midi(60, 0);
+    run(0.05f);
+    CHECK(ld_on_now && last_lead == 65, "test_midi_lead: the first note's release let the second go");
+    ons = ld_ons;
+    en_lead_midi(65, 1);                         /* a note on for the note it holds: nothing, so no echo can run away */
+    run(0.05f);
+    CHECK(ld_ons == ons, "test_midi_lead: a repeat note on sounded again");
+    en_lead_midi(-1, 0);                         /* all notes off */
+    run(0.05f);
+    CHECK(!ld_on_now, "test_midi_lead: all notes off left it sounding");
+
+    en_lead_key(3, 1);                           /* a key and MIDI note 3: not the same */
+    run(0.05f);
+    en_lead_midi(3, 0);
+    en_lead_midi(-1, 0);
+    run(0.05f);
+    CHECK(ld_on_now, "test_midi_lead: MIDI let go of the white key");
+    en_lead_key(3, 0);
+    run(0.05f);
+    CHECK(!ld_on_now, "test_midi_lead: the key's release");
+
+    en_mute(EN_M_BASS);                          /* a muted Lead: nothing */
+    run(0.05f);
+    ons = ld_ons;
+    en_lead_midi(60, 1);
+    run(0.3f);
+    CHECK(ld_ons == ons, "test_midi_lead: MIDI played the muted Lead");
+    en_lead_midi(60, 0);
+    en_mute(0);
+    run(0.05f);
+
+    /* a figure of the extremes, far outside the keys' degrees: taken as the theme, its answer and offspring still in the
+     * scale, one at a time, within the Lead's range */
+    bad = ld_mono_bad + ld_outscale;
+    {
+        static const uint8_t F[] = {0, 127, 1, 126, 2, 125};
+        for (k = 0; k < 6; k++) {
+            en_lead_midi(F[k], 1);
+            run(0.2f);
+            en_lead_midi(F[k], 0);
+            run(0.05f);
+        }
+    }
+    ons = ld_ons;
+    run(60.0f);
+    CHECK(ld_ons > ons, "test_midi_lead: no answer to a figure from MIDI");
+    CHECK(ld_mono_bad + ld_outscale == bad, "test_midi_lead: after a figure of extremes, %u bad notes", ld_mono_bad + ld_outscale - bad);
+    en_play(0);
+    run(0.1f);
+}
+
 int main(void)
 {
     int pcs[4], n, i;
@@ -3459,6 +3569,7 @@ int main(void)
 
     /* (BERLIN) PERFORM finished: the Lead muted stops its note (and a key held while muted plays nothing); the Drone
      * muted sends no MIDI (its notes let go at the mute); Energy's Repeat B works; Wet moves every layer's echo alike */
+    test_midi_lead();
     {
         uint32_t ons;
         int k, held = 0;

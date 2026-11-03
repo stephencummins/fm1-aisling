@@ -339,13 +339,6 @@ static void itoa_u(uint32_t v, char *b)
 static void mark_dirty(void) { ui.dirty = 1; }
 int ui_dirty(void) { return ui.dirty != 0; }
 
-static int pool_count(uint32_t p)
-{
-    int n = 0, i;
-    for (i = 0; i < 12; i++)
-        n += (int)(p >> i & 1u);
-    return n;
-}
 static uint32_t pool_abs(void)                 /* the pool as absolute pitch classes */
 {
     uint32_t p = proj.pool, r = (uint32_t)proj.par[P_ROOT];
@@ -628,24 +621,6 @@ static void turn(int role, int k, int32_t e)
 }
 
 /* ------------------------------------------------------------- the pool --- */
-static void toggle_note(int pc)                 /* a key: its note in or out of the scale */
-{
-    int rel = (pc - proj.par[P_ROOT] + 12) % 12;
-    uint32_t p = proj.pool ^ (1u << rel);
-    if (rel == 0) {
-        warn("THE ROOT STAYS", "(HOME, KEY)");
-        return;
-    }
-    if (pool_count(p) < 3) {
-        warn("3 NOTES", "AT LEAST");
-        return;
-    }
-    proj.pool = (uint16_t)p;
-    en_pool(p);
-    say(p >> rel & 1u ? "ADDED" : "REMOVED", EN_NOTE_NAME[pc]);
-    mark_dirty();
-}
-
 static void set_mode(int m)
 {
     m = (m % EN_NMODES + EN_NMODES) % EN_NMODES;
@@ -733,7 +708,7 @@ static void set_piece(int i)                    /* the piece playing kept as it 
  *   white 16     (the top key, G5, set apart by the dark keys before it) FORGET, a press: the Lead forgets
  *                its ideas and its theme (the keys' too), and grows new ones (en_lead_forget)
  * Each key that does something is lit: a layer while it sounds, a solo (blinking while on), a move and FORGET (dark
- * while held). The rest do nothing; MIDI notes in still change the scale */
+ * while held). The rest do nothing */
 #define PERF_N 15
 static const uint8_t PERF_KEY[PERF_N] = {0, 2, 4, 6, 7,          /* white 1-5: the layers */
                                          11, 12, 14, 16, 18,     /* white 7-11: the moves */
@@ -1185,8 +1160,8 @@ static void oct_release(int b)
         oct_step(b);                             /* a tap */
 }
 
-/* MIDI in (USB and the TRS jack): channel 1 notes add or remove their note from the scale; clock and
- * start / stop drive the grid */
+/* MIDI in (USB and the TRS jack): notes on any channel play the Lead (they added or removed their note from the scale up
+ * to 0.3: the scale is the Key page's now); clock and start / stop drive the grid */
 static void midi_in(void)
 {
     uint32_t pkt;
@@ -1194,8 +1169,10 @@ static void midi_in(void)
         uint32_t st = (pkt >> 8) & 0xFFu, n = (pkt >> 16) & 0x7Fu, v = pkt >> 24;
         if (st == 0xF8u || st == 0xFAu || st == 0xFBu || st == 0xFCu)
             en_clock(st == 0xF8u ? EN_CLK_TICK : st == 0xFAu ? EN_CLK_START : st == 0xFBu ? EN_CLK_CONTINUE : EN_CLK_STOP);
-        else if (st == 0x90u && v)
-            toggle_note((int)(n % 12u));
+        else if ((st & 0xF0u) == 0x90u || (st & 0xF0u) == 0x80u)
+            en_lead_midi((int)n, (st & 0xF0u) == 0x90u && v);
+        else if ((st & 0xF0u) == 0xB0u && (n == 120u || n == 123u))
+            en_lead_midi(-1, 0);                 /* (all sound off, all notes off: a DAW's stop, say) */
     }
 }
 
@@ -2975,8 +2952,7 @@ static void speak_dump(void)
                                          {"NEXT CHORD", "ON THE BAR"}, {"NEXT CHORD", 0}, {"RESTING", 0},
                                          {"PLAYING", 0}, {"HOLD", "ON"}, {"HOLD", "OFF"}, {"SAVED", 0},
                                          {"PERFORM", "ON"}, {"PERFORM", "OFF"}};
-    static const char *const WARN[][2] = {{"THE ROOT STAYS", "(SETUP)"}, {"3 NOTES", "AT LEAST"},
-                                          {"NOT SAVED", "FLASH ERROR"}};
+    static const char *const WARN[][2] = {{"NOT SAVED", "FLASH ERROR"}};
     project_t keep = proj;
     uint8_t keep_view = ui.view, keep_dirty = ui.dirty, keep_play = sp_tp.playing;
     uint8_t keep_ext = en_ext, keep_frozen = en_frozen, keep_rest = en_pulse_rest, keep_sec = en_section;
@@ -3046,12 +3022,6 @@ static void speak_dump(void)
     for (i = 0; i < (int)(sizeof WARN / sizeof WARN[0]); i++) {
         msg_text(WARN[i][0], WARN[i][1], t);
         sp_print("WARN", t);
-    }
-    for (x = 0; x < 12; x++) {
-        msg_text("ADDED", EN_NOTE_NAME[x], t);
-        sp_print("MSG", t);
-        msg_text("REMOVED", EN_NOTE_NAME[x], t);
-        sp_print("MSG", t);
     }
     for (x = 10; x < PERF_N; x++) {
         msg_text("SOLO", PERF_NAME[x], t);

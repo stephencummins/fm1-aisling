@@ -572,8 +572,13 @@ MIDI comes in over USB and the TRS jack, and goes out over USB.
   Sequence 2 on 4, and, on its own tempo, clock with start and stop.
 - **In, clock:** the sequences follow MIDI clock, and start, continue and stop start, continue and stop
   the music. The screen shows EXT for the tempo; when the clock stops, AISLING goes back to its own.
-- **In, channel 1:** a note adds or removes its note from the scale ("ADDED", "REMOVED"; the root stays,
-  three notes at least). The keys no longer do this; they play the Lead.
+- **In, notes:** a note on any channel plays the Lead, as a white key does, on whatever page you're on: the scale's
+  nearest note (the lower of two as near), one at a time, the newest taking over. Velocity is ignored. The Lead's
+  Octave shifts it, a figure becomes its theme as the keys' does, and a muted Lead stays silent. All notes off and
+  all sound off (CC 123 and 120) let it go. In earlier versions a note on channel 1 changed the scale; the Key page
+  does that now.
+- **Don't send it straight back:** if a computer returns the FM-1's own MIDI out (a DAW's thru, say), every layer's
+  notes play the Lead. Turn thru off, or MIDI out off on GLO's Setup page.
 
 ### The visualiser
 

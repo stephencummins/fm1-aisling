@@ -200,6 +200,8 @@ extern volatile uint16_t en_seq_lane[5], en_seq_acc[2];   /* the Pattern page's 
                                                           * Sequence's skips; their accents */
 void en_lead_key(int degree, int on);           /* the white keys: the Lead plays scale degree `degree` (0: the
                                                  * root) from the root up, in its register; on 0 lets it go */
+void en_lead_midi(int note, int on);            /* MIDI in, a note on or off: the Lead, to the scale's nearest note;
+                                                 * note -1: an all notes off, whichever MIDI note it holds let go */
 extern volatile int8_t en_lead_deg;             /* the degree the Lead sounds (played or its own): -1 none */
 void en_lead_forget(void);                      /* (PERFORM's top key) the Lead forgets all it remembers:
                                                  * its ideas and its theme (the keys' too), a figure on the keys,

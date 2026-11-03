@@ -1,0 +1,61 @@
+# MIDI in plays the Lead (after NACHTFAHRT's 9ae6dce): a note on any channel sounds on the Lead's channel 3 at the nearest
+# note of the scale, the lower of two as near. The first piece is D Aeolian (D E F G A Bb C). The MIDI bytes are hex.
+wait 500
+expect pool 1453
+# F4 (65, 0x41) is in the scale and sounds as played
+midi 90 41 64
+wait 300
+expect lastnote_ch3 65
+midi 80 41 00
+wait 200
+# F#4 (66, 0x42), between F and G: the lower, F
+midi 90 42 64
+wait 300
+expect lastnote_ch3 65
+midi 80 42 00
+wait 200
+# A4 (69, 0x45) on channel 5; a note on with velocity 0 is a note off
+midi 94 45 5A
+wait 300
+expect lastnote_ch3 69
+midi 94 45 00
+wait 200
+# G4 lights the fourth white key (w3, key 6), as the key itself does
+midi 90 43 64
+wait 300
+expect litkey6 1
+midi 80 43 00
+wait 300
+expect litkey6 0
+# the note kept within the Lead's 36 .. 100
+midi 90 00 64
+wait 300
+expect lastnote_ch3 36
+midi 80 00 00
+midi 90 7F 64
+wait 300
+expect lastnote_ch3 100
+midi 80 7F 00
+wait 200
+# all notes off lets go of a MIDI note (the key's light again), not of a key held
+midi 90 43 64
+wait 300
+expect litkey6 1
+midi B0 7B 00
+wait 300
+expect litkey6 0
+key w3 down
+wait 300
+expect litkey6 1
+midi B0 7B 00
+wait 300
+expect litkey6 1
+# nor does MIDI note 3's release let go of the key whose step is 3
+midi 80 03 00
+wait 300
+expect litkey6 1
+key w3 up
+wait 300
+expect litkey6 0
+# the scale is the Key page's: never changed
+expect pool 1453
