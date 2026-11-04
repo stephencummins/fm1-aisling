@@ -1,0 +1,46 @@
+# 0.5: SAVE held and let go saves, as GLO does. A tap is still the Atmosphere's page. A long hold is no shake
+wait 300
+listen
+turn K2 3
+wait 50
+expect dirty 1
+expect store_writes 0
+press SAVE
+wait 600
+release SAVE
+wait 40
+expect dirty 0
+expect store_writes 1
+expect card 1
+expect view 0
+said SAVED
+# held on: no nudge and no shake, then saved on release
+turn K2 -3
+wait 50
+expect dirty 1
+press SAVE
+wait 1800
+expect view 0
+expect card 0
+release SAVE
+wait 40
+expect dirty 0
+expect store_writes 2
+expect view 0
+# a tap: the page, nothing saved
+turn K2 3
+wait 50
+tap SAVE
+wait 40
+expect view 19
+expect dirty 1
+expect store_writes 2
+# GLO's hold still saves
+tap HOME
+wait 40
+press GLO
+wait 600
+release GLO
+wait 40
+expect dirty 0
+expect store_writes 3

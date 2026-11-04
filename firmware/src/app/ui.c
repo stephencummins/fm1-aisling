@@ -533,7 +533,7 @@ static void knob_text(int k, char *b)
 }
 
 static void set_mode(int m);
-static void do_save(void)                       /* GLO held, or Setup's KNOB 4 turned */
+static void do_save(void)                       /* SAVE or GLO held, or Setup's KNOB 4 turned */
 {
     if (project_save() == 0) {
         ui.dirty = 0;
@@ -1099,8 +1099,7 @@ static void button(int b)
         say("HOLD", en_frozen ? "OFF" : "ON");
         en_freeze(!en_frozen);                   /* the engine takes it at its next block */
         break;
-    case B_SAVE:                                 /* the Noise page (one page: again stays; saving: GLO held, Setup's
-                                                  * KNOB 4) */
+    case B_SAVE:                                 /* the Noise page (saving: held, as GLO; or Setup's KNOB 4) */
         if (atm_view(ui.view)) {                 /* (SAVE again steps through: its sound, its Move page, back) */
             set_view(ui.view == V_NSND ? V_NSND2 : ui.view == V_NSND2 ? V_AMOVE : V_NSND);
         } else {
@@ -1208,7 +1207,7 @@ static void midi_in(void)
 }
 
 
-#define RESET_HOLD 1500u                 /* SAVE held: the piece back to its recipe */
+#define RESET_HOLD 1500u                 /* GLO held on: the piece back to its recipe */
 
 /* NUDGE: a layer's button held (ENV the Drone, ARP the Sequence, LFO the Lead, SEQ Sequence 2): its sound a small step
  * further, a few of its values each a few units, a walk pulled back to the piece's recipe (the further a value has
@@ -1218,6 +1217,8 @@ static void midi_in(void)
 #define NUDGE_HOLD 500u
 #define SHAKE_HOLD 1500u                  /* held on: a shake (a new voice, every value a big step) */
 #define NNUDGE 6
+#define NHAND 5                                  /* (0.5) those a held button nudges: SAVE held saves now, so the Atmosphere
+                                                  * moves by Evolve and HOME's shake only */
 static const uint8_t NUDGE_BTN[NNUDGE] = {B_ENV, B_ARP, B_LFO, B_SEQ, B_FX, B_SAVE};
 static const char *const NUDGE_NAME[NNUDGE] = {"DRONE", "SEQ", "LEAD", "SEQ 2", "SPACE", "ATMOS"};
 static const uint8_t NUDGE_PAR[NNUDGE][6] = {   /* (BERLIN) each layer its own sound, never its sends, octave or the
@@ -1373,8 +1374,9 @@ static void input(void)
             oct_release((int)i);
         } else if (i == B_EDIT) {               /* EDIT: the Chords page (a tap), the next chord (held) */
             edit_released(plat_ms() - ui.down_t[B_EDIT]);
-        } else if (i == B_GLO && !(ui.btn_used & m) && plat_ms() - ui.down_t[B_GLO] >= NUDGE_HOLD) {
-            do_save();                           /* GLO held and let go: saved (held on: the reset, below, unsaved) */
+        } else if ((i == B_GLO || i == B_SAVE) && !(ui.btn_used & m) && plat_ms() - ui.down_t[i] >= NUDGE_HOLD) {
+            do_save();                           /* SAVE or GLO held and let go: saved (GLO held on: the reset, below,
+                                                  * unsaved) */
             if (!ui.dirty)
                 card_show("SAVED", "all eight pieces", K_ACC, 0);
         } else if (i == B_SEL && !(ui.btn_used & m) && plat_ms() - ui.down_t[B_SEL] >= NUDGE_HOLD) {
@@ -1385,7 +1387,7 @@ static void input(void)
     }
     if (ui.view != view_was)                     /* (0.5) a button brought a new page: its name, large, for a moment */
         ui.flash_until = plat_ms() + FLASH_SHOW;
-    for (i = 0; i < NNUDGE; i++) {               /* a layer's button held: a nudge; held on: a shake (its release
+    for (i = 0; i < NHAND; i++) {                /* a layer's button held: a nudge; held on: a shake (its release
                                                   * then does nothing) */
         static uint8_t shaken;
         uint32_t m = 1u << NUDGE_BTN[i], held = plat_ms() - ui.down_t[NUDGE_BTN[i]];
