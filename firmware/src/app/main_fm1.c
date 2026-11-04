@@ -325,7 +325,8 @@ static void fm1_main(void)
                 uint32_t k10;
                 knob += (a * 16 - knob) / 8;
                 k10 = (uint32_t)(knob / 16);
-                master_q12 = (k10 * k10) >> 8;           /* 0 .. ~4096 */
+                master_raw = (uint16_t)k10;              /* (what the knob reads, whatever the curve makes of it) */
+                master_q12 = master_curve(k10);          /* 0 .. ~4084 */
             }
         }
         {   /* the battery's divider (PB1, read only: never driven), twice a second, smoothed */

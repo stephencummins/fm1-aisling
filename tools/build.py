@@ -53,6 +53,7 @@ SDK_SHA256 = {
 
 PRODUCT = "FM-1_353000000"          # package identity; release builds are FM-1_353XXYYZZ (see main)
 VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
+QUIET = False                       # a test build that makes no sound (--release X.Y-quiet)
 
 
 def toolchain():
@@ -210,6 +211,8 @@ def build_app():
     flags.append(f'-DFELUCCA_ID="{PRODUCT}"')
     if VERSION:
         flags.append(f'-DEN_VERSION="{VERSION}"')
+    if QUIET:
+        flags.append("-DAISLING_QUIET_TEST=1")   # --release X.Y-quiet: MASTER forced to 0 (firmware/src/app/master.h)
     o2 = [f if f != "-Os" else "-O2" for f in flags]
     units = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
              ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
@@ -342,7 +345,7 @@ def mmio_check():
 
 
 def main():
-    global PRODUCT, VERSION
+    global PRODUCT, VERSION, QUIET
     ap = argparse.ArgumentParser()
     ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_353XXYYZZ, version string X.Y[.Z]")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
@@ -359,6 +362,7 @@ def main():
             raise SystemExit(f"--release {a.release}: use X.Y[.Z][-suffix], up to two digits each")
         PRODUCT = "FM-1_353%02d%02d%02d" % (int(m[1]), int(m[2]), int(m[3] or 0))
         VERSION = a.release.upper()
+        QUIET = (m[4] or "").lower() == "-quiet"    # (the suffix sets it, so a quiet build can't be mislabelled)
         name = f"aisling-{a.release}.fwsc"
     fm1pkg_make.SDK = a.sdk
     for rel, sha in SDK_SHA256.items():          # fail early without the SDK
