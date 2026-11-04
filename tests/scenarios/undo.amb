@@ -1,0 +1,373 @@
+# 0.5: HOME held + OCT- undoes, OCT+ redoes. One step per edit after a quiet gap; nudges, shakes and a reset
+# are steps of their own; Evolve's own moves aren't; another piece clears it; it's never saved.
+wait 300
+listen
+expect undo 0
+expect redo 0
+mark
+
+# nothing to undo: said, and no HOME tap, shake or octave step
+press HOME
+tap OCT-
+wait 40
+said UNDO
+tap OCT+
+wait 40
+said REDO
+release HOME
+wait 40
+expect view 0
+expect marked 0
+expect card 1
+wait 1800
+
+# one edit, one step: undo, redo, undo
+turn K2 3
+wait 40
+expect par5 43
+expect undo 1
+wait 900
+turn K2 3
+wait 40
+expect par5 46
+expect undo 2
+wait 900
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect par5 43
+expect undo 1
+expect redo 1
+expect view 0
+expect card 1
+said Evolve
+press HOME
+tap OCT+
+release HOME
+wait 40
+expect par5 46
+expect undo 2
+expect redo 0
+press HOME
+tap OCT-
+tap OCT-
+release HOME
+wait 40
+expect par5 40
+expect undo 0
+expect redo 2
+# a new edit: no way forward any more
+turn K2 1
+wait 40
+expect redo 0
+expect undo 1
+expect par5 41
+wait 900
+
+# edits close together are one step, across knobs; up and back leaves none
+turn K2 1
+wait 200
+turn K2 1
+wait 200
+turn K3 1
+wait 40
+expect undo 2
+wait 900
+turn K2 2
+wait 100
+turn K2 -2
+wait 900
+expect undo 2
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect par5 41
+expect par15 40
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect par5 40
+expect undo 0
+
+# Tune isn't the piece's: no step, and undo leaves it
+tap GLO
+wait 40
+expect view 6
+expect undo 0
+turn K1 8
+wait 40
+expect par16 !=0
+expect undo 0
+wait 900
+expect undo 0
+tap HOME
+wait 40
+expect view 0
+
+# an octave step is an edit; the gesture itself doesn't step
+tap ARP
+wait 40
+expect view 2
+expect par21 0
+tap OCT+
+wait 40
+expect par21 1
+expect undo 1
+wait 900
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect par21 0
+expect view 2
+expect redo 1
+wait 40
+tap HOME
+wait 40
+expect view 0
+wait 900
+
+# a hand nudge, back in one
+mark
+press ENV
+wait 600
+release ENV
+wait 40
+expect marked >0
+expect undo 1
+expect redo 0
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect marked 0
+tap HOME
+wait 40
+expect view 0
+wait 900
+
+# HOME's shake of everything is one step, and HOME is still down for its undo
+mark
+press HOME
+wait 1600
+expect card 2
+expect marked >0
+expect undo 1
+tap OCT-
+release HOME
+wait 40
+expect marked 0
+expect redo 1
+expect undo 0
+press HOME
+tap OCT+
+release HOME
+wait 40
+expect marked >0
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect marked 0
+wait 900
+
+# a nudge right after an edit is a step of its own
+turn K2 2
+wait 100
+mark
+press ENV
+wait 600
+release ENV
+wait 40
+expect undo 2
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect marked 0
+press HOME
+tap OCT-
+release HOME
+wait 40
+tap HOME
+wait 40
+expect view 0
+wait 900
+expect undo 0
+
+# the piece's reset comes back too
+turn K3 7
+wait 900
+mark
+press GLO
+wait 1600
+release GLO
+wait 40
+expect marked >0
+expect undo 2
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect marked 0
+expect par15 47
+wait 900
+
+# new chords: Skellig's are all its own, so nothing moved and no step is left
+mark
+expect undo 1
+press EDIT
+wait 1600
+release EDIT
+wait 900
+expect marked 0
+expect undo 1
+# on Carolan the walk has slots: back to the chords before them
+turn PRESET 3
+wait 300
+expect piece 3
+mark
+press EDIT
+wait 1600
+release EDIT
+wait 900
+expect marked >0
+expect undo 1
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect marked 0
+turn PRESET -3
+wait 300
+expect piece 0
+wait 900
+
+# the most it keeps is 16: twenty edits, sixteen back, and all sixteen forward again
+turn PRESET 1
+wait 300
+expect piece 1
+expect undo 0
+expect redo 0
+turn K3 -50
+wait 900
+turn K3 1
+wait 900
+mark
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+turn K3 1
+wait 900
+expect undo 16
+press HOME
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+tap OCT-
+expect undo 0
+expect redo 16
+tap OCT-
+expect redo 16
+release HOME
+wait 40
+expect marked 1
+press HOME
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+tap OCT+
+expect undo 16
+expect redo 0
+release HOME
+wait 40
+
+# another piece: nothing to go back to, nothing forward either
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect redo 1
+turn PRESET 1
+wait 300
+expect piece 2
+expect undo 0
+expect redo 0
+press HOME
+tap OCT-
+release HOME
+wait 40
+expect piece 2
+wait 900
+
+# Evolve's own moves aren't steps
+turn K2 100
+wait 900
+expect par5 100
+expect undo 1
+mark
+wait 400000
+expect marked >0
+expect undo 1
+
+# and none of it was saved
+expect store_writes 0
+expect format 3

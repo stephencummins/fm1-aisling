@@ -538,6 +538,8 @@ static int key_of(const char *s)
     return atoi(s);
 }
 
+static int16_t mark_par[P_NPARAMS];              /* (`mark`, `expect marked`: what an undo must bring back) */
+static uint16_t mark_pool;
 static int expect(const char *what, const char *val)
 {
     int got;
@@ -676,6 +678,16 @@ static int expect(const char *what, const char *val)
         got = en_section;
     else if (!strcmp(what, "card"))               /* a nudge's card in the middle: 1 a nudge's, 2 a shake's (0: none) */
         got = card_on(plat_ms()) ? 1 + ui.card_shake : 0;
+    else if (!strcmp(what, "undo"))               /* (0.5) how many steps back, and forward */
+        got = ud.un;
+    else if (!strcmp(what, "redo"))
+        got = ud.rn;
+    else if (!strcmp(what, "marked")) {           /* settings and scale that differ from the last `mark` */
+        int p;
+        got = proj.pool != mark_pool;
+        for (p = 0; p < P_NPARAMS; p++)
+            got += proj.par[p] != mark_par[p];
+    }
     else if (!strcmp(what, "flash"))              /* a button's new page: its name, large (0.5) */
         got = flash_on(plat_ms());
     else if (!strcmp(what, "pagedots")) {         /* how many pages this page's button has (0.5) */
@@ -872,6 +884,9 @@ int main(int argc, char **argv)
             wav_close();
             if (midi_log)
                 fprintf(midi_log, "%u ms: wavstop\n", now_ms);
+        } else if (!strcmp(cmd, "mark")) {
+            memcpy(mark_par, proj.par, sizeof mark_par);
+            mark_pool = proj.pool;
         } else if (!strcmp(cmd, "peakreset"))
             peak_out = 0.0f, memset(notes_ch, 0, sizeof notes_ch), seq_apart = 0;
         else if (!strcmp(cmd, "shot")) {

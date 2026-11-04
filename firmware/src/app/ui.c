@@ -364,7 +364,88 @@ static void itoa_u(uint32_t v, char *b)
     *b = 0;
 }
 
-static void mark_dirty(void) { ui.dirty = 1; }
+/* (0.5) undo: the piece's settings as they were before an edit, UNDO_N times back, in RAM only, and gone with a
+ * change of piece. Every edit ends in mark_dirty, when the piece has already changed, so the state before it is
+ * kept all the time (shadow, each frame while nothing is under way) and the first edit after UNDO_GAP of quiet
+ * pushes it. What was undone sits at the top of the same array, growing down, as the redo (un + rn <= UNDO_N).
+ * Evolve's own moves aren't edits. The sequences' patterns aren't in it: taking them back restarts them. */
+#define UNDO_N 16
+#define UNDO_GAP 800u
+typedef struct {
+    int16_t par[P_NPARAMS];
+    uint16_t pool;
+} undo_t;
+static struct {
+    undo_t hist[UNDO_N], shadow;
+    uint8_t un, rn;
+    uint8_t open;                                /* an edit under way: the state before it is pushed */
+    uint8_t evolve;                              /* (Evolve moving: not an edit) */
+    uint32_t t;                                  /* the last edit */
+} ud;
+static void undo_capture(undo_t *s)
+{
+    int p;
+    for (p = 0; p < P_NPARAMS; p++)
+        s->par[p] = proj.par[p];
+    s->pool = proj.pool;
+}
+static int undo_skip(int p, int endless)         /* Tune and MIDI out aren't the piece's; Endless moves the chords itself */
+{
+    return global_par(p) || (endless && p >= P_CR0 && p <= P_CX7);
+}
+static int undo_same(const undo_t *s)            /* the piece as s has it? */
+{
+    const int endless = !(proj.par[P_PMODE] & EN_PLOOP);
+    int p;
+    for (p = 0; p < P_NPARAMS; p++)
+        if (!undo_skip(p, endless) && s->par[p] != proj.par[p])
+            return 0;
+    return s->pool == proj.pool;
+}
+static void undo_close(void)                     /* the edit under way is over; up and back again leaves no entry */
+{
+    if (!ud.open)
+        return;
+    ud.open = 0;
+    if (ud.un && undo_same(&ud.hist[ud.un - 1]))
+        ud.un--;
+    undo_capture(&ud.shadow);
+}
+static void undo_push(void)
+{
+    int i;
+    if (ud.un == UNDO_N) {                       /* (full: the oldest goes) */
+        for (i = 1; i < UNDO_N; i++)
+            ud.hist[i - 1] = ud.hist[i];
+        ud.un--;
+    }
+    ud.hist[ud.un++] = ud.shadow;
+    ud.rn = 0;
+    ud.open = 1;
+    ud.t = plat_ms();
+}
+static void undo_clear(void)
+{
+    ud.un = ud.rn = ud.open = 0;
+    undo_capture(&ud.shadow);
+}
+static void undo_tick(void)
+{
+    if (!ud.open)
+        undo_capture(&ud.shadow);
+    else if (plat_ms() - ud.t >= UNDO_GAP)
+        undo_close();
+}
+static void mark_dirty(void)
+{
+    ui.dirty = 1;
+    if (ud.evolve)
+        return;
+    if (ud.open)
+        ud.t = plat_ms();
+    else if (!undo_same(&ud.shadow))             /* (Lights, Tune, MIDI out, the screen's view: no entry) */
+        undo_push();
+}
 int ui_dirty(void) { return ui.dirty != 0; }
 
 static uint32_t pool_abs(void)                 /* the pool as absolute pitch classes */
@@ -725,6 +806,7 @@ static void set_piece(int i)                    /* the piece playing kept as it 
     say_as("PIECE", piece_name(proj.piece), 0);
     sp_piece();                                  /* a screen reader: the piece with its key and tempo */
     mark_dirty();
+    undo_clear();                                /* (0.5) another piece: nothing to go back to */
 }
 
 /* ----------------------------------------------------------- PERFORM --- */
@@ -1178,9 +1260,80 @@ static void oct_step(int b)
         ui.touch_until = plat_ms() + 1200u;
     }
 }
+static int undo_restore(const undo_t *s, char *what, int cap)   /* only what differs: the rest doesn't hear it */
+{
+    const int endless = !(proj.par[P_PMODE] & EN_PLOOP);
+    int p, n = 0, last = 0, i, k = 0;
+    char v[12];
+    for (p = 0; p < P_NPARAMS; p++)
+        if (!undo_skip(p, endless) && proj.par[p] != s->par[p]) {
+            proj.par[p] = s->par[p];
+            en_set(p, proj.par[p]);
+            last = p;
+            n++;
+        }
+    if (proj.pool != s->pool) {
+        proj.pool = s->pool;
+        en_pool(proj.pool);
+        last = P_MODE;
+        n += n ? 0 : 1;                          /* (a mode: its pool and its number, one change) */
+    }
+    if (n == 1) {                                /* the one setting, and where it is now */
+        const char *nm = en_param_info(last)->name;
+        while (*nm && k < 14 && k < cap - 1)
+            what[k++] = *nm++;
+        en_param_text(last, proj.par[last], v);
+        if (k < cap - 1)
+            what[k++] = ' ';
+        for (i = 0; v[i] && k < cap - 1; i++)
+            what[k++] = v[i];
+        what[k] = 0;
+    } else {
+        static const char SET[] = " settings";
+        itoa_u((uint32_t)n, what);
+        while (what[k])
+            k++;
+        for (i = 0; SET[i] && k < cap - 1; i++)
+            what[k++] = SET[i];
+        what[k] = 0;
+    }
+    return n;
+}
+static void undo_step(int redo)                  /* HOME held, OCT- or OCT+ */
+{
+    const char *head = redo ? "REDO" : "UNDO";
+    char t[24];
+    undo_close();
+    if (!(redo ? ud.rn : ud.un)) {
+        say(head, "NOTHING");
+        card_show(redo ? "NOTHING TO REDO" : "NOTHING TO UNDO", 0, K_DIM, 0);
+        return;
+    }
+    undo_capture(&ud.shadow);                    /* (as it is now: the other way back. Restored first, because
+                                                  * with the array full the two share a place) */
+    if (redo) {
+        undo_restore(&ud.hist[UNDO_N - ud.rn], t, (int)sizeof t);
+        ud.hist[ud.un] = ud.shadow;
+        ud.rn--, ud.un++;
+    } else {
+        undo_restore(&ud.hist[ud.un - 1], t, (int)sizeof t);
+        ud.hist[UNDO_N - 1 - ud.rn] = ud.shadow;
+        ud.un--, ud.rn++;
+    }
+    undo_capture(&ud.shadow);
+    ui.dirty = 1;                                /* (saved at rest, as any edit: the stack itself never is) */
+    say(head, t);
+    card_show(head, t, K_ACC, 0);
+}
 static void oct_press(int b)
 {
     const int other = b == B_OCTUP ? B_OCTDN : B_OCTUP;
+    if (ui.btn >> B_HOME & 1u) {                 /* (0.5) HOME held: OCT- undoes, OCT+ redoes. HOME's tap and shake
+                                                  * and this button's step are off */
+        ui.btn_used |= 1u << B_HOME | 1u << b;
+        undo_step(b == B_OCTUP);
+        return;
+    }
     if (ui.btn >> other & 1u)                    /* both down: neither steps */
         ui.btn_used |= 1u << B_OCTDN | 1u << B_OCTUP;
 }
@@ -1251,6 +1404,8 @@ static void nudge(int layer, int how)
     int j, best = -1, bd = 0, n, np = 0;
     uint8_t pick[8];
     char vn[24] = "";
+    if (how != NUDGE_EVOLVE && !nudge_quiet)     /* (a nudge is its own step back, however soon after an edit) */
+        undo_close();
     if (how == NUDGE_SHAKE && layer == 4) {      /* the space's: another echo time */
         int nt = en_param_info(P_ETIME)->hi + 1, cur = proj.par[P_ETIME], v = (cur + 1 + nrand(nt - 1)) % nt;
         knob_set(P_ETIME, v);
@@ -1347,8 +1502,10 @@ static void nudge_tick(void)                     /* Evolve's nudges: on a phrase
     last_pb = pb;
     if (pb != 0 || !en_playing || en_frozen || ev <= 40 || ui.lock)   /* (Lock: they rest) */
         return;
+    ud.evolve = 1;
     if (nrand(100) < (ev - 40) * 2 / 3)          /* (Evolve 100: 40% of the phrases; 70: 20%; 40 and under: none) */
         nudge(nrand(NNUDGE), NUDGE_EVOLVE);
+    ud.evolve = 0;
 }
 static void input(void)
 {
@@ -1414,6 +1571,7 @@ static void input(void)
             int j;
             home_shaken = 1;
             ui.btn_used |= m;
+            undo_close();                        /* (all of them one step back) */
             nudge_quiet = 1;
             for (j = 0; j < 5; j++)
                 nudge(ALL[j], NUDGE_SHAKE);
@@ -1426,6 +1584,8 @@ static void input(void)
         (int32_t)(ui.turn_t - ui.down_t[B_EDIT]) <= 0) {   /* EDIT held on: a new progression, the walk's chords
                                                   * all walked again (yours, the gaps and the one playing kept) */
         edit_new = 1;
+        undo_close();
+        undo_push();                             /* (the walk writes them, not an edit's knob: undo has them too) */
         en_prog_rewalk();
         say("NEW CHORDS", EN_WALK_NAME[(proj.par[P_PMODE] & 3) % EN_NWALK]);
         card_show("NEW CHORDS", EN_WALK_NAME[(proj.par[P_PMODE] & 3) % EN_NWALK], K_FROST, 1);
@@ -1513,6 +1673,7 @@ static void input(void)
     if ((btn >> B_GLO & 1u) && !ui.reset_done && plat_ms() - ui.down_t[B_GLO] > RESET_HOLD) {
         ui.reset_done = 1;                     /* held on: the piece back to its recipe (not saved) */
         ui.btn_used |= 1u << B_GLO;
+        undo_close();                          /* (and undo brings its settings back) */
         project_piece_reset();
         project_apply();
         oct_home_take();
@@ -2667,7 +2828,12 @@ static void leds(void)
             if (!(BLACK_DO[bk] >= 100 ? ui.mv & (BLACK_DO[bk] - 100) : ui.bfx >> BLACK_DO[bk] & 1u))
                 k |= 1u << BLACK_KEY[bk];
     }
-    {   /* (the user, 2026-10-28) a layer's page: OCT+ lit while its octave is above its home (oct_home), OCT- below */
+    if (ui.btn >> B_HOME & 1u) {                 /* (0.5) HOME held: what OCT- and OCT+ can do now */
+        if (ud.un)
+            b |= 1u << B_OCTDN;
+        if (ud.rn)
+            b |= 1u << B_OCTUP;
+    } else {   /* (the user, 2026-10-28) a layer's page: OCT+ lit while its octave is above its home (oct_home), OCT- below */
         const int l = oct_layer(ui.view);
         if (l >= 0 && LAYER_OCT[l] != NO_OCT) {
             const int v = knob_get(LAYER_OCT[l]);
@@ -3142,6 +3308,7 @@ void ui_init(void)
     memset(&ui, 0, sizeof ui);
     ui.touched = -1;
     oct_home_take();
+    undo_clear();
     lcd_fill(0, 0, 240, 240, K_BG);
     if (!en_playing)
         en_play(1);                              /* it plays from the start */
@@ -3158,6 +3325,7 @@ void ui_frame(void)
     input();
     mac_take();
     autosave();
+    undo_tick();
     if (grid_up()) {                             /* REC held: the effects, the whole screen */
         if (!(ui.frame % 3u))
             draw_grid();
