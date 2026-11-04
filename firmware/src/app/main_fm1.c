@@ -363,10 +363,10 @@ static void fm1_main(void)
                 enter_uboot("UBOOT");
             }
         }
-        {   /* a screen reader's SysEx (announce.c), before the updater looks */
+        {   /* a screen reader's SysEx (announce.c) and an editor's (app/link.c), before the updater looks */
             const uint8_t *p;
             uint32_t n;
-            if (ota_frame_get(&p, &n) && ann_frame(p, n, fm1_ms))
+            if (ota_frame_get(&p, &n) && (ann_frame(p, n, fm1_ms) || link_frame(p, n, fm1_ms)))
                 ota_frame_done();
         }
         ota_service();                              /* M-UPGRADE handshake (other SysEx is dropped) */

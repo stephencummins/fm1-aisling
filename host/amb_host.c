@@ -89,6 +89,7 @@ int32_t plat_enc(int role)
     return v;
 }
 uint32_t plat_master(void) { return master; }
+uint32_t plat_master_raw(void) { return master >= 4092u ? 1023u : master / 4u; }
 void plat_leds(uint32_t b, uint32_t k)
 {
     lit_btn = b;
@@ -208,6 +209,7 @@ static int ann_wire_send(const uint8_t *p, uint32_t n)
     }
     return 0;
 }
+#include "link_client.h"
 #include "../firmware/src/app/project.c"
 #include "../firmware/src/app/ui.c"
 
@@ -499,6 +501,10 @@ static void run_ms(uint32_t ms)
             static const uint8_t HELLO[] = {ANN_H0, ANN_H1, ANN_H2, ANN_HELLO, ANN_VER};
             ann_frame(HELLO, sizeof HELLO, now_ms);
         }
+        if (lc.beat && now_ms % 2000u == 0) {           /* the link's heartbeat, as the other end sends it */
+            static const uint8_t BEAT[] = {LK_H0, LK_H1, LK_H2, LK_BEAT};
+            link_frame(BEAT, sizeof BEAT, now_ms);
+        }
         if (ui_off) {
         } else if (now_ms >= ui_due) {
             ui_due = now_ms + 16;
@@ -688,6 +694,70 @@ static int expect(const char *what, const char *val)
         for (p = 0; p < P_NPARAMS; p++)
             got += proj.par[p] != mark_par[p];
     }
+    else if (!strcmp(what, "moves"))
+        got = (int)ui.moves;
+    else if (!strcmp(what, "linkon"))             /* (0.5) the USB link: the firmware's side */
+        got = lk.on;
+    else if (!strcmp(what, "linkheld"))
+        got = (int)(link_v_btn | link_v_keys | lk.perf);
+    else if (!strcmp(what, "linkbytes"))          /* what came back, in all */
+        got = (int)lc.bytes;
+    else if (!strcmp(what, "linkhellos"))
+        got = (int)lc.hellos;
+    else if (!strcmp(what, "linkstates"))
+        got = (int)lc.states;
+    else if (!strcmp(what, "linkacks"))
+        got = (int)lc.acks;
+    else if (!strcmp(what, "linkack"))            /* the last ACK's status (0 ok, 1 bad, 2 refused, 3 sum, 4 busy, 5 none) */
+        got = lc.ack_status;
+    else if (!strcmp(what, "linkackseq"))
+        got = lc.ack_seq;
+    else if (!strcmp(what, "linkgood"))           /* every frame well formed */
+        got = lc.frames < 1000000u;
+    else if (!strcmp(what, "linkvals"))           /* how many knobs have been told */
+        got = (int)lc.vals_n;
+    else if (!strncmp(what, "lhello", 6))         /* HELLO's bytes: 0 ver, 1 format, 2-3 project, 4-5 slot, 6-7 pars, 8 pieces */
+        got = lc.hello[atoi(what + 6)];
+    else if (!strcmp(what, "lproj"))
+        got = lc.hello[2] | lc.hello[3] << 7;
+    else if (!strcmp(what, "lslot"))
+        got = lc.hello[4] | lc.hello[5] << 7;
+    else if (!strcmp(what, "lpars"))
+        got = lc.hello[6] | lc.hello[7] << 7;
+    else if (!strcmp(what, "lview"))              /* STATE, as the other end reads it */
+        got = lc.state[0];
+    else if (!strcmp(what, "lflags"))             /* 1 playing, 2 frozen, 4 dirty, 8 PERFORM, 16 a save waiting */
+        got = lc.state[1];
+    else if (!strcmp(what, "lpiece"))
+        got = lc.state[2];
+    else if (!strcmp(what, "lmoves"))
+        got = lc.state[3] | lc.state[4] << 7;
+    else if (!strcmp(what, "lmuted"))
+        got = lc.state[10];
+    else if (!strcmp(what, "lsolo"))
+        got = lc.state[11];
+    else if (!strcmp(what, "lsounds"))
+        got = lc.state[12];
+    else if (!strcmp(what, "lundo"))
+        got = lc.state[13];
+    else if (!strcmp(what, "lredo"))
+        got = lc.state[14];
+    else if (!strcmp(what, "lmaster"))
+        got = lc.state[19] | lc.state[20] << 7;
+    else if (!strcmp(what, "lknob"))
+        got = lc.state[21] | lc.state[22] << 7;
+    else if (!strcmp(what, "llit"))
+        got = lc.state[23] | lc.state[24] << 7;
+    else if (!strcmp(what, "lgen"))
+        got = lc.state[29];
+    else if (!strcmp(what, "lstatelen"))
+        got = lc.state_n;
+    else if (!strncmp(what, "lval", 4))           /* a knob as VALS told it */
+        got = lc.val[atoi(what + 4)];
+    else if (!strcmp(what, "lread"))              /* bytes of the last read, all there, and their sum right (`linkread`) */
+        got = (int)lc.rd_len;
+    else if (!strcmp(what, "lsame"))              /* the last read against `linkkeep`'s */
+        got = lc.wr_len && lc.rd_len == lc.wr_len && !memcmp(lc.rd, lc.wr, lc.wr_len);
     else if (!strcmp(what, "flash"))              /* a button's new page: its name, large (0.5) */
         got = flash_on(plat_ms());
     else if (!strcmp(what, "pagedots")) {         /* how many pages this page's button has (0.5) */
@@ -775,6 +845,115 @@ static int expect(const char *what, const char *val)
 }
 
 #ifndef EN_WEB
+/* (0.5) scenarios' `link NAME args`: a frame as the page and tools/fm1_link.py send it */
+static uint8_t lc_out[640];
+static uint32_t lc_out_n;
+static int link_command(const char *name, const char *line)
+{
+    static const struct { const char *name; int cmd; const char *args; } OPS[] = {
+        {"set", LK_SET, "22"}, {"view", LK_VIEW, "11"}, {"piece", LK_PIECE, "1"}, {"play", LK_PLAY, ""}, {"hold", LK_HOLD, ""},
+        {"perf", LK_PERF, "11"}, {"forget", LK_FORGET, ""}, {"keys", LK_KEYS, "4"}, {"buttons", LK_BUTTONS, "2"},
+        {"undo", LK_UNDO, ""}, {"redo", LK_REDO, ""}, {"save", LK_SAVE, ""}, {"voice", LK_VOICE, "22"}, {"copy", LK_COPY, "11"},
+        {"swap", LK_SWAP, "11"}, {"reset", LK_RESET, "1"}, {"open", LK_OPEN, "1"}, {"read", LK_READ, "2"}, {"begin", LK_BEGIN, "1"},
+        {"write", LK_WRITE, "2"}, {"commit", LK_COMMIT, "3"}, {"nonsense", 60, ""},
+    };
+    uint32_t i, n = 0;
+    if (!strcmp(name, "again"))
+        return link_frame(lc_out, lc_out_n, now_ms) != 1;
+    lc_out[n++] = LK_H0, lc_out[n++] = LK_H1, lc_out[n++] = LK_H2;
+    if (!strcmp(name, "hello")) {
+        lc_out[n++] = LK_HELLO, lc_out[n++] = LK_VER;
+    } else if (!strcmp(name, "beat")) {
+        lc_out[n++] = LK_BEAT;
+    } else if (!strcmp(name, "bye")) {
+        lc_out[n++] = LK_BYE;
+    } else {
+        const char *t = line;
+        const char *f = 0;
+        int cmd = 0, field;
+        for (i = 0; i < sizeof OPS / sizeof OPS[0]; i++)
+            if (!strcmp(OPS[i].name, name))
+                cmd = OPS[i].cmd, f = OPS[i].args;
+        if (!f)
+            return 1;
+        lc_out[n++] = (uint8_t)cmd;
+        lc.seq = (uint8_t)((lc.seq + 1u) & 0x7Fu);
+        lc_out[n++] = lc.seq;
+        while (*t == ' ') t++;                   /* (past "link" and the name) */
+        while (*t && *t != ' ') t++;
+        while (*t == ' ') t++;
+        while (*t && *t != ' ') t++;
+        for (field = 0; f[field]; field++) {
+            char *e;
+            const long v = strtol(t, &e, 0);
+            int b;
+            if (e == t)
+                return 1;
+            t = e;
+            for (b = 0; b < f[field] - '0'; b++)
+                lc_out[n++] = (uint8_t)((unsigned long)v >> (7 * b) & 0x7Fu);
+        }
+    }
+    lc_out_n = n;
+    return link_frame(lc_out, n, now_ms) != 1;
+}
+static int link_send_op(int cmd, const uint8_t *args, uint32_t na)
+{
+    uint32_t n = 0;
+    lc_out[n++] = LK_H0, lc_out[n++] = LK_H1, lc_out[n++] = LK_H2, lc_out[n++] = (uint8_t)cmd;
+    lc.seq = (uint8_t)((lc.seq + 1u) & 0x7Fu);
+    lc_out[n++] = lc.seq;
+    if (na)
+        memcpy(lc_out + n, args, na);
+    n += na;
+    lc_out_n = n;
+    return link_frame(lc_out, n, now_ms) != 1;
+}
+static int link_read(int area)
+{
+    uint8_t a[2];
+    uint32_t len, sum, off;
+    a[0] = (uint8_t)area;
+    link_send_op(LK_OPEN, a, 1);
+    if (lc.ack_status != LK_OK || lc.ack_seq != lc.seq || lc.ack_n != 5u) {
+        lc.rd_len = 0;
+        return 0;                                /* (`expect linkack` says why) */
+    }
+    len = (uint32_t)(lc.ack_x[0] | lc.ack_x[1] << 7);
+    sum = (uint32_t)(lc.ack_x[2] | lc.ack_x[3] << 7 | lc.ack_x[4] << 14);
+    memset(lc.rd_got, 0, sizeof lc.rd_got);
+    for (off = 0; off < len; off += LK_CHUNK) {
+        a[0] = (uint8_t)(off & 0x7Fu), a[1] = (uint8_t)(off >> 7);
+        link_send_op(LK_READ, a, 2);
+    }
+    for (off = 0; off < len; off++)
+        if (!lc.rd_got[off]) {
+            printf("link read: byte %u never came\n", off);
+            return 1;
+        }
+    if (lk_sum(lc.rd, len) != sum) {
+        printf("link read: wrong sum\n");
+        return 1;
+    }
+    lc.rd_len = len;
+    return 0;
+}
+static void link_write(int area, int sumbad)
+{
+    uint8_t a[LK_FRAME];
+    uint32_t off, sum;
+    a[0] = (uint8_t)area;
+    link_send_op(LK_BEGIN, a, 1);
+    for (off = 0; off < lc.wr_len; off += LK_CHUNK) {
+        const uint32_t m = lc.wr_len - off < LK_CHUNK ? lc.wr_len - off : LK_CHUNK;
+        a[0] = (uint8_t)(off & 0x7Fu), a[1] = (uint8_t)(off >> 7);
+        link_send_op(LK_WRITE, a, 2u + lk_pack(a + 2, lc.wr + off, m));
+    }
+    sum = lk_sum(lc.wr, lc.wr_len) ^ (sumbad ? 1u : 0u);
+    a[0] = (uint8_t)(sum & 0x7Fu), a[1] = (uint8_t)(sum >> 7 & 0x7Fu), a[2] = (uint8_t)(sum >> 14 & 0x7Fu);
+    link_send_op(LK_COMMIT, a, 3);
+}
+
 int main(int argc, char **argv)
 {
     FILE *sc;
@@ -884,6 +1063,32 @@ int main(int argc, char **argv)
             wav_close();
             if (midi_log)
                 fprintf(midi_log, "%u ms: wavstop\n", now_ms);
+        } else if (!strcmp(cmd, "link") || !strcmp(cmd, "linkagain")) {   /* (0.5) a frame, as the other end sends it */
+            int bad = link_command(cmd[4] ? "again" : a, line);
+            if (bad)
+                printf("FAIL line %d: %s\n", lineno, line), fails++;
+            run_ms(30);
+        } else if (!strcmp(cmd, "linkzero")) {     /* the counts start again */
+            lc.bytes = lc.frames = lc.hellos = lc.states = lc.acks = lc.chunks = 0;
+        } else if (!strcmp(cmd, "linkbeat")) {
+            lc.beat = atoi(a);
+        } else if (!strcmp(cmd, "linkread")) {     /* OPEN area, READ it all, sum checked */
+            if (link_read(atoi(a)))
+                printf("FAIL line %d: %s\n", lineno, line), fails++;
+        } else if (!strcmp(cmd, "linkkeep")) {     /* the last read, kept: what `linkwrite` sends, `lsame` compares */
+            memcpy(lc.wr, lc.rd, sizeof lc.wr);
+            lc.wr_len = lc.rd_len;
+        } else if (!strcmp(cmd, "linkpoke")) {     /* a byte of what's kept: to test the checks */
+            int at = 0, v = 0;
+            sscanf(line, "%*s %d %d", &at, &v);
+            lc.wr[at] = (uint8_t)v;
+        } else if (!strcmp(cmd, "linkpar")) {      /* a setting of what's kept (a project's): to test the clamps */
+            int p = 0, v = 0;
+            sscanf(line, "%*s %d %d", &p, &v);
+            ((project_t *)lc.wr)->par[p] = (int16_t)v;
+        } else if (!strcmp(cmd, "linkwrite")) {    /* BEGIN area, WRITE it all, COMMIT; `linkwrite A sumbad` lies about the sum */
+            link_write(atoi(a), strstr(line, "sumbad") != 0);
+            run_ms(30);
         } else if (!strcmp(cmd, "mark")) {
             memcpy(mark_par, proj.par, sizeof mark_par);
             mark_pool = proj.pool;

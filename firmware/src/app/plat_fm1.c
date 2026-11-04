@@ -26,6 +26,7 @@ int32_t plat_enc(int role)
 static volatile uint32_t master_q12 = MASTER_START;
 static volatile uint16_t master_raw;                 /* the knob, 0..1023, before the curve */
 uint32_t plat_master(void) { return master_q12; }
+uint32_t plat_master_raw(void) { return master_raw; }
 
 /* LEDs: the picture is built off-line and copied one byte per column (Felucca: clearing
  * and relighting would let the 10 kHz scan catch the dark gap and flicker) */

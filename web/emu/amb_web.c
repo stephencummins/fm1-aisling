@@ -69,7 +69,7 @@ __attribute__((used, visibility("default"))) const char *web_piece_name(int i) {
 /* a screen reader (fm1-reader): the page writes a SysEx frame (the bytes between F0 and F7) to web_sysex_buf and
  * calls web_sysex(n); what the firmware says back, whole F0..F7 frames, from web_said_buf (web_said_len bytes;
  * web_said_clear when read) */
-static uint8_t said_buf[4096], sx_in[64];
+static uint8_t said_buf[4096], sx_in[640];
 static uint32_t said_n;
 static void web_said(const uint8_t *p, uint32_t n)
 {
@@ -82,7 +82,13 @@ __attribute__((used, visibility("default"))) uint8_t *web_said_buf(void) { retur
 __attribute__((used, visibility("default"))) uint32_t web_said_len(void) { return said_n; }
 __attribute__((used, visibility("default"))) void web_said_clear(void) { said_n = 0; }
 __attribute__((used, visibility("default"))) uint8_t *web_sysex_buf(void) { return sx_in; }
-__attribute__((used, visibility("default"))) void web_sysex(uint32_t n) { ann_frame(sx_in, n > sizeof sx_in ? sizeof sx_in : n, now_ms); }
+__attribute__((used, visibility("default"))) void web_sysex(uint32_t n)
+{
+    if (n > sizeof sx_in)
+        n = sizeof sx_in;
+    if (!ann_frame(sx_in, n, now_ms))
+        link_frame(sx_in, n, now_ms);            /* (0.5) the USB link's, as on the FM-1 */
+}
 
 __attribute__((used, visibility("default"))) void web_boot(void) { boot(); }
 __attribute__((used, visibility("default"))) void web_buttons(uint32_t m) { held_btn = m; }

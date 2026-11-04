@@ -369,6 +369,11 @@ static void itoa_u(uint32_t v, char *b)
  * kept all the time (shadow, each frame while nothing is under way) and the first edit after UNDO_GAP of quiet
  * pushes it. What was undone sits at the top of the same array, growing down, as the redo (un + rn <= UNDO_N).
  * Evolve's own moves aren't edits. The sequences' patterns aren't in it: taking them back restarts them. */
+/* the USB link (link.c): buttons and keys held from the other end, what's lit, and a count that moves when the pieces
+ * themselves change */
+static uint32_t link_v_btn, link_v_keys, link_lit_b, link_lit_k;
+static uint8_t link_gen;
+
 #define UNDO_N 16
 #define UNDO_GAP 800u
 typedef struct {
@@ -1509,7 +1514,7 @@ static void nudge_tick(void)                     /* Evolve's nudges: on a phrase
 }
 static void input(void)
 {
-    uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
+    uint32_t btn = plat_buttons() | link_v_btn, keys = plat_keys() | link_v_keys, ch, i;
     int32_t e;
     const int view_was = ui.view;
     ch = btn ^ ui.btn;
@@ -1675,6 +1680,7 @@ static void input(void)
         ui.btn_used |= 1u << B_GLO;
         undo_close();                          /* (and undo brings its settings back) */
         project_piece_reset();
+        link_gen++;
         project_apply();
         oct_home_take();
         mac_home();
@@ -2842,6 +2848,7 @@ static void leds(void)
         }
     }
     plat_glow(proj.leds == 1);
+    link_lit_b = b, link_lit_k = k;
     plat_leds(b, k);
 }
 
@@ -3316,6 +3323,8 @@ void ui_init(void)
     sp_tp.play_t = plat_ms();
 }
 
+#include "link.c"
+
 void ui_frame(void)
 {
     if (ui.s2_hand && !en_s2oct_shift)           /* (the engine has the hand's octave: its shifts shown again) */
@@ -3338,6 +3347,7 @@ void ui_frame(void)
     leds();
     speak();
     ann_tick(plat_ms());
+    link_tick(plat_ms());
     ui.frame++;
 }
 

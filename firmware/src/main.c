@@ -132,6 +132,7 @@ static int ann_wire_send(const uint8_t *p, uint32_t n)   /* never waits: no room
         return -1;
     return ota_wire_send(p, n);
 }
+static int link_wire_send(const uint8_t *p, uint32_t n) { return ann_wire_send(p, n); }   /* the USB link's (app/link.c) */
 #include "app/panel.c"
 #include "app/plat_fm1.c"
 #include "app/project.c"

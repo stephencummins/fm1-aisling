@@ -85,18 +85,19 @@ static void pars_clamp(int16_t *par)            /* a value out of its (now narro
             par[i] = p->hi;
     }
 }
-static int project_valid(void)                  /* (not: the recipes again) */
+static int project_check(const project_t *x)    /* (not: the recipes again) */
 {
     int i;
-    if (proj.magic != PROJ_MAGIC || !pool_ok(proj.pool) || !pars_ok(proj.par))
+    if (x->magic != PROJ_MAGIC || !pool_ok(x->pool) || !pars_ok(x->par))
         return 0;
-    if (proj.format != PROJ_FORMAT || proj.piece >= NPIECES)
+    if (x->format != PROJ_FORMAT || x->piece >= NPIECES)
         return 0;
     for (i = 0; i < NPIECES; i++)
-        if (!pool_ok(proj.slot[i].pool) || !pars_ok(proj.slot[i].par))
+        if (!pool_ok(x->slot[i].pool) || !pars_ok(x->slot[i].par))
             return 0;
     return 1;
 }
+static int project_valid(void) { return project_check(&proj); }
 
 int project_load(void)
 {

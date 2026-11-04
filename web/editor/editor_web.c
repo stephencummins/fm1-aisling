@@ -100,26 +100,8 @@ ED const char *ed_value_text(int k, int v)
 
 /* ---------------------------------------------------- where the FM-1 is looking --- */
 ED int ed_view_now(void) { return ui.view; }
-ED void ed_view_go(int v)                        /* a page: as its button would, PERFORM entered or left as needed */
-{
-    if (v < 0 || v >= NVIEWS)
-        return;
-    if (v == V_PERF || v == V_MIX) {
-        if (!ui.perf)
-            perf_set(1);
-    } else if (ui.perf) {
-        perf_set(0);
-    }
-    if (v == V_CHORDS && ui.view != V_CHORDS)
-        ui.chords_from = (uint8_t)ui.view;
-    if (ui.view != v)
-        set_view(v);
-}
-ED void ed_touch(int i)                          /* the page's knob i lit on the screen, as if just turned */
-{
-    ui.touched = (int8_t)i;
-    ui.touch_until = plat_ms() + 1200u;
-}
+ED void ed_view_go(int v) { link_view_go(v); }      /* a page: as its button would (firmware/src/app/link.c) */
+ED void ed_touch(int i) { link_touch(i); }           /* the page's knob i lit on the screen, as if just turned */
 
 /* ---------------------------------------------------------- playing --- */
 ED int ed_playing(void) { return en_playing; }
@@ -127,11 +109,7 @@ ED int ed_frozen(void) { return en_frozen; }
 ED int ed_dirty(void) { return ui.dirty; }
 ED int ed_piece_now(void) { return proj.piece; }
 ED void ed_play_toggle(void) { button(B_PLAY); }
-ED void ed_hold_toggle(void)
-{
-    ui.down_t[B_REC] = plat_ms();                /* (a tap: dub hold, not the grid) */
-    button(B_REC);
-}
+ED void ed_hold_toggle(void) { link_hold_toggle(); }
 ED void ed_rest(void)                            /* (the page opened by touching a knob: silence until Play) */
 {
     en_play(0);                                  /* (always: ui_init's en_play(1) is queued, en_playing still 0) */
@@ -140,15 +118,7 @@ ED void ed_rest(void)                            /* (the page opened by touching
 }
 ED void ed_piece_go(int i) { set_piece(i); }
 ED void ed_save(void) { do_save(); }
-ED void ed_voice(int p, int v)
-{
-    if (p == P_NCHAR) {
-        knob_set(P_NCHAR, v);
-        say("NOISE", EN_NCHAR_NAME[v]);
-    } else {
-        set_voice(p, v);
-    }
-}
+ED void ed_voice(int p, int v) { link_voice(p, v); }
 
 /* PERFORM's keys, by the firmware's own function: 0-4 a layer's mute, 5-9 a move (held), 10-14 a layer's solo */
 ED void ed_perf(int i, int down)
@@ -158,8 +128,8 @@ ED void ed_perf(int i, int down)
 }
 ED void ed_forget(void) { perf_key(PERF_FORGET, 1); }
 ED const char *ed_perf_name(int i) { return PERF_NAME[i]; }
-ED int ed_layer_muted(int i) { return (ui.mutes & LAYER_MUTE[i]) == LAYER_MUTE[i]; }
-ED int ed_layer_solo(int i) { return (ui.solo & LAYER_MUTE[i]) != 0; }
+ED int ed_layer_muted(int i) { return link_layer_muted(i); }
+ED int ed_layer_solo(int i) { return link_layer_solo(i); }
 ED int ed_layer_sounds(int i) { return perf_sounds(i); }
 ED int ed_moves(void) { return ui.moves; }
 ED float ed_act(int i) { return en_layer_act[i]; }
@@ -197,7 +167,7 @@ ED int ed_edited(int i)                          /* changed from its recipe? (Tu
 /* -------------------------------------------------- the project, as bytes --- */
 /* Undo, backups and sharing: the bytes of project_t and slot_t, the same bytes the FM-1 keeps. A snapshot's copied out
  * of ed_proj; ed_commit takes one back from ed_incoming, checked as project_load checks the flash */
-static project_t incoming, was;
+static project_t incoming;
 static slot_t slot_in;
 ED uint8_t *ed_proj(void) { return (uint8_t *)&proj; }
 ED int ed_proj_size(void) { return (int)sizeof proj; }
@@ -208,100 +178,9 @@ ED uint8_t *ed_slot_in(void) { return (uint8_t *)&slot_in; }
 ED int ed_in_par(int p) { return slot_in.par[p]; }   /* (what's in a file, read without installing it) */
 ED void ed_keep(void) { keep(); }                /* the piece playing, into its slot, before reading the slots */
 
-static void reload(void)                         /* the piece playing's slot changed under it */
-{
-    take(&proj.slot[proj.piece]);
-    project_apply();
-    oct_home_take();
-    mac_home();
-    en_regrow();
-}
+ED int ed_commit(void) { return link_project_install(&incoming, 0); }
 
-ED int ed_commit(void)
-{
-    int p, i, oct = 0;
-    was = proj;
-    proj = incoming;
-    pars_clamp(proj.par);
-    for (i = 0; i < NPIECES; i++)
-        pars_clamp(proj.slot[i].par);
-    if (!project_valid()) {
-        proj = was;
-        return -1;
-    }
-    if (proj.piece != was.piece) {               /* another piece: the same as turning PRESET to it */
-        mac_home();
-        project_apply();
-        oct_home_take();
-        en_seed(plat_ms());
-        en_regrow();
-        sp_piece();
-    } else {                                     /* the same piece: only what differs, so the patterns aren't regrown
-                                                  * by undoing a level */
-        for (p = 0; p < P_NPARAMS; p++)
-            if (proj.par[p] != was.par[p]) {
-                en_set(p, proj.par[p]);
-                oct |= p == P_SEQOCT || p == P_LOCT || p == P_SEQ2OCT;
-            }
-        if (proj.pool != was.pool)
-            en_pool(proj.pool);
-        if (oct)
-            oct_home_take();
-    }
-    mark_dirty();
-    return 0;
-}
-
-ED int ed_slot_install(int i)                    /* slot_in, from a file or a share line, into piece i */
-{
-    if (i < 0 || i >= NPIECES)
-        return -1;
-    pars_clamp(slot_in.par);
-    if (!pool_ok(slot_in.pool))
-        return -1;
-    keep();
-    slot_in.pings_ok = slot_in.pings_ok ? 1 : 0;
-    slot_in.screen = (uint8_t)(slot_in.screen % 3u);
-    proj.slot[i] = slot_in;
-    if (i == proj.piece)
-        reload();
-    mark_dirty();
-    return 0;
-}
-ED void ed_slot_copy(int from, int to)
-{
-    if (from == to)
-        return;
-    keep();
-    proj.slot[to] = proj.slot[from];
-    if (to == proj.piece)
-        reload();
-    mark_dirty();
-}
-ED void ed_slot_swap(int a, int b)
-{
-    slot_t t;
-    if (a == b)
-        return;
-    keep();
-    t = proj.slot[a];
-    proj.slot[a] = proj.slot[b];
-    proj.slot[b] = t;
-    if (a == proj.piece || b == proj.piece)
-        reload();
-    mark_dirty();
-}
-ED void ed_slot_reset(int i)                     /* a piece back to its recipe */
-{
-    if (i == proj.piece) {
-        project_piece_reset();
-        project_apply();
-        oct_home_take();
-        mac_home();
-        en_regrow();
-        say("RESET", piece_name(i));
-    } else {
-        recipe(i, &proj.slot[i]);
-    }
-    mark_dirty();
-}
+ED int ed_slot_install(int i) { return link_slot_install(i, &slot_in); }   /* slot_in, from a file or a share line, into piece i */
+ED void ed_slot_copy(int from, int to) { link_slot_copy(from, to); }
+ED void ed_slot_swap(int a, int b) { link_slot_swap(a, b); }
+ED void ed_slot_reset(int i) { link_slot_reset(i); }

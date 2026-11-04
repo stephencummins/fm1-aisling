@@ -1,0 +1,338 @@
+# 0.5: the USB link (firmware/src/app/link.c), driven as the page and tools/fm1_link.py drive it. Silent until a HELLO, so
+# a DAW on the port never sees a byte; a repeated request does nothing twice; what comes in is checked as flash is at boot;
+# 5 s without a frame and it has gone, and what it held lets go.
+wait 400
+listen
+
+# --- not listening: nothing sent, nothing changes
+expect linkbytes 0
+expect linkon 0
+link beat
+link set 5 77
+link play
+link piece 3
+link save
+link buttons 2
+wait 400
+expect linkbytes 0
+expect linkon 0
+expect par5 40
+expect playing 1
+expect piece 0
+expect view 0
+expect linkheld 0
+expect store_writes 0
+
+# --- HELLO: who it is, then everything
+link hello
+expect linkon 1
+expect linkhellos 1
+expect lhello0 1
+expect lhello1 3
+expect lproj 3112
+expect lslot 352
+expect lpars 133
+expect lhello8 8
+said EDITOR
+wait 700
+expect linkstates >3
+expect linkvals 146
+expect lstatelen 30
+expect lview 0
+expect lpiece 0
+expect lflags 1
+expect lval5 40
+expect linkgood 1
+linkbeat 1
+
+# --- a knob: done, told back, and undoable
+link set 5 77
+expect linkack 0
+expect linkacks 1
+expect par5 77
+wait 200
+expect lval5 77
+expect lflags 5
+wait 900
+expect lundo 1
+link undo
+wait 200
+expect par5 40
+expect lundo 0
+expect lredo 1
+expect lval5 40
+link redo
+wait 200
+expect par5 77
+expect lredo 0
+expect lundo 1
+
+# --- what isn't a knob, or isn't to be set
+link set 214 1
+expect linkack 1
+link set 201 1
+expect linkack 1
+link set 202 1
+expect linkack 1
+link set 180 1
+expect linkack 1
+link nonsense
+expect linkack 1
+link read 0
+expect linkack 1
+expect store_writes 0
+
+# --- out of range: to its end, as turning it would
+link set 5 999
+expect par5 100
+link set 5 -40
+expect par5 0
+link set 5 77
+expect par5 77
+
+# --- the same request again: only the answer. A button isn't pressed twice
+expect playing 1
+link play
+expect playing 0
+linkagain
+expect playing 0
+expect linkack 0
+link play
+expect playing 1
+
+# --- pages
+link view 5 127
+expect view 5
+link view 200 127
+expect linkack 1
+link view 5 9
+expect linkack 1
+link view 0 1
+expect view 0
+expect linkack 0
+
+# --- the real buttons' way in: SEL into PERFORM and out again; held SAVE saves
+link buttons 2
+wait 80
+link buttons 0
+wait 120
+expect view 17
+expect lflags 13
+link buttons 2
+wait 80
+link buttons 0
+wait 120
+expect view 0
+expect lflags 5
+link buttons 128
+wait 700
+link buttons 0
+wait 120
+said SAVED
+expect store_writes 1
+expect lflags 1
+
+# --- a key held, from outside; REC's hold; PERFORM's keys, and the mutes in STATE
+link view 17 127
+wait 150
+expect lmuted 0
+link perf 0 1
+wait 150
+expect lmuted 1
+link perf 0 0
+expect lmuted 1
+link perf 0 1
+wait 150
+expect lmuted 0
+link perf 5 1
+expect moves 1
+wait 150
+expect lmoves 1
+link perf 5 0
+expect moves 0
+link perf 99 1
+expect linkack 1
+link view 0 127
+wait 150
+expect lflags 1
+
+# --- a voice: only a layer's, only in range
+link voice 22 3
+expect par22 3
+expect linkack 0
+link voice 0 1
+expect linkack 1
+link voice 22 99
+expect linkack 1
+expect par22 3
+link voice 110 2
+expect par110 2
+expect linkack 0
+
+# --- reading: all there, and the sum right
+linkread 2
+expect lread 352
+linkkeep
+linkread 2
+expect lsame 1
+linkread 0
+expect lread 3112
+linkread 77
+expect linkack 5
+expect lread 0
+
+# --- writing a piece: a wrong sum refused, a right one taken
+linkread 2
+linkkeep
+linkwrite 2 sumbad
+expect linkack 3
+linkwrite 2
+expect linkack 0
+linkread 2
+expect lsame 1
+link commit 0
+expect linkack 1
+link write 0
+expect linkack 1
+
+# --- a whole project that fails the checks: refused, nothing moves
+linkread 0
+linkkeep
+mark
+linkpoke 274 0
+linkpoke 275 0
+linkwrite 0
+expect linkack 2
+expect marked 0
+linkread 0
+linkkeep
+linkpoke 0 0
+linkwrite 0
+expect linkack 2
+expect marked 0
+linkread 0
+linkkeep
+linkpoke 4 9
+linkwrite 0
+expect linkack 2
+expect marked 0
+
+# --- one that passes, a setting out of range: clamped, as flash is at boot; the same piece carries on
+linkread 0
+linkkeep
+linkpar 5 999
+linkwrite 0
+expect linkack 0
+expect par5 100
+expect piece 0
+expect playing 1
+wait 150
+expect lgen >0
+expect lval5 100
+link set 5 40
+expect par5 40
+
+# --- pieces: copy, swap, reset, go
+linkread 2
+linkkeep
+link copy 1 2
+expect linkack 0
+linkread 3
+expect lsame 1
+link reset 2
+linkread 3
+expect lsame 0
+link swap 1 2
+linkread 3
+expect lsame 1
+link swap 1 2
+link reset 2
+link copy 9 2
+expect linkack 1
+link piece 3
+expect linkack 0
+expect piece 3
+wait 150
+expect lpiece 3
+link piece 99
+expect linkack 1
+link piece 0
+expect piece 0
+
+# --- saving waits for rest
+expect store_writes 1
+link set 5 55
+link save
+expect linkack 0
+wait 200
+expect store_writes 1
+expect lflags 21
+link play
+wait 200
+expect playing 0
+# (the pad dies away, then it goes to flash)
+wait 12000
+expect store_writes 2
+expect lflags 0
+
+# --- a backup back, exactly: what's in flash, read and written back byte for byte, only at rest
+linkread 9
+expect lread 3112
+linkkeep
+link set 5 66
+linkwrite 9
+expect linkack 0
+expect store_writes 3
+linkread 9
+expect lsame 1
+expect par5 55
+expect lflags 0
+expect undo 0
+link play
+wait 200
+expect playing 1
+linkread 9
+linkkeep
+linkwrite 9
+expect linkack 4
+expect store_writes 3
+
+# --- gone: 5 s without a frame. What it held lets go, and it stops talking
+link view 17 127
+link perf 6 1
+link keys 2
+link buttons 512
+wait 100
+expect moves 2
+expect linkheld >0
+linkbeat 0
+listen
+wait 5400
+expect linkon 0
+expect linkheld 0
+expect moves 0
+said EDITOR
+linkzero
+wait 600
+expect linkbytes 0
+link beat
+link set 5 12
+wait 200
+expect linkbytes 0
+expect par5 55
+
+# --- back, and BYE
+link hello
+expect linkon 1
+expect linkhellos 1
+wait 200
+expect linkstates >0
+link buttons 2
+expect linkheld 2
+link bye
+expect linkon 0
+expect linkheld 0
+linkzero
+wait 400
+expect linkbytes 0
+expect linkgood 1
