@@ -16,6 +16,9 @@ extern uint32_t _pool_start[], _pool_end[], _rt_start[], _rt_end[], _rt_load[];
 _Static_assert(REND_FRAMES == UA_HALF, "usb.c sizes the USB audio ring band for this block");
 #endif
 static int32_t abuf[2u * HALF_WORDS] __attribute__((aligned(4)));
+#if FELUCCA_UAC
+static int32_t ubuf[2u * REND_FRAMES];              /* USB audio's pair, before MASTER (en_usb_out) */
+#endif
 
 #define DBG_MAGIC 0x44424731u                       /* "DBG1": read with `fm1t memr` */
 struct en_dbg {
@@ -35,9 +38,12 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
     {
         uint32_t k;
         for (k = 0; k < HALF_FRAMES; k += REND_FRAMES) {
+#if FELUCCA_UAC
+            en_usb_out = uac.feed ? ubuf : 0;       /* (made only while a computer is reading) */
+#endif
             en_render(o + 2u * k, REND_FRAMES, master_q12);
 #if FELUCCA_UAC
-            uac_tap(o + 2u * k, REND_FRAMES);       /* the USB audio input: the same master output */
+            uac_tap(ubuf, REND_FRAMES);             /* the USB audio input: before MASTER, so at any volume */
 #endif
         }
     }

@@ -32,6 +32,8 @@ run usb-desc sh -c "$CC -O2 -w -DT_CDC=0 -Ifirmware/src -Ifirmware/hal -o $OUT/u
 run usb-desc-cdc sh -c "$CC -O2 -w -DT_CDC=1 -Ifirmware/src -Ifirmware/hal -o $OUT/usb_desc_cdc tests/host/usb_desc_test.c -lm && $OUT/usb_desc_cdc"
 run amb sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
     -o $OUT/amb_test tests/host/amb_test.c firmware/src/dsp/amb.c -lm && $OUT/amb_test"
+run usbtap sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
+    -o $OUT/usbtap_test tests/host/usbtap_test.c firmware/src/dsp/amb.c -lm && $OUT/usbtap_test"
 run golden sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -DEN_HOST -Ifirmware/src/dsp \
     -o $OUT/golden_test tests/host/golden_test.c firmware/src/dsp/amb.c -lm && $OUT/golden_test"
 run seq sh -c "$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wdouble-promotion -Werror -Ifirmware/src/dsp -o $OUT/seq_test tests/host/seq_test.c firmware/src/dsp/seq.c && $OUT/seq_test"
