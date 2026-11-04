@@ -68,6 +68,30 @@ static int page_of(int v)                        /* a sound page: its layer's; t
 /* the header's dots, as the buttons sit on the panel: FX ENV LFO GLO, then HOME SAVE ARP SEQ (SELECT's round once) */
 #define NROUND 8
 static const uint8_t PAGE_ORDER[NROUND] = {V_SPACE, V_CHORD, V_BASS, V_SETUP, V_DUB, V_NSND, V_TEXTURE, V_DRUMS};
+/* (0.5) each round stop's pages, in the order its button steps through them: the dots at the knob rule's right end */
+#define NO_PAGE 0xFFu
+static const uint8_t PAGE_RUN[NROUND][4] = {
+    {V_SPACE, V_ESND, NO_PAGE, NO_PAGE},   {V_CHORD, V_CSND, V_CFM, NO_PAGE},
+    {V_BASS, V_BSND, V_LSTYLE, V_BFM},     {V_SETUP, V_ARC, NO_PAGE, NO_PAGE},
+    {V_DUB, V_KEY, NO_PAGE, NO_PAGE},      {V_NSND, V_NSND2, V_AMOVE, NO_PAGE},
+    {V_TEXTURE, V_PSND, V_PFM, V_SMOVE},   {V_DRUMS, V_DSND, V_PAT, V_S2MOVE},
+};
+static int page_dots(int v, int *at)             /* how many pages v's button has (0: v is on none), and which is v */
+{
+    int r, j, n;
+    for (r = 0; r < NROUND; r++)
+        if (PAGE_ORDER[r] == page_of(v))
+            break;
+    if (r == NROUND || page_of(v) == V_MIX || page_of(v) == V_PERF)
+        return 0;
+    for (j = n = 0; j < 4; j++)
+        if (PAGE_RUN[r][j] != NO_PAGE) {
+            if (PAGE_RUN[r][j] == v)
+                *at = j;
+            n++;
+        }
+    return n;
+}
 /* the layer a page is (SELECT: its level; OCT- / OCT+: its octave): the Chord, Pings, Bass, Drums and Noise pages
  * and their sound, FM and Pattern pages; -1 elsewhere (the Chords page too) */
 #define NLAYER 5
@@ -225,6 +249,7 @@ static struct {
     uint8_t s2_hand;                   /* Sequence 2's Octave set by hand while Motion had it shifted: the shift not
                                         * shown till the engine has dropped it (a block later) */
     uint32_t card_until, card_t0;      /* a nudge's card in the middle: up until, then fading; when it came */
+    uint32_t flash_until;              /* (0.5) a button's new page: its name large, up until, then fading */
     uint8_t card_shake;                /* the card a big move's (red: a shake, new chords, a reset) or not */
     uint16_t card_col;                 /* its colour */
     uint8_t lock;                      /* Lock (SEL held): each phrase keeps what it has */
@@ -305,6 +330,9 @@ static int str_begins(const char *s, const char *p)   /* (the firmware's libc ha
     return !*p;
 }
 static int card_on(uint32_t now) { return ui.card_until && now < ui.card_until + CARD_FADE; }
+#define FLASH_SHOW 700u
+#define FLASH_FADE 200u
+static int flash_on(uint32_t now) { return ui.flash_until && now < ui.flash_until + FLASH_FADE; }
 static void card_show(const char *head, const char *text, uint16_t col, int big)
 {
     int i;
@@ -1325,6 +1353,7 @@ static void input(void)
 {
     uint32_t btn = plat_buttons(), keys = plat_keys(), ch, i;
     int32_t e;
+    const int view_was = ui.view;
     ch = btn ^ ui.btn;
     ui.btn = btn;
     for (i = 0; i < NB; i++) {
@@ -1354,6 +1383,8 @@ static void input(void)
             button((int)i);
         }
     }
+    if (ui.view != view_was)                     /* (0.5) a button brought a new page: its name, large, for a moment */
+        ui.flash_until = plat_ms() + FLASH_SHOW;
     for (i = 0; i < NNUDGE; i++) {               /* a layer's button held: a nudge; held on: a shake (its release
                                                   * then does nothing) */
         static uint8_t shaken;
@@ -2243,6 +2274,29 @@ static void draw_card(uint32_t now)
     text_c(CX, y + 28, &FONT_XS, ui.card_text, tc);
 }
 
+/* (0.5) a button's new page: its name, large, and its button's pages as dots, on the chord, for a moment (a card, which
+ * says more, goes first) */
+static void draw_flash(uint32_t now)
+{
+    const int32_t w = 212, h = 50, x = CX - w / 2, y = CY - 25;
+    char t[16];
+    int f, at = 0, n, j;
+    uint16_t on;
+    if (!flash_on(now) || card_on(now))
+        return;
+    f = now < ui.flash_until ? 16 : 16 - (int)((now - ui.flash_until) * 16u / FLASH_FADE);
+    on = mix(K_BG, K_ACC, f);
+    caps(t, VIEW_NAME[ui.view], sizeof t);
+    cv_round(x, y, w, h, 5, mix(K_BG, K_PANEL, f));
+    n = page_dots(ui.view, &at);
+    if (text_w(&FONT_L, t) <= w - 8)
+        text_c(CX, y + (n ? 0 : 8), &FONT_L, t, on);
+    else
+        text_c(CX, y + (n ? 6 : 13), &FONT_C, t, on);
+    for (j = 0; j < n; j++)
+        cv_round(CX - (n * 10 - 4) / 2 + j * 10, y + 38, 6, 6, 3, j == at ? on : mix(K_BG, K_DIM, f / 2));
+}
+
 #define AISLING_BY "CU_STE"                      /* (the user's name, as signed (2026-10-30): on the main screen and the launch screen) */
 #define AISLING_AT "www.stephen8n.com"           /* (and the user's site, under it on the launch screen) */
 static void draw_main(void)
@@ -2274,12 +2328,13 @@ static void draw_main(void)
         h = hash(hash(0x50415454u, ui.lane | (uint32_t)proj.par[P_SMODE] << 4 | (uint32_t)en_drum_pos[0] << 8), en_playing);
         for (i = 0; i < EN_NDRUM; i++)
             h = hash(hash(h, lane_steps((int)i)), (uint32_t)(uint16_t)proj.par[P_SACC0 + lane_seq((int)i)]);
-        h = hash(h, (uint32_t)oct_ring_on(now));
-        if (h != ui.sig[1] || oct_ring_on(now)) {
+        h = hash(h, (uint32_t)oct_ring_on(now) | (uint32_t)flash_on(now) << 1);
+        if (h != ui.sig[1] || oct_ring_on(now) || flash_on(now)) {
             ui.sig[1] = h;
             cv_begin(240, MAIN_H, K_BG);
             draw_pattern();
             draw_oct(now);
+            draw_flash(now);
             cv_blit(0, MAIN_Y);
         }
         return;
@@ -2288,10 +2343,12 @@ static void draw_main(void)
         h = hash(hash(0x43484F52u, ui.slot | (uint32_t)proj.par[P_PMODE] << 4), (uint32_t)en_prog_pos + 1u);
         for (i = 0; i < EN_NPROG; i++)
             h = hash(h, (uint32_t)proj.par[P_CR0 + i] | (uint32_t)proj.par[P_CQ0 + i] << 4 | (uint32_t)proj.par[P_CX0 + i] << 8);
-        if (h != ui.sig[1]) {
+        h = hash(h, (uint32_t)flash_on(now));
+        if (h != ui.sig[1] || flash_on(now)) {
             ui.sig[1] = h;
             cv_begin(240, MAIN_H, K_BG);
             draw_slots();
+            draw_flash(now);
             cv_blit(0, MAIN_Y);
         }
         return;
@@ -2318,8 +2375,8 @@ static void draw_main(void)
             h = hash(h, (uint32_t)(proj.par[VIEW_KNOB[ui.view][i]] + 64));
         h = hash(h, (uint32_t)proj.par[view_voice(ui.view)] | (uint32_t)proj.par[P_DECAY] << 8 | (uint32_t)proj.par[P_SEQGRID] << 16);
     }
-    h = hash(h, (uint32_t)card_on(now));
-    if (h == ui.sig[1] && !moving && !oct_ring_on(now) && !card_on(now))
+    h = hash(h, (uint32_t)card_on(now) | (uint32_t)flash_on(now) << 1);
+    if (h == ui.sig[1] && !moving && !oct_ring_on(now) && !card_on(now) && !flash_on(now))
         return;
     ui.sig[1] = h;
     cv_begin(240, MAIN_H, K_BG);
@@ -2427,6 +2484,7 @@ static void draw_main(void)
     }
     draw_oct(now);
     draw_card(now);
+    draw_flash(now);
     cv_blit(0, MAIN_Y);
 }
 
@@ -2500,9 +2558,13 @@ static void draw_knobs(void)
             if (xt < 234)
                 cv_rect(xt, 5, 234 - xt, 1, K_LINE);
         } else {
-            xt = 234;                            /* (1.3.0: the page's name and its dots top right now; here the rule) */
+            int at = 0, n = page_dots(ui.view, &at);
+            xt = 234 - n * 8;                    /* (1.3.0: the page's name and the round's dots top right; here the rule,
+                                                  * and at its end (0.5) a dot for each page of this button) */
             cv_rect(x0, 5, xt - x0, 1, K_LINE);
-            (void)xd, (void)k;
+            for (k = 0; k < n; k++)
+                cv_round(xt + 3 + k * 8, 3, 5, 5, 2, k == at ? K_ACC : K_LINE);
+            (void)xd;
         }
     }
     for (i = 0; i < 4; i++) {

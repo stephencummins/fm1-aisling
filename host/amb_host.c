@@ -676,6 +676,17 @@ static int expect(const char *what, const char *val)
         got = en_section;
     else if (!strcmp(what, "card"))               /* a nudge's card in the middle: 1 a nudge's, 2 a shake's (0: none) */
         got = card_on(plat_ms()) ? 1 + ui.card_shake : 0;
+    else if (!strcmp(what, "flash"))              /* a button's new page: its name, large (0.5) */
+        got = flash_on(plat_ms());
+    else if (!strcmp(what, "pagedots")) {         /* how many pages this page's button has (0.5) */
+        int at = 0;
+        got = page_dots(ui.view, &at);
+    }
+    else if (!strcmp(what, "pagedot")) {          /* and which of them this is */
+        int at = -1;
+        page_dots(ui.view, &at);
+        got = at;
+    }
     else if (!strcmp(what, "lock"))               /* PERFORM's Lock (SEL held) */
         got = ui.lock;
     else if (!strcmp(what, "octring"))            /* the level ring showing: its layer + 1 (0: none) */

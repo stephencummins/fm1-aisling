@@ -1,0 +1,135 @@
+# 0.5: where you are. A dot per page of the button's own walk, and the page's name large for a moment on a press
+wait 300
+expect view 0
+expect pagedots 2
+expect pagedot 0
+expect flash 0
+tap HOME
+wait 40
+expect view 18
+expect pagedot 1
+expect flash 1
+wait 1000
+expect flash 0
+tap HOME
+wait 40
+expect view 0
+expect pagedot 0
+tap ENV
+wait 40
+expect view 1
+expect pagedots 3
+expect pagedot 0
+expect flash 1
+tap ENV
+wait 40
+expect pagedot 1
+tap ENV
+wait 40
+expect pagedot 2
+tap ENV
+wait 40
+expect view 1
+expect pagedot 0
+tap ARP
+wait 40
+expect view 2
+expect pagedots 4
+expect pagedot 0
+tap ARP
+wait 40
+expect pagedot 1
+tap ARP
+wait 40
+expect pagedot 2
+tap ARP
+wait 40
+expect pagedot 3
+tap ARP
+wait 40
+expect pagedot 0
+tap LFO
+wait 40
+expect pagedots 4
+expect pagedot 0
+tap LFO
+wait 40
+expect pagedot 1
+tap LFO
+wait 40
+expect pagedot 2
+tap LFO
+wait 40
+expect pagedot 3
+tap LFO
+wait 40
+expect pagedot 0
+tap SEQ
+wait 40
+expect pagedots 4
+expect pagedot 0
+tap SEQ
+wait 40
+expect pagedot 1
+tap SEQ
+wait 40
+expect view 16
+expect pagedot 2
+expect flash 1
+tap SEQ
+wait 40
+expect pagedot 3
+tap SEQ
+wait 40
+expect pagedot 0
+tap FX
+wait 40
+expect pagedots 2
+expect pagedot 0
+tap FX
+wait 40
+expect pagedot 1
+tap GLO
+wait 40
+expect pagedots 2
+expect pagedot 0
+tap GLO
+wait 40
+expect pagedot 1
+tap SAVE
+wait 40
+expect pagedots 3
+expect pagedot 0
+tap SAVE
+wait 40
+expect pagedot 1
+tap SAVE
+wait 40
+expect pagedot 2
+tap SAVE
+wait 40
+expect pagedot 0
+# a page with one view has no dots: the Chords page, PERFORM
+tap EDIT
+wait 40
+expect view 15
+expect pagedots 0
+expect flash 1
+tap SEL
+wait 40
+expect view 17
+expect pagedots 0
+expect flash 1
+tap SEL
+wait 40
+expect view 15
+# a nudge brings a page too, with its own card: no name over it
+tap HOME
+wait 1000
+expect flash 0
+press ENV
+wait 600
+release ENV
+wait 40
+expect flash 0
+expect card 1
