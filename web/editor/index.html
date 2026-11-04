@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING editor</title>
+<meta name="description" content="Every setting of a piece on one panel, for AISLING on the M-VAVE FM-1. A design draft, running on a copy of the firmware in this page.">
+<link rel="stylesheet" href="editor.css">
+<!--AISLING-HEAD-->
+</head>
+<body class="ed-page" style="--brand-bench:1240px">
+<!--AISLING-BAR-->
+<main class="ed" id="ed" aria-label="AISLING editor">
+  <header class="ed-head">
+    <div class="ed-tabs" role="tablist" aria-label="Editor views">
+      <button class="ed-tab" role="tab" id="tab-play" aria-controls="v-play" aria-selected="true" data-quiet>Play</button>
+      <button class="ed-tab" role="tab" id="tab-library" aria-controls="v-library" aria-selected="false" tabindex="-1" data-quiet>Library</button>
+      <button class="ed-tab" role="tab" id="tab-look" aria-controls="v-look" aria-selected="false" tabindex="-1" data-quiet>Look</button>
+    </div>
+    <div class="ed-hist">
+      <button class="ebtn" id="undo" disabled><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3 2.5 6.5 6 10M3 6.5h6.5a3.5 3.5 0 0 1 0 7H7"/></svg><span id="undo-t">Undo</span></button>
+      <button class="ebtn" id="redo" disabled><span id="redo-t">Redo</span><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3l3.5 3.5L10 10M13 6.5H6.5a3.5 3.5 0 0 0 0 7H9"/></svg></button>
+      <button class="ebtn" id="save" title="Keep this piece. On the FM-1: hold GLO for half a second">Saved</button>
+    </div>
+    <div class="ed-link">
+      <span class="pill" id="link-state"><i></i>No FM-1</span>
+      <button class="ebtn fill" id="connect" data-quiet>Connect</button>
+    </div>
+  </header>
+  <p class="ed-note" id="note" role="status" hidden></p>
+
+  <section class="ed-view" id="v-play" role="tabpanel" aria-labelledby="tab-play">
+    <div class="bar" id="transport"></div>
+    <div class="cards" id="cards" role="group" aria-label="The eight pieces"></div>
+    <div class="wells">
+      <div class="well chs" id="strips" role="group" aria-label="The five layers"></div>
+      <div class="well rw">
+        <div class="rw-tabs" id="rw-tabs" role="tablist" aria-label="The FM-1's pages, by the button that opens them"></div>
+        <div class="rw-body">
+          <div class="rw-screen">
+            <div class="bezel"><canvas id="screen" width="240" height="240" role="img" aria-label="The FM-1's screen, live"></canvas></div>
+            <div class="help" id="help">
+              <p id="help-t"></p>
+              <p class="help-fm" id="help-fm"></p>
+            </div>
+          </div>
+          <div class="rw-pages" id="rw-pages"></div>
+        </div>
+      </div>
+    </div>
+    <div class="kbd" id="kbd"></div>
+  </section>
+
+  <section class="ed-view" id="v-library" role="tabpanel" aria-labelledby="tab-library" hidden></section>
+  <section class="ed-view" id="v-look" role="tabpanel" aria-labelledby="tab-look" hidden></section>
+</main>
+<p class="ed-foot" id="foot"></p>
+<noscript><p class="ed-foot">The editor needs JavaScript: it runs a copy of AISLING's firmware in this page.</p></noscript>
+<script src="engine.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>
