@@ -38,6 +38,42 @@ expect notes_ch2 >0
 tap ENV
 wait 300
 expect view 1
+# (0.5) SEL again leaves it too, back to the page it came from: here the Drone's, then its sound page. It says so,
+# and the keys are the Lead's again: mutes stay
+tap SEL
+wait 300
+expect view 17
+tap SEL
+wait 300
+expect view 1
+said PERFORM OFF
+tap ENV
+wait 300
+expect view 8
+tap SEL
+wait 300
+expect view 17
+tap SEL
+wait 300
+expect view 8
+# (from the Mix page, D4 held: back to PERFORM's page, not out)
+tap SEL
+wait 300
+expect view 17
+key w5 down
+wait 200
+expect view 7
+tap SEL
+wait 300
+expect view 17
+key w5 up
+wait 200
+expect view 17
+tap SEL
+wait 300
+expect view 8
+tap ENV
+wait 300
 # (BERLIN) the keys follow the meters, left to right: white 4 Sequence 2 (the 4th meter), white 5 the Atmosphere (the
 # 5th), the other untouched; a solo (black 4: Sequence 2) leaves the Atmosphere out too (Aran, AISLING's: Fire,
 # both sequences, Sequence 2 opening over its first 8 bars; Sequence 2 heard: its meter above 2, a moment's reading,

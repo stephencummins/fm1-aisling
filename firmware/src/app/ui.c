@@ -1041,12 +1041,15 @@ static void button(int b)
             return;
         }
     switch (b) {
-    case B_SEL:                                  /* PERFORM: one page, so again stays (1.3.0: a page's button
-                                                  * leaves it) */
+    case B_SEL:                                  /* PERFORM; again: back to the page it came from (0.5; a page's
+                                                  * button leaves it too, for that page). Off the Mix page (D4
+                                                  * held), back to PERFORM's */
         if (!ui.perf)
             perf_set(1);
         else if (ui.view == V_MIX)
             set_view(V_PERF);
+        else
+            perf_set(0);
         break;
     case B_EDIT:                                 /* (its release: edit_released, in input) */
         break;
