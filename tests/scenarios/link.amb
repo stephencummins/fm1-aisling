@@ -288,6 +288,19 @@ expect lsame 1
 expect par5 55
 expect lflags 0
 expect undo 0
+# (a bad one, at rest: refused before anything reaches flash)
+linkpoke 0 0
+linkwrite 9
+expect linkack 2
+expect store_writes 3
+linkread 9
+expect lread 3112
+linkkeep
+linkpoke 274 0
+linkpoke 275 0
+linkwrite 9
+expect linkack 2
+expect store_writes 3
 link play
 wait 200
 expect playing 1

@@ -161,6 +161,7 @@ class Editor extends AudioWorkletProcessor {
         this.port.postMessage({ type: "reply", id: m.id, ok });
         break;
       }
+      case "resend": this.resend = true; this.sentHist = ""; this.sentPieces = ""; this.publish(); break;   // (publishes here: a suspended context runs no process)
       default: break;
     }
   }

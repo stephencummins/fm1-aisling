@@ -360,3 +360,12 @@
   .ed * { transition: none !important; }
 }
 .ed-fail { padding: 24px 12px; color: var(--vellum); }
+
+/* connected to an FM-1: the page makes no sound, and the screen and the volume are the FM-1's */
+.pill.on { color: var(--vellum); }
+.pill.on i { background: var(--green); border-color: var(--green); }
+.ed-linked .t-vol { opacity: .55; }
+.ed-linked .t-vol .hs, .ed-linked .t-vol .hs-track { cursor: default; }
+.ed-linked .rw-screen .bezel { position: relative; }
+.ed-linked .rw-screen .bezel canvas { visibility: hidden; }
+.ed-linked .rw-screen .bezel::after { content: "The screen is on your FM-1"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; color: var(--muted-hi); font-size: 12px; }

@@ -86,6 +86,8 @@
     pieces: [], hist: { undo: null, redo: null }, fb: null, fbDirty: false, master: 2800,
     look: null, lookName: "AISLING", identity: true, pal: null,
     libSel: 0, shelfSel: -1, pick: null, shelf: [],
+    link: null, linking: false, access: null, saving: false, pieceHold: 0, linkUn: -1, linkRn: -1, linkGen: -1, linkPiece: -1, linkRaw: -1,
+    piecesAt: 0, piecesBy: 0, piecesBusy: false, liftAll: null,
   };
   let Q, Qmem, K_NONE, K_CPU, K_SAVE, K_MODE, P_TEMPO, P_ROOT, P_MODE, NPARAMS;
   const qstr = (at) => globalThis.AislingEngine.str(Qmem, at);
@@ -100,7 +102,10 @@
   };
 
   /* ---------- the worklet ---------- */
-  function post(m) { if (S.node) S.node.port.postMessage(m); else S.queue.push(m); }
+  function post(m) {
+    if (S.link) { S.link.post(m); return; }          // connected: the same messages go to the FM-1
+    if (S.node) S.node.port.postMessage(m); else S.queue.push(m);
+  }
 
   async function start(rest) {
     if (S.started) return;
@@ -113,13 +118,13 @@
       await ac.audioWorklet.addModule("worklet.js");
       const node = new AudioWorkletNode(ac, "aisling-editor", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
       node.connect(ac.destination);
-      node.port.onmessage = (e) => onWorklet(e.data);
+      node.port.onmessage = (e) => { if (S.link && e.data.type === "frame") return; onWorklet(e.data); };
       const wasm = S.wasm.slice(0);
       node.port.postMessage({ type: "load", wasm, store: loadStore(), master: S.master, knobs: S.knobs, rest }, [wasm]);
       S.node = node;
       for (const m of S.queue) node.port.postMessage(m);
       S.queue = [];
-      ac.resume();
+      if (!S.link) ac.resume();
     } catch (e) {
       S.started = false;
       note("The sound couldn't start in this browser. Chrome, Edge or Safari will do it.");
@@ -127,6 +132,7 @@
   }
 
   function firstGesture(e) {
+    if (S.link) return;                              // connected: this page makes no sound
     if (S.started) { if (S.ac && S.ac.state !== "running") S.ac.resume(); return; }
     const t = e.target.closest && e.target.closest("button, select, input, [role=slider], .k");
     if (!t || !t.closest(".ed") || t.closest("[data-quiet]")) return;
@@ -140,14 +146,27 @@
     firstGesture(e);
   }, true);
   for (const t of ["pointerup", "click", "keydown"]) {
-    document.addEventListener(t, () => { if (S.ac && S.ac.state !== "running") S.ac.resume(); }, true);
+    document.addEventListener(t, () => { if (!S.link && S.ac && S.ac.state !== "running") S.ac.resume(); }, true);
   }
 
   const pending = new Map();
   let reqId = 0;
   function request(m) {
-    if (!S.started) start(true);
+    if (!S.started && !S.link) start(true);
     return new Promise((res) => { const id = ++reqId; pending.set(id, res); post({ ...m, id }); });
+  }
+
+  function takeVals(vals, t) {
+    for (let i = 0; i < vals.length; i += 3) {
+      const k = vals[i], v = vals[i + 1], text = vals[i + 2];
+      if ((S.hold.get(k) || 0) > t) {                   // this control has just been moved: an older echo mustn't move it back
+        const cur = S.vals.get(k);
+        if (cur && cur.v === v) { cur.text = text; show(k); S.echo.delete(k); } else S.echo.set(k, { v, text });
+      } else {
+        S.vals.set(k, { v, text });
+        show(k);
+      }
+    }
   }
 
   function onWorklet(m) {
@@ -155,22 +174,11 @@
     if (m.type === "reply") { const r = pending.get(m.id); pending.delete(m.id); if (r) r(m); return; }
     if (m.type !== "frame") return;
     const t = now();
-    if (m.vals) {
-      for (let i = 0; i < m.vals.length; i += 3) {
-        const k = m.vals[i], v = m.vals[i + 1], text = m.vals[i + 2];
-        if ((S.hold.get(k) || 0) > t) {                   // this control has just been moved: an older echo mustn't move it back
-          const cur = S.vals.get(k);
-          if (cur && cur.v === v) { cur.text = text; show(k); S.echo.delete(k); } else S.echo.set(k, { v, text });
-        } else {
-          S.vals.set(k, { v, text });
-          show(k);
-        }
-      }
-    }
+    if (m.vals) takeVals(m.vals, t);
     if (m.fb) { S.fb = m.fb; S.fbDirty = true; }
     if (m.hist) showHist(m.hist);
     if (m.store) saveStore(m.store);
-    if (m.piece !== S.piece) { S.piece = m.piece; pieceMoved(); }
+    if (m.piece !== S.piece && t > S.pieceHold) { S.piece = m.piece; pieceMoved(); }
     if (m.pieces) { S.pieces = m.pieces; renderPieces(); }
     if (m.view !== S.view && t > S.viewHold) setView(m.view);
     if (m.playing !== S.playing) { S.playing = m.playing; renderPlay(); }
@@ -201,7 +209,7 @@
   function change(k, v) {
     const old = S.vals.get(k);
     S.vals.set(k, { v, text: valueText(k, v) || (old ? old.text : "") });
-    S.hold.set(k, now() + 180);
+    S.hold.set(k, now() + (S.link ? 400 : 180));
     S.echo.delete(k);
     show(k);
     S.sets.set(k, v);
@@ -212,7 +220,7 @@
     S.sets.clear();
   }
   function goView(v, knob) {
-    S.viewHold = now() + 200;
+    S.viewHold = now() + (S.link ? 400 : 200);
     post({ type: "view", v, knob: knob == null ? -1 : knob });
     if (v !== S.view) setView(v);
   }
@@ -431,7 +439,7 @@
     $("help-fm").textContent = fm || "";
   }
   function help(node, t, fm) {
-    const on = () => setHelp(t, fm), off = () => setHelp();
+    const on = () => setHelp(typeof t === "function" ? t() : t, typeof fm === "function" ? fm() : fm), off = () => setHelp();
     node.addEventListener("pointerenter", on);
     node.addEventListener("focusin", on);
     node.addEventListener("pointerleave", off);
@@ -454,6 +462,7 @@
 
   const ICO_PLAY = "M4 2.5v11l9-5.5z", ICO_REST = "M4 3h3v10H4zM9 3h3v10H9z";
   let playBtn, playIco, playT, holdBtn;
+  let masterCtl, volNode;
   function buildTransport() {
     playIco = sv("path", { d: ICO_PLAY });
     playT = el("span", { class: "t-play" }, "Play");
@@ -474,20 +483,21 @@
     help(root, Q_help(V_KEY, 1), fmKnob(V_KEY, 1));
     help(mode, Q_help(V_KEY, 2), fmKnob(V_KEY, 2));
 
-    const master = { k: -1, label: "Volume", lo: 0, hi: 4096, range: 4096, step: 64, undoable: false, centre: false, value: () => S.master,
+    const master = masterCtl = { k: -1, label: "Volume", lo: 0, hi: 4096, range: 4096, step: 64, undoable: false, centre: false, value: () => S.master,
       set: (v) => {
+        if (S.link) return;                          // the FM-1's own knob: nothing here reaches it
         S.master = v;
         post({ type: "master", v });
         lsSet(KEY_MASTER, String(v));
         master.render(v, `${Math.round(100 * v / 4096)}%`);
       } };
-    const vol = makeHS(master, "Volume", { free: true });
-    help(vol, "This page's volume, separate from the piece. Not in undo.", "On the FM-1: MASTER");
+    const vol = volNode = makeHS(master, "Volume", { free: true });
+    help(vol, () => (S.link ? "The FM-1's MASTER knob sets its analogue volume; this shows where it is. USB audio isn't affected by it." : "This page's volume, separate from the piece. Not in undo."), "On the FM-1: MASTER");
     master.render(S.master, `${Math.round(100 * S.master / 4096)}%`);
 
     $("transport").append(playBtn, holdBtn, el("div", { class: "t-group t-slider" }, tempoN),
       el("div", { class: "t-group" }, el("span", null, "Key"), root, mode),
-      el("div", { class: "t-group t-slider" }, vol),
+      el("div", { class: "t-group t-slider t-vol" }, vol),
       el("div", { class: "t-group t-right" }, el("span", null, "Pieces"), badge("PRESETS")));
   }
   function renderPlay() {
@@ -506,7 +516,7 @@
     for (let i = 0; i < Q.ed_npieces(); i++) {
       const key = el("span", { class: "card-key" }), dot = el("i", { class: "dot-edited", title: "Changed from its recipe", hidden: true });
       const b = el("button", { class: "card", type: "button", "data-plays": true, "aria-pressed": "false", onclick: () => {
-        if (i !== S.piece) { post({ type: "piece", i, label: `Piece ${nameOf(i)}` }); S.piece = i; pieceMoved(); }
+        if (i !== S.piece) { post({ type: "piece", i, label: `Piece ${nameOf(i)}` }); S.pieceHold = now() + (S.link ? 400 : 0); S.piece = i; pieceMoved(); }
       } }, el("span", { class: "card-n" }, i + 1), el("span", { class: "card-name" }, nameOf(i)), el("span", { class: "card-air", title: AIRS[i] }, AIRS[i]), key, dot);
       help(b, `${nameOf(i)} opens on ${AIRS[i]}.`, "On the FM-1: the PRESETS knob");
       cards.push({ b, key, dot });
@@ -582,7 +592,7 @@
       const b = el("button", { class: "savebtn", type: "button", onclick: () => post({ type: "save" }) }, "Saved");
       saveBtns.push(b);
       const w = el("div", { class: "seg-w" }, el("span", { class: "seg-l" }, label), b);
-      help(w, Q_help(v, i), "On the FM-1: hold GLO for half a second");
+      help(w, Q_help(v, i), "On the FM-1: hold SAVE or GLO for half a second");
       return w;
     }
     const lo = Q.ed_lo(k), hi = Q.ed_hi(k);
@@ -632,10 +642,11 @@
     strips.forEach((s, j) => s.el.classList.toggle("open", TABS[i].layer === j));
   }
   function renderSave() {
-    const b = $("save");
-    b.textContent = S.dirty ? "Save" : "Saved";
-    b.disabled = !S.dirty;
-    for (const s of saveBtns) { s.textContent = S.dirty ? "Save" : "Saved"; s.classList.toggle("dirty", S.dirty); }
+    const b = $("save"), text = S.saving ? "Saves on stop" : S.dirty ? "Save" : "Saved";
+    b.textContent = text;
+    b.disabled = !S.dirty || S.saving;
+    b.title = S.saving ? "The FM-1 saves when it's at rest, so the music isn't interrupted. Stop it, or hold SAVE on the FM-1 to save now." : "Keep this piece. On the FM-1: hold SAVE or GLO for half a second";
+    for (const s of saveBtns) { s.textContent = text; s.classList.toggle("dirty", S.dirty); }
   }
   function renderLights() {
     for (const b of badges) b.el.classList.toggle("lit", !!(S.buttons >> b.bit & 1));
@@ -692,6 +703,7 @@
       if (held.size) { held.clear(); keysChanged(); }
       if (S.btnsDown) { S.btnsDown = 0; octs.forEach((o) => o.el.classList.remove("down")); post({ type: "buttons", mask: 0 }); }
     };
+    S.liftAll = liftAll;
     window.addEventListener("blur", liftAll);
     document.addEventListener("visibilitychange", () => { if (document.hidden) liftAll(); });
 
@@ -880,9 +892,9 @@
         el("div", null, el("h2", null, "Share it"), el("div", { class: "lk-share" }, lookShare,
           el("button", { class: "ebtn", type: "button", "data-quiet": true, onclick: copy }, "Copy"),
           el("button", { class: "ebtn", type: "button", "data-quiet": true, onclick: paste }, "Use a pasted line")), lookStatus),
-        el("div", { class: "lk-act" }, dashed("Send to FM-1", "Sending a look arrives with a later firmware: on 0.4 the FM-1's colours are built in."),
-          dashed("Read from FM-1", "Reading a look arrives with a later firmware: on 0.4 the FM-1's colours are built in.")),
-        el("p", null, "This repaints the picture on this page. On 0.4 the FM-1's own colours are built in, so nothing here reaches it yet."))));
+        el("div", { class: "lk-act" }, dashed("Send to FM-1", "Sending a look arrives with a later firmware: for now the FM-1's colours are built in."),
+          dashed("Read from FM-1", "Reading a look arrives with a later firmware: for now the FM-1's colours are built in.")),
+        el("p", null, "This repaints the picture on this page. For now the FM-1's own colours are built in, so nothing here reaches it yet."))));
   }
 
   async function copyText(t) {
@@ -890,7 +902,9 @@
   }
 
   /* ---------- the library ---------- */
-  let libRows = [], shelfList, shelfMeta, libStatus, pickBar, pickText, shareBox, shareField, keepBtn, placeBtn;
+  let libRows = [], shelfList, shelfMeta, libStatus, pickBar, pickText, shareBox, shareField, keepBtn, placeBtn, libSub, libConnect;
+  const undoLine = (t) => (S.link ? "" : ` ${t}`);   // the FM-1's undo holds the piece playing, not the library
+  const noRead = () => status("That couldn't be read from the FM-1. Check the cable and try again.", true);
   const status = (t, bad) => { libStatus.textContent = t; libStatus.classList.toggle("bad", !!bad); };
   const today = () => new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" });
   const FWV = () => qstr(Q.ed_version());
@@ -921,14 +935,13 @@
       if (!ok) shareField.select();
     }) }, "Copy"));
     libStatus = el("p", { class: "lib-status", id: "lib-status", role: "status" });
-    const needs = "Connecting to an FM-1 arrives with 0.5. For now these are the pieces in this page's copy of AISLING.";
     $("v-library").append(
       el("div", { class: "lib" },
         el("div", { class: "well lib-w" },
           el("div", { class: "lib-h" }, el("h2", null, "Your eight pieces")),
-          el("p", { class: "lib-sub" }, "Held in this page's copy of AISLING until 0.5 can read your FM-1."),
+          libSub = el("p", { class: "lib-sub" }),
           list,
-          el("div", { class: "lib-foot" }, dashed("Read from FM-1", needs), dashed("Send to FM-1", needs))),
+          el("div", { class: "lib-foot" }, libConnect = el("button", { class: "ebtn", type: "button", "data-quiet": true, onclick: connect }, "Connect an FM-1"))),
         el("div", { class: "lib-mid" }, keepBtn, placeBtn),
         el("div", { class: "well lib-w" },
           el("div", { class: "lib-h" }, el("h2", null, "On this computer"), shelfMeta),
@@ -985,10 +998,10 @@
       if (i === from) { status("That's the same piece: nothing changed."); return; }
       if (kind === "swap") {
         post({ type: "swap", a: from, b: i, label: `Swap ${nameOf(from)} and ${nameOf(i)}` });
-        status(`Swapped ${nameOf(from)} and ${nameOf(i)}. Undo puts them back.`);
+        status(`Swapped ${nameOf(from)} and ${nameOf(i)}.${undoLine("Undo puts them back.")}`);
       } else {
         post({ type: "copy", from, to: i, label: `Copy ${nameOf(from)} to ${nameOf(i)}` });
-        status(`Copied ${nameOf(from)} over ${nameOf(i)}. Undo puts it back.`);
+        status(`Copied ${nameOf(from)} over ${nameOf(i)}.${undoLine("Undo puts it back.")}`);
       }
       return;
     }
@@ -1003,6 +1016,7 @@
   function cancelPick() { S.pick = null; pickBar.hidden = true; }
   async function keepPiece() {
     const i = S.libSel, r = await request({ type: "read-slot", i }), p = S.pieces[i];
+    if (!r.bytes) { noRead(); return; }
     addToShelf({ label: `${nameOf(i)}, ${today()}`, data: b64(r.bytes), meta: p ? keyLine(p) : "" });
     status(`Kept ${nameOf(i)} on this computer.`);
   }
@@ -1018,12 +1032,12 @@
     if (!it) { status("Choose something on the right to place first.", true); return; }
     const i = S.libSel, r = await request({ type: "install-slot", i, bytes: unb64(it.data), label: `Place ${it.label} in ${nameOf(i)}` });
     if (r.ok < 0) status("That piece wouldn't load: its data doesn't pass the firmware's check.", true);
-    else status(`Placed ${it.label} in ${nameOf(i)}. Undo puts it back.`);
+    else status(`Placed ${it.label} in ${nameOf(i)}.${undoLine("Undo puts it back.")}`);
   }
   function resetPiece() {
     const i = S.libSel;
     post({ type: "reset", i, label: `Reset ${nameOf(i)}` });
-    status(`${nameOf(i)} is back to its recipe. Undo puts your version back.`);
+    status(`${nameOf(i)} is back to its recipe.${undoLine("Undo puts your version back.")}`);
   }
   function download(name, obj) {
     const url = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 1)], { type: "application/json" }));
@@ -1033,20 +1047,23 @@
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 30000);
   }
-  const stampFile = (format, name, bytes) => ({ format, firmware: FWV(), proj_format: Q.ed_format(), nparams: Q.ed_nparams(), name, saved: new Date().toISOString(), size: bytes.length, data: b64(bytes) });
+  const stampFile = (format, name, bytes) => ({ format, firmware: S.link ? S.link.hello.version : FWV(), proj_format: Q.ed_format(), nparams: Q.ed_nparams(), name, saved: new Date().toISOString(), size: bytes.length, data: b64(bytes) });
   const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   async function savePieceFile() {
     const i = S.libSel, r = await request({ type: "read-slot", i });
+    if (!r.bytes) { noRead(); return; }
     download(`aisling-${slug(nameOf(i))}.json`, { ...stampFile("aisling-piece", nameOf(i), r.bytes), meta: S.pieces[i] ? keyLine(S.pieces[i]) : "" });
     status(`Saved ${nameOf(i)} as a file.`);
   }
   async function backup() {
     const r = await request({ type: "read-proj" });
+    if (!r.bytes) { noRead(); return; }
     download(`aisling-backup-${new Date().toISOString().slice(0, 10)}.json`, stampFile("aisling-backup", "All eight pieces", r.bytes));
     status("Backed up all eight pieces and the settings to a file.");
   }
   async function sharePiece() {
     const i = S.libSel, r = await request({ type: "read-slot", i });
+    if (!r.bytes) { noRead(); return; }
     shareField.value = `AISLING-PIECE-1:${Q.ed_format()}.${Q.ed_nparams()}:${b64url(r.bytes)}`;
     shareBox.hidden = false;
     shareField.focus();
@@ -1084,7 +1101,7 @@
       if (bytes.length !== Q.ed_proj_size()) { status("That file is damaged: it's the wrong length.", true); return; }
       const r = await request({ type: "install-proj", bytes, label: "Install backup" });
       if (r.ok < 0) status("That backup wouldn't load: its data doesn't pass the firmware's check, and nothing changed.", true);
-      else status("Backup installed. Undo puts things back as they were.");
+      else status(`Backup installed.${undoLine("Undo puts things back as they were.")}`);
     }
   }
 
@@ -1120,6 +1137,167 @@
     }
     S.fbDirty = true;
     schedule();
+  }
+
+  /* ---------- the FM-1, over USB (link.js; firmware/src/app/link.c) ---------- */
+  async function connect() {
+    if (S.link) { disconnect("Disconnected from the FM-1. It carries on by itself; this page's own copy takes over on your next click."); return; }
+    if (S.linking) return;
+    if (!navigator.requestMIDIAccess) { note("Connecting needs Chrome or Edge: this browser has no USB MIDI."); return; }
+    S.linking = true;
+    renderLink();
+    note("Looking for an FM-1. Chrome may ask to allow MIDI access.");
+    const fail = (t) => { S.linking = false; renderLink(); note(t); };
+    let access;
+    try { access = await navigator.requestMIDIAccess({ sysex: true }); }
+    catch (e) { fail("MIDI access wasn't allowed, so nothing is connected. You can allow it from the padlock by the address."); return; }
+    const ports = globalThis.AislingLink.findPorts(access);
+    if (!ports) { fail("No FM-1 found. Plug it in over USB with AISLING running, then press Connect again."); return; }
+    const link = new globalThis.AislingLink(ports.input, ports.output, {
+      onState: (st) => { if (S.link === link) linkState(st); },
+      onVals: (v) => { if (S.link === link) linkVals(v); },
+      onReply: (m) => onWorklet(m),
+      onGone: () => { if (S.link === link) disconnect("The FM-1 has gone: the cable, or it stopped answering. This page's own copy takes over on your next click."); },
+    });
+    const hello = await link.open();
+    if (!hello) { fail("This FM-1 doesn't answer. The editor needs AISLING 0.5 or later on it."); return; }
+    if (hello.ver !== 1 || hello.format !== Q.ed_format() || hello.npars !== Q.ed_nparams() || hello.proj !== Q.ed_proj_size() || hello.slot !== Q.ed_slot_size()) {
+      link.close();
+      fail(`This FM-1 runs AISLING ${hello.version}, which keeps pieces differently from this page (${FWV()}), so the editor won't connect to it.`);
+      return;
+    }
+    flushSets();
+    if (S.liftAll) S.liftAll();                      // (anything held on this page's own copy lets go before it goes quiet)
+    if (S.ac && S.ac.state !== "suspended") S.ac.suspend();
+    S.link = link;
+    S.linking = false;
+    S.access = access;
+    access.onstatechange = (e) => {
+      if (e.port && (e.port.id === ports.input.id || e.port.id === ports.output.id) && e.port.state === "disconnected") link.gone("unplugged");
+    };
+    S.hold.clear(); S.echo.clear(); S.sets.clear();
+    S.linkUn = S.linkRn = S.linkGen = S.linkPiece = S.linkRaw = -1;
+    $("note").hidden = true;
+    renderLink();
+  }
+  function disconnect(text) {
+    const link = S.link;
+    if (S.liftAll) S.liftAll();                      // while it's still connected, so the release goes out
+    flushSets();
+    S.link = null;
+    link.close();
+    if (S.access) S.access.onstatechange = null;
+    S.saving = false;
+    S.pieceHold = S.viewHold = 0;
+    S.piecesAt = S.piecesBy = 0;
+    S.hold.clear(); S.echo.clear(); S.sets.clear();
+    masterCtl.render(S.master, `${Math.round(100 * S.master / 4096)}%`);
+    // The context stays suspended until the next gesture: a pulled cable never starts sound by itself
+    if (S.started) post({ type: "resend" });
+    else { fromQuiet(); reshow(); }
+    renderSave();
+    renderLink();
+    note(text);
+  }
+  function linkState(st) {
+    const frame = { type: "frame", keys: st.keys, buttons: st.lit, view: st.view, playing: st.playing, frozen: st.frozen, dirty: st.dirty,
+      piece: st.piece, moves: st.moves, act: st.act.map((a) => a / 127), muted: st.muted, solo: st.solo, sounds: st.sounds };
+    if (st.un !== S.linkUn || st.rn !== S.linkRn) {
+      S.linkUn = st.un; S.linkRn = st.rn;
+      frame.hist = { undo: st.un ? `(${st.un})` : null, redo: st.rn ? `(${st.rn})` : null };
+    }
+    onWorklet(frame);
+    if (st.saving !== S.saving) { S.saving = st.saving; renderSave(); }
+    if (st.raw !== S.linkRaw) {                      // the knob itself: a quiet test build forces what it sets to 0
+      S.linkRaw = st.raw;
+      masterCtl.render(Math.round(st.raw * 4096 / 1023), `${Math.round(100 * st.raw / 1023)}%`);
+    }
+    $("link-state").title = `CPU ${st.cpu}%, peak ${st.peak}%, ${st.xruns} dropouts`;
+    if (st.gen !== S.linkGen) { S.linkGen = st.gen; wantPieces(0); }
+    if (st.piece !== S.linkPiece) { S.linkPiece = st.piece; wantPieces(300); }
+    if (S.piecesAt && now() >= S.piecesAt) readPieces();
+  }
+  function linkVals(vals) {                          // settings moved: read the eight again once they rest, at least every 5 s
+    const t = now();
+    takeVals(vals, t);
+    schedule();
+    if (!S.piecesBy) S.piecesBy = t + 5000;
+    S.piecesAt = Math.min(t + 1000, S.piecesBy);
+  }
+  function wantPieces(ms) {
+    const at = now() + ms;
+    S.piecesAt = S.piecesAt ? Math.min(S.piecesAt, at) : at;
+  }
+  async function readPieces() {
+    const link = S.link;
+    S.piecesAt = S.piecesBy = 0;
+    if (S.piecesBusy || !link) return;
+    S.piecesBusy = true;
+    const b = await link.read(0);
+    S.piecesBusy = false;
+    if (S.link !== link) return;
+    if (!b) { wantPieces(1000); return; }
+    S.pieces = piecesOf(b);
+    renderPieces();
+  }
+  function piecesOf(b) {                             // the cards' and the library's lines, from a project's bytes
+    const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+    const parAt = Q.ed_layout(0), poolAt = Q.ed_layout(1), pieceAt = Q.ed_layout(2), slotAt = Q.ed_layout(3), slotPool = Q.ed_layout(4), slotN = Q.ed_slot_size();
+    const playing = b[pieceAt], out = [];
+    for (let i = 0; i < Q.ed_npieces(); i++) {
+      const slot = slotAt + slotN * i, base = i === playing ? parAt : slot;
+      const pool = dv.getUint16(i === playing ? poolAt : slot + slotPool, true);
+      const par = (p) => dv.getInt16(base + 2 * p, true);
+      let edited = pool !== Q.ed_recipe_pool(i);
+      for (let p = 0; p < NPARAMS && !edited; p++) if (!Q.ed_is_global(p) && par(p) !== Q.ed_recipe(i, p)) edited = true;
+      const voices = [];
+      for (let l = 0; l < Q.ed_nlayers(); l++) voices.push(par(Q.ed_layer_voice(l)));
+      out.push({ tempo: par(P_TEMPO), root: par(P_ROOT), mode: par(P_MODE), edited, voices });
+    }
+    return out;
+  }
+  function fromQuiet() {                             // what the page shows when nothing has played: the quiet copy
+    for (const k of S.knobs) S.vals.set(k, { v: Q.ed_get(k), text: qstr(Q.ed_text(k)) });
+    S.pieces = globalThis.AislingEngine.pieces(Q);
+    S.piece = Q.ed_piece_now();
+    S.view = Q.ed_view_now();
+    S.dirty = false;
+    S.playing = S.frozen = false;
+    S.muted = S.solo = 0;
+    S.sounds = 31;
+    S.keys = S.buttons = 0;
+    S.act = [0, 0, 0, 0, 0];
+    for (let i = 0; i < 5; i++) if (!Q.ed_layer_sounds(i)) S.sounds &= ~(1 << i);
+  }
+  function reshow() {
+    for (const k of S.knobs) show(k);
+    setView(S.view);
+    pieceMoved();
+    renderPieces();
+    renderPlay();
+    renderSave();
+    renderStrips();
+    renderKeys();
+    renderLights();
+    showHist({ undo: null, redo: null });
+    schedule();
+  }
+  function renderLink() {
+    const on = !!S.link, pill = $("link-state"), b = $("connect");
+    pill.classList.toggle("on", on);
+    pill.lastChild.textContent = on ? `FM-1 ${S.link.hello.version}` : S.linking ? "Looking…" : "No FM-1";
+    if (!on) pill.title = "";
+    b.textContent = on ? "Disconnect" : "Connect";
+    b.classList.toggle("fill", !on);
+    document.body.classList.toggle("ed-linked", on);
+    if (on) volNode.setAttribute("aria-disabled", "true"); else volNode.removeAttribute("aria-disabled");
+    libSub.textContent = on
+      ? "On your FM-1, read over USB. Swap, Copy, Place, Reset and Install change it straight away, and its undo doesn't cover them: Back up everything first."
+      : "Held in this page's copy of AISLING. Connect an FM-1 to work on its own pieces.";
+    libConnect.hidden = on;
+    $("foot").textContent = on
+      ? "Connected to your FM-1 over USB. This page makes no sound, and what you change here changes the FM-1."
+      : `A draft. Everything here runs on a copy of AISLING ${FWV()} in this page. Connect reaches your FM-1 over USB.`;
   }
 
   /* ---------- starting up ---------- */
@@ -1163,13 +1341,7 @@
     for (let l = 0; l < Q.ed_nlayers(); l++) { list.add(Q.ed_layer_level(l)); list.add(Q.ed_layer_voice(l)); }
     list.add(P_TEMPO); list.add(P_ROOT); list.add(K_MODE);
     S.knobs = [...list];
-    for (const k of S.knobs) S.vals.set(k, { v: Q.ed_get(k), text: qstr(Q.ed_text(k)) });
-
-    S.pieces = globalThis.AislingEngine.pieces(Q);
-    S.piece = Q.ed_piece_now();
-    S.view = Q.ed_view_now();
-    S.dirty = false;
-    for (let i = 0; i < 5; i++) if (!Q.ed_layer_sounds(i)) S.sounds &= ~(1 << i);
+    fromQuiet();
 
     const shelf = lsGet(KEY_SHELF);
     if (shelf) { try { const a = JSON.parse(shelf); if (Array.isArray(a)) S.shelf = a; } catch (e) { /* start with none */ } }
@@ -1222,18 +1394,19 @@
     $("undo").addEventListener("click", () => post({ type: "undo" }));
     $("redo").addEventListener("click", () => post({ type: "redo" }));
     $("save").addEventListener("click", () => post({ type: "save" }));
-    $("connect").addEventListener("click", () => note("Connecting arrives with 0.5. Everything here runs on a copy of AISLING in this page, so nothing reaches your FM-1."));
+    $("connect").addEventListener("click", connect);
+    window.addEventListener("pagehide", () => { if (S.link) S.link.close(); });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && S.pick) { cancelPick(); return; }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
         if (e.target.matches && e.target.matches("input[type=text], textarea")) return;
         e.preventDefault();
-        if (S.started) post({ type: e.shiftKey ? "redo" : "undo" });
+        if (S.started || S.link) post({ type: e.shiftKey ? "redo" : "undo" });
       }
     });
-    $("foot").textContent = `A draft. Everything here runs on a copy of AISLING ${FWV()} in this page; nothing reaches your FM-1.`;
+    renderLink();
     document.body.classList.add("ed-ready");
-    window.aislingEditor = { S, Q, Qmem: () => Qmem, post, start, TABS, tabOfView, request };
+    window.aislingEditor = { S, Q, Qmem: () => Qmem, post, start, TABS, tabOfView, request, connect, disconnect };
   }
   init().catch((e) => {
     $("ed").replaceChildren(el("p", { class: "ed-fail" }, "The editor couldn't load the firmware copy it runs on. Reloading usually fixes this."));

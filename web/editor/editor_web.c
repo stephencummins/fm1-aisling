@@ -151,6 +151,7 @@ ED int ed_recipe(int i, int p)                   /* a parameter in a piece's rec
     recipes_take();
     return recipes[i].par[p];
 }
+ED int ed_recipe_pool(int i) { recipes_take(); return recipes[i].pool; }
 ED int ed_slot_par(int i, int p) { return i == proj.piece ? proj.par[p] : proj.slot[i].par[p]; }
 ED int ed_edited(int i)                          /* changed from its recipe? (Tune and MIDI out are the FM-1's) */
 {
@@ -171,6 +172,16 @@ static project_t incoming;
 static slot_t slot_in;
 ED uint8_t *ed_proj(void) { return (uint8_t *)&proj; }
 ED int ed_proj_size(void) { return (int)sizeof proj; }
+ED int ed_layout(int i)                          /* where things are in those bytes: for a project read from an FM-1 */
+{
+    switch (i) {
+    case 0: return (int)__builtin_offsetof(project_t, par);
+    case 1: return (int)__builtin_offsetof(project_t, pool);
+    case 2: return (int)__builtin_offsetof(project_t, piece);
+    case 3: return (int)__builtin_offsetof(project_t, slot);
+    default: return (int)__builtin_offsetof(slot_t, pool);
+    }
+}
 ED uint8_t *ed_incoming(void) { return (uint8_t *)&incoming; }
 ED int ed_slot_size(void) { return (int)sizeof(slot_t); }
 ED uint8_t *ed_slot_ptr(int i) { return (uint8_t *)&proj.slot[i]; }
