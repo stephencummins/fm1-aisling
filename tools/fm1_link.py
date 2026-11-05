@@ -49,6 +49,7 @@ A_PROJ, A_SLOT, A_FLASH = 0, 1, 9             # area 1 + piece: a piece
 VER, CHUNK = 1, 128
 RESEND, TRIES = 0.2, 25
 NPIECES, NPARS, PROJ_FORMAT, PROJ_LEN, SLOT_LEN = 8, 133, 3, 3112, 352
+XRUNS_FULL = 16383
 PAR_AT = 8                                    # the project's own settings: where they start
 
 B = dict(FX=0, SEL=1, ENV=2, LFO=3, EDIT=4, GLO=5, HOME=6, SAVE=7, ARP=8, SEQ=9, PLAY=10, REC=11, OCTDN=12, OCTUP=13)
@@ -671,8 +672,11 @@ class Tally:
     def line(self):
         if not self.cpu:
             return "no state frames"
-        return "cpu mean %5.1f  max %3d  peak %3d  dropouts %d" % (
+        s = "cpu mean %5.1f  max %3d  peak %3d  dropouts %d" % (
             sum(self.cpu) / len(self.cpu), max(self.cpu), self.peak, self.x1 - self.x0)
+        if self.x1 >= XRUNS_FULL:             # (the link's count stops there, until the FM-1 restarts)
+            s += " (the count is full: this figure means nothing)"
+        return s
 
 
 def soak_phase(lk, secs, poll, log, label):
