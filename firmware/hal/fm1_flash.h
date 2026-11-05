@@ -143,7 +143,12 @@ RAMINL int fl_wait_ready(uint32_t max_us, uint32_t *took_us)
 
 /* ---- entry points: IRQs OFF, args/buffers in RAM ---- */
 
-static RAMFN uint32_t fl_jedec_ram(void)                 /* expect 0x856014 */
+/* The FM-1's flash: a Puya P25Q80 (0x856014), or on units sold since autumn 2026 a UCUN UC25HQ80 (0xB36014, thanks to
+ * Sven of The Firmware Hub and Felucca's issue 320). Both are 1 MiB, and this driver uses only plain SPI NOR commands
+ * (9F, 05/35, 06, 20, 02, 0B). Evaluates id twice, so read the chip once and pass the value. */
+#define FL_JEDEC_OK(id) ((id) == 0x856014u || (id) == 0xB36014u)
+
+static RAMFN uint32_t fl_jedec_ram(void)                 /* see FL_JEDEC_OK */
 {
     fl_saved_t s; uint32_t id;
     if (fl_enter(&s)) return 0;

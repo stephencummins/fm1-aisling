@@ -7,6 +7,7 @@ V15's and V16's sizes and two different heads. Run from the repo root:
 Also checks M-VAVE's real V15 and V16 in ~/fm1-rescue (where tools/fm1_rescue.sh keeps them;
 skipped otherwise)."""
 import hashlib
+import re
 import struct
 import sys
 import tempfile
@@ -30,8 +31,9 @@ def ok(cond, what):
 class FakeBot:
     """The loader's side of the bulk-only transport: one command per xfer, on a flash bytearray."""
 
-    def __init__(self, flash):
+    def __init__(self, flash, flash_id=0x856014):
         self.flash, self.erased, self.programmed, self.ran = bytearray(flash), [], [], False
+        self.flash_id = flash_id
 
     def xfer(self, cdb, data_out=None, n_in=0, timeout=5000):
         cdb = bytes(cdb)
@@ -57,7 +59,7 @@ class FakeBot:
             reply[2 + 5], reply[2 + 4] = k[0], k[1]
         elif cmd == R.CMD_GET_ONLINE_DEVICE:
             reply[2] = 3
-            struct.pack_into("<I", reply, 4, 0x856014)
+            struct.pack_into("<I", reply, 4, self.flash_id)
         elif cmd == R.CMD_ERASE_SECTOR:
             addr = struct.unpack_from(">I", cdb, 2)[0]
             self.flash[addr:addr + R.SECTOR] = b"\xFF" * R.SECTOR
@@ -83,8 +85,8 @@ def flash_with(head_of, app_seed, tail_seed):
     return f
 
 
-def run(flash, stock, write=True, confirm=None):
-    bot = FakeBot(flash)
+def run(flash, stock, write=True, confirm=None, flash_id=0x856014):
+    bot = FakeBot(flash, flash_id)
     said = []
     with tempfile.TemporaryDirectory() as d:
         try:
@@ -151,6 +153,27 @@ def refusals():
             ok(True, f"write_sector refuses {addr:#x} (app ends {end:#x})")
 
 
+def flash_chips():
+    before = flash_with(V16, "AISLING", "data")
+    r, bot, backup, said = run(before, STOCK, flash_id=0xB36014)
+    ok(r is True and bot.ran and bot.flash == V16 + before[0xA9000:], "the newer flash (B36014): written, restarted")
+    ok(backup == bytes(before) and "id B36014" in said, "  backed up first, and says which it found")
+
+    r, bot, backup, _ = run(before, STOCK, flash_id=0xEF4014)
+    ok(isinstance(r, R.Fail) and "nothing written" in str(r) and not bot.erased and backup is None,
+       "any other flash: refused before reading or writing")
+
+    # the firmware's check and this tool's must not drift apart (0x856014 is search-and-replace bait)
+    hal = (ROOT / "firmware/hal/fm1_flash.h").read_text()
+    ids = {int(x, 16) for x in re.findall(r"0x([0-9A-F]{6})u", re.search(r"#define FL_JEDEC_OK\(id\) (.+)", hal)[1])}
+    ok(ids == set(R.FLASH_IDS), "the firmware's FL_JEDEC_OK accepts the same flash IDs")
+    app = (ROOT / "firmware/src/app/main_fm1.c").read_text()
+    ok("FL_JEDEC_OK(" in app and "856014" not in app, "the app checks through FL_JEDEC_OK")
+    loader = [p.name for p in (ROOT / "firmware/loader").iterdir() if p.is_file()
+              and "856014" in p.read_text(errors="ignore")]
+    ok(not loader, "the update loader has no flash ID check of its own")
+
+
 def real_packages():
     pk = {n: Path.home() / "fm1-rescue" / f"FM-1-{n}.fwsc" for n in ("V15", "V16")}
     if not all(p.exists() for p in pk.values()):
@@ -167,6 +190,7 @@ def real_packages():
 
 writes()
 refusals()
+flash_chips()
 real_packages()
 print("rescue: " + ("all ok" if not failed else f"{failed} FAILED"))
 sys.exit(1 if failed else 0)
