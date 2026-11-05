@@ -37,7 +37,7 @@ remembers and answers) and changes what it plays:
   of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 0.4, the fourth test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 0.5, the fifth test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -51,6 +51,11 @@ picture, record a video with the FM-1's own sound from its USB audio, and drop a
 time with the FM-1 and paints as the weather. It is one file,
 [web/visualiser/index.html](web/visualiser/index.html), with the demo's recording beside it, and it also works opened
 straight from disk, offline (there the demo paints without sound).
+
+**The editor** lays out a piece's settings on one web page, with a Play page and a Library of the eight pieces. With no
+FM-1 it plays by itself in the browser. Press Connect in Chrome or Edge and it works the FM-1 over USB instead, with the
+page's own sound off. The FM-1 says nothing on that link until the page connects. The
+[manual](docs/MANUAL.md#the-editor) has the details.
 
 **MIDI.** A note on any channel, over USB or the TRS jack, plays the Lead as a white key does, and the sequences
 follow MIDI clock, start, continue and stop. MIDI out goes over USB: the Drone, the Sequence, the Lead and Sequence 2
@@ -86,13 +91,13 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | White keys | Play the Lead (the piece's flute, fiddle or voice), in the piece's scale (the key it sounds is lit) |
 | Black keys | Eleven effects, each while held (lit; dark while held): Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, then Rise, Close, Transpose (in PERFORM: the solos) |
 | PLAY · REC · EDIT | Play / rest · a tap: hold (the echo repeats what it holds), held: the effects grid (16 effects on the white keys) · a tap: the Chords page, held: the next chord |
-| SEL | PERFORM: the knobs Filter, Wet, Energy, Sweep; white 1–5 mute the Drone, Sequence, Lead, Sequence 2, Atmosphere; black 1–5 solo them; white 6 held: the levels; white 7–11 held: Sweep, Open, Shut, Drop (both sequences out), Echo; the top key (G): the Lead forgets its ideas and its theme. Held: Lock |
-| HOME | The Aisling page (Filter, Evolve, Motion, Drift); again, the Key page (Tempo, Root, Mode, Transpose) |
+| SEL | PERFORM (again: back to the page you came from): the knobs Filter, Wet, Energy, Sweep; white 1–5 mute the Drone, Sequence, Lead, Sequence 2, Atmosphere; black 1–5 solo them; white 6 held: the levels; white 7–11 held: Sweep, Open, Shut, Drop (both sequences out), Echo; the top key (G): the Lead forgets its ideas and its theme. Held: Lock |
+| HOME | The Aisling page (Filter, Evolve, Motion, Drift); again, the Key page (Tempo, Root, Mode, Transpose). Held, with OCT− or OCT+: undo or redo |
 | ENV | The Drone (Pedal, Reso, Phaser, Attack); again, its sound (Colour, Release, Reverb, Echo); again, its Move page (Width, Time, Rate, Intro) |
 | ARP | The Sequence (Density, Octave, Length, Grid); again, its sound (Cutoff, Decay, Reverb, Echo); again, its Repeats (Repeat A, A time, Repeat B, B time); again, its Move page |
 | LFO | The Lead (Phrases, Octave, Ornament, Vibrato); again, its sound (Tone, Attack, Reverb, Echo); again, its style (Ornament, Glide, Vibrato, Memory); again, its Move page |
 | SEQ | Sequence 2 (Chance, Octave, Length, Level); again, its sound; again, the Pattern page (write the steps on the keys); again, its Move page |
-| SAVE | The Atmosphere (Density, Width, Drift, Air); again, its sound (Colour, Ring, Reverb, Echo); again, its Move page |
+| SAVE | The Atmosphere (Density, Width, Drift, Air); again, its sound (Colour, Ring, Reverb, Echo); again, its Move page. Held: save |
 | FX | Space (Echo, Echo time, Feedback, Reverb); again, the Echo page (Blur, Tone, Width, Size) |
 | GLO | Setup (Tune, MIDI out, Lights, Save); again, the Arc (Lead in, Bridge, Arc, Memory). Held: save; held on: the piece back to its recipe |
 | ALGORITHM | On a layer's page, its voice (the Atmosphere: its character) |

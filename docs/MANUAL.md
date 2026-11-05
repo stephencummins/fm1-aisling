@@ -19,7 +19,7 @@ AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https:/
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 0.4, the fourth test version.** It runs on the FM-1 (install it from the web installer) and in the
+**This is 0.5, the fifth test version.** It runs on the FM-1 (install it from the web installer) and in the
 browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -107,24 +107,24 @@ second.
 
 | Control | What it does |
 |---|---|
-| MASTER | The volume |
+| MASTER | The volume, with room at the quiet end: a low listening level sits about a quarter of the way up. The USB audio doesn't follow it: there, the computer sets the volume |
 | SELECT | On a layer's pages (the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, and each one's further pages), the layer's level, 1 a click: a ring in the middle of the screen shows it, and the header says it ("SEQ 64"). On the Aisling page it turns **Energy**, PERFORM's (the same value, 1 a click: the screen shows twice), so you can play the keys and push Energy at once: the knobs' rule shows "ENERGY 24" with a bar while you turn, and the header says it. Elsewhere it does nothing (the pages are on their buttons, the tempo on the Key page) |
 | PRESETS | The piece (eight) |
 | ALGORITHM | On a layer's page, its voice (on the Atmosphere's pages, its character). On the Chords page, the chord walk's character (Home, Wander, Free) |
-| OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, the layer's octave, a step a press (the Sequence −2 to 2, the Lead and Sequence 2 −2 to 1): the page's Octave knob shows it, the header says it ("SEQ OCTAVE −1"). OCT+ is lit while that octave is above where the piece was loaded, OCT− while it's below. On the other pages they do nothing. Both held 5 s: the update mode |
+| OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, the layer's octave, a step a press (the Sequence −2 to 2, the Lead and Sequence 2 −2 to 1): the page's Octave knob shows it, the header says it ("SEQ OCTAVE −1"). OCT+ is lit while that octave is above where the piece was loaded, OCT− while it's below. On the other pages they do nothing. With HOME held, OCT− undoes and OCT+ redoes (see Undo, below). Both held 5 s: the update mode |
 | KNOB 1–4 | The four values at the bottom of the page. The line above them says what the one turning does |
 | White keys | Play the Lead in the piece's scale: the first white key is the root, the next the scale's second step, and so on up. While the Lead sounds a note, that key is lit. Three notes or more and a pause become the Lead's theme (see [The layers](#5-the-layers)). On the Pattern page they write the steps instead; in PERFORM they mute, play moves, and the top one makes the Lead forget; with REC held they're the effects |
 | Black keys | Eleven effects, each while the key is held. They stay lit, so they stand apart from the Lead's white keys; a key goes dark while its effect is held: Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, Rise, Close, Transpose (see [The effects grid](#9-the-effects-grid)). In PERFORM, the solos; on the Pattern page, the accents |
 | PLAY | Play / rest |
 | REC | A tap: hold (the echo and the cloud repeat what they hold). Held: the effects grid |
 | EDIT | A tap: the Chords page. Held: the next chord, on the next bar. Held on (1.5 s): new chords |
-| SEL | A tap: PERFORM. Held: **Lock** (the sequences stop varying, each pass as the last, until SEL is held again; not saved) |
-| HOME | The Aisling page; again, the Key page |
+| SEL | A tap: PERFORM; another tap: back to the page you came from. Held: **Lock** (the sequences stop varying, each pass as the last, until SEL is held again; not saved) |
+| HOME | The Aisling page; again, the Key page. Held on (1.5 s): a shake of every layer. Held, with OCT− or OCT+: undo or redo |
 | ENV | The Drone; again, its sound page; again, its Move page |
 | ARP | The Sequence; again, its sound page; again, its Repeats; again, its Move page |
 | LFO | The Lead; again, its sound page; again, its style page; again, its Move page |
 | SEQ | Sequence 2; again, its sound page; again, the Pattern page; again, its Move page |
-| SAVE | The Atmosphere; again, its sound page; again, its Move page |
+| SAVE | The Atmosphere; again, its sound page; again, its Move page. Held half a second: save |
 | FX | The Space page; again, the Echo page |
 | GLO | The Setup page; again, the Arc page (Lead in, Bridge, Arc, Memory). Held half a second: save. Held on (1.5 s): the piece back to its recipe |
 
@@ -132,7 +132,16 @@ second.
 somewhere new (its filter, envelope, tone or vibrato, never its sends or octave). Hold it on for 1.5 s: a
 shake, a new voice and bigger steps. HOME held on shakes every layer at once. Each step is pulled back
 towards the piece's recipe, so nudges explore around the piece's sound rather than wander off. With Evolve
-over 40, AISLING nudges a layer by itself now and then.
+over 40, AISLING nudges a layer by itself now and then. The Atmosphere has no nudge of its own, because SAVE held
+saves; Evolve and HOME's shake still move it.
+
+**Undo.** Hold HOME and tap OCT−: the piece's settings go back a step. OCT+ brings them forward again. While HOME is
+held, OCT− is lit if there's something to undo and OCT+ if there's something to redo. Undo goes back 16 steps, and
+changes less than a second apart count as one step. It takes back knobs, voices, nudges, shakes and a reset to the
+recipe. What Evolve moves makes no step of its own, but an undo rolls it back with the rest. Undo covers the settings
+and the scale, not the patterns: after undoing a reset, the settings return but the patterns it grew stay. Tune, MIDI
+out and Lights aren't undone, and in Endless the chords aren't, because the walk moves them itself. Another piece
+clears undo, and it isn't saved, though the piece it leaves behind is, as after any change.
 
 A long press says what it did on a card in the middle of the screen.
 
@@ -162,6 +171,8 @@ The screen is black, with a few dim stars drifting slowly left while the music p
   chord's last bar it is brighter, so you can play a phrase into the change. While held (REC) it stays as it
   is, in red; with Drift at Hold (the chord never changes) there is no ring.
 - **Right:** the echo's level (ECHO).
+- **Which page:** the line above the knobs ends in a dot for each page of the button you're on, with the page you're
+  on lit. When a button brings a new page, its name shows large over the chord for a moment, with the same dots.
 - **A ring in the middle:** while you turn SELECT on a layer's page, its level as a big knob in its colour, the
   number inside and the layer's name under it (grey and MUTED if it's muted); it fades a moment after.
 - **Below:** two **lanes**, the Sequence (pink) and Sequence 2 (cyan), each as long as its sequence: a big dot
@@ -560,7 +571,7 @@ that do something are lit:
   and plays again within a few bars. Nothing else changes (no setting, nothing saved). The key is lit, and dark
   while you hold it.
 
-A page's button leaves. (SEL again stays: PERFORM is one page.)
+A page's button leaves. So does SEL again, back to the page you came from.
 
 ---
 
@@ -594,8 +605,8 @@ page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari 
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
 page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save** keeps a still, and
 **Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
-USB audio appears). The USB audio comes after MASTER, so MASTER sets the recording's level: at a comfortable headphone
-level a recording comes out very quiet, so take your headphones off and turn MASTER up before you record. Drop a sound file on the page (or press **Sample**) to mix it in: a WAV, AIFF, FLAC or MP3
+USB audio appears). The USB audio comes before MASTER, at a fixed level, so a recording comes out the same with MASTER
+anywhere, even right down; the computer's volume sets what you hear over USB. Drop a sound file on the page (or press **Sample**) to mix it in: a WAV, AIFF, FLAC or MP3
 loops out of the computer and paints as the weather, low sounds low and high sounds high. While the FM-1 plays (or the
 demo) **In time** fits it to the tempo like tape, to the nearest 1, 2, 4 … 64 beats, starting on the FM-1's Start and
 stopping with it; a sample longer than 30 seconds plays at its own speed. **Record** takes it too, mixed with the FM-1.
@@ -609,6 +620,23 @@ shows, over USB: the page and its knobs, a knob's value as it turns, the piece, 
 chord as it moves, the effects as they're held, and every message. Press W in the reader to hear the whole
 screen again, with the section of the arc and its bar, and how far a filter has moved. The FM-1 says nothing until the page connects.
 
+### The editor
+
+The editor is a web page that lays out the piece's settings, its Play page and a Library of the eight pieces. With no
+FM-1 it plays by itself in the browser. Press **Connect** (Chrome or Edge, which ask your permission to use MIDI) and it
+works the FM-1 instead, over USB: pages, knobs, voices, the piece, PLAY, the keys and undo all go to the FM-1, its
+values come back, and the page's own sound stays off. It doesn't show the FM-1's screen.
+
+- **Saving from the page** waits until the FM-1 is at rest, as the automatic save does, so the music isn't interrupted.
+  To save now while it plays, hold SAVE on the FM-1.
+- **A piece or a backup placed from the page** is checked first. If it doesn't pass, nothing changes; if it does, it
+  plays from memory and is kept by the next save.
+- **Files from the page** carry the firmware's version and save format. A file of another format is refused.
+
+The FM-1 says nothing on this link until the page connects. If the page stops answering for 5 s (a closed tab, a pulled
+cable) the FM-1 shows EDITOR GONE, lets go of any key the page was holding and plays on. The link is USB only: the TRS
+jack ignores it.
+
 ---
 
 ## 12. Saving
@@ -617,7 +645,7 @@ AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with T
 
 - **By itself:** a few seconds after a change, while resting (writing to the memory interrupts the sound
   for a moment, so it never happens while the music plays). A dot at the top means unsaved changes.
-- **GLO held** half a second: saves now ("SAVED").
+- **SAVE or GLO held** half a second: saves now ("SAVED"). While the music plays, that can cost a very short dropout.
 - **Setup's KNOB 4 (Save):** shows Save while there are unsaved changes, Saved once there aren't; a turn
   saves.
 - **GLO held on** (1.5 s): the piece back to its recipe ("RESET"); not saved until the next save.

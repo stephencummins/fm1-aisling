@@ -64,6 +64,11 @@ Euclidean patterns, scales and chords, voice leading, the render's levels, drift
 storage; Felucca's update-path tests against `build/amb.fwsc`; and the whole app in the simulator
 (`tests/scenarios/*.amb`), with its screenshots and audio in `build/scenarios/`.
 
+On a real FM-1, `tools/fm1_link.py` drives the firmware over the USB link: `state`, `backup DIR`, `verify DIR`,
+`restore DIR`, `test DIR` (buttons, undo, saving and the saved pieces, put back byte for byte) and `soak` (CPU and
+dropouts). A build with `--release X.Y-quiet` runs the engine as usual and makes no sound whatever MASTER says, so
+tests can run with nobody listening; `test` and `soak` refuse to start if master isn't 0, without `--audible`.
+
 `host/build_host.sh` builds the simulator alone; `build/host/amb_host SCRIPT OUTDIR` runs one
 script (the command list is at the top of `host/amb_host.c`).
 
