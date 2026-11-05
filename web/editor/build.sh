@@ -1,8 +1,9 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-only
-# AISLING's editor (a design draft): the emulator's build with editor_web.c on top, and its page.
+# AISLING's editor: the emulator's build with editor_web.c on top, and its page.
 #   [EN_VERSION=0.4] web/editor/build.sh  ->  build/editor/{index.html, editor.js, link.js, editor.css, engine.js, worklet.js, amb.wasm, the brand}
-# Same sources and flags as web/emu/build.sh. Nothing here is installed on an FM-1, or published.
+# Same sources and flags as web/emu/build.sh. To serve it alone: build/editor has its own copy of the site's look.
+# The site takes its code from here and fills the page's marks itself (tools/make_pages.py).
 set -e
 cd "$(dirname "$0")/../.."
 mkdir -p build/gen build/editor

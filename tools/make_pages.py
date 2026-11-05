@@ -13,6 +13,7 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
   img/                        screenshots (docs/img), the card (docs/card.png, tools/make_card.py) and the
                               visualiser's painting (web/visualiser/share.jpg, also the page's preview image)
   emu/                        AISLING in the browser (build/emu, from web/emu/build.sh)
+  editor/                     the editor (web/editor/index.html; its code from build/editor, web/editor/build.sh)
   words/                      the screen reader's words files (web/words, from firmware/words.tsv)
   install/index.html          the web installer (web/amb_installer.html, with fm1pkg.js, fm1ota.js and
                               the package's metadata inlined; Chrome or Edge, Web MIDI)
@@ -344,6 +345,14 @@ def main(pkg, version, out):
         raise SystemExit("no build/emu/amb.wasm: run web/emu/build.sh (needs Emscripten)")
     shutil.copytree(emu, out / "emu")
     (out / "emu" / "index.html").write_text(stamp((emu / "index.html").read_text(encoding="utf-8"), "../", "emu"), encoding="utf-8")
+    # the editor: its own files (build/editor's copies of the harp, the style and the fonts are for serving it alone)
+    ed = SRC / "build" / "editor"
+    if not (ed / "amb.wasm").exists():
+        raise SystemExit("no build/editor/amb.wasm: run web/editor/build.sh (needs Emscripten)")
+    (out / "editor").mkdir()
+    for f in ("amb.wasm", "engine.js", "worklet.js", "link.js", "editor.js", "editor.css"):
+        shutil.copy2(ed / f, out / "editor" / f)
+    (out / "editor" / "index.html").write_text(stamp((SRC / "web" / "editor" / "index.html").read_text(encoding="utf-8"), "../", "editor"), encoding="utf-8")
     # the harp, the bar's style and the fonts, at the root, for every page; Cloudflare's two files with them
     shutil.copytree(SRC / "web" / "brand", out, dirs_exist_ok=True)
     # the visualiser, as it is
@@ -351,7 +360,7 @@ def main(pkg, version, out):
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
-    print(f"site: {out}: index.html, install/ ({product}), manual/, cheat/, emu/, visualiser/, words/, firmware/{name} ({len(raw)} B)")
+    print(f"site: {out}: index.html, install/ ({product}), manual/, cheat/, emu/, editor/, visualiser/, words/, firmware/{name} ({len(raw)} B)")
 
 
 if __name__ == "__main__":

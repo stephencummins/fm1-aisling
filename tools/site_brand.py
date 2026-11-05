@@ -11,6 +11,7 @@ NAME, BY = "AISLING", "by CU_STE"
 SITE = "https://aisling.stephen8n.com/"
 # (the page's key, its label, where it goes: relative to the site's root unless it's a whole URL, what it is)
 NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM-1 runs"),
+       ("editor", "editor", "editor/", "Every setting of a piece on one panel, and your FM-1 over USB"),
        ("install", "install", "install/", "Put AISLING on your FM-1 from Chrome or Edge"),
        ("manual", "manual", "manual/", "Getting started in a few minutes, then everything else"),
        ("cheat", "cheat sheet", "cheat/", "Every control and the eight pieces on one page, to print, and the steps drawn as flows"),

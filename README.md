@@ -52,7 +52,7 @@ time with the FM-1 and paints as the weather. It is one file,
 [web/visualiser/index.html](web/visualiser/index.html), with the demo's recording beside it, and it also works opened
 straight from disk, offline (there the demo paints without sound).
 
-**The editor** lays out a piece's settings on one web page, with a Play page and a Library of the eight pieces. With no
+**[The editor](https://aisling.stephen8n.com/editor/)** lays out a piece's settings on one web page, with a Play page and a Library of the eight pieces. With no
 FM-1 it plays by itself in the browser. Press Connect in Chrome or Edge and it works the FM-1 over USB instead, with the
 page's own sound off. The FM-1 says nothing on that link until the page connects. The
 [manual](docs/MANUAL.md#the-editor) has the details.

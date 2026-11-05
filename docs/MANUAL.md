@@ -622,7 +622,8 @@ screen again, with the section of the arc and its bar, and how far a filter has 
 
 ### The editor
 
-The editor is a web page that lays out the piece's settings, its Play page and a Library of the eight pieces. With no
+[The editor](https://aisling.stephen8n.com/editor/) is a web page that lays out the piece's settings, its Play page
+and a Library of the eight pieces. With no
 FM-1 it plays by itself in the browser. Press **Connect** (Chrome or Edge, which ask your permission to use MIDI) and it
 works the FM-1 instead, over USB: pages, knobs, voices, the piece, PLAY, the keys and undo all go to the FM-1, its
 values come back, and the page's own sound stays off. It doesn't show the FM-1's screen.

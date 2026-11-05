@@ -10,6 +10,7 @@ V="${1:?usage: tools/publish_pages.sh VERSION}"
 PKG="build/aisling-$V.fwsc"
 [ -f "$PKG" ] || { echo "no $PKG: run tools/mini_build.sh --release $V first"; exit 1; }
 EN_VERSION="$V" sh web/emu/build.sh
+EN_VERSION="$V" sh web/editor/build.sh
 python3 tools/make_pages.py "$PKG" "$V" build/pages
 REMOTE="$(git remote get-url origin)"
 SHA="$(git rev-parse --short HEAD)"
