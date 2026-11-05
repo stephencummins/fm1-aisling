@@ -188,7 +188,7 @@ Under the lanes the screen says how far it has moved: "MOVING DARKER, -1.5 OCT" 
 (not shown while it is within a tenth of an octave of the knob). The screen reader says it too ("Cutoff
 moving darker, about -1 octave").
 
-![The Sequence's sound page: Cutoff, Decay, Reverb and Echo, with MOVING DARKER, -0.5 OCT under the lanes](img/screen-seqsound.png "A sound page: the cyan dot on Cutoff's ring, and the words under the lanes")
+![The Sequence's sound page: Cutoff, Decay, Reverb and Echo, with MOVING DARKER, -0.6 OCT under the lanes](img/screen-seqsound.png "A sound page: the cyan dot on Cutoff's ring, and the words under the lanes")
 
 **The launch screen.** Every time the FM-1 starts, a green triskele (the triple spiral, as carved at Newgrange)
 draws itself on black among a few stars, AISLING comes up large under it, then "by CU_STE" in orange and
@@ -600,7 +600,8 @@ A note's pitch sets how far across it lands, how hard it's played how much paint
 **Land**, **Sea** and **Space** change the scene, and V steps through them. Sea is the Atlantic from above, under a
 storm: the Drone lays the swell, the Sequence the foam, each note of Sequence 2 spins up an eddy, and the Lead is the
 light. Space is deep space: the Drone a nebula's glow, the Sequence stars that flare where its notes land, Sequence 2
-threads of gas, and the Lead a comet, up for a higher note and down for a lower. Connect the FM-1 by USB, open the
+threads of gas, and the Lead a comet, up for a higher note and down for a lower. On Land, **Ground** (M) changes what it paints on
+(vellum, mist or night) and **Colours** (C) its colours (Heather, Atlantic, Kells or Evening): what is painted keeps its own, and the next notes take the new. Connect the FM-1 by USB, open the
 page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
 page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save** keeps a still, and
@@ -649,7 +650,7 @@ AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with T
 - **SAVE or GLO held** half a second: saves now ("SAVED"). While the music plays, that can cost a very short dropout.
 - **Setup's KNOB 4 (Save):** shows Save while there are unsaved changes, Saved once there aren't; a turn
   saves.
-- **GLO held on** (1.5 s): the piece back to its recipe ("RESET"); not saved until the next save.
+- **GLO held on** (1.5 s): the piece back to its recipe ("RESET"). Like any change, it's saved by itself a few seconds after the music stops.
 
 Lock and PERFORM's Filter, Wet and Energy aren't saved; a piece change (or GLO's reset) returns the three to 0, so
 none of one piece's push carries into the next. Projects saved by DUB-1, AMB-1 or an earlier AISLING
@@ -673,7 +674,7 @@ doing.
 any dropouts since the FM-1 started as `!n`. A dropout can be a small click. AISLING runs close to what the chip can do.
 Over ten minutes each at their recipes, on one FM-1, Burren, Carolan, Connemara and Tir na nOg had none, Samhain 29,
 Skellig 117, Aran 251 and Blasket 374, in short stretches. On Skellig, Aran and Samhain their timing fits the drone's
-chord changes. A piece changed by hand can cost much more: one saved Aran had about 6,600. Holding GLO on puts a piece back to its recipe, and
+chord changes. A piece changed by hand can cost much more: one saved Aran had about 6,600, and in one short test Aran's Sequence on 16ths instead of 8ths added about 8 points by itself. Holding GLO on puts a piece back to its recipe, and
 takes your changes with it. A computer reading the USB audio adds about 6 points to the load.
 
 **No USB audio on an older Mac:** in a simple test on macOS 13.7.8, the FM-1's MIDI appeared but no sound device did,

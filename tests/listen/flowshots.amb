@@ -1,40 +1,41 @@
 # the cheat sheet's flows (web/cheat/flows.html): each board's screens, Skellig from power-on: the Lead's page, then a
 # click of ALGORITHM on each layer, PERFORM and the way out of it, GLO's save and reset;
 # build/host/amb_host tests/listen/flowshots.amb OUT, then OUT/flow-*.png to docs/img, squeezed (lossless): the host writes them uncompressed
+# (a second after each tap: a new page's name shows large for 0.9 s, which would cover the shot)
 wait 6300
 tap LFO
-wait 400
+wait 1000
 shot flow-lead-page.png
 turn ALGO 1
 wait 150
 shot flow-lead-voice.png
 wait 1500
 tap ENV
-wait 400
+wait 1000
 turn ALGO 1
 wait 150
 shot flow-drone-voice.png
 wait 1500
 tap ARP
-wait 400
+wait 1000
 turn ALGO 1
 wait 150
 shot flow-seq-voice.png
 wait 1500
 tap SEQ
-wait 400
+wait 1000
 turn ALGO 1
 wait 150
 shot flow-seq2-voice.png
 wait 1500
 tap SAVE
-wait 400
+wait 1000
 turn ALGO 1
 wait 150
 shot flow-atmos-char.png
 wait 1500
 tap EDIT
-wait 400
+wait 1000
 turn ALGO 1
 wait 150
 shot flow-walk.png
@@ -43,7 +44,7 @@ tap SEL
 wait 1500
 shot flow-perform.png
 tap LFO
-wait 400
+wait 1000
 shot flow-perform-off.png
 wait 2500
 press GLO
