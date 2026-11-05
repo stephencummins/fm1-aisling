@@ -191,13 +191,13 @@ class Link:
             self.out.send(self.mido.Message("sysex", data=list(data)))
 
     def _beats(self):                          # a frame arriving while the last is handled is dropped: requests are resent
-        t_link = t_reader = 0.0
+        t_link = t_reader = -1e9               # (due at once: this clock can start near 0)
         while not self.stop:
             t = time.monotonic()
             if self.beat_link and t - t_link >= 1.0:
                 t_link = t
                 self._send(*H, BEAT)
-            if self.beat_reader and t - t_reader >= 2.0:
+            elif self.beat_reader and t - t_reader >= 2.0:     # (a pass later, never right behind the beat: it would be lost)
                 t_reader = t
                 self._send(*SR, HELLO, VER)
             time.sleep(0.05)
@@ -223,7 +223,9 @@ class Link:
             return None
         self.beat_link = True
         if reader:
+            n = self.reader_frames
             self.beat_reader = True
+            until(lambda: self.reader_frames > n, 3.0)     # (lines said before it listens are lost)
         until(lambda: self.state is not None, 2.0)
         return self.hello
 
