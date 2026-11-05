@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-// AISLING's editor (a design draft): the page. Two copies of the firmware run here. A quiet one on the main thread
+// AISLING's editor: the page. Two copies of the firmware run here. A quiet one on the main thread
 // describes the FM-1 before anyone has touched anything: its pages, its ranges, the words for every value. It is never
 // edited. The other is in the AudioWorklet (worklet.js) and plays; everything you do goes to it, and what it reports
 // comes back about 30 times a second. The page keeps no second model of the instrument: names, ranges and help all
@@ -1297,7 +1297,7 @@
     libConnect.hidden = on;
     $("foot").textContent = on
       ? "Connected to your FM-1 over USB. This page makes no sound, and what you change here changes the FM-1."
-      : `A draft. Everything here runs on a copy of AISLING ${FWV()} in this page. Connect reaches your FM-1 over USB.`;
+      : `Everything here runs on a copy of AISLING ${FWV()} in this page. Connect reaches your FM-1 over USB.`;
   }
 
   /* ---------- starting up ---------- */
