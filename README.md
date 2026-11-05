@@ -67,6 +67,16 @@ AMB-1. It doesn't read what they saved (it starts with its own eight recipes), a
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
 
+## What's new in 0.5
+
+- **[The editor](https://aisling.stephen8n.com/editor/):** every setting of a piece on one page, played in the browser or, in Chrome or Edge, on your FM-1 over USB.
+- **Undo:** hold HOME and tap OCT− to undo, OCT+ to redo.
+- **Hold SAVE to save,** as GLO already did.
+- **SEL leaves PERFORM,** back to the page you came from.
+- **Where you are:** a dot for each of the layer's pages on the screen, and the page's name large for a moment.
+- **A gentler MASTER,** with more room at the quiet end.
+- **USB audio before MASTER,** so recording works at any volume.
+
 ## The pieces
 
 | # | Piece | Named for | Key, tempo | What you hear |

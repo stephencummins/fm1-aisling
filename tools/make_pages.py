@@ -83,6 +83,10 @@ LANDING = """<!doctype html>
 .block .ways { border-top: 1px solid var(--brand-rule); }
 .pane p { margin: 0 0 10px; }
 .pane p:last-child { margin-bottom: 0; }
+ul.new { list-style: square; padding-left: 1.2rem; margin: 0; columns: 2; column-gap: 32px; }
+ul.new li { margin: 0 0 6px; break-inside: avoid; }
+ul.new li::marker { color: var(--brand-green); }
+ul.new b { font-weight: 400; color: var(--brand-green); }
 ul.layers { list-style: square; padding-left: 1.2rem; margin: 0 0 10px; }
 ul.layers li { margin: 0 0 10px; }
 ul.layers li.d::marker { color: var(--drone); } ul.layers li.s::marker { color: var(--seq); }
@@ -94,7 +98,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
   .two.hero { grid-template-columns: minmax(0, 1fr); }
   .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
 }
-@media (max-width: 47.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 47.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } ul.new { columns: 1; } }
 @media (min-width: 30rem) and (max-width: 47.99rem) { .ways.help { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 26rem) { .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; } }
 </style>
@@ -123,8 +127,13 @@ always in the piece's scale, and it answers you.</p>
 <nav class="ways" aria-label="Get AISLING">
   <a class="go" href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge (also Chrome on Android), with the FM-1 connected by USB. Nothing to install.</span></a>
   <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed. Slide the visualiser up beneath it to watch what it plays painted.</span></a>
-  <a class="pic" href="visualiser/"><img src="img/visualiser.jpg" width="1200" height="630" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills and fields, the drone the bog. Chrome or Edge; Demo paints without an FM-1. Nothing leaves your computer.</span></a>
+  <a class="pic" href="visualiser/"><img src="img/visualiser.jpg" width="1200" height="630" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills and fields, the drone the bog. Drop a sound file on it to mix it in. Chrome or Edge; Demo paints without an FM-1. Nothing leaves your computer.</span></a>
 </nav>
+
+<section class="pane" aria-labelledby="newh">
+<h2 class="bh" id="newh">New in v__VERSION__</h2>
+__NEW__
+</section>
 
 <section class="block" aria-labelledby="helph">
 <h2 class="bh" id="helph">Help, and the files</h2>
@@ -275,6 +284,31 @@ def md_table(section):
     return f"<table>\n<thead><tr>{head}</tr></thead>\n<tbody>\n{body}</tbody>\n</table>"
 
 
+def whats_new(version):
+    """The landing page's list: the bullets under the README's "## What's new in VERSION", so it's written once. Stops if
+    this version has none, or a release would go out with the last one's news."""
+    lines = (SRC / "README.md").read_text(encoding="utf-8").splitlines()
+    head = "## What's new in " + version
+    if head not in lines:
+        raise SystemExit(f"README.md: no {head}")
+    items = []
+    for line in lines[lines.index(head) + 1:]:
+        if line.startswith("## "):
+            break
+        if line.startswith("- "):
+            items.append(line[2:])
+        elif items and line.strip():
+            items[-1] += " " + line.strip()
+    if not items:
+        raise SystemExit(f"README.md: nothing under {head}")
+
+    def item(t):
+        t = html.escape(t, quote=False)
+        t = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", lambda m: f'<a href="{m.group(2).removeprefix(SITE)}">{m.group(1)}</a>', t)
+        return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
+    return '<ul class="new">\n' + "".join(f"  <li>{item(t)}</li>\n" for t in items) + "</ul>"
+
+
 def flows():
     """The cheat sheet's flows: the drawings. Their screens are docs/img/flow-*.png (tests/listen/flowshots.amb)."""
     page = (SRC / "web" / "cheat" / "flows.html").read_text(encoding="utf-8")
@@ -336,7 +370,8 @@ def main(pkg, version, out):
     shutil.copy(SRC / "docs" / "card.png", out / "img" / "card.png")
     shutil.copy(SRC / "web" / "visualiser" / "share.jpg", out / "img" / "visualiser.jpg")
     (out / "index.html").write_text(stamp(LANDING.replace("__VERSION__", html.escape(version)).replace("__PKG__", name)
-                                          .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY), ""),
+                                          .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY)
+                                          .replace("__NEW__", whats_new(version)), ""),
                                     encoding="utf-8")
     # the cheat sheet
     (out / "cheat" / "index.html").write_text(stamp(cheat_sheet(version), "../", "cheat"), encoding="utf-8")
