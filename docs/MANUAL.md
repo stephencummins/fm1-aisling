@@ -19,7 +19,7 @@ AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https:/
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 0.5, the fifth test version.** It runs on the FM-1 (install it from the web installer) and in the
+**This is 0.5.1, the fifth test version with a fix for newer FM-1s.** It runs on the FM-1 (install it from the web installer) and in the
 browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -705,6 +705,23 @@ loader, and checks each against a known fingerprint. V15 and V16 come with diffe
 writes the version whose bootloader is already on your FM-1, and only the firmware area, never the
 bootloader or the FM-1's own settings. If the FM-1 never shows up at all, Felucca's
 [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter) can still reach it.
+
+### A newer FM-1 on an earlier AISLING
+
+FM-1s sold since autumn 2026 carry a different flash chip (a UC25HQ80, ID `0xB36014`). AISLING 0.5.1 accepts it.
+Earlier versions don't: the FM-1 plays, but SAVE shows **NOT SAVED / FLASH ERROR**, nothing survives switching
+off, and it won't start an update. We have only the first chip, so 0.5.1 hasn't been tried by us on the newer one.
+
+From M-VAVE's firmware or another that accepts the chip, the [web installer](https://aisling.stephen8n.com/install/)
+works as usual. From an earlier AISLING, go through the chip's own download mode, once:
+
+1. Hold **OCT−** and **OCT+** for 5 seconds. The screen counts down, then stops on **UBOOT**. Nothing has been
+   written yet, and switching off and on brings the FM-1 back as it was.
+2. Use [M-Flasher](https://github.com/jvitkauskas/m-flasher/releases) to save a backup and install the `.fwsc`
+   from [the releases](https://github.com/stephencummins/fm1-aisling/releases). Leave out M-Flasher's own bootloader,
+   m-bootloader: its maker warns that it isn't tested on this chip, and one such FM-1 didn't start after it.
+
+[The Firmware Hub's rescue page](https://thefirmwarehub.com/tools/rescue/#chip) lists the other tools.
 
 ---
 

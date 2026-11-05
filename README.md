@@ -37,7 +37,7 @@ remembers and answers) and changes what it plays:
   of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 0.5, the fifth test version** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 0.5.1, the fifth test version with a fix for newer FM-1s** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -66,6 +66,12 @@ tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
+## What's new in 0.5.1
+
+- **Newer FM-1s can save and update.** Units sold since autumn 2026 carry a different flash chip (0xB36014). AISLING now accepts it beside the first one, so pieces survive switching off and updates start. Nothing else changes. We have only the first chip, so this has been tried by us on that one alone.
+- **On a newer FM-1 with an earlier AISLING?** Those versions refuse updates, so reaching this one takes [the chip's own download mode](https://thefirmwarehub.com/tools/rescue/#chip), once. The [manual](https://aisling.stephen8n.com/manual/#a-newer-fm-1-on-an-earlier-aisling) has the steps.
+- **Still new from 0.5:** [the editor](https://aisling.stephen8n.com/editor/), undo, hold SAVE to save, and USB audio before MASTER.
 
 ## What's new in 0.5
 
