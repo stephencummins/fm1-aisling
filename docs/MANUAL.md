@@ -601,7 +601,7 @@ A note's pitch sets how far across it lands, how hard it's played how much paint
 storm: the Drone lays the swell, the Sequence the foam, each note of Sequence 2 spins up an eddy, and the Lead is the
 light. Space is deep space: the Drone a nebula's glow, the Sequence stars that flare where its notes land, Sequence 2
 threads of gas, and the Lead a comet, up for a higher note and down for a lower. On Land, **Ground** (M) changes what it paints on
-(vellum, mist or night) and **Colours** (C) its colours (Heather, Atlantic, Kells or Evening): what is painted keeps its own, and the next notes take the new. Connect the FM-1 by USB, open the
+(vellum, mist or night) and **Colours** (C) its colours (Heather, Atlantic, Kells or Evening): what is painted keeps its own, and the next notes take the new. For your own, click a layer in the list: a colour wheel and a brightness slider choose its colour, the browser remembers them, and **Copy link** gives an address that opens the page with them. Your own colours are for the landscape; the sea and space keep theirs. Connect the FM-1 by USB, open the
 page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
 page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save** keeps a still, and

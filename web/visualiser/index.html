@@ -202,6 +202,44 @@ body.bench input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none;
        background: var(--accent); border: 0; border-radius: 0; }
 body.bench input[type="range"]::-moz-range-track { height: 3px; background: var(--rule); }
 body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; background: var(--accent); border: 0; border-radius: 0; }
+/* your own colours: on Land each row of the list is a button that opens the wheel under the list. The scene and look
+   step aside while it is open and the painting holds its height, so the canvas never resizes under a choice. */
+ul.legend button, body.bench ul.legend button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 24px; margin: 0; padding: 0;
+       font: inherit; letter-spacing: inherit; text-align: left; text-transform: inherit; color: inherit; background: none; border: 0; border-radius: 0; cursor: pointer; }
+ul.legend button:hover, body.bench ul.legend button:hover { color: var(--accent); }
+ul.legend button[aria-expanded="true"] { color: var(--accent); }
+ul.legend button[aria-expanded="true"] i { outline: 2px solid var(--accent); outline-offset: 1px; }
+#lhint { color: var(--accent); white-space: nowrap; }
+#lhint[hidden], #picker[hidden] { display: none; }
+body.bench #legendg > .bh { display: flex; justify-content: space-between; gap: 8px; }
+/* rows that are buttons sit closer, and taller: four of them come to what four plain rows and their gaps did, so the list
+   doesn't push the painting's height about */
+body.bench #legendg:has(#legend button) > .bh { margin-bottom: 0; }
+body.bench ul.legend:has(button) { gap: 0; }
+body.bench ul.legend:has(button) #slegend { min-height: 24px; }
+#picker { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); scroll-margin: 12px; }
+#pickwhat { margin: 0 0 10px; color: var(--ink); }
+body.bench #pickwhat, body.bench #picker label { text-transform: lowercase; }
+body.picking #sceneg, body.picking #lookg { display: none; }
+@media (min-width: 48rem) { body.bench.picking #frame { align-self: start; height: var(--held, auto); aspect-ratio: auto; } }
+#wheel { position: relative; width: min(100%, 168px); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; box-shadow: 0 0 0 1px var(--rule); touch-action: none; cursor: crosshair;
+         background: radial-gradient(circle closest-side, #fff, rgba(255, 255, 255, 0)), conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
+#wdim { position: absolute; inset: 0; border-radius: 50%; background: #000; pointer-events: none; }
+#wdot { position: absolute; box-sizing: border-box; width: 12px; height: 12px; margin: -6px 0 0 -6px; border: 2px solid #fff; outline: 1px solid #000; pointer-events: none; }
+#picker label { display: flex; align-items: center; gap: 8px; margin-top: 10px; font: 400 12.5px/1.4 var(--mono); color: var(--muted); }
+#wval { -webkit-appearance: none; appearance: none; flex: 1; width: auto; min-width: 0; height: 24px; background: none; cursor: pointer; }
+#wval::-webkit-slider-runnable-track { height: 8px; background: linear-gradient(90deg, #000, var(--top, #fff)); box-shadow: 0 0 0 1px var(--rule); }
+#wval::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 20px; margin-top: -6px; background: var(--ink); border: 0; border-radius: 0; box-shadow: 0 0 0 1px #fff; }
+#wval::-moz-range-track { height: 8px; background: linear-gradient(90deg, #000, var(--top, #fff)); box-shadow: 0 0 0 1px var(--rule); }
+#wval::-moz-range-thumb { width: 6px; height: 20px; background: var(--ink); border: 0; border-radius: 0; box-shadow: 0 0 0 1px #fff; }
+#whex { flex: 1; box-sizing: border-box; width: auto; min-width: 0; min-height: 32px; padding: 4px 8px; font: inherit; color: var(--ink); background: var(--btn); border: 1px solid var(--rule); border-radius: 0; }
+body.stage #whex { border-radius: 6px; }
+#whex:hover { border-color: var(--ink); }
+#wheel:focus-visible, #wval:focus-visible, #whex:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#wfoot { display: flex; gap: 6px; margin-top: 10px; }
+#wfoot button { flex: 1 1 auto; }
+@media (pointer: coarse) { ul.legend button, body.bench ul.legend button { min-height: 40px; } }
+@media (max-width: 47.99rem) { #wheel { width: min(100%, 220px); } #whex { font-size: 16px; } }
 /* the guide, below the bench: numbered steps, all of them open, in as many columns as fit */
 #guide { padding: 6px 16px 16px; border-top: 1px solid var(--rule); }
 #guide .bh { margin: 8px 0 12px; font: 600 17px/1.3 var(--display); letter-spacing: .02em; color: var(--ink); }
@@ -255,8 +293,18 @@ body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; bac
       <h1><i class="mark" aria-hidden="true"></i>AISLING<span>Visualiser</span></h1>
       <p id="what">The FM-1's four layers painted as a west-coast landscape.</p>
       <div class="grp" id="legendg">
-        <h2 class="bh">what paints what</h2>
+        <h2 class="bh">what paints what <span id="lhint">pick colours</span></h2>
         <ul class="legend" id="legend"></ul>
+        <div id="picker" hidden>
+          <p class="lab" id="pickwhat"></p>
+          <div id="wheel" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="359"><i id="wdim"></i><i id="wdot"></i></div>
+          <label>Brightness <input id="wval" type="range" min="0" max="100"></label>
+          <label>Hex <input id="whex" type="text" maxlength="7" spellcheck="false" autocomplete="off" autocapitalize="off"></label>
+          <div id="wfoot">
+            <button id="wlink" type="button" title="Copy an address that opens the page with these colours">Copy link</button>
+            <button id="wdone" type="button">Done</button>
+          </div>
+        </div>
       </div>
       <div id="buttons">
         <div class="grp">
@@ -267,7 +315,7 @@ body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; bac
             <button id="demo" type="button" aria-pressed="false">Demo</button>
           </div>
         </div>
-        <div class="grp">
+        <div class="grp" id="sceneg">
           <h2 class="bh">scene</h2>
           <div id="scene" role="group" aria-label="The scene" title="Change the scene (V)">
             <button type="button" data-scene="landscape" aria-pressed="true">Land</button>
@@ -323,6 +371,8 @@ body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; bac
       <li><h3><b>03</b>What paints what</h3>
         <p>Pitch sets how far across a note lands, how hard it is played sets how much paint, and the FM-1's tempo sets the
            wind. The Drone and the Lead keep painting while their notes are held, so the wind draws them out into strokes.</p>
+        <p>On the landscape, click a layer in the list to choose its colour on the wheel. The low and high notes follow from it, your browser
+           remembers it, and <b>Copy link</b> gives an address that opens the page with your colours.</p>
       </li>
       <li><h3><b>04</b>Paint by hand</h3>
         <p>Paint with a finger or the mouse too: the band you touch picks the colour.</p>
@@ -360,7 +410,7 @@ body.bench input[type="range"]::-moz-range-thumb { width: 4px; height: 18px; bac
       </li>
       <li><h3><b>10</b>Keys</h3>
         <p>Keys: <kbd>F</kbd> full screen, <kbd>V</kbd> the scene (land, sea or space), <kbd>M</kbd> the
-           landscape's ground (vellum, mist or night), <kbd>C</kbd> its colours (Heather, Atlantic, Kells or Evening: what is
+           landscape's ground (vellum, mist or night), <kbd>C</kbd> its colours (Heather, Atlantic, Kells, Evening or your own: what is
            painted keeps its own, the next notes take the new), <kbd>D</kbd> demo, <kbd>S</kbd> save, <kbd>R</kbd>
            record, <kbd>A</kbd> a sample, <kbd>H</kbd> hide the panel in full screen. Add <kbd>?clean</kbd> to the address for no panel
            at all (a projector, or a browser source in OBS), or <kbd>?scene=space</kbd> to open on the stars, <kbd>?scene=water</kbd> on the sea.</p>
@@ -405,7 +455,7 @@ for (const L of LAYERS) L.rgb = L.stops.map(hex)
 /* the colours, a choice (C, or ?palette=): each the four layers' stops in channel order, low note to high. Heather
    (the default), the oil paintings' own pigments muted, the bog's peat and heather over blue-black water; Evening,
    bright as those paintings, as LAYERS has them; Atlantic, the coast as it is, slate, moss and sea-grey under a pale sky; Kells, an illuminated
-   page, gold, lapis and verdigris */
+   page, gold, lapis and verdigris. Your own, from the wheel, joins them as PALETTES.own once there is one (setOwn) */
 const PALETTES = {
   evening: LAYERS.slice(0, 4).map((L) => L.stops),
   heather: [['#1d2230', '#3e2a22', '#6a2a3c', '#9a4a63'], ['#2e3b20', '#536a2a', '#7f8a35', '#b0ab55'],
@@ -415,7 +465,9 @@ const PALETTES = {
   kells: [['#3b1f3e', '#5e2e5c', '#86497a', '#ad6f8f'], ['#163f37', '#245f52', '#3f8270', '#7fae96'],
           ['#9a3f1c', '#c0782a', '#d8ac3e'], ['#1c2550', '#2f4683', '#6a80b0']],
 }
-const NEXT_PALETTE = { evening: 'heather', heather: 'atlantic', atlantic: 'kells', kells: 'evening' }
+// own joins the round once there is one (setOwn, below)
+const NEXT_PALETTE = { evening: 'heather', heather: 'atlantic', atlantic: 'kells', kells: 'own', own: 'evening' }
+const nextPalette = () => (Object.hasOwn(PALETTES, NEXT_PALETTE[palette]) ? NEXT_PALETTE[palette] : NEXT_PALETTE[NEXT_PALETTE[palette]])
 // vellum first: the default, a page of old calfskin, warm and darkening to its foot
 const GROUNDS = {
   vellum: { top: '#f5edda', bottom: '#d8c9a8', mottle: 9, vignette: 0.16, theme: '#ece2cb' },
@@ -2420,12 +2472,13 @@ function setGround(g, picked) {
 
 let palette = 'heather'
 function setPalette(name, picked) {
+  if (SC.colours || name !== 'own') closePick()
   palette = name
-  const sets = SC.colours || PALETTES[name]
+  const sets = SC.colours || PALETTES[name], shown = name === 'own' ? 'Your own' : `${name[0].toUpperCase()}${name.slice(1)}`
   sets.forEach((st, i) => { LAYERS[i].stops = st; LAYERS[i].rgb = st.map(hex) })
   legend()
-  $('colours').textContent = `Colours: ${name[0].toUpperCase()}${name.slice(1)}`
-  if (picked) { store.set('aisling-vis-palette', name); say(`The colours: ${name[0].toUpperCase()}${name.slice(1)}.`) }
+  $('colours').textContent = `Colours: ${shown}`
+  if (picked) { store.set('aisling-vis-palette', name); say(`The colours: ${shown}.`) }
 }
 
 // the scene's buttons show the one it is on. What is painted fades back, and the notes held move to their new places
@@ -2453,13 +2506,169 @@ function legend() {
   const ul = $('legend'), sample = $('slegend')
   ul.replaceChildren()
   for (const L of LAYERS.slice().sort((a, b) => !!a.extra - !!b.extra || (a.order ?? a.band[0]) - (b.order ?? b.band[0]))) {
-    const li = document.createElement('li'), sw = document.createElement('i')
+    const li = document.createElement('li'), sw = document.createElement('i'), n = LAYERS.indexOf(L), label = `${L.name}: ${L.place}`
     sw.style.setProperty('--c', `linear-gradient(90deg, ${L.stops.join(', ')})`)
-    li.append(sw, `${L.name}: ${L.place}`)
+    swatches[n] = sw
+    if (SC.colours || L.extra) li.append(sw, label)
+    else {
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.dataset.layer = n
+      b.title = `Choose the ${L.name}'s colour`
+      b.setAttribute('aria-controls', 'picker')
+      b.setAttribute('aria-expanded', String(picking?.li === n))
+      b.addEventListener('click', () => { if (picking?.li === n) closePick(true); else openPick(n) })
+      b.append(sw, label)
+      li.append(b)
+    }
     if (L.extra) { li.id = 'slegend'; li.hidden = sample ? sample.hidden : true }
     ul.append(li)
   }
+  $('lhint').hidden = !!SC.colours || !!picking
 }
+
+/* ---------------- your own colours ----------------
+   One colour for each layer, on a wheel with a brightness slider, opened from the list of what paints what. The rest of
+   a layer's run, low note to high, comes from that one colour. The wheel is CSS (a conic gradient, faded to white at its
+   middle, under a black veil for the brightness), so there is nothing to read back: where the pointer is gives the hue
+   and strength by arithmetic. They are kept in the browser, and ?palette=rrggbb-rrggbb-rrggbb-rrggbb, in channel order,
+   opens the page with them without replacing what that browser has kept. */
+const swatches = []
+const OWN_CODE = /^[0-9a-f]{6}(-[0-9a-f]{6}){3}$/i
+let own = null, picking = null, dabAt = -1e9   // own: the four chosen colours, in channel order; picking: { li, h, s, v }
+function hsv2hex(h, s, v) {
+  const f = (n) => {
+    const k = (n + h / 60) % 6
+    return Math.round((v - v * s * Math.max(0, Math.min(k, 4 - k, 1))) * 255).toString(16).padStart(2, '0')
+  }
+  return `#${f(5)}${f(3)}${f(1)}`
+}
+function hex2hsv(c) {
+  const [r, g, b] = hex(c).map((x) => x / 255), v = Math.max(r, g, b), d = v - Math.min(r, g, b)
+  const a = !d ? 0 : v === r ? ((g - b) / d + 6) % 6 : v === g ? (b - r) / d + 2 : (r - g) / d + 4
+  return { h: a * 60, s: v ? d / v : 0, v }
+}
+// the run from one colour, which is its third stop exactly: below it darker, above it paler, the hue drifting a little
+// along the way, as it does in the painted sets
+function ownStops(c) {
+  const { h, s, v } = hex2hsv(c)
+  return [hsv2hex((h + 348) % 360, s * 0.9, v * 0.45), hsv2hex((h + 355) % 360, s * 0.98, v * 0.72), c,
+          hsv2hex((h + 8) % 360, s * 0.72, v + (1 - v) * 0.45)]
+}
+const parseOwn = (code) => (OWN_CODE.test(code ?? '') ? code.toLowerCase().split('-').map((c) => `#${c}`) : null)
+const ownCode = () => own.map((c) => c.slice(1)).join('-')
+function setOwn(colours) { own = colours; PALETTES.own = colours.map(ownStops) }
+function ownLayer(li, c) {
+  const st = ownStops(c), L = LAYERS[li]
+  own[li] = c
+  PALETTES.own[li] = st
+  L.stops = st
+  L.rgb = st.map(hex)
+  swatches[li].style.setProperty('--c', `linear-gradient(90deg, ${st.join(', ')})`)
+}
+function showPick(from) {
+  const { li, h, s, v } = picking, L = LAYERS[li], w = $('wheel'), dot = $('wdot'), a = h * Math.PI / 180
+  $('pickwhat').textContent = `${L.name}: ${L.place}`
+  $('wdim').style.opacity = 1 - v
+  dot.style.left = `${50 + 50 * s * Math.sin(a)}%`
+  dot.style.top = `${50 - 50 * s * Math.cos(a)}%`
+  dot.style.background = own[li]
+  w.setAttribute('aria-label', `The ${L.name}'s colour`)
+  w.setAttribute('aria-valuenow', Math.round(h) % 360)
+  w.setAttribute('aria-valuetext', `Hue ${Math.round(h) % 360} degrees, strength ${Math.round(s * 100)} percent`)
+  $('wval').style.setProperty('--top', hsv2hex(h, s, 1))
+  if (from !== 'val') $('wval').value = Math.round(v * 100)
+  if (from !== 'hex') { $('whex').value = own[li]; $('whex').removeAttribute('aria-invalid') }
+}
+function pickMoved(from) {
+  ownLayer(picking.li, hsv2hex(picking.h, picking.s, picking.v))
+  showPick(from)
+}
+// a choice made: keep it, and one dab of the new colour, so the page answers with nothing playing
+function pickKept() {
+  if (!picking) return
+  store.set('aisling-vis-own', ownCode())
+  store.set('aisling-vis-palette', 'own')
+  const now = performance.now()
+  if (now - dabAt < 400) return
+  dabAt = now
+  const li = picking.li, r = LAYERS[li].range, n = Math.round(r[0] + (r[1] - r[0]) * 2 / 3)
+  noteOn(li, n, 80)
+  setTimeout(() => noteOff(li, n), 1200)
+}
+function openPick(li) {
+  if (palette !== 'own') {
+    if (!own) setOwn(LAYERS.slice(0, 4).map((L) => L.stops[2]))
+    setPalette('own')
+  }
+  frameBox.style.setProperty('--held', `${frameBox.getBoundingClientRect().height}px`)
+  picking = { li, ...hex2hsv(own[li]) }
+  document.body.classList.add('picking')
+  $('picker').hidden = false
+  $('lhint').hidden = true
+  for (const b of $('legend').querySelectorAll('button')) b.setAttribute('aria-expanded', String(+b.dataset.layer === li))
+  showPick()
+  $('picker').scrollIntoView({ block: 'nearest' })
+  $('wheel').focus({ preventScroll: true })
+}
+function closePick(refocus) {
+  if (!picking) return
+  const li = picking.li
+  picking = null
+  document.body.classList.remove('picking')
+  $('picker').hidden = true
+  $('lhint').hidden = !!SC.colours
+  for (const b of $('legend').querySelectorAll('button')) b.setAttribute('aria-expanded', 'false')
+  if (refocus) $('legend').querySelector(`[data-layer="${li}"]`)?.focus()
+}
+{
+  const w = $('wheel')
+  const at = (e) => {
+    if (!picking) return
+    const r = w.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2)
+    picking.h = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360
+    picking.s = Math.min(1, Math.hypot(dx, dy) / (r.width / 2))
+    pickMoved()
+  }
+  w.addEventListener('pointerdown', (e) => { if (e.button) return; w.setPointerCapture(e.pointerId); at(e) })
+  w.addEventListener('pointermove', (e) => { if (w.hasPointerCapture(e.pointerId)) at(e) })
+  w.addEventListener('lostpointercapture', pickKept)
+  w.addEventListener('keydown', (e) => {
+    const big = e.shiftKey ? 3 : 1
+    if (e.key === 'ArrowLeft') picking.h = (picking.h + 360 - 5 * big) % 360
+    else if (e.key === 'ArrowRight') picking.h = (picking.h + 5 * big) % 360
+    else if (e.key === 'ArrowUp') picking.s = Math.min(1, picking.s + 0.05 * big)
+    else if (e.key === 'ArrowDown') picking.s = Math.max(0, picking.s - 0.05 * big)
+    else return
+    e.preventDefault()
+    pickMoved()
+  })
+  w.addEventListener('keyup', (e) => { if (e.key.startsWith('Arrow')) pickKept() })
+}
+$('wval').addEventListener('input', (e) => { picking.v = e.target.value / 100; pickMoved('val') })
+$('wval').addEventListener('change', pickKept)
+$('whex').addEventListener('input', (e) => {
+  const m = e.target.value.trim().match(/^#?([0-9a-f]{6})$/i)
+  if (!m) return
+  const c = `#${m[1].toLowerCase()}`
+  e.target.removeAttribute('aria-invalid')
+  Object.assign(picking, hex2hsv(c))
+  ownLayer(picking.li, c)
+  showPick('hex')
+})
+$('whex').addEventListener('change', (e) => {
+  if (/^#?[0-9a-f]{6}$/i.test(e.target.value.trim())) { pickKept(); return }
+  e.target.setAttribute('aria-invalid', 'true')
+  say('A colour is six hex digits, like d99b5a.')
+})
+$('picker').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); closePick(true) } })
+$('wdone').addEventListener('click', () => closePick(true))
+$('wlink').addEventListener('click', () => {
+  const link = `${location.href.split(/[?#]/)[0]}?scene=landscape&ground=${landGround}&palette=${ownCode()}`
+  const shown = () => say(`The link, to copy: ${link}`)
+  if (!navigator.clipboard) { shown(); return }
+  navigator.clipboard.writeText(link).then(() => say('Link copied: it opens the page with these colours.'), shown)
+})
 
 // the two layouts. The bench, as the page opens; the stage, where the painting has the whole window and the panel
 // floats over it: in full screen, with ?clean, in the emulator's drawer, and where a browser has no full screen (an
@@ -2561,7 +2770,7 @@ $('listen').addEventListener('click', listen)
 $('demo').addEventListener('click', () => setDemo(!demo.on))
 for (const b of $('scene').children) b.addEventListener('click', () => setScene(b.dataset.scene, true))
 $('ground').addEventListener('click', () => setGround(NEXT_GROUND[landGround], true))
-$('colours').addEventListener('click', () => setPalette(NEXT_PALETTE[palette], true))
+$('colours').addEventListener('click', () => setPalette(nextPalette(), true))
 $('full').addEventListener('click', toggleFull)
 $('save').addEventListener('click', savePicture)
 $('record').addEventListener('click', record)
@@ -2583,7 +2792,7 @@ addEventListener('keydown', (e) => {
   else if (k === 'f') toggleFull()
   else if (k === 'v') setScene(SC.next, true)
   else if (k === 'm' && !SC.ground) setGround(NEXT_GROUND[landGround], true)
-  else if (k === 'c' && !SC.colours) setPalette(NEXT_PALETTE[palette], true)
+  else if (k === 'c' && !SC.colours) setPalette(nextPalette(), true)
   else if (k === 'd') setDemo(!demo.on)
   else if (k === 's') savePicture()
   else if (k === 'r') record()
@@ -2597,7 +2806,9 @@ setScene(isScene(params.get('scene')) ? params.get('scene') : isScene(store.get(
 const isGround = (g) => Object.hasOwn(NEXT_GROUND, g ?? '')
 setGround(isGround(params.get('ground')) ? params.get('ground') : isGround(store.get('aisling-vis-ground-picked')) ? store.get('aisling-vis-ground-picked') : 'vellum')
 const isPalette = (n) => Object.hasOwn(PALETTES, n ?? '')
-setPalette(isPalette(params.get('palette')) ? params.get('palette') : isPalette(store.get('aisling-vis-palette')) ? store.get('aisling-vis-palette') : 'heather')
+const ownLink = parseOwn(params.get('palette')), ownKept = parseOwn(store.get('aisling-vis-own'))
+if (ownLink || ownKept) setOwn(ownLink || ownKept)
+setPalette(ownLink ? 'own' : isPalette(params.get('palette')) ? params.get('palette') : isPalette(store.get('aisling-vis-palette')) ? store.get('aisling-vis-palette') : 'heather')
 arrange()
 layout()
 paintGrain()

@@ -29,6 +29,23 @@ else {
   if (!(+demo[2] > 0) || !demo[3].length || demo[3].length % 9) bad.push("the demo's notes don't parse");
   heard = ` but ${demo[1]} (${(size / 1e6).toFixed(1)} MB, ${demo[3].length / 9} notes) on Demo`;
 }
+// your own colours: the run from one colour, worked out as the page works it out
+const one = (re) => { const m = page.match(re); if (!m) bad.push("missing: " + re); return m ? m[0] : ""; };
+const made = vm.runInNewContext([one(/^const hex = .*$/m), one(/^const OWN_CODE = .*$/m),
+  one(/^function hsv2hex[\s\S]*?^const parseOwn = .*$/m), "({ hsv2hex, hex2hsv, ownStops, parseOwn })"].join(";\n"));
+const { hsv2hex, hex2hsv, ownStops, parseOwn } = made;
+for (let r = 0; r < 256; r += 51) for (let g = 0; g < 256; g += 51) for (let b = 0; b < 256; b += 51) {
+  const c = "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join(""), st = ownStops(c), v = st.map((x) => hex2hsv(x).v);
+  const { h, s, v: val } = hex2hsv(c);
+  if (hsv2hex(h, s, val) !== c) bad.push(`colour ${c} doesn't come back from hue, strength and brightness: ${hsv2hex(h, s, val)}`);
+  if (st.length !== 4 || st[2] !== c) bad.push(`${c}: the third stop isn't the colour chosen: ${st}`);
+  if (st.some((x) => !/^#[0-9a-f]{6}$/.test(x))) bad.push(`${c}: a stop isn't a colour: ${st}`);
+  if (!(v[0] <= v[1] && v[1] <= v[2] && v[2] <= v[3])) bad.push(`${c}: the run doesn't brighten: ${st}`);
+  if (val > 0 && v[0] >= v[2]) bad.push(`${c}: the low notes aren't darker: ${st}`);
+}
+if (parseOwn("112233-445566-778899-AABBCC")?.join() !== "#112233,#445566,#778899,#aabbcc") bad.push("?palette= doesn't read four colours");
+for (const no of ["", "heather", "112233", "112233-445566-778899", "11223-445566-778899-aabbcc", "112233-445566-778899-aabbcg", "112233-445566-778899-aabbcc-ddeeff", null])
+  if (parseOwn(no)) bad.push(`?palette= takes ${no}`);
 for (const re of [/XMLHttpRequest/, /\bimport\s*\(/, /new\s+(Shared)?Worker\s*\(/, /WebSocket/, /sendBeacon/,
   /EventSource/, /@import/, /url\(\s*["']?https?:/]) if (re.test(page)) bad.push("network: " + re);
 console.log(bad.length ? bad.join("\n") : `ok: ${scripts.length} script, ${page.length} B, nothing fetched${heard}`);
