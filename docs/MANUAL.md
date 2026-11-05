@@ -672,8 +672,8 @@ doing.
 **Clicks, and `!n` on the Setup page:** GLO's Setup page shows the audio load at the top right, as now/peak, and
 any dropouts since the FM-1 started as `!n`. A dropout can be a small click. AISLING runs close to what the chip can do.
 Over ten minutes each at their recipes, on one FM-1, Burren, Carolan, Connemara and Tir na nOg had none, Samhain 29,
-Skellig 117, Aran 251 and Blasket 374, mostly in short stretches that line up with the drone's chord changes. A piece
-changed by hand can cost much more: one saved Aran had about 6,600. Holding GLO on puts a piece back to its recipe, and
+Skellig 117, Aran 251 and Blasket 374, in short stretches. On Skellig, Aran and Samhain their timing fits the drone's
+chord changes. A piece changed by hand can cost much more: one saved Aran had about 6,600. Holding GLO on puts a piece back to its recipe, and
 takes your changes with it. A computer reading the USB audio adds about 6 points to the load.
 
 **No USB audio on an older Mac:** in a simple test on macOS 13.7.8, the FM-1's MIDI appeared but no sound device did,
