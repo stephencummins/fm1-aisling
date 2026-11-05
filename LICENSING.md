@@ -29,6 +29,8 @@ derived from it, you must give your recipients its complete corresponding source
 | Barlow Semi Condensed (The Barlow Project Authors), the UI face | SIL OFL 1.1 | `assets/fonts/BarlowSemiCondensed-*.ttf`, `assets/fonts/Barlow-OFL.txt` |
 | Terminus (Dimitar Toshkov Zhekov), an alternative font set | SIL OFL 1.1 | `assets/fonts/ter-u*.bdf`, `assets/fonts/Terminus-LICENSE.txt` |
 | JieLi AC79 SDK: `uboot.boot`, `cfg_tool.bin`, `eq_cfg_hw.bin` are read from your SDK checkout at build time and placed in the package; no SDK files are in this tree | Apache-2.0 | <https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK> |
+| The emulator's screen reader on the site: `words.js` and `tts.js` from [fm1-reader](https://github.com/charlesvestal/fm1-reader) (Copyright (c) 2026 Charles Vestal) | MIT | `emu/reader/` on the site, with fm1-reader's `LICENSE`; not in this tree: `tools/get_reader.sh` fetches the commit `web/emu/reader.pin` names, and `web/emu/build.sh` checks each file against the pin's sums |
+| The emulator's voice on the site: [eSpeak NG](https://github.com/espeak-ng/espeak-ng), English only, compiled to WebAssembly, with fm1-reader's `tts_worker.js`, its wrapper `tts_wrap.c` and its build script | GPL-3.0-or-later | `emu/reader/tts_worker.js` and `emu/reader/espeak/` on the site, with eSpeak NG's licence; `emu/reader/SOURCE.txt` names the commits of both sources. Fetched and checked as above |
 
 ## MIT notice (Pluck)
 

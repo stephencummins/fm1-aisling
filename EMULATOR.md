@@ -162,8 +162,13 @@ node tests/host/emu_test.mjs build/emu/amb.wasm   # its test
 .venv/bin/python3 -m http.server -d build/emu 8000 --bind 127.0.0.1   # open http://localhost:8000
 ```
 
-`web/emu/build.sh` needs `build/gen/felucca_font.h` from the one-time setup above. It looks for a
-sibling checkout of fm1-reader (`../fm1-reader`) for the screen reader's voice; without it, it
-prints a note and the emulator still works.
+`web/emu/build.sh` needs `build/gen/felucca_font.h` from the one-time setup above. The screen
+reader's words and voice come from [fm1-reader](https://github.com/charlesvestal/fm1-reader), at the
+commit `web/emu/reader.pin` names: `sh tools/get_reader.sh` fetches it into `build/fm1-reader`, which
+the build uses first, then a sibling checkout (`../fm1-reader`), or `FM1_READER=` a checkout. The
+build copies exactly the files the pin lists, and stops if one differs from its sum. Without
+fm1-reader it prints a note and the emulator still works: the screen is said in its own text, to
+your computer's screen reader. `tools/publish_pages.sh` fetches it itself and won't publish a site
+without it.
 
 `web/app/build.sh` builds the engine alone into the phone/desktop web app, the same way.

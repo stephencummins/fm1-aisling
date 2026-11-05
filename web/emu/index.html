@@ -181,7 +181,7 @@ main { transition: max-width .35s ease; }
   </div>
   <p class="note">What the screen shows, in words: the page and its knobs, a value as you turn it, the piece, the chord as it moves,
     every message. The same words as the <a href="https://charlesvestal.github.io/fm1-reader/">FM-1 Screen Reader</a> says for the FM-1 itself.
-    This page's voice is <a href="https://github.com/espeak-ng/espeak-ng">eSpeak NG</a> (GPL-3.0), running in the page.</p>
+    This page's voice is <a href="https://github.com/espeak-ng/espeak-ng">eSpeak NG</a> (GPL-3.0 or later; <a href="reader/SOURCE.txt">its source</a>), running in the page.</p>
 </section>
 <!-- for the computer's screen reader: what the screen says, read as it changes -->
 <div id="live-a" class="sr" aria-live="assertive" aria-atomic="true"></div>
@@ -705,6 +705,12 @@ function voice() {
     .catch(() => { $("status").textContent = "This page's voice could not start: your own screen reader still reads the screen."; return null; });
   return ttsP;
 }
+// to the computer's own screen reader
+function live(text, now, keep) {
+  // the same words twice in a row are not read again by some screen readers: alternate the text
+  liveFlip = !liveFlip;
+  (now || keep ? $("live-a") : $("live-p")).textContent = text + (liveFlip ? "" : " ");
+}
 function say(screen, now, keep) {
   const text = spokenOf ? spokenOf.spoken(screen, words) : screen;
   last = { screen, now, keep };
@@ -712,15 +718,11 @@ function say(screen, now, keep) {
   $("again").disabled = false;
   if (mode() === "voice") {
     voice().then((t) => {
-      if (!t) return;
+      if (!t) { if (mode() === "voice") live(text, now, keep); return; }   // no voice: the computer's screen reader, as the status says
       const p = t.speak(text, { rate: 260, interrupt: now && !keeping });   // a warning is heard whole
       if (keep) { keeping++; p.then(() => keeping--); }
     });
-  } else if (mode() === "sr") {
-    // the same words twice in a row are not read again by some screen readers: alternate the text
-    liveFlip = !liveFlip;
-    (now || keep ? $("live-a") : $("live-p")).textContent = text + (liveFlip ? "" : " ");
-  }
+  } else if (mode() === "sr") live(text, now, keep);
 }
 function heard(bytes) {                                     // whole F0 .. F7 frames from the firmware
   let i = 0;

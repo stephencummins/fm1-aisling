@@ -1,0 +1,16 @@
+# fm1-reader (https://github.com/charlesvestal/fm1-reader), for the emulator's screen reader: the commit its files come
+# from, and the sum of each file the site gets from it (web/emu/build.sh copies exactly these into build/emu/reader/).
+# tools/get_reader.sh fetches that commit into build/fm1-reader; web/emu/build.sh checks the files against these sums
+# before it copies them, wherever they come from. To move to another commit: read what changed in these files, then
+# change the commit and the sums together.
+commit 15355a6c76858f3c8141ec7bb7efb39195073fe1
+a19c79baa28915cdc1ed488e5b3a8f9cc4d54c64cac3e61535a39ffda6e9f001  LICENSE
+35d52656e251f841510f2560332c0db5802ab9858d29067b6abede30c014da62  web/words.js
+dab0b00aa0c4c4a448b632b32a10b745a802f69503ad85e0f08790fdeb0136b9  web/tts.js
+51ec8f5e67886b0df8e79c515e25acb0146ab922794fb84eb6f569244be55e24  web/tts_worker.js
+d586a0ff139b4d5704b6d22177e098153ad6bd9a63089d5100884a071614f7b8  web/espeak/espeak.js
+5e0ca4ab0a259bfb32e79d3c121e08f4bd968632f032f9c2dbca2de834159450  web/espeak/espeak.wasm
+a3f537b2f674f17ee16394d69d07ea5fd2d7c3fd6b187d04e2b4fbb75da9b778  web/espeak/tts_wrap.c
+8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903  web/espeak/LICENSE
+799bebd9bb2d0811f3c3285b8816a0355cbbf04c36eccfc8034bac841f425b14  web/espeak/README.md
+9ccdda8b78ec514209bb30a106351d4a8545a517f48c91ac0c2633a56caf7b50  tools/build_espeak_web.sh

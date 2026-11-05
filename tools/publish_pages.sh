@@ -9,9 +9,14 @@ cd "$(dirname "$0")/.."
 V="${1:?usage: tools/publish_pages.sh VERSION}"
 PKG="build/aisling-$V.fwsc"
 [ -f "$PKG" ] || { echo "no $PKG: run tools/mini_build.sh --release $V first"; exit 1; }
-EN_VERSION="$V" sh web/emu/build.sh
+# the emulator's screen reader and its voice, at the commit web/emu/reader.pin names: never a site without them
+[ -n "$FM1_READER" ] || sh tools/get_reader.sh
+EN_VERSION="$V" EMU_NEED_READER=1 sh web/emu/build.sh
 EN_VERSION="$V" sh web/editor/build.sh
 python3 tools/make_pages.py "$PKG" "$V" build/pages
+for f in words.js tts.js tts_worker.js espeak/espeak.js espeak/espeak.wasm SOURCE.txt; do
+    [ -s "build/pages/emu/reader/$f" ] || { echo "the site has no emu/reader/$f: not published"; exit 1; }
+done
 REMOTE="$(git remote get-url origin)"
 SHA="$(git rev-parse --short HEAD)"
 SITE="$PWD/build/pages"

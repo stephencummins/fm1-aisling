@@ -12,7 +12,8 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
                               cheat sheet, troubleshooting), the download and the source
   img/                        screenshots (docs/img), the card (docs/card.png, tools/make_card.py) and the
                               visualiser's painting (web/visualiser/share.jpg, also the page's preview image)
-  emu/                        AISLING in the browser (build/emu, from web/emu/build.sh)
+  emu/                        AISLING in the browser (build/emu, from web/emu/build.sh), with its screen reader's
+                              words and voice in emu/reader/ (fm1-reader, at the commit web/emu/reader.pin names)
   editor/                     the editor (web/editor/index.html; its code from build/editor, web/editor/build.sh)
   words/                      the screen reader's words files (web/words, from firmware/words.tsv)
   install/index.html          the web installer (web/amb_installer.html, with fm1pkg.js, fm1ota.js and
