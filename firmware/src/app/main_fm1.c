@@ -7,7 +7,11 @@ extern uint32_t _data_start[], _data_end[], _data_load[], _bss_start[], _bss_end
 extern uint32_t _pool_start[], _pool_end[], _rt_start[], _rt_end[], _rt_load[];
 
 /* --------------------------------------------------------------- audio --- */
-/* Felucca's 256-frame halves (5.8 ms): AMB-1's render is light, and a strum wants the short latency */
+/* Felucca's 256-frame halves (5.8 ms): AMB-1's render is light, and a strum wants the short latency.
+ * (0.6) Rendered one half ahead: each ISR copies the half it rendered last time into the free half, then
+ * renders the next. A render may then run past its 5.8 ms (a chord change, a string struck, a cache
+ * miss) unheard, so long as the next is lighter; only a run of heavy halves drops audio. The cost is
+ * one half (5.8 ms) more latency. */
 #define HALF_FRAMES 256u                    /* I2S half buffer: 5.8 ms at 44.1 kHz */
 #define HALF_WORDS (HALF_FRAMES * 2u)
 #define FS 44100u
@@ -16,6 +20,8 @@ extern uint32_t _pool_start[], _pool_end[], _rt_start[], _rt_end[], _rt_load[];
 _Static_assert(REND_FRAMES == UA_HALF, "usb.c sizes the USB audio ring band for this block");
 #endif
 static int32_t abuf[2u * HALF_WORDS] __attribute__((aligned(4)));
+static int32_t ahead[HALF_WORDS] __attribute__((aligned(4)));   /* (0.6) the next half, rendered one early */
+static uint32_t want_half = 2u;                     /* the half the next ISR should find free (2: not known) */
 #if FELUCCA_UAC
 static int32_t ubuf[2u * REND_FRAMES];              /* USB audio's pair, before MASTER (en_usb_out) */
 #endif
@@ -74,13 +80,19 @@ void fm1_alnk0_irq(void)                            /* via isr_alnk0 (hal/fm1_is
     uint8_t p = fm1_audio_pending();
     fm1_audio_ack_aux(p);
     if (p & FM1_AUDIO_HALF) {
-        uint32_t half = fm1_audio_free_half();
-        render_block(&abuf[half * HALF_WORDS]);
-        fm1_audio_ack_half();
-        if (fm1_audio_free_half() != half) {
-            en_dbg.late++;                         /* the DMA moved on while we rendered */
+        uint32_t half = fm1_audio_free_half(), i;
+        int32_t *o = &abuf[half * HALF_WORDS];
+        fm1_audio_ack_half();                      /* (0.6) at once: a half freed during the render below
+                                                    * stays pending, and this ISR runs again straight after */
+        for (i = 0; i < HALF_WORDS; i++)           /* last time's render: the DMA reaches it in 5.8 ms */
+            o[i] = ahead[i];
+        if (fm1_audio_free_half() != half || (want_half < 2u && half != want_half)) {
+            en_dbg.late++;                         /* a dropout: the DMA reached the half before the copy, or
+                                                    * a render ran so long that a half was never filled */
             audio_xruns++;
         }
+        want_half = half ^ 1u;
+        render_block(ahead);
     }
 }
 extern void isr_alnk0(void);
@@ -98,6 +110,9 @@ static void audio_silence(void)                     /* IRQs off (flash erase): t
     uint32_t i;
     for (i = 0; i < sizeof abuf / sizeof abuf[0]; i++)
         abuf[i] = 0;
+    for (i = 0; i < HALF_WORDS; i++)                /* (0.6) and the half rendered ahead, from before it */
+        ahead[i] = 0;
+    want_half = 2u;                                 /* (halves pass unserved while IRQs are off: not dropouts) */
 }
 
 /* ------------------------------------------------------------ timer --- */
