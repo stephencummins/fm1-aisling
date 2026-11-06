@@ -37,7 +37,7 @@ remembers and answers) and changes what it plays:
   of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 0.5.1, the fifth test version with a fix for newer FM-1s** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 1.0, the first version out of testing** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -66,6 +66,13 @@ tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
+## What's new in 1.0
+
+- **A fix for the crackle.** The FM-1 now works out its sound one 5.8 ms block ahead, so a chord change or a string strike that takes too long has the next block's time to catch up. Until now any one slow block was a dropout, heard as a click: at their recipes, Skellig, Aran, Samhain and Blasket had them. The sound itself doesn't change.
+- **5.8 ms more delay** between a key and its sound, and USB MIDI out now leads the audio by that much more.
+- **Out of testing.** Pieces saved by 0.2 to 0.5.1 carry over, and the controls are as in 0.5.1.
+- **Still new from 0.5 and 0.5.1:** [the editor](https://aisling.stephen8n.com/editor/), undo, hold SAVE to save, USB audio before MASTER, and newer FM-1s can save and update.
 
 ## What's new in 0.5.1
 

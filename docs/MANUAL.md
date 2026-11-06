@@ -19,7 +19,7 @@ AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https:/
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 0.5.1, the fifth test version with a fix for newer FM-1s.** It runs on the FM-1 (install it from the web installer) and in the
+**This is 1.0, the first version out of testing.** It runs on the FM-1 (install it from the web installer) and in the
 browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -671,11 +671,13 @@ AFTER A CRASH and an address (PC ...) for a moment; if you report the problem, i
 doing.
 
 **Clicks, and `!n` on the Setup page:** GLO's Setup page shows the audio load at the top right, as now/peak, and
-any dropouts since the FM-1 started as `!n`. A dropout can be a small click. AISLING runs close to what the chip can do.
-Over ten minutes each at their recipes, on one FM-1, Burren, Carolan, Connemara and Tir na nOg had none, Samhain 29,
-Skellig 117, Aran 251 and Blasket 374, in short stretches. On Skellig, Aran and Samhain their timing fits the drone's
-chord changes. A piece changed by hand can cost much more: one saved Aran had about 6,600, and in one short test Aran's Sequence on 16ths instead of 8ths added about 8 points by itself. Holding GLO on puts a piece back to its recipe, and
-takes your changes with it. A computer reading the USB audio adds about 6 points to the load.
+any dropouts since the FM-1 started as `!n`. A dropout can be a small click. AISLING runs close to what the chip can do,
+so since 1.0 it works out its sound one block (5.8 ms) ahead: one slow block, at a chord change or a string strike,
+has the next block's time to catch up, and only a run of slow blocks drops out. In 0.5, which had no block in hand,
+four pieces at their recipes dropped out over ten minutes each, on one FM-1: Samhain 29 times, Skellig 117, Aran 251 and
+Blasket 374. A piece changed by hand can load the chip more: in one short test, Aran's Sequence on 16ths instead of
+8ths added about 8 points by itself. Holding GLO on puts a piece back to its recipe, and takes your changes with it. A
+computer reading the USB audio adds about 6 points to the load.
 
 **No USB audio on an older Mac:** in a simple test on macOS 13.7.8, the FM-1's MIDI appeared but no sound device did,
 so expect no USB sound or recording there. AISLING lists the audio first, as Felucca does, and that didn't fix it.
@@ -708,9 +710,9 @@ bootloader or the FM-1's own settings. If the FM-1 never shows up at all, Felucc
 
 ### A newer FM-1 on an earlier AISLING
 
-FM-1s sold since autumn 2026 carry a different flash chip (a UC25HQ80, ID `0xB36014`). AISLING 0.5.1 accepts it.
+FM-1s sold since autumn 2026 carry a different flash chip (a UC25HQ80, ID `0xB36014`). AISLING 0.5.1 and later accept it.
 Earlier versions don't: the FM-1 plays, but SAVE shows **NOT SAVED / FLASH ERROR**, nothing survives switching
-off, and it won't start an update. We have only the first chip, so 0.5.1 hasn't been tried by us on the newer one.
+off, and it won't start an update. We have only the first chip, so no AISLING has been tried by us on the newer one.
 
 From M-VAVE's firmware or another that accepts the chip, the [web installer](https://aisling.stephen8n.com/install/)
 works as usual. From an earlier AISLING, go through the chip's own download mode, once:
