@@ -37,7 +37,7 @@ remembers and answers) and changes what it plays:
   of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 1.0, the first version out of testing** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 1.1** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -58,7 +58,7 @@ page's own sound off. The FM-1 says nothing on that link until the page connects
 [manual](docs/MANUAL.md#the-editor) has the details.
 
 **MIDI.** A note on any channel, over USB or the TRS jack, plays the Lead as a white key does, and the sequences
-follow MIDI clock, start, continue and stop. MIDI out goes over USB: the Drone, the Sequence, the Lead and Sequence 2
+follow MIDI clock, start, continue and stop; a program change from 0 to 7 picks the piece. MIDI out goes over USB: the Drone, the Sequence, the Lead and Sequence 2
 on channels 1 to 4, and clock. The TRS jack has been tried with Type A, from a Korg nanoKEY Fold; Type B hasn't been
 tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 
@@ -66,6 +66,12 @@ tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
+## What's new in 1.1
+
+- **A sleep timer.** On GLO's Setup page, ALGORITHM sets it: off, 15 or 30 minutes, 1, 2, 4 or 8 hours from the last touch. The sound fades out over the last 30 seconds, then the music stops and the screen goes dark; any button, key or knob wakes it. It isn't saved. The idea comes from [ZEN-1](https://github.com/aceyprime/zen-1) and [Penumbra](https://github.com/MadMooneyham/Penumbra).
+- **Program change picks the piece.** Programs 0 to 7, on any channel, over USB or the TRS jack, are the eight pieces. Penumbra's idea too.
+- **The flash chip in the identity.** Asked for its whole identity, the FM-1 now gives its flash chip's ID as well, in the layout proposed for Felucca that felucca-bsp uses, so an installer can tell the two chips apart; `tools/fm1_install.py --info` prints it. The plain answer is as before, so installers that know 1.0 still know 1.1.
 
 ## What's new in 1.0
 
@@ -122,8 +128,8 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | SEQ | Sequence 2 (Chance, Octave, Length, Level); again, its sound; again, the Pattern page (write the steps on the keys); again, its Move page |
 | SAVE | The Atmosphere (Density, Width, Drift, Air); again, its sound (Colour, Ring, Reverb, Echo); again, its Move page. Held: save |
 | FX | Space (Echo, Echo time, Feedback, Reverb); again, the Echo page (Blur, Tone, Width, Size) |
-| GLO | Setup (Tune, MIDI out, Lights, Save); again, the Arc (Lead in, Bridge, Arc, Memory). Held: save; held on: the piece back to its recipe |
-| ALGORITHM | On a layer's page, its voice (the Atmosphere: its character) |
+| GLO | Setup (Tune, MIDI out, Lights, Save; ALGORITHM, the sleep timer); again, the Arc (Lead in, Bridge, Arc, Memory). Held: save; held on: the piece back to its recipe |
+| ALGORITHM | On a layer's page, its voice (the Atmosphere: its character); on the Setup page, the sleep timer |
 | PRESETS | The piece |
 | SELECT | On a layer's pages, its level; on the Aisling page, Energy (elsewhere nothing) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, its octave (lit while it's above or below where the piece was loaded) |
@@ -170,7 +176,11 @@ note, two delays), which AISLING's harps keep, owes much to Synth Seeker's video
 platform (hardware layer, USB, update loader, storage, installer) is [Felucca](https://github.com/hugelton/Felucca)'s
 by Leo Kuroshita (Hügelton Instruments), by way of [X0X](https://github.com/charlesvestal/fm1-x0x), FoMni-1, AMB-1,
 DUB-1 and NACHTFAHRT. The idea of running FM-1 firmware in the browser comes from
-[Groove OS](https://www.groove-os.com/). GPL-3.0-only; see [LICENSING.md](LICENSING.md).
+[Groove OS](https://www.groove-os.com/). The sleep timer is an idea from [ZEN-1](https://github.com/aceyprime/zen-1)
+(aceyprime) and [Penumbra](https://github.com/MadMooneyham/Penumbra) (Lunar Eclipse Forge), and program change for
+the pieces from Penumbra; the flash chip's ID in the identity follows the layout Sven proposed in
+[Felucca's issue #320](https://github.com/hugelton/Felucca/issues/320), as
+[felucca-bsp](https://github.com/hugelton/felucca-bsp) answers it. GPL-3.0-only; see [LICENSING.md](LICENSING.md).
 
 M-VAVE and FM-1 are trademarks of their owners. AISLING is not affiliated with M-VAVE, Hügelton Instruments or
 NACHTFAHRT's author.

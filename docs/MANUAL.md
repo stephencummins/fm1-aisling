@@ -19,8 +19,8 @@ AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https:/
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 1.0, the first version out of testing.** It runs on the FM-1 (install it from the web installer) and in the
-browser emulator, from the same code.
+**This is 1.1:** a sleep timer, MIDI program change for the pieces, and the flash chip in the FM-1's identity. It runs
+on the FM-1 (install it from the web installer) and in the browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
 
@@ -110,7 +110,7 @@ second.
 | MASTER | The volume, with room at the quiet end: a low listening level sits about a quarter of the way up. The USB audio doesn't follow it: there, the computer sets the volume |
 | SELECT | On a layer's pages (the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, and each one's further pages), the layer's level, 1 a click: a ring in the middle of the screen shows it, and the header says it ("SEQ 64"). On the Aisling page it turns **Energy**, PERFORM's (the same value, 1 a click: the screen shows twice), so you can play the keys and push Energy at once: the knobs' rule shows "ENERGY 24" with a bar while you turn, and the header says it. Elsewhere it does nothing (the pages are on their buttons, the tempo on the Key page) |
 | PRESETS | The piece (eight) |
-| ALGORITHM | On a layer's page, its voice (on the Atmosphere's pages, its character). On the Chords page, the chord walk's character (Home, Wander, Free) |
+| ALGORITHM | On a layer's page, its voice (on the Atmosphere's pages, its character). On the Chords page, the chord walk's character (Home, Wander, Free). On the Setup page, the sleep timer (see Sleep, below) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, the layer's octave, a step a press (the Sequence −2 to 2, the Lead and Sequence 2 −2 to 1): the page's Octave knob shows it, the header says it ("SEQ OCTAVE −1"). OCT+ is lit while that octave is above where the piece was loaded, OCT− while it's below. On the other pages they do nothing. With HOME held, OCT− undoes and OCT+ redoes (see Undo, below). Both held 5 s: the update mode |
 | KNOB 1–4 | The four values at the bottom of the page. The line above them says what the one turning does |
 | White keys | Play the Lead in the piece's scale: the first white key is the root, the next the scale's second step, and so on up. While the Lead sounds a note, that key is lit. Three notes or more and a pause become the Lead's theme (see [The layers](#5-the-layers)). On the Pattern page they write the steps instead; in PERFORM they mute, play moves, and the top one makes the Lead forget; with REC held they're the effects |
@@ -142,6 +142,15 @@ recipe. What Evolve moves makes no step of its own, but an undo rolls it back wi
 and the scale, not the patterns: after undoing a reset, the settings return but the patterns it grew stay. Tune, MIDI
 out and Lights aren't undone, and in Endless the chords aren't, because the walk moves them itself. Another piece
 clears undo, and it isn't saved, though the piece it leaves behind is, as after any change.
+
+**Sleep.** On GLO's Setup page, ALGORITHM sets a sleep timer: Off, 15 or 30 minutes, 1, 2, 4 or 8 hours, a step
+a click. The start of the knobs' rule shows it ("SLEEP 30 MIN"). The time runs from the last thing you touched (a
+button, a key, a knob, or a note or program change sent in over MIDI), so it never fades out while you play. Over the
+last 30 seconds the sound fades out, and a touch then brings it back and starts the time again. At the end the music
+stops, as PLAY stops it, and the screen and the lights go dark. A press, a key or a turn wakes it, and that touch
+only wakes it: the screen comes back, and the music starts again, faded in, if it was playing. MIDI doesn't wake it
+(a sequencer left running would), and MIDI sent while it sleeps is ignored. The USB audio isn't faded, since it comes
+before MASTER, but it stops with the music. The timer isn't saved: it's off every time the FM-1 starts.
 
 A long press says what it did on a card in the middle of the screen.
 
@@ -486,7 +495,8 @@ Reverb, Echo. **Its Move page:** Width, Time, Rate, Intro.
 (the tail, in seconds), Reverb. The echo is a tape echo that ping-pongs left and right. **FX again: Echo:** Blur, Tone, Width, Size
 (the plate).
 
-**GLO: Setup:** Tune (±50 cents), MIDI out, Lights, Save. **GLO again: Arc:** Lead in, Bridge, Arc,
+**GLO: Setup:** Tune (±50 cents), MIDI out, Lights, Save; ALGORITHM the sleep timer (see
+[Sleep](#3-controls)). **GLO again: Arc:** Lead in, Bridge, Arc,
 Memory (see [The arc and the filter motion](#6-the-arc-and-the-filter-motion)).
 
 **EDIT: Chords:** eight slots. In **Endless** the walk writes them and slot 1 plays; on each change they move
@@ -589,6 +599,9 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
   Octave shifts it, a figure becomes its theme as the keys' does, and a muted Lead stays silent. All notes off and
   all sound off (CC 123 and 120) let it go. In earlier versions a note on channel 1 changed the scale; the Key page
   does that now.
+- **In, program change:** programs 0 to 7, on any channel, choose the eight pieces in their order (0 is Skellig; a DAW
+  that counts from 1 calls them 1 to 8), as PRESETS does. Programs 8 and above are ignored, and so is a change to the piece already playing, because a DAW sends
+  one at the start of every clip.
 - **Don't send it straight back:** if a computer returns the FM-1's own MIDI out (a DAW's thru, say), every layer's
   notes play the Lead. Turn thru off, or MIDI out off on GLO's Setup page.
 
@@ -652,7 +665,7 @@ AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with T
   saves.
 - **GLO held on** (1.5 s): the piece back to its recipe ("RESET"). Like any change, it's saved by itself a few seconds after the music stops.
 
-Lock and PERFORM's Filter, Wet and Energy aren't saved; a piece change (or GLO's reset) returns the three to 0, so
+The sleep timer isn't saved. Lock and PERFORM's Filter, Wet and Energy aren't saved either; a piece change (or GLO's reset) returns the three to 0, so
 none of one piece's push carries into the next. Projects saved by DUB-1, AMB-1 or an earlier AISLING
 build aren't read: AISLING starts with its eight recipes.
 
@@ -665,6 +678,9 @@ cancel.
 
 **Calibration:** if a button or knob does the wrong thing, hold OCT− and OCT+ while you switch the FM-1 on.
 The screen asks you to press each button and turn each knob in turn.
+
+**Dark and silent:** if the screen and the lights went dark and the music stopped, the sleep timer ran out (GLO's
+Setup page). Press any button to wake it; the timer is off again after switching off and on.
 
 **After a crash:** AISLING shows a red CRASH screen and restarts by itself. The next start shows RESTARTED
 AFTER A CRASH and an address (PC ...) for a moment; if you report the problem, include it and what you were
@@ -771,6 +787,12 @@ must also share its source code.
   Kuroshita, Hügelton Instruments, by way of [X0X](https://github.com/charlesvestal/fm1-x0x), FoMni-1,
   AMB-1 and DUB-1.
 - The idea of running FM-1 firmware in the browser comes from [Groove OS](https://www.groove-os.com/).
+- The sleep timer's idea comes from [ZEN-1](https://github.com/aceyprime/zen-1) by aceyprime and
+  [Penumbra](https://github.com/MadMooneyham/Penumbra) by Lunar Eclipse Forge, other FM-1 firmwares; the code is
+  AISLING's. Program change for the pieces is Penumbra's idea too.
+- The flash chip's ID in the FM-1's identity (bytes 24 to 26 of the reply) follows the layout Sven proposed in
+  [Felucca's issue #320](https://github.com/hugelton/Felucca/issues/320), as
+  [felucca-bsp](https://github.com/hugelton/felucca-bsp) answers it.
 - The fonts are Barlow Semi Condensed and Terminus (SIL Open Font License).
 
 M-VAVE and FM-1 are trademarks of their owners. AISLING is not connected with M-VAVE, Hügelton Instruments or NACHTFAHRT's author.
