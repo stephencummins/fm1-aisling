@@ -1,0 +1,4 @@
+/*
+  Permissions-Policy: midi=(self), microphone=(self), camera=(), geolocation=(), payment=()
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff

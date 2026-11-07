@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING cheat sheet</title>
+<meta name="description" content="AISLING's steps drawn as flows (changing a sound, mute and solo, every button's pages), then every control and the eight pieces, to print on one sheet.">
+<style>
+/* On the site's bench on screen (web/brand/site.css); black on white to print, small enough for one sheet */
+.wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: 5px 8px 5px 0; border-top: 1px solid var(--brand-rule); }
+th { font-weight: 400; font-size: 12.5px; color: var(--brand-muted); border-top: 0; }
+td b, td i { font-weight: 400; font-style: normal; color: var(--brand-green); }
+td:first-child { white-space: nowrap; }
+.jump { line-height: 1.8; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* The controls, each drawn as the FM-1's panel draws it (docs/img/fm1-panel.svg), beside its job in short lines. In the
+   jobs, a button's name is the button and the knobs' names come after a knob */
+.fm-ctl { margin: 0; columns: 2 25rem; column-gap: 36px; }
+.fm-c { break-inside: avoid; display: grid; grid-template-columns: 7.6rem minmax(0, 1fr); gap: 0 12px; padding: 9px 0 10px;
+        border-top: 1px solid var(--brand-rule); }
+.fm-c dt { padding-top: 1px; display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; align-items: flex-start; }
+.fm-c dd { margin: 0; font-size: 12.5px; line-height: 1.55; }
+.fm-c p, .fm-pages { margin: 0; }
+.fm-c dd > * + * { margin-top: 3px; }
+.fm-c b { font: 600 15px/1.3 var(--brand-display); letter-spacing: .01em; color: var(--brand-ink); }
+.fm-pages { padding: 0; list-style: none; counter-reset: fm-pg; }
+.fm-pages li { counter-increment: fm-pg; display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 0 7px; }
+.fm-pages li + li { margin-top: 2px; }
+.fm-pages li::before { content: counter(fm-pg); width: 15px; height: 15px; margin-top: 2px; border-radius: 50%;
+        background: var(--brand-green); color: #fff; font: 600 11px/15px var(--brand-display); text-align: center; }
+.fm-kn, .fm-note { color: var(--brand-muted); }
+.fm-kn { white-space: normal; }
+.fm-kn::before, .fm-knob::before { content: ""; display: inline-block; box-sizing: border-box; width: 11px; height: 11px;
+        margin: 0 6px 0 3px; vertical-align: -1px; border-radius: 50%; box-shadow: 0 0 0 1.5px #ab5636;
+        background: linear-gradient(#fbf0e4, #fbf0e4) 50% 1px / 2px 4px no-repeat, #1c1614;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.fm-tag { display: inline-block; min-width: 4.2em; font: 600 11px/1 var(--brand-display); letter-spacing: .09em;
+        text-transform: uppercase; color: var(--brand-muted); }
+/* a button: rust, a darker edge, its name in cream capitals, as on the panel */
+.fm-btn { display: inline-block; box-sizing: border-box; padding: .22em .5em .16em; border: 1.5px solid #5a2c23;
+        border-radius: .45em; background: #8f4d40; color: #fbf0e4; box-shadow: inset 0 1px 0 rgb(255 255 255 / .14);
+        font: 600 .78em/1.15 "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .05em; text-align: center;
+        white-space: nowrap; vertical-align: .06em; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.fm-btn + .fm-btn { margin-left: 4px; }
+dt .fm-btn { min-width: 58px; padding: 6px 9px 5px; border-radius: 8px; font-size: 13px; }
+dt .fm-btn + .fm-btn { margin-left: 0; }
+dt .fm-btn:not(:only-child) { min-width: 0; padding-inline: 6px; }
+.fm-key + .fm-tag { min-width: 0; margin-left: 2px; }
+/* a key: white or black, square at the top, as the keybed's */
+.fm-key { display: inline-block; box-sizing: border-box; padding: .4em .45em .14em; border: 1.5px solid #2b2219;
+        border-radius: 0 0 .35em .35em; background: #fff; color: #2b2219;
+        font: 600 .78em/1.15 "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .04em; white-space: nowrap;
+        vertical-align: .06em; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.fm-key.black { background: #1c1614; border-color: #1c1614; color: #fbf0e4; }
+dt .fm-key { padding: 14px 9px 5px; font-size: 13px; }
+/* a knob: black on a rust ring with a cream pointer, its name in capitals beside it */
+.fm-knob { display: inline-flex; align-items: center; font: 600 13px/1.2 "Helvetica Neue", Helvetica, Arial, sans-serif;
+        letter-spacing: .06em; color: #24110a; }
+.fm-knob::before { width: 22px; height: 22px; margin: 2px 8px 2px 3px; box-shadow: 0 0 0 3px #ab5636;
+        background-size: 3px 7px; background-position: 50% 2px; }
+@media (max-width: 30rem) {
+  .fm-c { grid-template-columns: minmax(0, 1fr); }
+  .fm-c dt { margin-bottom: 6px; }
+}
+@media (min-width: 56.25rem) { .jump-hint { display: none; } }
+/* The flows: four drawings, each drawn at 1123 by 794 (A4 landscape) and scaled to the bench by the script at the end of the
+   page. They stop shrinking while they can still be read, and from there each scrolls sideways in its own box */
+.flow { overflow-x: auto; overflow-y: hidden; }
+.flow:focus-visible { outline: 2px solid var(--brand-ink); outline-offset: -2px; }
+.flow-size { width: calc(1123px * var(--s, 1)); height: calc(794px * var(--s, 1)); }
+.flow-board { position: relative; width: 1123px; height: 794px; overflow: hidden; background: #fff; color: #2b2219;
+              font: 400 12px/16px var(--brand-mono); transform: scale(var(--s, 1)); transform-origin: 0 0;
+              -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.fl-h { font:600 20px/24px 'Barlow Semi Condensed',sans-serif }
+.fl-s { font:400 12px/16px 'IBM Plex Mono',monospace }
+.fl-t { position:absolute;font:400 12px/16px 'IBM Plex Mono',monospace;color:#2b2219 }
+.fl-lane { position:absolute;white-space:nowrap;font:600 13px/16px 'Barlow Semi Condensed',sans-serif;letter-spacing:.09em;color:#5b4a3a }
+.fl-badge { position:absolute;width:18px;height:18px;border-radius:9px;background:#146c41;color:#fff;font:600 13px/18px 'Barlow Semi Condensed',sans-serif;text-align:center }
+.fl-pill { position:absolute;width:62px;height:34px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:#fff;border:1.5px solid #2b2219;border-radius:17px;font:600 15px/18px 'Barlow Semi Condensed',sans-serif;color:#2b2219 }
+.fl-k { position:absolute;box-sizing:border-box;width:14px;height:14px;border-radius:7px;background:#5b4a3a }
+.fl-b { position:absolute;box-sizing:border-box;width:13px;height:12px;border-radius:2px;background:#fff;border:1px solid #5b4a3a }
+.fl-w { position:absolute;box-sizing:border-box;width:11px;height:34px;border-radius:2px;background:#fff;border:1px solid #5b4a3a }
+.fl-n { position:absolute;width:11px;height:22px;border-radius:2px;background:#5b4a3a }
+.fl-h2 { font:600 18px/22px 'Barlow Semi Condensed',sans-serif }
+.fl-btn { position:absolute;left:76px;width:64px;height:46px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:#8f4d40;border:2px solid #5a2c23;border-radius:9px;font:600 16px/20px 'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.05em;color:#fbf0e4 }
+.fl-lay { position:absolute;left:188px;width:136px;height:46px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:1.5px solid #5b4a3a;border-radius:4px;color:#2b2219 }
+.fl-strip { position:absolute;left:480px;width:240px;height:26px;overflow:hidden;border-radius:4px;background:#000 }
+.fl-strip img { display:block;width:240px;height:240px }
+.fl-none { position:absolute;top:598px;width:104px;height:40px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:#fff;border:1.5px dashed #8f4d40;border-radius:9px;font:600 16px/20px 'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.05em;color:#8f4d40 }
+.fl-heading { position:absolute;font:600 18px/22px 'Barlow Semi Condensed',sans-serif;color:#2b2219 }
+.fl-card { position:absolute;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px solid #2b2219;border-radius:10px;padding:6px;color:#2b2219 }
+.fl-bk { position:absolute;top:348px;width:44px;height:52px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;background:#2b2219;border-radius:3px;color:#fff;font:600 13px/16px 'Barlow Semi Condensed',sans-serif }
+.fl-bk.fl-off { background:#fff;border:1.5px dashed #767676 }
+.fl-wk.fl-off { border:1.5px dashed #767676 }
+.fl-wk { position:absolute;top:408px;width:58px;height:76px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:2px solid #2b2219;border-radius:3px;color:#2b2219;font:600 15px/18px 'Barlow Semi Condensed',sans-serif }
+.fl-wk.fl-held { background:#f3ead7 }
+.fl-wk small { font:400 12px/16px 'IBM Plex Mono',monospace }
+.fl-rule { position:absolute;top:492px;height:2px;background:#2b2219 }
+.fl-bt { position:absolute;width:64px;height:54px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:#8f4d40;border:2px solid #5a2c23;border-radius:9px;font:600 16px/20px 'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.05em;color:#fbf0e4 }
+.fl-pg { position:absolute;width:184px;height:54px;box-sizing:border-box;background:#fff;border:1.5px solid #2b2219;border-radius:6px;padding:2px 6px 0 6px;color:#2b2219;line-height:15px }
+.fl-lead { border:3px solid #146c41;padding:0 6px 0 6px }
+.fl-n2 { display:inline-block;width:15px;height:15px;border-radius:8px;background:#146c41;color:#fff;font:600 12px/15px 'Barlow Semi Condensed',sans-serif;text-align:center;margin-right:5px;vertical-align:1px }
+.fl-tt { font:600 16px/18px 'Barlow Semi Condensed',sans-serif }
+.fl-kn { font:400 12px/15px 'IBM Plex Mono',monospace }
+.fl-a { position:absolute;overflow:visible;fill:none;stroke:#5b4a3a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round }
+.fl-r { position:absolute;overflow:visible;fill:none;stroke:#5b4a3a;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round }
+/* a button's name in the words: the button, as on the panel */
+.fl-c { display:inline-block;padding:0 .24em;border-radius:.28em;background:#8f4d40;box-shadow:inset 0 0 0 1px #5a2c23;color:#fbf0e4;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:600;font-size:.78em;line-height:1.4;letter-spacing:.04em;vertical-align:.06em }
+@media print {
+  body.cheat { font-size: 7.5pt; line-height: 1.3; }
+  body.cheat .pane { padding: 0; margin-top: .6rem; }
+  body.cheat .bench > * + * { border-top: 0; }
+  body.cheat .lab, body.cheat .bh { font-size: 7.5pt; }
+  body.cheat .bh { margin-bottom: 2px; }
+  th { font-size: 7.5pt; }
+  th, td { padding: 2px 6px 2px 0; }
+  tr { break-inside: avoid; }
+  /* the sheet first, as before the flows were put at the top: the controls and the pieces, then a page each for them */
+  body.cheat .bench { display: flex; flex-direction: column; }
+  body.cheat .strip { order: -2; }
+  body.cheat .ref { order: -1; }
+  .fm-ctl { columns: 2; column-gap: 18px; }
+  .fm-c { grid-template-columns: 5.4rem minmax(0, 1fr); gap: 0 8px; padding: 3px 0; }
+  .fm-c dd { font-size: 7.5pt; line-height: 1.3; }
+  .fm-c dd > * + *, .fm-pages li + li { margin-top: 0; }
+  .fm-c b { font-size: 8.5pt; }
+  .fm-tag { font-size: 6.5pt; }
+  dt .fm-btn { min-width: 40px; padding: 3px 6px 2px; border-radius: 5px; font-size: 7.5pt; }
+  dt .fm-btn:not(:only-child) { min-width: 0; padding-inline: 4px; }
+  dt .fm-key { padding: 8px 6px 2px; font-size: 7.5pt; }
+  .fm-knob { font-size: 7.5pt; }
+  .fm-knob::before { width: 13px; height: 13px; margin: 2px 6px 2px 2px; box-shadow: 0 0 0 2px #ab5636; background-size: 2px 4px; background-position: 50% 1px; }
+  @page { margin: 10mm; }
+  /* after the sheet, a landscape page each. (A hair under A4, or each brings a blank page with it) */
+  @page flow { size: A4 landscape; margin: 0; }
+  body.cheat .jump { display: none; }
+  body.cheat .flow { page: flow; break-before: page; overflow: visible; }
+  .flow-size { width: auto; height: auto; }
+  .flow-board { width: 1122px; height: 793px; transform: none; }
+}
+</style>
+<link rel="canonical" href="https://aisling.stephen8n.com/cheat/">
+<meta name="theme-color" content="#f3ead7">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/BarlowSemiCondensed-SemiBold.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/IBMPlexMono-Regular.woff2">
+<link rel="stylesheet" href="../site.css">
+<script src="../wall.js" defer></script>
+</head>
+<body class="cheat">
+<div class="wall" data-art="cheat" aria-hidden="true"></div>
+<div class="sitebar"><div class="sitebar-in">
+<a class="sitebar-home" href="../" title="AISLING: the home page"><img class="sitebar-mark" src="../mark.png" width="30" height="30" alt=""><span class="sitebar-name">AISLING</span><span class="sitebar-by">by CU_STE</span></a>
+<nav class="sitebar-nav" aria-label="AISLING's pages"><a href="../emu/" title="AISLING in the browser: the same code the FM-1 runs">emulator</a><a href="../editor/" title="Every setting of a piece on one panel, and your FM-1 over USB">editor</a><a href="../install/" title="Put AISLING on your FM-1 from Chrome or Edge">install</a><a href="../manual/" title="Getting started in a few minutes, then everything else">manual</a><a href="../cheat/" title="Every control and the eight pieces on one page, to print, and the steps drawn as flows" aria-current="page">cheat sheet</a><a href="../visualiser/" title="An FM-1 running AISLING paints an Irish landscape from its MIDI">visualiser</a><a href="https://youtu.be/3aUARUvwT_Y" title="A short film of AISLING and its visualiser, on YouTube">video</a><a href="https://github.com/stephencummins/fm1-aisling" title="The code, on GitHub">source</a><a href="https://www.stephen8n.com" title="Stephen Cummins's other things">stephen8n</a></nav>
+</div></div>
+<main class="bench">
+<div class="strip">
+<h1 class="lab"><b>cheat sheet</b> · AISLING v1.0</h1>
+<p class="lab">by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a></p>
+</div>
+<nav class="pane lab jump" aria-label="On this page">The steps, drawn: <a href="#flow-lead">change the Lead's instrument</a> · <a href="#flow-layers">any layer's sound</a> · <a href="#flow-perform">mute, solo, push</a> · <a href="#flow-pages">every button's pages</a><span class="jump-hint"> (on a small screen, scroll each one sideways)</span>. Under them, in words: <a href="#controls">every control</a> · <a href="#pieces">the pieces</a></nav>
+<svg width="0" height="0" style="position: absolute" aria-hidden="true"><defs>
+<marker id="fl-head" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#5b4a3a" stroke="none"/></marker>
+<marker id="fl-head-rust" orient="auto" markerWidth="5" markerHeight="5" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#8c3510" stroke="none"/></marker>
+<marker id="fl-head-green" orient="auto" markerWidth="4" markerHeight="4" refX="2" refY="2" overflow="visible"><path d="M0 0 L4 2 L0 4 Z" fill="#146c41" stroke="none"/></marker>
+</defs></svg>
+<section class="flow" id="flow-lead" aria-labelledby="flow-lead-h" tabindex="0"><div class="flow-size"><div class="flow-board">
+<!-- bands -->
+<div style="position: absolute; left: 64px; top: 120px; width: 995px; height: 164px; background: #f3ead7; border-radius: 12px"></div>
+<div style="position: absolute; left: 64px; top: 296px; width: 995px; height: 228px; background: #f3ead7; border-radius: 12px"></div>
+
+<!-- arrows: the main line -->
+<svg width="57" height="8" viewBox="0 0 57 8" preserveAspectRatio="none" style="position: absolute; left: 226px; top: 212px; width: 57px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 53 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="57" height="8" viewBox="0 0 57 8" preserveAspectRatio="none" style="position: absolute; left: 430px; top: 212px; width: 57px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 53 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="57" height="8" viewBox="0 0 57 8" preserveAspectRatio="none" style="position: absolute; left: 634px; top: 212px; width: 57px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 53 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="57" height="8" viewBox="0 0 57 8" preserveAspectRatio="none" style="position: absolute; left: 838px; top: 212px; width: 57px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 53 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: "no" goes back up and over to ALGORITHM -->
+<svg width="8" height="22" viewBox="0 0 8 22" preserveAspectRatio="none" style="position: absolute; left: 761px; top: 146px; width: 8px; height: 22px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 4 22 L 4 0"></path></svg>
+<svg width="408" height="8" viewBox="0 0 408 8" preserveAspectRatio="none" style="position: absolute; left: 357px; top: 142px; width: 408px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 408 4 L 0 4"></path></svg>
+<svg width="8" height="29" viewBox="0 0 8 29" preserveAspectRatio="none" style="position: absolute; left: 353px; top: 146px; width: 8px; height: 29px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 4 0 L 4 25" marker-end="url(#fl-head)"></path></svg>
+
+<!-- dashed: what the screen says for each step -->
+<svg width="8" height="66" viewBox="0 0 8 66" preserveAspectRatio="none" style="position: absolute; left: 149px; top: 256px; width: 8px; height: 66px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 1.5; stroke-dasharray: 4 5"><path d="M 4 0 L 4 66"></path></svg>
+<svg width="8" height="66" viewBox="0 0 8 66" preserveAspectRatio="none" style="position: absolute; left: 353px; top: 256px; width: 8px; height: 66px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 1.5; stroke-dasharray: 4 5"><path d="M 4 0 L 4 66"></path></svg>
+<svg width="8" height="66" viewBox="0 0 8 66" preserveAspectRatio="none" style="position: absolute; left: 965px; top: 256px; width: 8px; height: 66px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 1.5; stroke-dasharray: 4 5"><path d="M 4 0 L 4 66"></path></svg>
+
+<!-- arrows: the ring of voices -->
+<svg width="33" height="8" viewBox="0 0 33 8" preserveAspectRatio="none" style="position: absolute; left: 550px; top: 353px; width: 33px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 29 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="33" height="8" viewBox="0 0 33 8" preserveAspectRatio="none" style="position: absolute; left: 646px; top: 353px; width: 33px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 29 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="33" height="8" viewBox="0 0 33 8" preserveAspectRatio="none" style="position: absolute; left: 742px; top: 353px; width: 33px; height: 8px; overflow: visible; fill: none; stroke: #146c41; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 28 4" marker-end="url(#fl-head-green)"></path></svg>
+<svg width="8" height="55" viewBox="0 0 8 55" preserveAspectRatio="none" style="position: absolute; left: 803px; top: 374px; width: 8px; height: 55px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 4 0 L 4 51" marker-end="url(#fl-head)"></path></svg>
+<svg width="33" height="8" viewBox="0 0 33 8" preserveAspectRatio="none" style="position: absolute; left: 743px; top: 443px; width: 33px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 33 4 L 4 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="33" height="8" viewBox="0 0 33 8" preserveAspectRatio="none" style="position: absolute; left: 647px; top: 443px; width: 33px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 33 4 L 4 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="33" height="8" viewBox="0 0 33 8" preserveAspectRatio="none" style="position: absolute; left: 551px; top: 443px; width: 33px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 33 4 L 4 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="8" height="55" viewBox="0 0 8 55" preserveAspectRatio="none" style="position: absolute; left: 515px; top: 375px; width: 8px; height: 55px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 4 55 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrow: the way back -->
+<svg width="57" height="8" viewBox="0 0 57 8" preserveAspectRatio="none" style="position: absolute; left: 226px; top: 632px; width: 57px; height: 8px; overflow: visible; fill: none; stroke: #8c3510; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 53 4" marker-end="url(#fl-head-rust)"></path></svg>
+
+<!-- cards -->
+<div style="position: absolute; left: 80px; top: 176px; width: 146px; height: 80px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; background: #ffffff; border: 2px solid #2b2219; border-radius: 10px; padding: 6px"><span><b class="fl-h">Press <span class="fl-c">LFO</span></b><br><small class="fl-s">any of the Lead's four pages</small></span></div>
+<div style="position: absolute; left: 284px; top: 176px; width: 146px; height: 80px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; background: #ffffff; border: 2px solid #2b2219; border-radius: 10px; padding: 2px"><span><b class="fl-h">Turn ALGORITHM</b><br><small class="fl-s">one voice a click, round and round</small></span></div>
+<div style="position: absolute; left: 488px; top: 176px; width: 146px; height: 80px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; background: #ffffff; border: 2px solid #2b2219; border-radius: 10px; padding: 6px"><span><b class="fl-h">Try a white key</b><br><small class="fl-s">the Lead plays it, the key lights</small></span></div>
+<div style="position: absolute; left: 692px; top: 168px; width: 146px; height: 96px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; background: #146c41; color: #ffffff; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); font: 600 20px/24px 'Barlow Semi Condensed', sans-serif">Keep it?</div>
+<div style="position: absolute; left: 896px; top: 176px; width: 146px; height: 80px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; background: #ffffff; border: 2px solid #2b2219; border-radius: 10px; padding: 6px"><span><b class="fl-h">Hold <span class="fl-c">GLO</span></b><br><small class="fl-s">half a second, then let go</small></span></div>
+<div style="position: absolute; left: 80px; top: 596px; width: 146px; height: 80px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; background: #ffffff; border: 2px solid #8c3510; border-radius: 10px; padding: 6px"><span><b class="fl-h">Hold <span class="fl-c">GLO</span> on</b><br><small class="fl-s">a second and a half</small></span></div>
+
+<!-- the screens: AISLING's own, rendered from the firmware's host build -->
+<img src="../img/flow-lead-page.png" alt="The Lead's page on the FM-1's screen, with FLUTE over the knobs" style="position: absolute; left: 80px; top: 322px; width: 146px; height: 146px; border-radius: 8px; display: block">
+<img src="../img/flow-lead-voice.png" alt="The screen with VOICE Theremin along its top" style="position: absolute; left: 284px; top: 322px; width: 146px; height: 146px; border-radius: 8px; display: block">
+<img src="../img/flow-saved.png" alt="The screen with a card saying SAVED, all eight pieces" style="position: absolute; left: 896px; top: 322px; width: 146px; height: 146px; border-radius: 8px; display: block">
+<img src="../img/flow-reset.png" alt="The screen with a card saying RESET, Skellig, and FLUTE over the knobs again" style="position: absolute; left: 284px; top: 560px; width: 146px; height: 146px; border-radius: 8px; display: block">
+<div style="position: absolute; left: 82px; top: 426px; width: 26px; height: 12px; box-sizing: border-box; border: 2px solid #5fe08a; border-radius: 3px"></div>
+<div style="position: absolute; left: 287px; top: 324px; width: 70px; height: 13px; box-sizing: border-box; border: 2px solid #5fe08a; border-radius: 3px"></div>
+
+<!-- the ring -->
+<div class="fl-pill" style="left: 488px; top: 340px">Odyssey</div>
+<div class="fl-pill" style="left: 584px; top: 340px">Mini</div>
+<div class="fl-pill" style="left: 680px; top: 340px; border: 3px solid #146c41">Flute</div>
+<div class="fl-pill" style="left: 776px; top: 340px; background: #146c41; border: 1.5px solid #146c41; color: #ffffff">Theremin</div>
+<div class="fl-pill" style="left: 776px; top: 430px">Synthi</div>
+<div class="fl-pill" style="left: 680px; top: 430px">Chanter</div>
+<div class="fl-pill" style="left: 584px; top: 430px">Fiddle</div>
+<div class="fl-pill" style="left: 488px; top: 430px">Voice</div>
+
+<!-- the panel: where the numbered controls are -->
+<div style="position: absolute; left: 815px; top: 557px; width: 243px; height: 174px; box-sizing: border-box; background: #f3ead7; border: 1.5px solid #5b4a3a; border-radius: 11px"></div>
+<div class="fl-k" style="left: 833px; top: 572px"></div><div class="fl-k" style="left: 860px; top: 572px"></div>
+<div class="fl-k" style="left: 833px; top: 601px"></div><div class="fl-k" style="left: 860px; top: 601px; background: #146c41"></div>
+<div class="fl-b" style="left: 832px; top: 628px; width: 20px; height: 9px"></div><div class="fl-b" style="left: 856px; top: 628px; width: 20px; height: 9px"></div>
+<div style="position: absolute; left: 888px; top: 567px; width: 58px; height: 58px; border-radius: 4px; background: #2b2219"></div>
+<div class="fl-k" style="left: 957px; top: 572px"></div><div class="fl-k" style="left: 982px; top: 572px"></div><div class="fl-k" style="left: 1007px; top: 572px"></div><div class="fl-k" style="left: 1033px; top: 572px"></div>
+<div class="fl-b" style="left: 957px; top: 595px"></div><div class="fl-b" style="left: 972px; top: 595px"></div><div class="fl-b" style="left: 988px; top: 595px"></div><div class="fl-b" style="left: 1003px; top: 595px; background: #146c41; border-color: #146c41"></div><div class="fl-b" style="left: 1018px; top: 595px"></div><div class="fl-b" style="left: 1034px; top: 595px; background: #146c41; border-color: #146c41"></div>
+<div class="fl-b" style="left: 957px; top: 621px"></div><div class="fl-b" style="left: 972px; top: 621px"></div><div class="fl-b" style="left: 988px; top: 621px"></div><div class="fl-b" style="left: 1003px; top: 621px"></div><div class="fl-b" style="left: 1018px; top: 621px"></div><div class="fl-b" style="left: 1034px; top: 621px"></div>
+<div class="fl-n" style="left: 834px; top: 658px"></div><div class="fl-n" style="left: 848px; top: 658px"></div><div class="fl-n" style="left: 862px; top: 658px"></div><div class="fl-n" style="left: 890px; top: 658px"></div><div class="fl-n" style="left: 903px; top: 658px"></div><div class="fl-n" style="left: 931px; top: 658px"></div><div class="fl-n" style="left: 945px; top: 658px"></div><div class="fl-n" style="left: 959px; top: 658px"></div><div class="fl-n" style="left: 986px; top: 658px"></div><div class="fl-n" style="left: 1000px; top: 658px"></div><div class="fl-n" style="left: 1028px; top: 658px"></div>
+<div class="fl-w" style="left: 827px; top: 682px"></div><div class="fl-w" style="left: 841px; top: 682px"></div><div class="fl-w" style="left: 855px; top: 682px"></div><div class="fl-w" style="left: 869px; top: 682px"></div><div class="fl-w" style="left: 883px; top: 682px"></div><div class="fl-w" style="left: 897px; top: 682px; background: #146c41; border-color: #146c41"></div><div class="fl-w" style="left: 910px; top: 682px"></div><div class="fl-w" style="left: 924px; top: 682px"></div><div class="fl-w" style="left: 938px; top: 682px"></div><div class="fl-w" style="left: 952px; top: 682px"></div><div class="fl-w" style="left: 966px; top: 682px"></div><div class="fl-w" style="left: 980px; top: 682px"></div><div class="fl-w" style="left: 993px; top: 682px"></div><div class="fl-w" style="left: 1007px; top: 682px"></div><div class="fl-w" style="left: 1021px; top: 682px"></div><div class="fl-w" style="left: 1035px; top: 682px"></div>
+
+<!-- labels -->
+<h2 id="flow-lead-h" style="margin: 0; position: absolute; left: 64px; top: 50px; width: 700px; font: 600 36px/42px 'Barlow Semi Condensed', sans-serif; color: #2b2219">Change the Lead's instrument</h2>
+<div class="fl-t" style="left: 64px; top: 94px; width: 700px; font-size: 13px; line-height: 18px; color: #5b4a3a">Each piece has its own Lead voice. Here Skellig's Flute becomes the Theremin.</div>
+
+<div style="position: absolute; left: 792px; top: 62px; width: 18px; height: 12px; box-sizing: border-box; background: #ffffff; border: 2px solid #2b2219; border-radius: 4px"></div>
+<div class="fl-t" style="left: 816px; top: 60px; width: 90px">you do this</div>
+<div style="position: absolute; left: 793px; top: 84px; width: 16px; height: 16px; background: #146c41; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%)"></div>
+<div class="fl-t" style="left: 816px; top: 84px; width: 90px">you decide</div>
+<div style="position: absolute; left: 915px; top: 61px; width: 14px; height: 14px; border-radius: 3px; background: #2b2219"></div>
+<div class="fl-t" style="left: 936px; top: 60px; width: 123px">the screen</div>
+<div class="fl-badge" style="left: 913px; top: 83px">1</div>
+<div class="fl-t" style="left: 936px; top: 84px; width: 123px">on the panel map</div>
+
+<div class="fl-lane" style="left: 72px; top: 128px; width: 60px">YOU</div>
+<div class="fl-lane" style="left: 72px; top: 302px; width: 76px">THE SCREEN</div>
+
+<div class="fl-badge" style="left: 71px; top: 167px">1</div>
+<div class="fl-badge" style="left: 275px; top: 167px">2</div>
+<div class="fl-badge" style="left: 479px; top: 167px">3</div>
+<div class="fl-badge" style="left: 887px; top: 167px">4</div>
+<div class="fl-badge" style="left: 71px; top: 587px">4</div>
+
+<div class="fl-t" style="left: 848px; top: 188px; width: 36px; text-align: center; font-size: 13px">yes</div>
+<div class="fl-t" style="left: 503px; top: 155px; width: 116px; text-align: center; font-size: 13px">no: next voice</div>
+
+<div class="fl-t" style="left: 80px; top: 472px; width: 150px">The Lead's page. Its voice's name sits over the knobs.</div>
+<div class="fl-t" style="left: 284px; top: 472px; width: 150px">VOICE and its name, along the top for a moment.</div>
+<div class="fl-t" style="left: 896px; top: 472px; width: 150px">Or rest (<span class="fl-c">PLAY</span>): it saves itself a few seconds later.</div>
+
+<div style="position: absolute; left: 488px; top: 306px; width: 350px; font: 600 18px/22px 'Barlow Semi Condensed', sans-serif; color: #2b2219">The eight voices, in ALGORITHM's order</div>
+<div class="fl-t" style="left: 556px; top: 386px; width: 216px; text-align: center">A click right: one step clockwise. A click left: one back.</div>
+<div class="fl-t" style="left: 488px; top: 472px; width: 350px">Out of the box: the Flute on Skellig, Aran, Carolan, Connemara and Tir na nOg; the Fiddle on Burren; the Voice on Blasket and Samhain.</div>
+
+<div style="position: absolute; left: 80px; top: 540px; width: 350px; font: 600 22px/26px 'Barlow Semi Condensed', sans-serif; color: #8c3510">Changed your mind?</div>
+<div class="fl-t" style="left: 446px; top: 592px; width: 180px">The piece's recipe again: the Flute, and every other change to this piece too. Saved once the music stops.</div>
+
+<div style="position: absolute; left: 815px; top: 534px; width: 243px; font: 600 18px/22px 'Barlow Semi Condensed', sans-serif; color: #2b2219">Where they are</div>
+<div class="fl-badge" style="left: 999px; top: 592px">1</div>
+<div class="fl-badge" style="left: 858px; top: 599px">2</div>
+<div class="fl-badge" style="left: 894px; top: 690px">3</div>
+<div class="fl-badge" style="left: 1031px; top: 592px">4</div>
+</div></div></section>
+<section class="flow" id="flow-layers" aria-labelledby="flow-layers-h" tabindex="0"><div class="flow-size"><div class="flow-board">
+<!-- bands -->
+<div style="position: absolute; left: 64px; top: 150px; width: 995px; height: 398px; background: #f3ead7; border-radius: 12px"></div>
+
+<!-- arrows: button to page -->
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 140px; top: 180px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 140px; top: 246px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 140px; top: 312px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 140px; top: 378px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 140px; top: 444px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 140px; top: 510px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: page to ALGORITHM -->
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 324px; top: 180px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 324px; top: 246px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 324px; top: 312px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 324px; top: 378px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 324px; top: 444px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 324px; top: 510px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: ALGORITHM to what the screen says -->
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 432px; top: 180px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 432px; top: 246px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 432px; top: 312px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 432px; top: 378px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 432px; top: 444px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 432px; top: 510px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: holding a layer's button, one to two -->
+<svg width="32" height="8" viewBox="0 0 32 8" preserveAspectRatio="none" style="position: absolute; left: 736px; top: 634px; width: 32px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 32 4"></path></svg>
+<svg width="8" height="48" viewBox="0 0 8 48" preserveAspectRatio="none" style="position: absolute; left: 764px; top: 614px; width: 8px; height: 48px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 4 0 L 4 48"></path></svg>
+<svg width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="position: absolute; left: 768px; top: 610px; width: 31px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="position: absolute; left: 768px; top: 658px; width: 31px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- cards: the buttons -->
+<div class="fl-btn" style="top: 161px">ENV</div>
+<div class="fl-btn" style="top: 227px">ARP</div>
+<div class="fl-btn" style="top: 293px">LFO</div>
+<div class="fl-btn" style="top: 359px">SEQ</div>
+<div class="fl-btn" style="top: 425px">SAVE</div>
+<div class="fl-btn" style="top: 491px">EDIT</div>
+
+<!-- cards: the pages -->
+<div class="fl-lay" style="top: 161px"><span><b class="fl-h2">The Drone</b><br><small class="fl-s">its voice</small></span></div>
+<div class="fl-lay" style="top: 227px"><span><b class="fl-h2">The Sequence</b><br><small class="fl-s">its voice</small></span></div>
+<div class="fl-lay" style="top: 293px"><span><b class="fl-h2">The Lead</b><br><small class="fl-s">its voice</small></span></div>
+<div class="fl-lay" style="top: 359px"><span><b class="fl-h2">Sequence 2</b><br><small class="fl-s">its voice</small></span></div>
+<div class="fl-lay" style="top: 425px"><span><b class="fl-h2">The Atmosphere</b><br><small class="fl-s">its character</small></span></div>
+<div class="fl-lay" style="top: 491px"><span><b class="fl-h2">The Chords</b><br><small class="fl-s">their walk</small></span></div>
+
+<!-- card: the one move -->
+<div style="position: absolute; left: 372px; top: 161px; width: 60px; height: 376px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 2px solid #2b2219; border-radius: 10px; font: 600 22px/26px 'Barlow Semi Condensed', sans-serif; color: #2b2219; writing-mode: vertical-rl">Turn ALGORITHM</div>
+
+<!-- the screen's own top line, from the firmware's host build -->
+<div class="fl-strip" style="top: 171px"><img src="../img/flow-drone-voice.png" alt="The screen's top line: VOICE Harmonium"></div>
+<div class="fl-strip" style="top: 237px"><img src="../img/flow-seq-voice.png" alt="The screen's top line: VOICE Bouzouki"></div>
+<div class="fl-strip" style="top: 303px"><img src="../img/flow-lead-voice.png" alt="The screen's top line: VOICE Theremin"></div>
+<div class="fl-strip" style="top: 369px"><img src="../img/flow-seq2-voice.png" alt="The screen's top line: VOICE Synthi"></div>
+<div class="fl-strip" style="top: 435px"><img src="../img/flow-atmos-char.png" alt="The screen's top line: NOISE Space"></div>
+<div class="fl-strip" style="top: 501px"><img src="../img/flow-walk.png" alt="The screen's top line: WALK Wander, roams wider"></div>
+
+<!-- what's lower down -->
+<div class="fl-none" style="left: 64px">HOME</div>
+<div class="fl-none" style="left: 184px">FX</div>
+<div class="fl-none" style="left: 304px">GLO</div>
+<div class="fl-none" style="left: 424px">SEL</div>
+
+<div style="position: absolute; left: 568px; top: 598px; width: 168px; height: 80px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; background: #ffffff; border: 2px solid #2b2219; border-radius: 10px; padding: 6px"><span><b class="fl-h2">Hold <span class="fl-c">ENV</span>, <span class="fl-c">ARP</span>, <span class="fl-c">LFO</span> or <span class="fl-c">SEQ</span></b></span></div>
+<div style="position: absolute; left: 800px; top: 594px; width: 259px; height: 40px; box-sizing: border-box; display: flex; align-items: center; background: #ffffff; border: 1.5px solid #5b4a3a; border-radius: 4px; padding: 0 8px; font: 400 12px/16px 'IBM Plex Mono', monospace; color: #2b2219">Half a second: a small step somewhere new, the voice kept</div>
+<div style="position: absolute; left: 800px; top: 642px; width: 259px; height: 40px; box-sizing: border-box; display: flex; align-items: center; background: #ffffff; border: 1.5px solid #5b4a3a; border-radius: 4px; padding: 0 8px; font: 400 12px/16px 'IBM Plex Mono', monospace; color: #2b2219">On to 1.5 s: a shake, a new voice and bigger steps</div>
+
+<!-- labels -->
+<h2 id="flow-layers-h" style="margin: 0; position: absolute; left: 64px; top: 50px; width: 700px; font: 600 36px/42px 'Barlow Semi Condensed', sans-serif; color: #2b2219">Any layer's sound</h2>
+<div class="fl-t" style="left: 64px; top: 94px; width: 700px; font-size: 13px; line-height: 18px; color: #5b4a3a">The same move everywhere: ALGORITHM changes whatever the page you are on is playing.</div>
+
+<div style="position: absolute; left: 792px; top: 62px; width: 18px; height: 12px; box-sizing: border-box; background: #ffffff; border: 2px solid #2b2219; border-radius: 4px"></div>
+<div class="fl-t" style="left: 816px; top: 60px; width: 90px">you do this</div>
+<div style="position: absolute; left: 792px; top: 86px; width: 18px; height: 12px; box-sizing: border-box; background: #ffffff; border: 1.5px solid #5b4a3a; border-radius: 2px"></div>
+<div class="fl-t" style="left: 816px; top: 84px; width: 90px">what you get</div>
+<div style="position: absolute; left: 915px; top: 61px; width: 14px; height: 14px; border-radius: 3px; background: #2b2219"></div>
+<div class="fl-t" style="left: 936px; top: 60px; width: 123px">the screen</div>
+<div style="position: absolute; left: 914px; top: 86px; width: 16px; height: 12px; box-sizing: border-box; background: #ffffff; border: 1.5px dashed #5b4a3a; border-radius: 4px"></div>
+<div class="fl-t" style="left: 936px; top: 84px; width: 123px">nothing happens</div>
+
+<div class="fl-badge" style="left: 64px; top: 126px">1</div>
+<div class="fl-lane" style="left: 88px; top: 127px; width: 60px">PRESS</div>
+<div class="fl-lane" style="left: 188px; top: 127px; width: 136px">ITS PAGE</div>
+<div class="fl-badge" style="left: 372px; top: 126px">2</div>
+<div class="fl-lane" style="left: 396px; top: 127px; width: 60px">TURN</div>
+<div class="fl-lane" style="left: 480px; top: 127px; width: 240px">THE TOP OF THE SCREEN SAYS</div>
+<div class="fl-lane" style="left: 736px; top: 127px; width: 311px">EVERY CHOICE, IN ORDER, ROUND AND ROUND</div>
+
+<div class="fl-t" style="left: 736px; top: 176px; width: 311px">Organ, Strings, Pipes, Harmonium, Glass, Choir</div>
+<div class="fl-t" style="left: 736px; top: 234px; width: 311px">2600, Moog, Synthi, Pulse, Glass, Harp, Bouzouki, Dulcimer</div>
+<div class="fl-t" style="left: 736px; top: 300px; width: 311px">Odyssey, Mini, Flute, Theremin, Synthi, Chanter, Fiddle, Voice</div>
+<div class="fl-t" style="left: 736px; top: 366px; width: 311px">2600, Moog, Synthi, Pulse, Glass, Sub, Harp, Bouzouki, Dulcimer, Bodhran</div>
+<div class="fl-t" style="left: 736px; top: 432px; width: 311px">None, Wind, Surf, Space, Air, Tape, Rain, Fire, Curlew</div>
+<div class="fl-t" style="left: 736px; top: 498px; width: 311px">Home: stays near home. Wander: roams wider. Free: goes anywhere.</div>
+
+<div class="fl-heading" style="left: 64px; top: 568px; width: 464px">ALGORITHM rests on these</div>
+<div class="fl-t" style="left: 64px; top: 644px; width: 104px">Aisling, Key</div>
+<div class="fl-t" style="left: 184px; top: 644px; width: 104px">Space, Echo</div>
+<div class="fl-t" style="left: 304px; top: 644px; width: 104px">Setup, Arc</div>
+<div class="fl-t" style="left: 424px; top: 644px; width: 104px">PERFORM</div>
+<div class="fl-t" style="left: 64px; top: 676px; width: 464px">To keep a new sound: hold <span class="fl-c">GLO</span> half a second and let go, as on the first page.</div>
+
+<div class="fl-heading" style="left: 568px; top: 568px; width: 491px">Or let it pick</div>
+<div class="fl-t" style="left: 568px; top: 692px; width: 491px"><span class="fl-c">HOME</span> held on shakes every layer at once. Each step is pulled back towards the piece's recipe, so it stays near the piece.</div>
+</div></div></section>
+<section class="flow" id="flow-perform" aria-labelledby="flow-perform-h" tabindex="0"><div class="flow-size"><div class="flow-board">
+<!-- bands -->
+<div style="position: absolute; left: 64px; top: 122px; width: 995px; height: 196px; background: #f3ead7; border-radius: 12px"></div>
+
+<!-- arrows -->
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 196px; top: 199px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 390px; top: 199px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 674px; top: 199px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 858px; top: 199px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+<svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 196px; top: 662px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- cards: the way in and out -->
+<div class="fl-card" style="left: 80px; top: 163px; width: 116px; height: 80px"><span><b class="fl-h">Tap <span class="fl-c">SEL</span></b><br><small class="fl-s">the keys are the mixer</small></span></div>
+<div class="fl-card" style="left: 438px; top: 163px; width: 236px; height: 80px"><span><b class="fl-h">Mute, solo, push</b><br><small class="fl-s">on the keys below. <span class="fl-c">SEL</span> again goes back.</small></span></div>
+<div class="fl-card" style="left: 722px; top: 163px; width: 136px; height: 80px; padding: 2px"><span><b class="fl-h">A page's button</b><br><small class="fl-s"><span class="fl-c">ENV</span>, <span class="fl-c">LFO</span>, <span class="fl-c">HOME</span>...</small></span></div>
+<div class="fl-card" style="left: 64px; top: 634px; width: 132px; height: 64px"><span><b class="fl-h">Hold <span class="fl-c">SEL</span></b></span></div>
+<div style="position: absolute; left: 244px; top: 634px; width: 284px; height: 64px; box-sizing: border-box; display: flex; align-items: center; background: #ffffff; border: 1.5px solid #5b4a3a; border-radius: 4px; padding: 0 8px; font: 400 12px/16px 'IBM Plex Mono', monospace; color: #2b2219"><span>Lock: the sequences stop varying, each pass as the last, until <span class="fl-c">SEL</span> is held again. Not saved.</span></div>
+
+<!-- the screens: AISLING's own, rendered from the firmware's host build -->
+<img src="../img/flow-perform.png" alt="The FM-1's screen on PERFORM, the knobs Filter, Wet, Energy and Sweep" style="position: absolute; left: 244px; top: 130px; width: 146px; height: 146px; border-radius: 8px; display: block">
+<img src="../img/flow-perform-off.png" alt="The screen after pressing LFO in PERFORM: PERFORM OFF along the top, the Lead's page below" style="position: absolute; left: 906px; top: 130px; width: 146px; height: 146px; border-radius: 8px; display: block">
+
+<!-- the keys, as the FM-1 has them: black row over white row -->
+<div class="fl-bk" style="left: 106px">Drone</div>
+<div class="fl-bk" style="left: 168px">Seq</div>
+<div class="fl-bk" style="left: 230px">Lead</div>
+<div class="fl-bk" style="left: 354px">Seq 2</div>
+<div class="fl-bk" style="left: 416px">Atmos</div>
+<div class="fl-bk fl-off" style="left: 540px"></div>
+<div class="fl-bk fl-off" style="left: 602px"></div>
+<div class="fl-bk fl-off" style="left: 664px"></div>
+<div class="fl-bk fl-off" style="left: 788px"></div>
+<div class="fl-bk fl-off" style="left: 850px"></div>
+<div class="fl-bk fl-off" style="left: 974px"></div>
+
+<div class="fl-wk" style="left: 68px">Drone</div>
+<div class="fl-wk" style="left: 130px">Seq</div>
+<div class="fl-wk" style="left: 192px">Lead</div>
+<div class="fl-wk" style="left: 254px">Seq 2</div>
+<div class="fl-wk" style="left: 316px">Atmos</div>
+<div class="fl-wk fl-held" style="left: 378px"><span>Levels<br><small>held</small></span></div>
+<div class="fl-wk fl-held" style="left: 440px"><span>Sweep<br><small>held</small></span></div>
+<div class="fl-wk fl-held" style="left: 502px"><span>Open<br><small>held</small></span></div>
+<div class="fl-wk fl-held" style="left: 564px"><span>Shut<br><small>held</small></span></div>
+<div class="fl-wk fl-held" style="left: 626px"><span>Drop<br><small>held</small></span></div>
+<div class="fl-wk fl-held" style="left: 688px"><span>Echo<br><small>held</small></span></div>
+<div class="fl-wk fl-off" style="left: 750px"></div>
+<div class="fl-wk fl-off" style="left: 812px"></div>
+<div class="fl-wk fl-off" style="left: 874px"></div>
+<div class="fl-wk fl-off" style="left: 936px"></div>
+<div class="fl-wk" style="left: 998px; border: 3px solid #8c3510; color: #8c3510">Forget</div>
+
+<div class="fl-rule" style="left: 68px; width: 306px"></div>
+<div class="fl-rule" style="left: 378px; width: 368px"></div>
+<div class="fl-rule" style="left: 998px; width: 58px; background: #8c3510"></div>
+
+<!-- labels -->
+<h2 id="flow-perform-h" style="margin: 0; position: absolute; left: 64px; top: 50px; width: 700px; font: 600 36px/42px 'Barlow Semi Condensed', sans-serif; color: #2b2219">Mute, solo, push</h2>
+<div class="fl-t" style="left: 64px; top: 94px; width: 700px; font-size: 13px; line-height: 18px; color: #5b4a3a">PERFORM: the keys stop playing the Lead until you press a page's button.</div>
+
+<div style="position: absolute; left: 792px; top: 62px; width: 18px; height: 12px; box-sizing: border-box; background: #ffffff; border: 2px solid #2b2219; border-radius: 4px"></div>
+<div class="fl-t" style="left: 816px; top: 60px; width: 90px">you do this</div>
+<div style="position: absolute; left: 792px; top: 86px; width: 18px; height: 12px; box-sizing: border-box; background: #ffffff; border: 1.5px solid #5b4a3a; border-radius: 2px"></div>
+<div class="fl-t" style="left: 816px; top: 84px; width: 90px">what you get</div>
+<div style="position: absolute; left: 915px; top: 61px; width: 14px; height: 14px; border-radius: 3px; background: #2b2219"></div>
+<div class="fl-t" style="left: 936px; top: 60px; width: 123px">the screen</div>
+<div style="position: absolute; left: 914px; top: 86px; width: 16px; height: 12px; box-sizing: border-box; background: #ffffff; border: 1.5px dashed #767676; border-radius: 4px"></div>
+<div class="fl-t" style="left: 936px; top: 84px; width: 123px">a key that rests</div>
+
+<div class="fl-badge" style="left: 71px; top: 154px">1</div>
+<div class="fl-badge" style="left: 429px; top: 154px">2</div>
+<div class="fl-badge" style="left: 713px; top: 154px">3</div>
+
+<div class="fl-t" style="left: 244px; top: 280px; width: 150px">The knobs: Filter, Wet, Energy, Sweep.</div>
+<div class="fl-t" style="left: 906px; top: 280px; width: 150px">OFF, and the keys play the Lead.</div>
+
+<div class="fl-lane" style="left: 106px; top: 328px; width: 400px">BLACK 1-5: SOLO. MORE THAN ONE PLAY TOGETHER</div>
+
+<div class="fl-lane" style="left: 68px; top: 500px; width: 306px; color: #2b2219">WHITE 1-5: MUTE</div>
+<div class="fl-t" style="left: 68px; top: 518px; width: 296px">A press: out. Again: back, the level kept. A muted Lead lets go of its note at once.</div>
+
+<div class="fl-lane" style="left: 378px; top: 500px; width: 368px; color: #2b2219">WHITE 6-11: ONLY WHILE HELD</div>
+<div class="fl-t" style="left: 378px; top: 518px; width: 368px">Levels: the knobs become Drone, Seq, Lead, Seq 2. Sweep: the Sequence's filter swept. Open, Shut: the filter pushed. Drop: both sequences out. Echo: everything in and feeding back.</div>
+
+<div class="fl-lane" style="left: 760px; top: 500px; width: 296px; color: #8c3510">THE TOP KEY, G: FORGET</div>
+<div class="fl-t" style="left: 760px; top: 518px; width: 296px">The Lead forgets its ideas and its theme, thinks of new ones and plays again within a few bars. Nothing else changes, nothing is saved.</div>
+
+<div class="fl-heading" style="left: 64px; top: 606px; width: 464px">Hold it instead of tapping</div>
+<div class="fl-heading" style="left: 568px; top: 606px; width: 491px">Reading the keys</div>
+<div class="fl-t" style="left: 568px; top: 634px; width: 491px">Each key that does something is lit: a layer while it sounds, a solo blinking while on, a move and Forget dark while held. The rest do nothing.</div>
+</div></div></section>
+<section class="flow" id="flow-pages" aria-labelledby="flow-pages-h" tabindex="0"><div class="flow-size"><div class="flow-board">
+<!-- bands -->
+<div style="position: absolute; left: 64px; top: 116px; width: 995px; height: 236px; background: #f3ead7; border-radius: 12px"></div>
+<div style="position: absolute; left: 64px; top: 360px; width: 995px; height: 370px; background: #f3ead7; border-radius: 12px"></div>
+
+<!-- arrows: HOME -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 169px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 169px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="230" height="8" viewBox="0 0 230 8" preserveAspectRatio="none" style="left: 264px; top: 134px; width: 230px; height: 8px"><path d="M 0 4 L 230 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 490px; top: 138px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 138px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: FX -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 237px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 237px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="230" height="8" viewBox="0 0 230 8" preserveAspectRatio="none" style="left: 264px; top: 202px; width: 230px; height: 8px"><path d="M 0 4 L 230 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 490px; top: 206px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 206px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: GLO -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 305px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 305px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="230" height="8" viewBox="0 0 230 8" preserveAspectRatio="none" style="left: 264px; top: 270px; width: 230px; height: 8px"><path d="M 0 4 L 230 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 490px; top: 274px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 274px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: EDIT, SEL -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 830px; top: 169px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 830px; top: 237px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: ENV, three pages -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 415px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 415px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 586px; top: 415px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="460" height="8" viewBox="0 0 460 8" preserveAspectRatio="none" style="left: 264px; top: 380px; width: 460px; height: 8px"><path d="M 0 4 L 460 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 720px; top: 384px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 384px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: ARP, four pages -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 483px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 483px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 586px; top: 483px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 816px; top: 483px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="690" height="8" viewBox="0 0 690 8" preserveAspectRatio="none" style="left: 264px; top: 448px; width: 690px; height: 8px"><path d="M 0 4 L 690 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 950px; top: 452px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 452px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: LFO, four pages -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 551px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 551px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 586px; top: 551px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 816px; top: 551px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="690" height="8" viewBox="0 0 690 8" preserveAspectRatio="none" style="left: 264px; top: 516px; width: 690px; height: 8px"><path d="M 0 4 L 690 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 950px; top: 520px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 520px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: SEQ, four pages -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 619px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 619px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 586px; top: 619px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 816px; top: 619px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="690" height="8" viewBox="0 0 690 8" preserveAspectRatio="none" style="left: 264px; top: 584px; width: 690px; height: 8px"><path d="M 0 4 L 690 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 950px; top: 588px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 588px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- arrows: SAVE, three pages -->
+<svg class="fl-a" width="31" height="8" viewBox="0 0 31 8" preserveAspectRatio="none" style="left: 140px; top: 687px; width: 31px; height: 8px"><path d="M 0 4 L 27 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 356px; top: 687px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-a" width="45" height="8" viewBox="0 0 45 8" preserveAspectRatio="none" style="left: 586px; top: 687px; width: 45px; height: 8px"><path d="M 0 4 L 41 4" marker-end="url(#fl-head)"></path></svg>
+<svg class="fl-r" width="460" height="8" viewBox="0 0 460 8" preserveAspectRatio="none" style="left: 264px; top: 652px; width: 460px; height: 8px"><path d="M 0 4 L 460 4"></path></svg>
+<svg class="fl-r" width="8" height="8" viewBox="0 0 8 8" preserveAspectRatio="none" style="left: 720px; top: 656px; width: 8px; height: 8px"><path d="M 4 0 L 4 8"></path></svg>
+<svg class="fl-r" width="8" height="7" viewBox="0 0 8 7" preserveAspectRatio="none" style="left: 260px; top: 656px; width: 8px; height: 7px"><path d="M 4 0 L 4 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- legend's own arrow -->
+<svg class="fl-r" width="16" height="8" viewBox="0 0 16 8" preserveAspectRatio="none" style="left: 914px; top: 88px; width: 16px; height: 8px"><path d="M 16 4 L 3 4" marker-end="url(#fl-head)"></path></svg>
+
+<!-- cards: the whole piece -->
+<div class="fl-bt" style="left: 76px; top: 146px">HOME</div>
+<div class="fl-pg" style="left: 172px; top: 146px"><b class="fl-n2">1</b><b class="fl-tt">AISLING</b><br><span class="fl-kn">Filter, Evolve, Motion, Drift</span></div>
+<div class="fl-pg" style="left: 402px; top: 146px"><b class="fl-n2">2</b><b class="fl-tt">KEY</b><br><span class="fl-kn">Tempo, Root, Mode, Transpose</span></div>
+
+<div class="fl-bt" style="left: 76px; top: 214px">FX</div>
+<div class="fl-pg" style="left: 172px; top: 214px"><b class="fl-n2">1</b><b class="fl-tt">SPACE</b><br><span class="fl-kn">Echo, Echo time, Feedback, Reverb</span></div>
+<div class="fl-pg" style="left: 402px; top: 214px"><b class="fl-n2">2</b><b class="fl-tt">ECHO</b><br><span class="fl-kn">Blur, Tone, Width, Size</span></div>
+
+<div class="fl-bt" style="left: 76px; top: 282px">GLO</div>
+<div class="fl-pg" style="left: 172px; top: 282px"><b class="fl-n2">1</b><b class="fl-tt">SETUP</b><br><span class="fl-kn">Tune, MIDI out, Lights, Save</span></div>
+<div class="fl-pg" style="left: 402px; top: 282px"><b class="fl-n2">2</b><b class="fl-tt">ARC</b><br><span class="fl-kn">Lead in, Bridge, Arc, Memory</span></div>
+
+<!-- cards: one page -->
+<div class="fl-bt" style="left: 766px; top: 146px">EDIT</div>
+<div class="fl-pg" style="left: 862px; top: 146px"><b class="fl-n2">1</b><b class="fl-tt">CHORDS</b><br><span class="fl-kn">Slot, Chord, Type, Play</span></div>
+<div class="fl-bt" style="left: 766px; top: 214px">SEL</div>
+<div class="fl-pg" style="left: 862px; top: 214px"><b class="fl-n2">1</b><b class="fl-tt">PERFORM</b><br><span class="fl-kn">Filter, Wet, Energy, Sweep</span></div>
+
+<!-- cards: the Drone -->
+<div class="fl-bt" style="left: 76px; top: 392px">ENV</div>
+<div class="fl-pg" style="left: 172px; top: 392px"><b class="fl-n2">1</b><b class="fl-tt">DRONE</b><br><span class="fl-kn">Pedal, Reso, Phaser, Attack</span></div>
+<div class="fl-pg" style="left: 402px; top: 392px"><b class="fl-n2">2</b><b class="fl-tt">DRONE SOUND</b><br><span class="fl-kn">Colour, Release, Reverb, Echo</span></div>
+<div class="fl-pg" style="left: 632px; top: 392px"><b class="fl-n2">3</b><b class="fl-tt">DRONE MOVE</b><br><span class="fl-kn">Width, Time, Rate, Intro</span></div>
+
+<!-- cards: the Sequence -->
+<div class="fl-bt" style="left: 76px; top: 460px">ARP</div>
+<div class="fl-pg" style="left: 172px; top: 460px"><b class="fl-n2">1</b><b class="fl-tt">SEQUENCE</b><br><span class="fl-kn">Density, Octave, Length, Grid</span></div>
+<div class="fl-pg" style="left: 402px; top: 460px"><b class="fl-n2">2</b><b class="fl-tt">SEQ SOUND</b><br><span class="fl-kn">Cutoff, Decay, Reverb, Echo</span></div>
+<div class="fl-pg" style="left: 632px; top: 460px"><b class="fl-n2">3</b><b class="fl-tt">REPEATS</b><br><span class="fl-kn">Repeat A, A time, Repeat B, B time</span></div>
+<div class="fl-pg" style="left: 862px; top: 460px"><b class="fl-n2">4</b><b class="fl-tt">SEQ MOVE</b><br><span class="fl-kn">Width, Time, Rate, Intro</span></div>
+
+<!-- cards: the Lead, outlined -->
+<div class="fl-bt" style="left: 76px; top: 528px; border: 3px solid #146c41">LFO</div>
+<div class="fl-pg fl-lead" style="left: 172px; top: 528px"><b class="fl-n2">1</b><b class="fl-tt">LEAD</b><br><span class="fl-kn">Phrases, Octave, Ornament, Vibrato</span></div>
+<div class="fl-pg fl-lead" style="left: 402px; top: 528px"><b class="fl-n2">2</b><b class="fl-tt">LEAD SOUND</b><br><span class="fl-kn">Tone, Attack, Reverb, Echo</span></div>
+<div class="fl-pg fl-lead" style="left: 632px; top: 528px"><b class="fl-n2">3</b><b class="fl-tt">LEAD STYLE</b><br><span class="fl-kn">Ornament, Glide, Vibrato, Memory</span></div>
+<div class="fl-pg fl-lead" style="left: 862px; top: 528px"><b class="fl-n2">4</b><b class="fl-tt">LEAD MOVE</b><br><span class="fl-kn">Width, Time, Rate, Intro</span></div>
+
+<!-- cards: Sequence 2 -->
+<div class="fl-bt" style="left: 76px; top: 596px">SEQ</div>
+<div class="fl-pg" style="left: 172px; top: 596px"><b class="fl-n2">1</b><b class="fl-tt">SEQUENCE 2</b><br><span class="fl-kn">Chance, Octave, Length, Level</span></div>
+<div class="fl-pg" style="left: 402px; top: 596px"><b class="fl-n2">2</b><b class="fl-tt">SEQ2 SOUND</b><br><span class="fl-kn">Cutoff, Decay, Reverb, Echo</span></div>
+<div class="fl-pg" style="left: 632px; top: 596px"><b class="fl-n2">3</b><b class="fl-tt">PATTERN</b><br><span class="fl-kn">Lane, Accent, Chance, Play</span></div>
+<div class="fl-pg" style="left: 862px; top: 596px"><b class="fl-n2">4</b><b class="fl-tt">SEQ2 MOVE</b><br><span class="fl-kn">Width, Time, Rate, Intro</span></div>
+
+<!-- cards: the Atmosphere -->
+<div class="fl-bt" style="left: 76px; top: 664px">SAVE</div>
+<div class="fl-pg" style="left: 172px; top: 664px"><b class="fl-n2">1</b><b class="fl-tt">ATMOSPHERE</b><br><span class="fl-kn">Density, Width, Drift, Air</span></div>
+<div class="fl-pg" style="left: 402px; top: 664px"><b class="fl-n2">2</b><b class="fl-tt">ATMOS SOUND</b><br><span class="fl-kn">Colour, Ring, Reverb, Echo</span></div>
+<div class="fl-pg" style="left: 632px; top: 664px"><b class="fl-n2">3</b><b class="fl-tt">ATMOS MOVE</b><br><span class="fl-kn">Width, Time, Rate, Intro</span></div>
+
+<!-- labels -->
+<h2 id="flow-pages-h" style="margin: 0; position: absolute; left: 64px; top: 50px; width: 700px; font: 600 36px/42px 'Barlow Semi Condensed', sans-serif; color: #2b2219">Every button's pages</h2>
+<div class="fl-t" style="left: 64px; top: 94px; width: 700px; font-size: 13px; line-height: 18px; color: #5b4a3a">A button: its page. The same button again: the next. The last goes back to the first.</div>
+
+<div style="position: absolute; left: 792px; top: 62px; width: 18px; height: 12px; box-sizing: border-box; background: #8f4d40; border: 2px solid #5a2c23; border-radius: 4px"></div>
+<div class="fl-t" style="left: 816px; top: 60px; width: 90px">a button</div>
+<div style="position: absolute; left: 792px; top: 86px; width: 18px; height: 12px; box-sizing: border-box; background: #ffffff; border: 1.5px solid #2b2219; border-radius: 3px"></div>
+<div class="fl-t" style="left: 816px; top: 84px; width: 90px">its knobs</div>
+<div class="fl-n2" style="position: absolute; left: 915px; top: 60px; margin: 0">1</div>
+<div class="fl-t" style="left: 936px; top: 60px; width: 123px">presses to reach</div>
+<div class="fl-t" style="left: 936px; top: 84px; width: 123px">back to first</div>
+
+<div class="fl-lane" style="left: 76px; top: 122px; width: 300px">THE WHOLE PIECE</div>
+<div class="fl-lane" style="left: 766px; top: 122px; width: 280px">ONE PAGE: AGAIN STAYS THERE</div>
+<div class="fl-lane" style="left: 76px; top: 366px; width: 970px">THE LAYERS: ON ANY OF THEIR PAGES ALGORITHM CHANGES THE VOICE AND SELECT THE LEVEL</div>
+
+<div class="fl-lane" style="left: 632px; top: 257px; width: 414px">HELD, NOT TAPPED</div>
+<div class="fl-t" style="left: 632px; top: 273px; width: 420px; line-height: 15px"><span class="fl-c">ENV</span>, <span class="fl-c">ARP</span>, <span class="fl-c">LFO</span>, <span class="fl-c">SEQ</span>: half a second, a nudge; on, a shake.<br><span class="fl-c">SAVE</span>, <span class="fl-c">GLO</span>: half a second, save. <span class="fl-c">GLO</span> on to 1.5 s: reset.<br><span class="fl-c">EDIT</span>: the next chord; on, new chords. <span class="fl-c">SEL</span>: Lock.<br><span class="fl-c">REC</span>: a tap holds the echo; held, the effects grid.<br><span class="fl-c">HOME</span>, with <span class="fl-c">OCT−</span> or <span class="fl-c">OCT+</span>: undo or redo.</div>
+</div></div></section>
+
+<section class="pane ref" id="controls">
+<h2 class="bh">Every control</h2>
+<dl class="fm-ctl">
+<div class="fm-c"><dt><span class="fm-key white">White keys</span></dt><dd><p>Play the Lead (the piece's flute, fiddle or voice), in the piece's scale (the key it sounds is lit)</p></dd></div>
+<div class="fm-c"><dt><span class="fm-key black">Black keys</span></dt><dd><p><b>Eleven effects, each while held</b> <span class="fm-note">(lit; dark while held)</span> Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, then Rise, Close, Transpose (in PERFORM: the solos)</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">PLAY</kbd></dt><dd><p>Play / rest</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">REC</kbd></dt><dd><p><span class="fm-tag">tap</span> hold (the echo repeats what it holds)</p><p><span class="fm-tag">held</span> the effects grid (16 effects on the white keys)</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">EDIT</kbd></dt><dd><p><span class="fm-tag">tap</span> the Chords page</p><p><span class="fm-tag">held</span> the next chord</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">SEL</kbd></dt><dd><p><b>PERFORM</b> <span class="fm-note">(again: back to the page you came from)</span> <span class="fm-kn">Filter, Wet, Energy, Sweep</span></p><p><span class="fm-key white"><span class="vh">white </span>1–5</span> mute the Drone, Sequence, Lead, Sequence 2, Atmosphere</p><p><span class="fm-key black"><span class="vh">black </span>1–5</span> solo them</p><p><span class="fm-key white"><span class="vh">white </span>6</span> <span class="fm-tag">held</span> the levels</p><p><span class="fm-key white"><span class="vh">white </span>7–11</span> <span class="fm-tag">held</span> Sweep, Open, Shut, Drop (both sequences out), Echo</p><p><b>The top key</b> <span class="fm-note">(G)</span> the Lead forgets its ideas and its theme</p><p><span class="fm-tag">held</span> Lock</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">HOME</kbd></dt><dd><ol class="fm-pages"><li><span><b>The Aisling page</b> <span class="fm-kn">Filter, Evolve, Motion, Drift</span></span></li><li><span><b>The Key page</b> <span class="fm-kn">Tempo, Root, Mode, Transpose</span></span></li></ol><p><span class="fm-tag">held</span> with <kbd class="fm-btn">OCT−</kbd> or <kbd class="fm-btn">OCT+</kbd>: undo or redo</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">ENV</kbd></dt><dd><ol class="fm-pages"><li><span><b>The Drone</b> <span class="fm-kn">Pedal, Reso, Phaser, Attack</span></span></li><li><span><b>Its sound</b> <span class="fm-kn">Colour, Release, Reverb, Echo</span></span></li><li><span><b>Its Move page</b> <span class="fm-kn">Width, Time, Rate, Intro</span></span></li></ol></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">ARP</kbd></dt><dd><ol class="fm-pages"><li><span><b>The Sequence</b> <span class="fm-kn">Density, Octave, Length, Grid</span></span></li><li><span><b>Its sound</b> <span class="fm-kn">Cutoff, Decay, Reverb, Echo</span></span></li><li><span><b>Its Repeats</b> <span class="fm-kn">Repeat A, A time, Repeat B, B time</span></span></li><li><span><b>Its Move page</b></span></li></ol></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">LFO</kbd></dt><dd><ol class="fm-pages"><li><span><b>The Lead</b> <span class="fm-kn">Phrases, Octave, Ornament, Vibrato</span></span></li><li><span><b>Its sound</b> <span class="fm-kn">Tone, Attack, Reverb, Echo</span></span></li><li><span><b>Its style</b> <span class="fm-kn">Ornament, Glide, Vibrato, Memory</span></span></li><li><span><b>Its Move page</b></span></li></ol></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">SEQ</kbd></dt><dd><ol class="fm-pages"><li><span><b>Sequence 2</b> <span class="fm-kn">Chance, Octave, Length, Level</span></span></li><li><span><b>Its sound</b></span></li><li><span><b>The Pattern page</b> <span class="fm-note">write the steps on the keys</span></span></li><li><span><b>Its Move page</b></span></li></ol></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">SAVE</kbd></dt><dd><ol class="fm-pages"><li><span><b>The Atmosphere</b> <span class="fm-kn">Density, Width, Drift, Air</span></span></li><li><span><b>Its sound</b> <span class="fm-kn">Colour, Ring, Reverb, Echo</span></span></li><li><span><b>Its Move page</b></span></li></ol><p><span class="fm-tag">held</span> save</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">FX</kbd></dt><dd><ol class="fm-pages"><li><span><b>Space</b> <span class="fm-kn">Echo, Echo time, Feedback, Reverb</span></span></li><li><span><b>The Echo page</b> <span class="fm-kn">Blur, Tone, Width, Size</span></span></li></ol></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">GLO</kbd></dt><dd><ol class="fm-pages"><li><span><b>Setup</b> <span class="fm-kn">Tune, MIDI out, Lights, Save</span></span></li><li><span><b>The Arc</b> <span class="fm-kn">Lead in, Bridge, Arc, Memory</span></span></li></ol><p><span class="fm-tag">held</span> save</p><p><span class="fm-tag">held on</span> the piece back to its recipe</p></dd></div>
+<div class="fm-c"><dt><span class="fm-knob">ALGORITHM</span></dt><dd><p>On a layer's page, its voice (the Atmosphere: its character)</p></dd></div>
+<div class="fm-c"><dt><span class="fm-knob">PRESETS</span></dt><dd><p>The piece</p></dd></div>
+<div class="fm-c"><dt><span class="fm-knob">SELECT</span></dt><dd><p>On a layer's pages, its level</p><p>On the Aisling page, Energy (elsewhere nothing)</p></dd></div>
+<div class="fm-c"><dt><kbd class="fm-btn">OCT−</kbd> <kbd class="fm-btn">OCT+</kbd></dt><dd><p>On the Sequence's, the Lead's and Sequence 2's pages, its octave (lit while it's above or below where the piece was loaded)</p></dd></div>
+</dl>
+</section>
+<section class="pane ref" id="pieces">
+<h2 class="bh">The pieces</h2>
+<div class="wrap"><table>
+<thead><tr><th scope="col">#</th><th scope="col">Piece</th><th scope="col">Named for</th><th scope="col">Key, tempo</th><th scope="col">What you hear</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Skellig</td><td>Skellig Michael, off Kerry</td><td>D minor, 76</td><td>The pipes' drones, one harp in a jig's threes, a flute, the surf; Dm and C in turn</td></tr>
+<tr><td>2</td><td>Burren</td><td>The Burren, Clare</td><td>G Mixolydian, 84</td><td>A choir, two harps of 12 and 11 drifting apart, a fiddle's slow air, the wind</td></tr>
+<tr><td>3</td><td>Aran</td><td>Inis Mór</td><td>A Dorian, 96</td><td>A reed drone, a bouzouki's jig of 12 over a bodhrán's slip jig of 9, a flute, a turf fire; Am and G in turn</td></tr>
+<tr><td>4</td><td>Carolan</td><td>Turlough O'Carolan, the harper</td><td>D major, 88</td><td>Strings, two harps of 16 and 15, rain, a planxty's chords</td></tr>
+<tr><td>5</td><td>Blasket</td><td>The Blasket Islands, Kerry</td><td>E Dorian, 70</td><td>A choir, slow dulcimers, a singer's slow air over the surf; Em and D in turn</td></tr>
+<tr><td>6</td><td>Samhain</td><td>The year's dark turn</td><td>B minor, 64</td><td>The pipes' drones, low and beating, one low harp over a bodhrán's heartbeat, a low voice, the wind</td></tr>
+<tr><td>7</td><td>Connemara</td><td>Bog, lake and rain</td><td>G hexatonic minor, 92</td><td>An organ, a harp's slip jig of 9 over a low bodhrán's 8, a low flute held back in a long echo, rain; Gm and F in turn</td></tr>
+<tr><td>8</td><td>Tir na nOg</td><td>The land of the young, over the western sea</td><td>D hexatonic major, 80</td><td>A phased glass drone, two harps, a long reverb, a curlew far out over the bog; D and G in turn</td></tr>
+</tbody>
+</table></div>
+</section>
+</main>
+<script>
+// each flow to the bench's width, as far down as it can still be read
+(function () {
+  var flows = document.querySelectorAll(".flow");
+  function fit() {
+    flows.forEach(function (f) { f.style.setProperty("--s", Math.max(f.clientWidth / 1123, 0.8)); });
+  }
+  fit();
+  addEventListener("resize", fit);
+}());
+</script>
+</body>
+</html>
