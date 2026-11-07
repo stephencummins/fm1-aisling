@@ -56,12 +56,16 @@ function parseRequest(pkt) {
   return { fl: u[6], addr: (u[7] | (u[8] << 8) | (u[9] << 16) | (u[10] << 24)) >>> 0, len: u[11] | (u[12] << 8) | (u[13] << 16) };
 }
 
-function parseIdentity(pkt) {
+// the text up to its first zero (bytes 24..26 may hold the flash's JEDEC ID: AISLING from 1.1 and felucca-bsp's
+// firmwares); chip: that ID, 0 = none
+export function parseIdentity(pkt) {
   const d = unpack7(pkt.slice(1, -1));
   if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
-  const txt = String.fromCharCode(...d.slice(6, 33)).replace(/\0+$/, "");
+  const body = Array.from(d.slice(6, 33)), z = body.indexOf(0);
+  const txt = String.fromCharCode(...(z < 0 ? body : body.slice(0, z)));
   const m = /^([^_]+)_(\d+)$/.exec(txt);
-  return m ? { text: txt, model: m[1], version: parseInt(m[2], 10) } : null;
+  const chip = txt.length < 24 ? (body[24] << 16 | body[25] << 8 | body[26]) : 0;
+  return m ? { text: txt, model: m[1], version: parseInt(m[2], 10), chip } : null;
 }
 
 // one MIDI in/out pair with a SysEx queue

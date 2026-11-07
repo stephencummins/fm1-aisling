@@ -276,6 +276,7 @@ static void fm1_main(void)
         uint32_t id = FL_FAR(fl_jedec_ram)();
         irq_restore(f);
         flash_ok = FL_JEDEC_OK(id);                 /* a 1 MiB part we know, else RAM only */
+        flash_jedec = id & 0xFFFFFFu;               /* (the identity reply's bytes 24..26) */
         if (flash_ok)
             ota_boot_cleanup();
     }

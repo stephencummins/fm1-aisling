@@ -8,6 +8,7 @@ then "device asks, host answers" reads of the logical image. Run from the repo r
 Also checks logical_image/product_of against web/fm1pkg.js (needs node and
 build/amb.fwsc, skipped otherwise)."""
 import io
+import json
 import queue
 import shutil
 import subprocess
@@ -63,12 +64,20 @@ class FakeLink:
         self.closed = True
 
 
+def ident_frame(text, chip):
+    """the 0x11 answer with the flash's JEDEC ID in bytes 24..26 (AISLING 1.1's answer to the body 01)"""
+    t = text.encode()
+    return b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + t + bytes(24 - len(t)) + chip.to_bytes(3, "big") +
+                             bytes(1)) + b"\xF7"
+
+
 class FakeFM1:
     """a MIDI backend with one FM-1 on it"""
 
     def __init__(self, image, identity="FM-1_015", name="FM-1", unplug_after=None, after_write="FM-1_900",
-                 stall_after=None, bad_addr=None):
+                 stall_after=None, bad_addr=None, chip=None):
         self.image, self.unplug_after, self.after_write = image, unplug_after, after_write
+        self.chip = chip                           # JEDEC ID: answers the handshake with the body 01 (else silent)
         self.stall_after, self.bad_addr = stall_after, bad_addr
         self.served = self.bad = self.upgrades = 0
         self.sent, self.links, self.gen, self.lock = [], [], 0, threading.Lock()
@@ -101,6 +110,9 @@ class FakeFM1:
         if d == I.HS_QUERY:
             t = self.identity.encode()
             self.tx(b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + t + bytes(28 - len(t))) + b"\xF7")
+        elif d == I.HS_WHOLE:
+            if self.chip is not None:
+                self.tx(ident_frame(self.identity, self.chip))
         elif d == I.UPGRADE:
             self.upgrades += 1
             first = self.bad_addr if self.bad_addr is not None else 0
@@ -178,6 +190,11 @@ def wire():
        and ~sum(u[6:17]) & 0xFF == u[17], "response: header, address, data, checksum")
     raw = package("FM-1_906")
     ok(I.product_of(raw) == "FM-1_906" and len(I.logical_image(raw)) == len(raw) - 20, "product_of / logical_image (synthetic)")
+    i = I.parse_identity(ident_frame("FM-1_353010100", 0xB36014))
+    ok(i is not None and i.text == "FM-1_353010100" and i.version == 353010100 and i.chip == 0xB36014,
+       "parse_identity: the text up to its first zero, the chip ID from bytes 24..26")
+    i = I.parse_identity(ident_frame("FM-1_353010000", 0))
+    ok(i is not None and i.text == "FM-1_353010000" and i.chip == 0, "parse_identity: no chip ID -> 0")
     raw = package("FM-1_9001000")                  # X0X from 0.10: major, minor, patch, two digits each
     ok(I.product_of(raw) == "FM-1_9001000", "product_of: a 12-character identity")
 
@@ -208,7 +225,13 @@ def installs():
 
     dev = FakeFM1(image, identity="FM-1_905", name="Felucca")
     rc, out, err = cli(["--info"], dev)
-    ok(rc == 0 and "FM-1_905" in out and "running" in out and dev.upgrades == 0, "--info: identity of the connected FM-1")
+    ok(rc == 0 and "FM-1_905" in out and "running" in out and dev.upgrades == 0 and "flash chip" not in out,
+       "--info: identity of the connected FM-1 (no chip ID: none shown)")
+
+    dev = FakeFM1(image, identity="FM-1_353010100", name="FM-1", chip=0xB36014)
+    rc, out, err = cli(["--info"], dev)
+    ok(rc == 0 and "FM-1_353010100" in out and "flash chip: JEDEC ID B36014" in out and dev.upgrades == 0,
+       "--info: the flash chip, from the answer to the body 01")
 
     dev = FakeFM1(image, identity="ota-FM-1_900", name="Felucca Update")
     rc, out, err = cli(["--info"], dev)
@@ -285,10 +308,30 @@ def against_js():
     ok(I.LOADER_MARK in raw, f"{clean.name} carries the Felucca loader marker")
 
 
+def identity_js():
+    """web/fm1ota.js reads the identity as the installer does: up to the first zero, the chip from bytes 24..26"""
+    if not shutil.which("node"):
+        print("parseIdentity in fm1ota.js: skipped (needs node)")
+        return
+    shutil.copyfile(ROOT / "web/fm1ota.js", TMP / "fm1ota.mjs")
+    js = ("import { parseIdentity } from %r;"
+          "const r = process.argv.slice(1).map((h) => parseIdentity(Array.from(Buffer.from(h, 'hex'))));"
+          "process.stdout.write(JSON.stringify(r));") % str(TMP / "fm1ota.mjs")
+    plain = b"\xF0" + I.pack7(bytes([0, 0x59, 0x11, 0, 0, 0]) + b"FM-1_353010000" + bytes(14)) + b"\xF7"
+    frames = [ident_frame("FM-1_353010100", 0xB36014), plain]
+    r = subprocess.run(["node", "--input-type=module", "-e", js] + [f.hex() for f in frames],
+                       capture_output=True, check=True)
+    a, b = json.loads(r.stdout)
+    ok(a == {"text": "FM-1_353010100", "model": "FM-1", "version": 353010100, "chip": 0xB36014} and
+       b == {"text": "FM-1_353010000", "model": "FM-1", "version": 353010000, "chip": 0},
+       "fm1ota.js parseIdentity: the text up to its first zero, the chip ID")
+
+
 wire()
 installs()
 errors()
 against_js()
+identity_js()
 shutil.rmtree(TMP, ignore_errors=True)
 print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
 sys.exit(1 if failed else 0)
