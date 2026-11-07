@@ -97,6 +97,8 @@ void plat_leds(uint32_t b, uint32_t k)
 }
 static int glow_on = 1;                 /* the device's button glow (plat_glow); the lights printed are the bright ones */
 void plat_glow(int on) { glow_on = on; }
+static int backlight_on = 1;            /* (1.1) the screen's light (plat_backlight): off while asleep */
+void plat_backlight(int on) { backlight_on = on != 0; }
 void plat_play_red(int red) { (void)red; }      /* the device's PLAY colour: green, red while recording */
 
 #define MQ 256
@@ -472,7 +474,7 @@ static void run_ms(uint32_t ms)
         now_ms++;
         while (audio_due_ms <= (double)now_ms) {      /* 256-frame blocks, as the device renders them */
             double t0 = now_ns(), dt;
-            en_render(blk, 256, master);
+            en_render(blk, 256, master * ui_gain_q12 >> 12);   /* (1.1) the sleep timer's fade, as the device */
             seq_apart += en_loop_pos[0] != en_loop_pos[1];
 #ifdef EN_WEB
             web_audio(blk, 256);
@@ -553,6 +555,14 @@ static int expect(const char *what, const char *val)
         got = en_playing;
     else if (!strcmp(what, "frozen"))
         got = en_frozen;
+    else if (!strcmp(what, "sleep"))              /* (1.1) the sleep timer: its minutes (0: off) */
+        got = SLEEP_MIN[sl.set];
+    else if (!strcmp(what, "asleep"))
+        got = sl.asleep;
+    else if (!strcmp(what, "backlight"))
+        got = backlight_on;
+    else if (!strcmp(what, "gain"))               /* the gain after MASTER, Q12 (4096: whole) */
+        got = (int)ui_gain_q12;
     else if (!strcmp(what, "view"))
         got = ui.view;
     else if (!strcmp(what, "piece"))

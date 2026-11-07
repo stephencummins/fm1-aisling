@@ -1348,6 +1348,39 @@ static void oct_release(int b)
         oct_step(b);                             /* a tap */
 }
 
+/* (1.1) SLEEP, Setup's ALGORITHM (ZEN-1's and Penumbra's idea): off, or 15 or 30 minutes, 1, 2, 4 or 8 hours from the
+ * last touch (a button, a key, a knob, a note from outside). The sound fades out over the last SLEEP_FADE (a touch
+ * then: it comes back up, and the time starts again); then the music stops and the screen and the lights go dark. A
+ * new press, key or turn wakes it (MIDI does not: a sequencer left running would): the screen back, the music again if
+ * it was playing, faded in; that touch only wakes (sleep_input). Not saved: off at every start. The fade is a gain after MASTER (ui_gain_q12: main_fm1.c), so the USB audio input,
+ * taken before MASTER, is not faded; it stops with the music */
+#define NSLEEP 7
+static const uint16_t SLEEP_MIN[NSLEEP] = {0, 15, 30, 60, 120, 240, 480};
+static const char *const SLEEP_NAME[NSLEEP] = {"OFF", "15 MIN", "30 MIN", "1 HOUR", "2 HOURS", "4 HOURS", "8 HOURS"};
+static const char *const SLEEP_SAID[NSLEEP] = {"sleep off", "sleep in 15 minutes", "sleep in 30 minutes",
+                                               "sleep in 1 hour", "sleep in 2 hours", "sleep in 4 hours",
+                                               "sleep in 8 hours"};
+#define SLEEP_FADE 30000u                        /* the fade out, ms: by the gain's square, so it sounds even */
+#define WAKE_FADE 1000u                          /* back up: the whole way in this at most */
+#define WAKE_QUIET 300u                          /* woken: touches still only wake till none for this long */
+volatile uint32_t ui_gain_q12 = 4096u;           /* the gain after MASTER, Q12 (the audio's: main_fm1.c, amb_host.c) */
+static struct {
+    uint8_t set;                                 /* SLEEP_MIN's index */
+    uint8_t asleep, was_playing;
+    uint8_t waking;                              /* woken: the touch that woke it not let through yet */
+    uint32_t gain_t, quiet_t;                    /* the gain's last step; woken, the last touch */
+} sl;
+static void sleep_turn(int e)                    /* (a step a detent; off at the left, 8 hours at the right) */
+{
+    int v = (int)sl.set + e;
+    sl.set = (uint8_t)(v < 0 ? 0 : v >= NSLEEP ? NSLEEP - 1 : v);
+    say_as("SLEEP", SLEEP_NAME[sl.set], 0);
+    if (ann_on()) {                              /* (in words: "sleep in 30 minutes") */
+        ann_say(SLEEP_SAID[sl.set], 0, ANN_NOW);
+        sp_said = 1;
+    }
+}
+
 /* MIDI in (USB and the TRS jack): notes on any channel play the Lead (they added or removed their note from the scale up
  * to 0.3: the scale is the Key page's now); clock and start / stop drive the grid */
 static void midi_in(void)
@@ -1357,8 +1390,12 @@ static void midi_in(void)
         uint32_t st = (pkt >> 8) & 0xFFu, n = (pkt >> 16) & 0x7Fu, v = pkt >> 24;
         if (st == 0xF8u || st == 0xFAu || st == 0xFBu || st == 0xFCu)
             en_clock(st == 0xF8u ? EN_CLK_TICK : st == 0xFAu ? EN_CLK_START : st == 0xFBu ? EN_CLK_CONTINUE : EN_CLK_STOP);
-        else if ((st & 0xF0u) == 0x90u || (st & 0xF0u) == 0x80u)
+        else if ((st & 0xF0u) == 0x90u || (st & 0xF0u) == 0x80u) {
             en_lead_midi((int)n, (st & 0xF0u) == 0x90u && v);
+            if ((st & 0xF0u) == 0x90u && v)      /* (1.1) a note played from outside is a touch: the sleep timer waits
+                                                  * (asleep, MIDI never reaches here: sleep_input) */
+                ui.act_t = plat_ms();
+        }
         else if ((st & 0xF0u) == 0xB0u && (n == 120u || n == 123u))
             en_lead_midi(-1, 0);                 /* (all sound off, all notes off: a DAW's stop, say) */
     }
@@ -1666,6 +1703,8 @@ static void input(void)
                                                          "Free: goes anywhere"};
                 say("WALK", WHAT[w]);
             }
+        } else if (ui.view == V_SETUP) {         /* (1.1) Setup: the sleep timer */
+            sleep_turn((int)e);
         } else if (vp >= 0) {
             set_voice(vp, proj.par[vp] + (int)e);   /* (every detent: a quick turn comes as several at once) */
         }                                        /* (elsewhere: nothing; the scope and the spectrum are gone) */
@@ -2672,6 +2711,8 @@ static void draw_knobs(void)
         h = hash(h, (uint32_t)proj.par[P_NCHAR]);
     if (ui.view == V_MIX)
         h = hash(h, ui.mutes);
+    if (ui.view == V_SETUP)
+        h = hash(h, 0x534C50u ^ sl.set);
     int now_touch = plat_ms() < ui.touch_until, sel_on = ui.view == V_DUB && plat_ms() < ui.sel_until;
     for (i = 0; i < 4; i++)
         h = hash(h, (uint32_t)knob_get(VIEW_KNOB[ui.view][i]));
@@ -2702,6 +2743,9 @@ static void draw_knobs(void)
             }
             caps(t, vn, sizeof t);
             x0 = cv_text(6, -1, &FONT_XS, t, K_DIM) + 5;
+        } else if (ui.view == V_SETUP) {         /* (1.1) Setup: the sleep timer (ALGORITHM's), at the rule's start */
+            x0 = cv_text(6, -1, &FONT_XS, "SLEEP", K_DIM) + 4;
+            x0 = cv_text(x0, -1, &FONT_XS, SLEEP_NAME[sl.set], sl.set ? K_ACC : K_DIM) + 5;
         }
         if (sel_on) {                            /* (HOME) SELECT turning: Energy, its value and a bar from the
                                                   * middle (as PERFORM's knob, -50..50), the rule's whole width */
@@ -2978,6 +3022,10 @@ static void sp_page(int all)
     if (ui.view == V_CHORDS) {
         sp_cat(", walk ");
         sp_cat(EN_WALK_NAME[(proj.par[P_PMODE] & 3) % EN_NWALK]);
+    }
+    if (ui.view == V_SETUP) {                    /* (1.1) the sleep timer */
+        sp_cat(", ");
+        sp_cat(SLEEP_SAID[sl.set]);
     }
     for (i = 0; i < 4; i++) {
         if (VIEW_KNOB[ui.view][i] == K_NONE)
@@ -3283,6 +3331,10 @@ static void speak_dump(void)
         msg_text("MODE", EN_MODE_NAME[MODE_ORDER[x]], t);
         sp_print("MSG", t);
     }
+    for (x = 0; x < NSLEEP; x++)                 /* (1.1) the sleep timer: said in words, not the screen's */
+        sp_print("MSG", SLEEP_SAID[x]);
+    sp_print("MSG", "sleeping");
+    sp_print("MSG", "awake");
     for (x = 0; x < NLAYER; x++) {                    /* OCT- / OCT+: a level, a mute */
         msg_text(LAYER_NAME[x], "55", t);
         sp_print("MSG", t);
@@ -3313,6 +3365,9 @@ static void speak_dump(void)
 void ui_init(void)
 {
     memset(&ui, 0, sizeof ui);
+    memset(&sl, 0, sizeof sl);                   /* (1.1) the sleep timer: off at every start */
+    ui_gain_q12 = 4096u;
+    plat_backlight(1);
     ui.touched = -1;
     oct_home_take();
     undo_clear();
@@ -3325,13 +3380,120 @@ void ui_init(void)
 
 #include "link.c"
 
+/* (1.1) the sleep timer (SLEEP, above), each frame */
+static uint32_t later(uint32_t a, uint32_t b) { return (int32_t)(a - b) > 0 ? a : b; }
+static void sleep_fall(void)                     /* the music stopped as PLAY stops it; dark */
+{
+    sl.asleep = 1;
+    sl.was_playing = (uint8_t)(en_playing != 0);
+    if (en_playing) {
+        sp_tp.playing = 0;
+        sp_tp.play_t = plat_ms();
+        en_play(0);
+    }
+    if (ann_on()) {
+        ann_say("sleeping", 0, ANN_NOW);
+        sp_said = 1;
+    }
+    plat_glow(0);
+    plat_leds(0, 0);
+    link_lit_b = link_lit_k = 0;
+    lcd_fill(0, 0, 240, 240, 0);                 /* (black as well: dark even if the light's switch is not where we
+                                                  * think it is) */
+    plat_backlight(0);
+}
+static void sleep_wake(void)
+{
+    const uint32_t now = plat_ms();
+    sl.asleep = 0;
+    sl.waking = 1;
+    sl.quiet_t = now;
+    ui.act_t = ui.turn_t = now;                  /* (the time starts again) */
+    memset(ui.sig, 0, sizeof ui.sig);            /* every band drawn again */
+    lcd_fill(0, 0, 240, 240, K_BG);
+    plat_backlight(1);
+    if (sl.was_playing && !en_playing) {         /* (as PLAY starts it) */
+        sp_tp.playing = 1;
+        sp_tp.play_t = now;
+        en_seed(now);
+        en_play(1);
+    }
+    if (ann_on()) {
+        ann_say("awake", 0, ANN_NOW);
+        sp_said = 1;
+    }
+}
+/* the gain (the fade out, the fade back in) and falling asleep: 1 while asleep */
+static int sleep_tick(void)
+{
+    const uint32_t now = plat_ms();
+    uint32_t want = 4096u, dt = now - sl.gain_t;
+    if (!sl.asleep && sl.set) {
+        const uint32_t gone = now - later(ui.act_t, ui.turn_t), span = SLEEP_MIN[sl.set] * 60000u;
+        if (gone >= span) {
+            sleep_fall();
+        } else if (span - gone < SLEEP_FADE) {
+            const uint32_t r = span - gone;
+            want = r * r / SLEEP_FADE * 4096u / SLEEP_FADE;
+        }
+    }
+    if (sl.asleep)
+        want = 0;
+    if (want <= ui_gain_q12) {                   /* down: at once (the fade is slow already) */
+        ui_gain_q12 = want;
+    } else {                                     /* up: the whole way in WAKE_FADE at most */
+        const uint32_t up = (dt > WAKE_FADE ? WAKE_FADE : dt) * 4096u / WAKE_FADE;
+        ui_gain_q12 = ui_gain_q12 + up < want ? ui_gain_q12 + up : want;
+    }
+    sl.gain_t = now;
+    return sl.asleep;
+}
+/* the touches while asleep, and just woken: 1, input() is not to see them. Asleep: a new press, key or turn wakes it;
+ * MIDI is dropped. Woken: the touch that woke it, and any till nothing has been touched for WAKE_QUIET, held back
+ * (the panel's state taken as it is, so its release does nothing either) */
+static int sleep_input(void)
+{
+    uint32_t btn, keys, now;
+    int k, turned = 0;
+    if (!sl.asleep && !sl.waking)
+        return 0;
+    now = plat_ms();
+    btn = plat_buttons() | link_v_btn, keys = plat_keys() | link_v_keys;
+    for (k = 0; k < NE; k++)
+        turned |= plat_enc(k) != 0;              /* (taken: a turn that wakes it moves nothing) */
+    if (sl.asleep) {
+        uint32_t pkt;
+        while (plat_midi_in(&pkt))
+            ;
+        if ((btn & ~ui.btn) || (keys & ~ui.keys) || turned)
+            sleep_wake();
+    } else {
+        midi_in();
+        if (btn || keys || turned)
+            sl.quiet_t = ui.act_t = now;
+        else if (now - sl.quiet_t >= WAKE_QUIET)
+            sl.waking = 0;
+    }
+    ui.btn = btn, ui.keys = keys;
+    return 1;
+}
+
 void ui_frame(void)
 {
+    if (sleep_tick()) {                          /* (1.1) asleep: only waking, saving, the reader and the link */
+        sleep_input();
+        autosave();
+        ann_tick(plat_ms());
+        link_tick(plat_ms());
+        ui.frame++;
+        return;
+    }
     if (ui.s2_hand && !en_s2oct_shift)           /* (the engine has the hand's octave: its shifts shown again) */
         ui.s2_hand = 0;
     prog_take();
     nudge_tick();
-    input();
+    if (!sleep_input())
+        input();
     mac_take();
     autosave();
     undo_tick();
@@ -3351,7 +3513,11 @@ void ui_frame(void)
     ui.frame++;
 }
 
-void ui_input_only(void) { input(); }
+void ui_input_only(void)
+{
+    if (!sleep_input())
+        input();
+}
 
 /* (AISLING) the launch screen, the user's: a green triskele growing out from its three centres, then AISLING large under
  * it and "by S. CUMMINS" in orange (the flag's three colours, the name between), on black among a few stars, fading in;

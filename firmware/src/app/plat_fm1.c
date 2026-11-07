@@ -50,6 +50,17 @@ void plat_glow(int on) { glow_on = (uint8_t)(on != 0); }
  * column 8, row PA5 (found on the device). Green, unless recording. */
 static uint8_t play_red;
 void plat_play_red(int red) { play_red = (uint8_t)(red != 0); }
+/* (1.1) the backlight: PA2, low lights it (as fm1_lcd_hw_init leaves it). The panel scan (the timer ISR) sets and
+ * clears other bits of PA's OUT by read, change, write: so this one with interrupts off, or one of the two is lost */
+void plat_backlight(int on)
+{
+    uint32_t f = irq_save();
+    if (on)
+        FM1_LCD_PA_OUT &= ~FM1_LCD_BL;
+    else
+        FM1_LCD_PA_OUT |= FM1_LCD_BL;
+    irq_restore(f);
+}
 void plat_leds(uint32_t buttons, uint32_t keys)
 {
     uint8_t nl[FM1_NCOL] = {0}, dl[FM1_NCOL] = {0};
