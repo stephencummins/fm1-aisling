@@ -111,6 +111,25 @@ async function handshake(link, tries = 3) {
   return null;
 }
 
+// the handshake with the one-byte body 01: newer firmwares (AISLING from 1.1, felucca-bsp's) answer it with the whole
+// identity and the flash's JEDEC ID in bytes 24..26; older ones and the update loader do not answer it
+// (tools/fm1_install.py's HS_WHOLE and flash_chip)
+const HS_WHOLE = [0xF0, ...pack7([0, 0x59, 0x11, 1, 0, 0, 1, 0xFE]), 0xF7];
+
+// the flash's JEDEC ID, from the answer to the handshake with the body 01; 0 if the firmware does not say
+export async function flashChip(link) {
+  link.drain();
+  if (!link.send(HS_WHOLE)) return 0;
+  const end = Date.now() + 1000;
+  while (Date.now() < end) {
+    const p = await link.read(end - Date.now());
+    if (!p) break;
+    const id = parseIdentity(p);
+    if (id) return id.chip;
+  }
+  return 0;
+}
+
 export class Updater {
   constructor(access, log) {
     this.access = access;
@@ -196,8 +215,10 @@ export class Updater {
     await sleep(3000);
     const back = await this.waitFor((id) => !IS_OTA(id), 40000);
     if (!back) throw fail("noreturn", "the device did not come back: power-cycle it");
+    const chip = back.id.chip || await flashChip(back.link);   // (AISLING from 1.1 says; 0 = it doesn't)
     back.link.close();
     if (back.id.text !== product) throw fail("mismatch", `installed, but the device reports ${back.id.text}`, back.id.text);
+    if (chip) step("chip", chip);
     step("done", back.id.text);
     return back.id.text;
   }

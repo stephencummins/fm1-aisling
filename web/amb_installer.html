@@ -29,6 +29,8 @@
   .pane * + .bh { margin-top: 22px; }
   #status, #alert { margin: 12px 0 0; min-height: 1.6em; }
   #alert:empty { display: none; }
+  #chip { margin: 6px 0 0; }
+  #chip:empty { display: none; }
   #alert { color: var(--brand-rust); }
   #alert::before { content: "⚠ "; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -61,6 +63,7 @@
   <label class="bar" for="bar"><span data-t="progress"></span>
     <progress id="bar" max="100" value="0"></progress></label>
   <p id="status" role="status"></p>
+  <p id="chip" aria-live="polite"></p>
   <p id="alert" role="alert"></p>
   <pre id="log"></pre>
   </section>
@@ -132,6 +135,8 @@ const TEXT = {
     mismatch: "書き込みは終わりましたが、FM-1 が別のバージョンを報告しています: ",
     badpkg: "インストールするファイルが壊れています。ページを再読み込みしてください。",
     leave: "書き込み中です。ページを閉じないでください。",
+    chip: "フラッシュチップ: ", chipid: "、ID ", chipend: "", chip856014: "Puya P25Q80（初期のもの）",
+    chipB36014: "UCUN UC25HQ80（2026 年秋以降に販売された FM-1 の新しいもの）", chipother: "AISLING の知らないチップ",
     license: "GPL-3.0、無保証。ソース:",
   },
   en: {
@@ -169,6 +174,8 @@ const TEXT = {
     mismatch: "Written, but the FM-1 reports another version: ",
     badpkg: "The file to install is damaged. Reload the page.",
     leave: "Writing. Do not close the page.",
+    chip: "Flash chip: ", chipid: " (ID ", chipend: ")", chip856014: "Puya P25Q80, the first one",
+    chipB36014: "UCUN UC25HQ80, the newer one in FM-1s sold since autumn 2026", chipother: "not one AISLING knows",
     license: "GPL-3.0, no warranty. Source:",
   },
 };
@@ -182,12 +189,21 @@ function show(k, txt) {
   $(FAIL.has(k) ? "alert" : "status").textContent = txt;
   $(FAIL.has(k) ? "status" : "alert").textContent = "";
 }
+/* the flash chip, as the FM-1 reports it once it restarts on the new firmware (AISLING from 1.1 says; 0 = not known) */
+let chip = 0;
+function showChip() {
+  if (!chip) { $("chip").textContent = ""; return; }
+  const id = chip.toString(16).toUpperCase().padStart(6, "0");
+  const name = TEXT[lang]["chip" + id] || t("chipother");
+  $("chip").textContent = t("chip") + name + t("chipid") + id + t("chipend");
+}
 function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-t]").forEach((e) => { e.textContent = t(e.dataset.t); });
   $("lang").textContent = t("other");
   $("lang").lang = lang === "ja" ? "en" : "ja";
   if (lastKey) show(lastKey, t(lastKey) + lastArg);
+  showChip();
 }
 $("lang").addEventListener("click", () => { lang = lang === "ja" ? "en" : "ja"; applyLang(); });
 applyLang();
@@ -230,16 +246,19 @@ async function run(img, product) {
   catch (e) { sayK("denied"); return; }
   writing = true;
   $("go").disabled = true;
+  chip = 0;
+  showChip();
   try {
     const up = new Updater(midi, log);
     const total = 74 + 1167;
     const step = (k, a) => {
-      log(`${k} ${a ?? ""}`);
+      log(`${k} ${k === "chip" ? a.toString(16).toUpperCase().padStart(6, "0") : a ?? ""}`);
       if (k === "start") sayK("start");
       if (k === "verify") progress("verify", (a / total) * 100);
       if (k === "loader") sayK("loader");
       if (k === "write") progress("write", ((74 + a) / total) * 100);
       if (k === "reboot") sayK("reboot");
+      if (k === "chip") { chip = a; showChip(); }
       if (k === "done") { $("bar").value = 100; sayK("done"); }
     };
     const ota = await up.find((id) => /^ota-/i.test(id.model));

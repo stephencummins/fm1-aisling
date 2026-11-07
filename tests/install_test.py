@@ -327,11 +327,33 @@ def identity_js():
        "fm1ota.js parseIdentity: the text up to its first zero, the chip ID")
 
 
+def chip_js():
+    """web/fm1ota.js asks for the chip as the installer does: the handshake with the body 01, the chip from the answer"""
+    if not shutil.which("node"):
+        print("flashChip in fm1ota.js: skipped (needs node)")
+        return
+    shutil.copyfile(ROOT / "web/fm1ota.js", TMP / "fm1ota.mjs")
+    js = ("import { flashChip } from %r;"
+          "const ask = async (h) => { const sent = [], q = h === '-' ? [] : [Array.from(Buffer.from(h, 'hex'))];"
+          "  const link = { drain() {}, send(b) { sent.push(Buffer.from(b).toString('hex')); return true; },"
+          "                 async read(ms) { return q.shift() || null; } };"
+          "  return { chip: await flashChip(link), sent }; };"
+          "const out = []; for (const h of process.argv.slice(1)) out.push(await ask(h));"
+          "process.stdout.write(JSON.stringify(out));") % str(TMP / "fm1ota.mjs")
+    r = subprocess.run(["node", "--input-type=module", "-e", js, ident_frame("FM-1_353010100", 0xB36014).hex(), "-"],
+                       capture_output=True, check=True)
+    a, b = json.loads(r.stdout)
+    hs = I.HS_WHOLE.hex()
+    ok(a == {"chip": 0xB36014, "sent": [hs]} and b == {"chip": 0, "sent": [hs]},
+       "fm1ota.js flashChip: the same handshake as fm1_install.py, the chip from the answer, 0 with no answer")
+
+
 wire()
 installs()
 errors()
 against_js()
 identity_js()
+chip_js()
 shutil.rmtree(TMP, ignore_errors=True)
 print(f"INSTALL TESTS FAILED ({failed})" if failed else "install tests passed")
 sys.exit(1 if failed else 0)

@@ -69,9 +69,9 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 
 ## What's new in 1.1
 
-- **A sleep timer.** On GLO's Setup page, ALGORITHM sets it: off, 15 or 30 minutes, 1, 2, 4 or 8 hours from the last touch. The sound fades out over the last 30 seconds, then the music stops and the screen goes dark; any button, key or knob wakes it. It isn't saved. The idea comes from [ZEN-1](https://github.com/aceyprime/zen-1) and [Penumbra](https://github.com/MadMooneyham/Penumbra).
+- **A sleep timer.** On GLO's Setup page, ALGORITHM sets it: off, 15 or 30 minutes, 1, 2, 4 or 8 hours from the last touch. The sound fades out over the last 30 seconds, then the music stops and the screen goes black and the button lights go out; any button, key or knob wakes it. It isn't saved. The idea comes from [ZEN-1](https://github.com/aceyprime/zen-1) and [Penumbra](https://github.com/MadMooneyham/Penumbra).
 - **Program change picks the piece.** Programs 0 to 7, on any channel, over USB or the TRS jack, are the eight pieces. Penumbra's idea too.
-- **The flash chip in the identity.** Asked for its whole identity, the FM-1 now gives its flash chip's ID as well, in the layout proposed for Felucca that felucca-bsp uses, so an installer can tell the two chips apart; `tools/fm1_install.py --info` prints it. The plain answer is as before, so installers that know 1.0 still know 1.1.
+- **The flash chip in the identity.** Asked for its whole identity, the FM-1 now gives its flash chip's ID as well, in the layout proposed for Felucca that felucca-bsp uses, so an installer can tell the two chips apart. The [web installer](https://aisling.stephen8n.com/install/) shows it when an install finishes, and `tools/fm1_install.py --info` prints it. The plain answer is as before, so installers that know 1.0 still know 1.1.
 
 ## What's new in 1.0
 

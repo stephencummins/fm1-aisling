@@ -143,14 +143,15 @@ and the scale, not the patterns: after undoing a reset, the settings return but 
 out and Lights aren't undone, and in Endless the chords aren't, because the walk moves them itself. Another piece
 clears undo, and it isn't saved, though the piece it leaves behind is, as after any change.
 
-**Sleep.** On GLO's Setup page, ALGORITHM sets a sleep timer: Off, 15 or 30 minutes, 1, 2, 4 or 8 hours, a step
-a click. The start of the knobs' rule shows it ("SLEEP 30 MIN"). The time runs from the last thing you touched (a
+**Sleep.** On GLO's Setup page, ALGORITHM sets a sleep timer: Off, 15 or 30 minutes, 1, 2, 4 or 8 hours, a step a
+click. The start of the knobs' rule shows it ("SLEEP 30 MIN"). The time runs from the last thing you touched (a
 button, a key, a knob, or a note or program change sent in over MIDI), so it never fades out while you play. Over the
 last 30 seconds the sound fades out, and a touch then brings it back and starts the time again. At the end the music
-stops, as PLAY stops it, and the screen and the lights go dark. A press, a key or a turn wakes it, and that touch
-only wakes it: the screen comes back, and the music starts again, faded in, if it was playing. MIDI doesn't wake it
-(a sequencer left running would), and MIDI sent while it sleeps is ignored. The USB audio isn't faded, since it comes
-before MASTER, but it stops with the music. The timer isn't saved: it's off every time the FM-1 starts.
+stops, as PLAY stops it, the screen goes black (its light still glows faintly) and the button lights go out. A press,
+a key or a turn wakes it, and that touch only wakes it: the screen comes back, and the music starts again, faded in,
+if it was playing. MIDI doesn't wake it (a sequencer left running would), and MIDI sent while it sleeps is ignored.
+The USB audio isn't faded, since it comes before MASTER, but it stops with the music. The timer isn't saved: it's off
+every time the FM-1 starts.
 
 A long press says what it did on a card in the middle of the screen.
 
@@ -679,8 +680,8 @@ cancel.
 **Calibration:** if a button or knob does the wrong thing, hold OCT− and OCT+ while you switch the FM-1 on.
 The screen asks you to press each button and turn each knob in turn.
 
-**Dark and silent:** if the screen and the lights went dark and the music stopped, the sleep timer ran out (GLO's
-Setup page). Press any button to wake it; the timer is off again after switching off and on.
+**Dark and silent:** if the screen went black, the button lights went out and the music stopped, the sleep timer ran
+out (GLO's Setup page). Press any button to wake it; the timer is off again after switching off and on.
 
 **After a crash:** AISLING shows a red CRASH screen and restarts by itself. The next start shows RESTARTED
 AFTER A CRASH and an address (PC ...) for a moment; if you report the problem, include it and what you were
@@ -731,7 +732,8 @@ Earlier versions don't: the FM-1 plays, but SAVE shows **NOT SAVED / FLASH ERROR
 off, and it won't start an update. We have only the first chip, so no AISLING has been tried by us on the newer one.
 
 From M-VAVE's firmware or another that accepts the chip, the [web installer](https://aisling.stephen8n.com/install/)
-works as usual. From an earlier AISLING, go through the chip's own download mode, once:
+works as usual. When it finishes, it names the chip it found: Puya P25Q80 is the first, UCUN UC25HQ80 the newer. From
+an earlier AISLING, go through the chip's own download mode, once:
 
 1. Hold **OCT−** and **OCT+** for 5 seconds. The screen counts down, then stops on **UBOOT**. Nothing has been
    written yet, and switching off and on brings the FM-1 back as it was.
