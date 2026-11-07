@@ -129,7 +129,7 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, its octave (lit while it's above or below where the piece was loaded) |
 
 The [manual](docs/MANUAL.md) has the rest; the [cheat sheet](https://aisling.stephen8n.com/cheat/)
-is this table on one page, to print, with the steps drawn as flows.
+draws the steps as flows, then this table with each control as it looks, to print on one sheet.
 
 ## Building and testing
 
