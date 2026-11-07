@@ -1398,6 +1398,13 @@ static void midi_in(void)
         }
         else if ((st & 0xF0u) == 0xB0u && (n == 120u || n == 123u))
             en_lead_midi(-1, 0);                 /* (all sound off, all notes off: a DAW's stop, say) */
+        else if ((st & 0xF0u) == 0xC0u && n < NPIECES) {   /* (1.1, Penumbra's idea) program change 0-7, any
+                                                  * channel: that piece, as PRESET turned to it. The one playing:
+                                                  * nothing (a DAW sends it at every clip's start; not grown again) */
+            if ((int)n != proj.piece)
+                set_piece((int)n);
+            ui.act_t = plat_ms();                /* (a touch, as a note: the sleep timer waits) */
+        }
     }
 }
 
