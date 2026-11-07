@@ -488,6 +488,7 @@ def whats_new(version):
 
     def item(t):
         t = html.escape(t, quote=False)
+        t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
         t = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", lambda m: f'<a href="{m.group(2).removeprefix(SITE)}">{m.group(1)}</a>', t)
         return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
     return '<ul class="new">\n' + "".join(f"  <li>{item(t)}</li>\n" for t in items) + "</ul>"
