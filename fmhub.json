@@ -3,6 +3,7 @@
   "author": "CU_STE",
   "kinds": ["synth"],
   "play": "https://stephencummins.github.io/fm1-aisling/emu/",
+  "editor": "https://stephencummins.github.io/fm1-aisling/editor/",
   "cheat": "https://stephencummins.github.io/fm1-aisling/cheat/",
   "image": "docs/card.png",
   "color": "#1EA462"
