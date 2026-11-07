@@ -4,5 +4,6 @@
   "kinds": ["synth"],
   "play": "https://stephencummins.github.io/fm1-aisling/emu/",
   "cheat": "https://stephencummins.github.io/fm1-aisling/cheat/",
-  "image": "docs/card.png"
+  "image": "docs/card.png",
+  "color": "#1EA462"
 }
