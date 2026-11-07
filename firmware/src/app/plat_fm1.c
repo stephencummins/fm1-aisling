@@ -55,10 +55,7 @@ void plat_play_red(int red) { play_red = (uint8_t)(red != 0); }
 void plat_backlight(int on)
 {
     uint32_t f = irq_save();
-    if (on)
-        FM1_LCD_PA_OUT &= ~FM1_LCD_BL;
-    else
-        FM1_LCD_PA_OUT |= FM1_LCD_BL;
+    fm1_lcd_backlight(on);
     irq_restore(f);
 }
 void plat_leds(uint32_t buttons, uint32_t keys)

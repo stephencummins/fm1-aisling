@@ -4,6 +4,8 @@
  * PC8 D/C; backlight PA2, active low. The panel protocol is src/lcd.c.
  *
  *   fm1_lcd_hw_init()          pins, backlight on, SPI1 master at BAUD 4
+ *   fm1_lcd_backlight(on)      the backlight on or off (AISLING 1.1; PA's OUT by read, change, write: the caller
+ *                              keeps interrupts off if an ISR writes PA too)
  *   fm1_lcd_baud(b)            SPI1 clock = lsb / (b + 1)
  *   fm1_lcd_send_cmd(c)        D/C low, CS low, one byte (then fm1_lcd_wait)
  *   fm1_lcd_send_data(p, n)    D/C high, CS low, DMA n bytes from RAM p
@@ -43,6 +45,14 @@ FM1_INLINE void fm1_lcd_hw_init(void)
     FM1_LCD_PC_DIR &= ~(FM1_LCD_CS | FM1_LCD_DC | FM1_LCD_CLK | FM1_LCD_DO);
     FM1_LCD_SPI_CON = 0x4021u;
     FM1_LCD_SPI_BAUD = 4u;
+}
+
+FM1_INLINE void fm1_lcd_backlight(int on)
+{
+    if (on)
+        FM1_LCD_PA_OUT &= ~FM1_LCD_BL;
+    else
+        FM1_LCD_PA_OUT |= FM1_LCD_BL;
 }
 
 FM1_INLINE void fm1_lcd_baud(uint32_t b) { FM1_LCD_SPI_BAUD = b; }
