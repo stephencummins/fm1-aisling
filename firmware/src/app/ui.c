@@ -3374,7 +3374,7 @@ void ui_init(void)
     memset(&ui, 0, sizeof ui);
     memset(&sl, 0, sizeof sl);                   /* (1.1) the sleep timer: off at every start */
     ui_gain_q12 = 4096u;
-    plat_backlight(1);
+    plat_screen(1);
     ui.touched = -1;
     oct_home_take();
     undo_clear();
@@ -3405,9 +3405,8 @@ static void sleep_fall(void)                     /* the music stopped as PLAY st
     plat_glow(0);
     plat_leds(0, 0);
     link_lit_b = link_lit_k = 0;
-    lcd_fill(0, 0, 240, 240, 0);                 /* (black as well: dark even if the light's switch is not where we
-                                                  * think it is) */
-    plat_backlight(0);
+    lcd_fill(0, 0, 240, 240, 0);                 /* (black, and black again when it wakes, until the frame draws) */
+    plat_screen(0);                              /* (the panel's own sleep: not the backlight, plat_fm1.c) */
 }
 static void sleep_wake(void)
 {
@@ -3417,8 +3416,8 @@ static void sleep_wake(void)
     sl.quiet_t = now;
     ui.act_t = ui.turn_t = now;                  /* (the time starts again) */
     memset(ui.sig, 0, sizeof ui.sig);            /* every band drawn again */
-    lcd_fill(0, 0, 240, 240, K_BG);
-    plat_backlight(1);
+    lcd_fill(0, 0, 240, 240, K_BG);              /* (drawn before the panel wakes: no old picture flashes up) */
+    plat_screen(1);
     if (sl.was_playing && !en_playing) {         /* (as PLAY starts it) */
         sp_tp.playing = 1;
         sp_tp.play_t = now;

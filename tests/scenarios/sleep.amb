@@ -6,7 +6,7 @@ wait 500
 expect playing 1
 expect sleep 0
 expect gain 4096
-expect backlight 1
+expect screen 1
 expect piece 0
 listen
 tap GLO
@@ -54,7 +54,7 @@ expect gain 4096
 # 15 m 1 s: asleep. Stopped as PLAY stops it, dark, silent
 wait 41000
 expect asleep 1
-expect backlight 0
+expect screen 0
 expect gain 0
 expect playing 0
 said sleeping
@@ -74,7 +74,7 @@ expect asleep 1
 press FX
 wait 100
 expect asleep 0
-expect backlight 1
+expect screen 1
 expect gain >0
 expect gain <500
 said awake
@@ -128,5 +128,5 @@ reboot
 wait 500
 expect sleep 0
 expect asleep 0
-expect backlight 1
+expect screen 1
 expect gain 4096

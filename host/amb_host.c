@@ -97,8 +97,8 @@ void plat_leds(uint32_t b, uint32_t k)
 }
 static int glow_on = 1;                 /* the device's button glow (plat_glow); the lights printed are the bright ones */
 void plat_glow(int on) { glow_on = on; }
-static int backlight_on = 1;            /* (1.1) the screen's light (plat_backlight): off while asleep */
-void plat_backlight(int on) { backlight_on = on != 0; }
+static int screen_on = 1;               /* (1.1) the screen (plat_screen): off while asleep */
+void plat_screen(int on) { screen_on = on != 0; }
 void plat_play_red(int red) { (void)red; }      /* the device's PLAY colour: green, red while recording */
 
 #define MQ 256
@@ -559,8 +559,8 @@ static int expect(const char *what, const char *val)
         got = SLEEP_MIN[sl.set];
     else if (!strcmp(what, "asleep"))
         got = sl.asleep;
-    else if (!strcmp(what, "backlight"))
-        got = backlight_on;
+    else if (!strcmp(what, "screen"))
+        got = screen_on;
     else if (!strcmp(what, "gain"))               /* the gain after MASTER, Q12 (4096: whole) */
         got = (int)ui_gain_q12;
     else if (!strcmp(what, "view"))
