@@ -15,7 +15,8 @@ Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](
 and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CU_STE
 ([www.stephen8n.com](https://www.stephen8n.com)).
 
-AISLING (an *aisling* is an Irish vision poem) is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt)
+AISLING is said ASH-ling. It's Irish for a dream or a vision (an *aisling* is also an old kind of Irish poem, a
+vision), and a pun on *AI Synth Link*; [Saying the names](#saying-the-names) has the rest. It is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt)
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
@@ -449,6 +450,31 @@ and mode. Most are in 3/4; the Lead plays them in their own time, so they float 
 The air is kept with the piece's settings (**Lead air**, on no page). A figure on the keys takes its place, and
 Forget lets it go, until the piece begins again.
 
+### Saying the names
+
+Irish spelling doesn't sound out the way English does, so here is how the names are said, the stressed part in
+capitals. These are the common ways; Irish is said a little differently from one county to the next.
+
+| Name | Say it | What it is |
+|---|---|---|
+| AISLING | ASH-ling | Irish for a dream or a vision, and an old kind of Irish poem; also a pun on *AI Synth Link* |
+| Skellig | SKEL-ig | Skellig Michael, a rock in the Atlantic off Kerry |
+| Burren | BURR-en | The limestone hills of Clare |
+| Aran, Inis Mór | ARR-an, IN-ish MORE | The islands off Galway, and the biggest of them |
+| Carolan | KARR-o-lan | Turlough O'Carolan, the harper |
+| Blasket | BLASS-kit | The islands off Kerry |
+| Samhain | SOW-in (sow as in cow) | The old feast at the start of winter; in Irish, also November |
+| Connemara | kon-eh-MAH-ra | The west of Galway |
+| Tír na nÓg | teer na NOHG | The land of the young, in the old stories |
+| Ceo | KYOH | Fog |
+| Macalla | MOCK-al-a | An echo |
+| Fras | FRASS | A shower, a burst of rain |
+| bodhrán | BOW-rawn (bow as in cow) | The frame drum |
+| An Chúileann | un KHOO-lin (kh as in loch) | The Coolin, an air |
+| Róisín Dubh | roe-SHEEN DUV | The Little Black Rose, an air |
+| Siúil a Rún | SHOOL a ROON | Walk, my love, an air |
+| triskele | TRIS-keel | The three-armed spiral on the launch screen |
+
 ---
 
 ## 8. The pages
@@ -518,8 +544,8 @@ they're let go.
 |---|---|---|---|---|
 | **Echo** | Repeat: the Sequence thrown into the echo | Time: the echo's time doubled | Tape stop: the tape slowing to a quarter | Shimmer: the plate climbing, its tail an octave up and again (see below) |
 | **Filter** | Low-pass: down to 350 Hz | High-pass: up to 1.3 kHz | Sweep: the Sequence's filter swept two octaves each way | Phaser: a deep phaser on all the music |
-| **Space** | Reverb: the dry music into the plate | Ceo (fog): a wash of noise rolling down into the echo | Freeze: the cloud holds what it has | Wash: everything into the echo and the plate, the dry down |
-| **Moves** | Octave: the Sequence an octave up | Return: both sequences round their first four steps | Fras (a burst of rain): a scatter of bleeps into the echo | Macalla (an echo): the echo's feedback past full and more into it, so it rings on and builds |
+| **Space** | Reverb: the dry music into the plate | Ceo (KYOH, fog): a wash of noise rolling down into the echo | Freeze: the cloud holds what it has | Wash: everything into the echo and the plate, the dry down |
+| **Moves** | Octave: the Sequence an octave up | Return: both sequences round their first four steps | Fras (FRASS, a burst of rain): a scatter of bleeps into the echo | Macalla (MOCK-al-a, an echo): the echo's feedback past full and more into it, so it rings on and builds |
 
 **Shimmer** is a shimmer reverb, played. While it is held, the plate's tail is pitched an octave up and fed back
 into the plate, so each time round it climbs another octave, darker as it climbs (the FM-1's speaker is bright) and
