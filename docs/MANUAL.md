@@ -60,7 +60,8 @@ python3 tools/fm1_install.py build/amb.fwsc
 
 (Python 3 with `pip3 install mido python-rtmidi`, the FM-1 connected by a USB data cable and switched on.)
 Don't unplug it while it's writing; when it finishes, the FM-1 restarts into AISLING. M-VAVE's own
-updater, M-UPGRADE, puts the stock firmware back. M-UPGRADE shows AISLING as v14; that's expected.
+updater, M-UPGRADE, puts the stock firmware back, in the version whose bootloader your FM-1 already has (see
+[Installing over AISLING](#13-troubleshooting)). M-UPGRADE shows AISLING as v14; that's expected.
 
 > Installing other firmware is at your own risk. If the FM-1 ever won't start, see
 > [Recovering an FM-1 that won't start](#recovering-an-fm-1-that-wont-start).
@@ -732,8 +733,11 @@ just the tab. We have tried AISLING from a Mac, but not yet from an Android phon
 try one, please say in an issue whether it worked.
 
 **Installing over AISLING:** no button is needed. While AISLING is running, the web installer, The Firmware Hub and
-M-VAVE's M-UPGRADE reach it over USB and install straight over it, whether that's a newer AISLING, another firmware
-or M-VAVE's own. The Firmware Hub suggests holding OCT− while switching on when an install won't start. AISLING
+M-VAVE's M-UPGRADE reach it over USB and install straight over it, whether that's a newer AISLING or another
+firmware. M-VAVE's own goes back only in the version whose bootloader is already on your FM-1: V15 and V16 come with
+different bootloaders, and AISLING refuses an update that would replace it. The FM-1 shows UPDATE, then FAILED, and
+nothing is written (The Firmware Hub says the device stopped after a few requests). An FM-1 still on V15's bootloader
+goes back with The Firmware Hub's Back to official V15; one that has had V16 needs V16, from M-UPGRADE. The Firmware Hub suggests holding OCT− while switching on when an install won't start. AISLING
 doesn't use that (OCT− alone at switch-on does nothing, and with OCT+ it's calibration), so check the cable and the
 other apps as above instead.
 
