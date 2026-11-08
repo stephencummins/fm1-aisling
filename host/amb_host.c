@@ -569,6 +569,12 @@ static int expect(const char *what, const char *val)
         got = proj.piece;
     else if (!strcmp(what, "pool"))               /* the scale, relative to the root (hex ok) */
         got = proj.pool;
+    else if (!strcmp(what, "evbars"))             /* (1.2) Evolve's timing: 0 now and then, 1..4 every 4, 8, 16, 32 bars */
+        got = proj.evbars;
+    else if (!strcmp(what, "evolves"))            /* (1.2) Evolve's nudges so far */
+        got = (int)ui_evolve_n;
+    else if (!strcmp(what, "evolvebar"))          /* (1.2) the bar of the last (from 0 at the top) */
+        got = (int)ui_evolve_bar;
     else if (!strcmp(what, "format"))
         got = (int)proj.format;
     else if (!strncmp(what, "lastnote_ch", 11))   /* lastnote_chN: the last note-on on MIDI channel N */

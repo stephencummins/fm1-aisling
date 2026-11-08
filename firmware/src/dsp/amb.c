@@ -548,6 +548,7 @@ volatile uint8_t en_pulse_rest;
 volatile uint8_t en_pad_note[EN_NPAD];
 volatile float en_pad_amp[EN_NPAD];
 volatile uint8_t en_section, en_phrase_bar;
+volatile uint32_t en_bar_no;
 volatile uint32_t en_stab_pat, en_throws, en_stabs;
 volatile float en_stab_vel, en_echo_ms, en_echo_g, en_echo_in, en_duck;
 volatile uint8_t en_stab_thrown;
@@ -3557,6 +3558,7 @@ static void bar_start(void)
 {
     int pb = (int)(bar & 7u), db = en_drift_bars(par[P_DRIFT]);
     en_phrase_bar = (uint8_t)pb;                 /* (eight bars: the screen's, and Evolve's nudges on the first) */
+    en_bar_no = bar;                             /* (1.2: Evolve every N bars) */
     if (cr_dbars > 0)                            /* (the noise's drifts: their next targets on a barline) */
         cr_dbars--;
     if (pb == 0 && bar > 0 && !lock)             /* (Lock: the noise's groove kept) */

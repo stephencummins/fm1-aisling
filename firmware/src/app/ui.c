@@ -1381,6 +1381,62 @@ static void sleep_turn(int e)                    /* (a step a detent; off at the
     }
 }
 
+/* (1.2; the idea is Unholy Union's, Bunker's and Tessera's, the code ours) Evolve's timing, HOME's ALGORITHM: its
+ * nudges now and then on a phrase's start, as before, or on every 4th, 8th, 16th or 32nd bar line from the top, every
+ * time (Evolve above 40, as ever; at 40 and under, none). Saved, for every piece (proj.evbars); the patterns' own small
+ * changes (seq_vary) keep their times */
+#define NEVB 5
+static const uint8_t EVB_BARS[NEVB] = {0, 4, 8, 16, 32};
+static const char *const EVB_NAME[NEVB] = {"NOW AND THEN", "EVERY 4 BARS", "EVERY 8 BARS", "EVERY 16 BARS",
+                                           "EVERY 32 BARS"};
+static const char *const EVB_SAID[NEVB] = {"evolve now and then", "evolve every 4 bars", "evolve every 8 bars",
+                                           "evolve every 16 bars", "evolve every 32 bars"};
+static int evb(void) { return proj.evbars < NEVB ? proj.evbars : 0; }
+static void evolve_turn(int e)                   /* (a step a detent; now and then at the left, 32 bars at the right) */
+{
+    int v = evb() + e;
+    v = v < 0 ? 0 : v >= NEVB ? NEVB - 1 : v;
+    if (v != evb()) {
+        proj.evbars = (uint8_t)v;
+        mark_dirty();
+    }
+    say_as("EVOLVE", EVB_NAME[v], 0);
+    if (ann_on()) {
+        ann_say(EVB_SAID[v], 0, ANN_NOW);
+        sp_said = 1;
+    }
+}
+
+/* (1.2; the idea is Penumbra's, the code ours) MIDI CCs, any channel, USB and the TRS jack: 16-19 (General Purpose 1-4)
+ * the four knobs of the page on screen, as KNOB 1-4; 74-79 HOME's four and PERFORM's two, whatever the page: Filter,
+ * Evolve, Motion, Drift, Wet, Energy. A CC sets the value outright, 0..127 across the knob's range (the centred ones:
+ * 64 is 0), and is a touch, as a note. Never SAVE (a DAW's stream would wear the flash); Setup's Lights, Tune and MIDI
+ * out are left alone too */
+#define CC_PAGE 16
+#define CC_FIXED 74
+static const uint16_t CC_FIXED_K[6] = {K_FILTER, P_EVOLVE, P_MOTION, P_DRIFT, K_DUB, K_ENERGY};
+static void cc_in(int n, int v)
+{
+    int k = K_NONE, j = -1, lo, hi;
+    if (n >= CC_PAGE && n < CC_PAGE + 4) {
+        if (grid_up())
+            return;                              /* (the grid on the screen: the knobs rest, as by hand) */
+        j = n - CC_PAGE;
+        k = VIEW_KNOB[ui.view][j];
+    } else if (n >= CC_FIXED && n < CC_FIXED + 6) {
+        k = CC_FIXED_K[n - CC_FIXED];
+    }
+    if (k == K_NONE || k == K_CPU || k == K_SAVE || k == K_LEDS || k == P_TUNE || k == P_MIDI)
+        return;
+    knob_range(k, &lo, &hi);
+    knob_set(k, lo + (v * (hi - lo) + 63) / 127);
+    if (j >= 0) {                                /* (the page's knob: lit, its help, as a turn by hand) */
+        ui.touched = (int8_t)j;
+        ui.touch_until = plat_ms() + 1200u;
+    }
+    ui.act_t = plat_ms();                        /* (a touch, as a note: the sleep timer waits) */
+}
+
 /* MIDI in (USB and the TRS jack): notes on any channel play the Lead (they added or removed their note from the scale up
  * to 0.3: the scale is the Key page's now); clock and start / stop drive the grid */
 static void midi_in(void)
@@ -1398,6 +1454,8 @@ static void midi_in(void)
         }
         else if ((st & 0xF0u) == 0xB0u && (n == 120u || n == 123u))
             en_lead_midi(-1, 0);                 /* (all sound off, all notes off: a DAW's stop, say) */
+        else if ((st & 0xF0u) == 0xB0u)
+            cc_in((int)n, (int)v);               /* (1.2) */
         else if ((st & 0xF0u) == 0xC0u && n < NPIECES) {   /* (1.1, Penumbra's idea) program change 0-7, any
                                                   * channel: that piece, as PRESET turned to it. The one playing:
                                                   * nothing (a DAW sends it at every clip's start; not grown again) */
@@ -1541,19 +1599,32 @@ static void nudge(int layer, int how)
             }
     }
 }
-static void nudge_tick(void)                     /* Evolve's nudges: on a phrase's first bar, now and then, one layer */
+#ifdef EN_HOST
+static uint32_t ui_evolve_n, ui_evolve_bar;      /* Evolve's nudges so far, and the bar of the last */
+#endif
+static void nudge_tick(void)                     /* Evolve's nudges: on a phrase's first bar, now and then, one layer;
+                                                  * (1.2) or every N bars, every time (evolve_turn) */
 {
     static uint8_t last_pb = 0xFF;
-    uint8_t pb = en_phrase_bar;
-    int ev = proj.par[P_EVOLVE];
-    if (pb == last_pb)
-        return;
+    static uint32_t last_bar = 0xFFFFFFFFu;
+    const uint8_t pb = en_phrase_bar;
+    const uint32_t b = en_bar_no, nb = EVB_BARS[evb()];
+    const int ev = proj.par[P_EVOLVE], new_pb = pb != last_pb, new_bar = b != last_bar;
     last_pb = pb;
-    if (pb != 0 || !en_playing || en_frozen || ev <= 40 || ui.lock)   /* (Lock: they rest) */
+    last_bar = b;
+    if (!(nb ? new_bar : new_pb))
+        return;
+    if (nb ? b == 0 || b % nb : pb != 0)         /* (every N bars: from bar N on, not the top) */
+        return;
+    if (!en_playing || en_frozen || ev <= 40 || ui.lock)   /* (Lock: they rest) */
         return;
     ud.evolve = 1;
-    if (nrand(100) < (ev - 40) * 2 / 3)          /* (Evolve 100: 40% of the phrases; 70: 20%; 40 and under: none) */
+    if (nb || nrand(100) < (ev - 40) * 2 / 3) {  /* (Evolve 100: 40% of the phrases; 70: 20%; 40 and under: none) */
         nudge(nrand(NNUDGE), NUDGE_EVOLVE);
+#ifdef EN_HOST
+        ui_evolve_n++, ui_evolve_bar = b;        /* (for the tests: `expect evolves`, `expect evolvebar`) */
+#endif
+    }
     ud.evolve = 0;
 }
 static void input(void)
@@ -1712,6 +1783,8 @@ static void input(void)
             }
         } else if (ui.view == V_SETUP) {         /* (1.1) Setup: the sleep timer */
             sleep_turn((int)e);
+        } else if (ui.view == V_DUB) {           /* (1.2) HOME: Evolve's timing */
+            evolve_turn((int)e);
         } else if (vp >= 0) {
             set_voice(vp, proj.par[vp] + (int)e);   /* (every detent: a quick turn comes as several at once) */
         }                                        /* (elsewhere: nothing; the scope and the spectrum are gone) */
@@ -2720,6 +2793,8 @@ static void draw_knobs(void)
         h = hash(h, ui.mutes);
     if (ui.view == V_SETUP)
         h = hash(h, 0x534C50u ^ sl.set);
+    if (ui.view == V_DUB)                        /* (1.2) Evolve's timing, lit while Evolve is above 40 */
+        h = hash(h, 0x455642u ^ (uint32_t)evb() << 1 ^ (uint32_t)(proj.par[P_EVOLVE] > 40));
     int now_touch = plat_ms() < ui.touch_until, sel_on = ui.view == V_DUB && plat_ms() < ui.sel_until;
     for (i = 0; i < 4; i++)
         h = hash(h, (uint32_t)knob_get(VIEW_KNOB[ui.view][i]));
@@ -2753,6 +2828,10 @@ static void draw_knobs(void)
         } else if (ui.view == V_SETUP) {         /* (1.1) Setup: the sleep timer (ALGORITHM's), at the rule's start */
             x0 = cv_text(6, -1, &FONT_XS, "SLEEP", K_DIM) + 4;
             x0 = cv_text(x0, -1, &FONT_XS, SLEEP_NAME[sl.set], sl.set ? K_ACC : K_DIM) + 5;
+        } else if (ui.view == V_DUB && evb()) {  /* (1.2) HOME: Evolve's timing, when it's set (ALGORITHM's); dim while
+                                                  * Evolve is 40 or under, so nothing moves */
+            x0 = cv_text(6, -1, &FONT_XS, "EVOLVE", K_DIM) + 4;
+            x0 = cv_text(x0, -1, &FONT_XS, EVB_NAME[evb()], proj.par[P_EVOLVE] > 40 ? K_ACC : K_DIM) + 5;
         }
         if (sel_on) {                            /* (HOME) SELECT turning: Energy, its value and a bar from the
                                                   * middle (as PERFORM's knob, -50..50), the rule's whole width */
@@ -3033,6 +3112,10 @@ static void sp_page(int all)
     if (ui.view == V_SETUP) {                    /* (1.1) the sleep timer */
         sp_cat(", ");
         sp_cat(SLEEP_SAID[sl.set]);
+    }
+    if (ui.view == V_DUB && evb()) {             /* (1.2) Evolve's timing */
+        sp_cat(", ");
+        sp_cat(EVB_SAID[evb()]);
     }
     for (i = 0; i < 4; i++) {
         if (VIEW_KNOB[ui.view][i] == K_NONE)

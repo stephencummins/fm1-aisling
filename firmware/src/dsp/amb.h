@@ -307,6 +307,7 @@ extern volatile uint8_t en_pad_note[EN_NPAD];  /* the note each voice plays (MID
 extern volatile float en_pad_amp[EN_NPAD];     /* and how loud */
 extern volatile uint8_t en_section;            /* EN_SEC_*: the arc's section playing */
 extern volatile uint8_t en_phrase_bar;         /* 0..7: the bar of eight */
+extern volatile uint32_t en_bar_no;            /* (1.2) the bar playing, from 0 at the top (Evolve every N bars) */
 extern volatile uint32_t en_stab_pat;          /* the stabs' pattern this bar (bit i: step i) */
 extern volatile uint32_t en_throws;            /* stabs thrown into the echo so far (for tests) */
 /* for the screen's ripples and lanes */
