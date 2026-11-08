@@ -38,7 +38,7 @@ remembers and answers) and changes what it plays:
   **Fras** (FRASS, a burst of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 1.1** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 1.2** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -59,7 +59,8 @@ page's own sound off. The FM-1 says nothing on that link until the page connects
 [manual](docs/MANUAL.md#the-editor) has the details.
 
 **MIDI.** A note on any channel, over USB or the TRS jack, plays the Lead as a white key does, and the sequences
-follow MIDI clock, start, continue and stop; a program change from 0 to 7 picks the piece. MIDI out goes over USB: the Drone, the Sequence, the Lead and Sequence 2
+follow MIDI clock, start, continue and stop; a program change from 0 to 7 picks the piece; CCs 16 to 19 turn the page's four knobs, and 74 to 79 Filter, Evolve,
+Motion, Drift, Wet and Energy. MIDI out goes over USB: the Drone, the Sequence, the Lead and Sequence 2
 on channels 1 to 4, and clock. The TRS jack has been tried with Type A, from a Korg nanoKEY Fold; Type B hasn't been
 tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 
@@ -67,6 +68,13 @@ tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
+## What's new in 1.2
+
+- **MIDI CCs turn the knobs.** On any channel, over USB or the TRS jack: CC 16 to 19 are KNOB 1 to 4 of the page on the screen, and CC 74 to 79 are Filter, Evolve, Motion, Drift, Wet and Energy whatever the page. 0 to 127 spans the knob, and on the centred ones 64 is the middle. CCs never save, and leave Setup's Tune, MIDI out and Lights alone. The idea is Penumbra's.
+- **Evolve on the bar line.** On the Aisling page, ALGORITHM sets when Evolve's nudges land: now and then at a phrase's start, as before, or every 4, 8, 16 or 32 bars, every time. It's saved, and the knobs' rule shows it ("EVOLVE EVERY 8 BARS"). The idea comes from Unholy Union, Bunker Evolved and Tessera.
+- **How to say the names.** The [manual](https://aisling.stephen8n.com/manual/#saying-the-names) says AISLING, the pieces and the Irish effects aloud, with what they mean.
+- **[Gear gnome](https://gear.stephen8n.com/):** a page of things that go with the FM-1 under AISLING: keyboards and cables that play with it, and cases and stands that carry it. Some links earn a small commission, and each says so. Decals in AISLING's colours are coming soon.
 
 ## What's new in 1.1
 
@@ -125,7 +133,7 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | Black keys | Eleven effects, each while held (lit; dark while held): Ceo, Macalla, Fras, Repeat, Shimmer, Freeze, Octave, Return, then Rise, Close, Transpose (in PERFORM: the solos) |
 | PLAY · REC · EDIT | Play / rest · a tap: hold (the echo repeats what it holds), held: the effects grid (16 effects on the white keys) · a tap: the Chords page, held: the next chord |
 | SEL | PERFORM (again: back to the page you came from): the knobs Filter, Wet, Energy, Sweep; white 1–5 mute the Drone, Sequence, Lead, Sequence 2, Atmosphere; black 1–5 solo them; white 6 held: the levels; white 7–11 held: Sweep, Open, Shut, Drop (both sequences out), Echo; the top key (G): the Lead forgets its ideas and its theme. Held: Lock |
-| HOME | The Aisling page (Filter, Evolve, Motion, Drift); again, the Key page (Tempo, Root, Mode, Transpose). Held, with OCT− or OCT+: undo or redo |
+| HOME | The Aisling page (Filter, Evolve, Motion, Drift; ALGORITHM, Evolve's timing); again, the Key page (Tempo, Root, Mode, Transpose). Held, with OCT− or OCT+: undo or redo |
 | ENV | The Drone (Pedal, Reso, Phaser, Attack); again, its sound (Colour, Release, Reverb, Echo); again, its Move page (Width, Time, Rate, Intro) |
 | ARP | The Sequence (Density, Octave, Length, Grid); again, its sound (Cutoff, Decay, Reverb, Echo); again, its Repeats (Repeat A, A time, Repeat B, B time); again, its Move page |
 | LFO | The Lead (Phrases, Octave, Ornament, Vibrato); again, its sound (Tone, Attack, Reverb, Echo); again, its style (Ornament, Glide, Vibrato, Memory); again, its Move page |
@@ -133,7 +141,7 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | SAVE | The Atmosphere (Density, Width, Drift, Air); again, its sound (Colour, Ring, Reverb, Echo); again, its Move page. Held: save |
 | FX | Space (Echo, Echo time, Feedback, Reverb); again, the Echo page (Blur, Tone, Width, Size) |
 | GLO | Setup (Tune, MIDI out, Lights, Save; ALGORITHM, the sleep timer); again, the Arc (Lead in, Bridge, Arc, Memory). Held: save; held on: the piece back to its recipe |
-| ALGORITHM | On a layer's page, its voice (the Atmosphere: its character); on the Setup page, the sleep timer |
+| ALGORITHM | On a layer's page, its voice (the Atmosphere: its character); on the Aisling page, Evolve's timing; on the Setup page, the sleep timer |
 | PRESETS | The piece |
 | SELECT | On a layer's pages, its level; on the Aisling page, Energy (elsewhere nothing) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, its octave (lit while it's above or below where the piece was loaded) |
@@ -182,7 +190,7 @@ by Leo Kuroshita (Hügelton Instruments), by way of [X0X](https://github.com/cha
 DUB-1 and NACHTFAHRT. The idea of running FM-1 firmware in the browser comes from
 [Groove OS](https://www.groove-os.com/). The sleep timer is an idea from [ZEN-1](https://github.com/aceyprime/zen-1)
 (aceyprime) and [Penumbra](https://github.com/MadMooneyham/Penumbra) (Lunar Eclipse Forge), and program change for
-the pieces from Penumbra; the flash chip's ID in the identity follows the layout Sven proposed in
+the pieces and MIDI CCs for the knobs from Penumbra; Evolve on the bar line is an idea from Unholy Union (actuallysparky), Bunker Evolved (Kid Bunka) and Tessera (Theo Dainis), FM-1 firmwares listed on [the Firmware Hub](https://thefirmwarehub.com/); the flash chip's ID in the identity follows the layout Sven proposed in
 [Felucca's issue #320](https://github.com/hugelton/Felucca/issues/320), as
 [felucca-bsp](https://github.com/hugelton/felucca-bsp) answers it. GPL-3.0-only; see [LICENSING.md](LICENSING.md).
 

@@ -20,7 +20,7 @@ vision), and a pun on *AI Synth Link*; [Saying the names](#saying-the-names) has
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 1.1:** a sleep timer, MIDI program change for the pieces, and the flash chip in the FM-1's identity. It runs
+**This is 1.2:** MIDI CCs for the knobs, Evolve on the bar line, and how to say the names. It runs
 on the FM-1 (install it from the web installer) and in the browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -111,7 +111,7 @@ second.
 | MASTER | The volume, with room at the quiet end: a low listening level sits about a quarter of the way up. The USB audio doesn't follow it: there, the computer sets the volume |
 | SELECT | On a layer's pages (the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, and each one's further pages), the layer's level, 1 a click: a ring in the middle of the screen shows it, and the header says it ("SEQ 64"). On the Aisling page it turns **Energy**, PERFORM's (the same value, 1 a click: the screen shows twice), so you can play the keys and push Energy at once: the knobs' rule shows "ENERGY 24" with a bar while you turn, and the header says it. Elsewhere it does nothing (the pages are on their buttons, the tempo on the Key page) |
 | PRESETS | The piece (eight) |
-| ALGORITHM | On a layer's page, its voice (on the Atmosphere's pages, its character). On the Chords page, the chord walk's character (Home, Wander, Free). On the Setup page, the sleep timer (see Sleep, below) |
+| ALGORITHM | On a layer's page, its voice (on the Atmosphere's pages, its character). On the Chords page, the chord walk's character (Home, Wander, Free). On the Aisling page, Evolve's timing (see Nudges, below). On the Setup page, the sleep timer (see Sleep, below) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, the layer's octave, a step a press (the Sequence −2 to 2, the Lead and Sequence 2 −2 to 1): the page's Octave knob shows it, the header says it ("SEQ OCTAVE −1"). OCT+ is lit while that octave is above where the piece was loaded, OCT− while it's below. On the other pages they do nothing. With HOME held, OCT− undoes and OCT+ redoes (see Undo, below). Both held 5 s: the update mode |
 | KNOB 1–4 | The four values at the bottom of the page. The line above them says what the one turning does |
 | White keys | Play the Lead in the piece's scale: the first white key is the root, the next the scale's second step, and so on up. While the Lead sounds a note, that key is lit. Three notes or more and a pause become the Lead's theme (see [The layers](#5-the-layers)). On the Pattern page they write the steps instead; in PERFORM they mute, play moves, and the top one makes the Lead forget; with REC held they're the effects |
@@ -135,6 +135,13 @@ shake, a new voice and bigger steps. HOME held on shakes every layer at once. Ea
 towards the piece's recipe, so nudges explore around the piece's sound rather than wander off. With Evolve
 over 40, AISLING nudges a layer by itself now and then. The Atmosphere has no nudge of its own, because SAVE held
 saves; Evolve and HOME's shake still move it.
+
+**Evolve's timing.** On the Aisling page, ALGORITHM sets when Evolve's nudges land: **now and then** (at the start of
+a phrase, more often the higher Evolve is; as before 1.2), or **every 4, 8, 16 or 32 bars**, every time, a step a
+click. The bars are counted from the top: from when the music starts, or from a DAW's start under MIDI clock. The
+start of the knobs' rule shows it ("EVOLVE EVERY 8 BARS"), lit while Evolve is over 40; at 40 and under nothing moves
+either way, and Lock stops it as before. It's saved, one setting for every piece, as Tune is. The sequences' own small
+changes, the other half of Evolve, keep their own times.
 
 **Undo.** Hold HOME and tap OCT−: the piece's settings go back a step. OCT+ brings them forward again. While HOME is
 held, OCT− is lit if there's something to undo and OCT+ if there's something to redo. Undo goes back 16 steps, and
@@ -488,7 +495,7 @@ Rate and Intro (see [The arc and the filter motion](#6-the-arc-and-the-filter-mo
 **HOME: Aisling:** Filter (on everything, Off in the middle: turned down it shuts, a low-pass; turned up it
 opens, a resonant high-pass), Evolve (how often the sequences change
 a step), Motion (how much they change, and how quickly the sections move; 0: Flow for ever), Drift (bars
-per chord: 2–64, or Hold).
+per chord: 2–64, or Hold). ALGORITHM: Evolve's timing (see [Nudges](#3-controls)).
 
 **HOME again: Key:** Tempo (60–160), Root, Mode (Minor, Major, Dorian, Mixolydian, Pentatonic minor and
 major, Phrygian, Lydian: the most common first), Transpose: how the sequences follow the chord. **Parallel**
@@ -629,8 +636,23 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
 - **In, program change:** programs 0 to 7, on any channel, choose the eight pieces in their order (0 is Skellig; a DAW
   that counts from 1 calls them 1 to 8), as PRESETS does. Programs 8 and above are ignored, and so is a change to the piece already playing, because a DAW sends
   one at the start of every clip.
+- **In, CCs:** on any channel, a CC turns a knob (see the table below). It sets the value outright: 0 to 127 spans
+  the knob's range, and on the centred knobs (Filter, Wet, Energy, the sound pages' ±50) 64 is the middle. A CC counts
+  as a touch for the sleep timer, as a note does. CCs never save, and never turn Setup's Tune, MIDI out, Lights or
+  Save; while the effects grid is up, 16 to 19 rest, as the knobs do. A change is saved by itself later, as a turn's
+  is (Filter, Wet and Energy aren't saved at all). Other CCs are ignored.
 - **Don't send it straight back:** if a computer returns the FM-1's own MIDI out (a DAW's thru, say), every layer's
   notes play the Lead. Turn thru off, or MIDI out off on GLO's Setup page.
+
+| CC | Turns |
+|---|---|
+| 16–19 | KNOB 1–4 of the page on the screen |
+| 74 | Filter |
+| 75 | Evolve |
+| 76 | Motion |
+| 77 | Drift |
+| 78 | Wet (PERFORM's) |
+| 79 | Energy (PERFORM's) |
 
 ### The visualiser
 
@@ -683,7 +705,8 @@ jack ignores it.
 
 ## 12. Saving
 
-AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with Tune, MIDI out and Lights.
+AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with Tune, MIDI out, Lights and Evolve's
+timing.
 
 - **By itself:** a few seconds after a change, while resting (writing to the memory interrupts the sound
   for a moment, so it never happens while the music plays). A dot at the top means unsaved changes.
@@ -817,7 +840,8 @@ must also share its source code.
 - The idea of running FM-1 firmware in the browser comes from [Groove OS](https://www.groove-os.com/).
 - The sleep timer's idea comes from [ZEN-1](https://github.com/aceyprime/zen-1) by aceyprime and
   [Penumbra](https://github.com/MadMooneyham/Penumbra) by Lunar Eclipse Forge, other FM-1 firmwares; the code is
-  AISLING's. Program change for the pieces is Penumbra's idea too.
+  AISLING's. Program change for the pieces and MIDI CCs for the knobs are Penumbra's ideas too.
+- Evolve on the bar line is an idea from Unholy Union (actuallysparky), Bunker Evolved (Kid Bunka) and Tessera (Theo Dainis), FM-1 firmwares listed on [the Firmware Hub](https://thefirmwarehub.com/); the code is AISLING's.
 - The flash chip's ID in the FM-1's identity (bytes 24 to 26 of the reply) follows the layout Sven proposed in
   [Felucca's issue #320](https://github.com/hugelton/Felucca/issues/320), as
   [felucca-bsp](https://github.com/hugelton/felucca-bsp) answers it.
