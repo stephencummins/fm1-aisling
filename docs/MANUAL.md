@@ -59,9 +59,10 @@ python3 tools/fm1_install.py build/amb.fwsc
 ```
 
 (Python 3 with `pip3 install mido python-rtmidi`, the FM-1 connected by a USB data cable and switched on.)
-Don't unplug it while it's writing; when it finishes, the FM-1 restarts into AISLING. M-VAVE's own
-updater, M-UPGRADE, puts the stock firmware back, in the version whose bootloader your FM-1 already has (see
-[Installing over AISLING](#13-troubleshooting)). M-UPGRADE shows AISLING as v14; that's expected.
+Don't unplug it while it's writing; when it finishes, the FM-1 restarts into AISLING. The stock firmware goes back
+only in the version whose bootloader your FM-1 already has: V16 with M-VAVE's own updater, M-UPGRADE, or V15 with
+The Firmware Hub (see [Installing over AISLING](#13-troubleshooting)). M-UPGRADE may show AISLING with an odd version
+number; that's expected.
 
 > Installing other firmware is at your own risk. If the FM-1 ever won't start, see
 > [Recovering an FM-1 that won't start](#recovering-an-fm-1-that-wont-start).
@@ -773,7 +774,8 @@ macOS 14 and 15 haven't been tried, so if you try one, please say in an issue wh
 device.
 
 **Safe mode:** if AISLING crashes twice in a row while starting, it starts in SAFE MODE: no sound, but USB
-works, so you can reinstall with `tools/fm1_install.py` or put the stock firmware back with M-UPGRADE. Press
+works, so you can reinstall with `tools/fm1_install.py` or put the stock firmware back, as in Installing over AISLING
+above. Press
 PLAY to try starting AISLING normally. If even safe mode fails twice, the FM-1 drops into the chip's own
 download mode, and only the rescue below can reach it.
 

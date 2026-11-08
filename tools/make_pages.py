@@ -144,7 +144,7 @@ __NEW__
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
   <a href="cheat/"><strong>Cheat sheet</strong><span>The steps drawn as flows, then every control and the eight pieces, to print on one sheet.</span></a>
   <a href="manual/#s13"><strong>If it goes wrong</strong><span>An FM-1 the browser can't see, installing over AISLING, download mode, calibration, safe mode, and bringing back one that won't start.</span></a>
-  <a href="https://www.m-vave.com/download"><strong>Back to stock</strong><span>M-VAVE's updater, M-UPGRADE, puts the official firmware back.</span></a>
+  <a href="install/#stock"><strong>Back to stock</strong><span>The official firmware, in the version whose bootloader your FM-1 has: V16 with M-VAVE's M-UPGRADE, V15 from The Firmware Hub.</span></a>
   <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>The package itself, for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. A fork of NACHTFAHRT, by way of DUB-1 and AMB-1.</span></a>
 </nav>
