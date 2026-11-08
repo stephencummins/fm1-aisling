@@ -116,7 +116,8 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <div class="two hero">
 <div class="pane what">
 <img class="card" src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
-<p class="lede">A generative instrument after the harpers and the west of Ireland. A harp's ostinato runs over a held
+<p class="lede">AISLING (said ASH-ling: Irish for a dream or a vision, and a pun on <i>AI Synth Link</i>) is a
+generative instrument after the harpers and the west of Ireland. A harp's ostinato runs over a held
 drone, often in a jig's threes; a second harp drifts against it, an octave down; a flute plays long phrases far back in
 the reverb, with surf, wind or rain behind. Let it play for hours, or play with it: the white keys give you the flute,
 always in the piece's scale, and it answers you.</p>
@@ -154,7 +155,7 @@ __NEW__
 <p>AISLING plays itself from the moment it is switched on, and it never ends: each piece opens from the drone,
 flows, gives the flute its turn, crosses a bridge and starts its long rise again. You are invited in. The <b>white
 keys</b> play the flute in the piece's scale, so every note fits; play a phrase and it becomes the flute's theme. The
-<b>black keys</b> are effects while held: Ceo (fog), Macalla (an echo), Fras (a burst of rain), Rise and Close sweep
+<b>black keys</b> are effects while held: Ceo (KYOH, fog), Macalla (MOCK-al-a, an echo), Fras (FRASS, a burst of rain), Rise and Close sweep
 every filter, Transpose lifts the harps, and more. SELECT turns the level of the layer you are looking at; PERFORM (SEL)
 mutes and solos the layers and pushes Filter, Wet and Energy.</p>
 </section>
@@ -167,8 +168,8 @@ mutes and solos the layers and pushes Filter, Wet and Energy.</p>
   <li class="l"><b class="lead">Lead.</b> The flute, far back in the reverb, phrasing in calls and answers; or your own melody on the keys.</li>
   <li class="a"><b class="lead">Atmosphere.</b> Surf, wind, rain, a turf fire or a curlew, where a piece wants it.</li>
 </ul>
-<p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain, Connemara and Tir na nOg, in the old modes and the
-pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders
+<p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain (SOW-in), Connemara and Tir na nOg (teer na NOHG), in
+the old modes and the pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders
 relative to the knob you set.</p>
 </section>
 </div>

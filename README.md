@@ -16,7 +16,8 @@ By CU_STE · [www.stephen8n.com](https://www.stephen8n.com)
 AISLING turns the M-VAVE FM-1 into a generative Irish ambient instrument: harps over a held drone, and a flute, a
 fiddle or a voice leading, in the old modes, with the weather of the west coast behind them. It plays
 itself from the moment it's switched on, and it never ends. You can play with it: the white keys give you the Lead,
-always in the piece's scale, and it answers you. (An *aisling*, said "ash-ling", is an Irish vision poem.)
+always in the piece's scale, and it answers you. (AISLING is said ASH-ling. It's Irish for a dream or a vision, and a pun on *AI Synth Link*;
+[Saying the names](docs/MANUAL.md#saying-the-names) has the rest.)
 
 It is a fork of [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt), FartyPants's Berlin School firmware.
 AISLING keeps NACHTFAHRT's whole machine (its five layers, its arc, its slowly moving filters, its lead that
@@ -33,8 +34,8 @@ remembers and answers) and changes what it plays:
   tunes do;
 - **the jig's threes**: harps of 12 and 9 steps, with every third step accented;
 - **eight pieces** named for places in the west and for a harper;
-- three of the black keys' effects named in Irish: **Ceo** (fog), **Macalla** (an echo) and **Fras** (a burst
-  of rain);
+- three of the black keys' effects named in Irish: **Ceo** (KYOH, fog), **Macalla** (MOCK-al-a, an echo) and
+  **Fras** (FRASS, a burst of rain);
 - a green triskele on the launch screen and the main page.
 
 **Status: 1.1** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
@@ -108,6 +109,9 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 | 6 | Samhain | The year's dark turn | B minor, 64 | The pipes' drones, low and beating, one low harp over a bodhrán's heartbeat, a low voice, the wind |
 | 7 | Connemara | Bog, lake and rain | G hexatonic minor, 92 | An organ, a harp's slip jig of 9 over a low bodhrán's 8, a low flute held back in a long echo, rain; Gm and F in turn |
 | 8 | Tir na nOg | The land of the young, over the western sea | D hexatonic major, 80 | A phased glass drone, two harps, a long reverb, a curlew far out over the bog; D and G in turn |
+
+Say them SKEL-ig, BURR-en, ARR-an, KARR-o-lan, BLASS-kit, SOW-in (sow as in cow), kon-eh-MAH-ra and teer na NOHG;
+Inis Mór is IN-ish MORE, and a bodhrán is a BOW-rawn.
 
 The keys, modes and tempos are starting points, tuned by ear. Each piece's Lead opens on an air, the first phrase of a
 public-domain tune from O'Neill's *Music of Ireland* (Chicago, 1903), played as written; its own ideas grow from it.
