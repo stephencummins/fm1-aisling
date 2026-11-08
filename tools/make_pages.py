@@ -128,7 +128,7 @@ always in the piece's scale, and it answers you.</p>
   <img src="img/screen-perform.png" width="240" height="240" alt="PERFORM: Filter, Wet, Energy and Sweep on the knobs">
 </div>
 <nav class="ways" aria-label="Get AISLING">
-  <a class="go" href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge (also Chrome on Android), with the FM-1 connected by USB. Nothing to install.</span></a>
+  <a class="go" href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge on a computer, with the FM-1 connected by a USB data cable. Nothing to install.</span></a>
   <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed. Slide the visualiser up beneath it to watch what it plays painted.</span></a>
   <a class="pic" href="visualiser/"><img src="img/visualiser.jpg" width="1200" height="630" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills and fields, the drone the bog. Drop a sound file on it to mix it in. Chrome or Edge; Demo paints without an FM-1. Nothing leaves your computer.</span></a>
 </nav>
@@ -143,7 +143,7 @@ __NEW__
 <nav class="ways help" aria-label="Help and the files">
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
   <a href="cheat/"><strong>Cheat sheet</strong><span>The steps drawn as flows, then every control and the eight pieces, to print on one sheet.</span></a>
-  <a href="manual/#s13"><strong>If it goes wrong</strong><span>Update mode, calibration, safe mode, and bringing back an FM-1 that won't start.</span></a>
+  <a href="manual/#s13"><strong>If it goes wrong</strong><span>An FM-1 the browser can't see, installing over AISLING, download mode, calibration, safe mode, and bringing back one that won't start.</span></a>
   <a href="https://www.m-vave.com/download"><strong>Back to stock</strong><span>M-VAVE's updater, M-UPGRADE, puts the official firmware back.</span></a>
   <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>The package itself, for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. A fork of NACHTFAHRT, by way of DUB-1 and AMB-1.</span></a>

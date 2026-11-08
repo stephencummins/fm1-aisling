@@ -2,8 +2,8 @@
 
 <img src="docs/card.png" width="240" height="240" alt="AISLING: a gold 8-bit harp on green">
 
-**[Install](https://aisling.stephen8n.com/install/)** (Chrome or Edge, also Chrome on Android or
-Chromebook; the FM-1 on USB) · **[Try it in the browser](https://aisling.stephen8n.com/emu/)** ·
+**[Install](https://aisling.stephen8n.com/install/)** (Chrome or Edge on a computer, the FM-1 on USB;
+Android and Chromebooks not tried yet) · **[Try it in the browser](https://aisling.stephen8n.com/emu/)** ·
 **[Manual](https://aisling.stephen8n.com/manual/)** ·
 **[Cheat sheet](https://aisling.stephen8n.com/cheat/)** ·
 **[Visualiser](https://aisling.stephen8n.com/visualiser/)** ·
@@ -46,7 +46,8 @@ in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same cod
 landscape in oils: the Lead is the sky, Sequence 2 the hills, the Sequence the fields, the Drone the bog. Or as
 the Atlantic from above, eddies spun up by Sequence 2, or as deep space, a comet drawn by the Lead. No FM-1? Demo plays a
 recording of Skellig and paints it as you hear it. Plug the FM-1
-into a computer or Android phone, open the page in Chrome or Edge and press Listen; it reads the FM-1's MIDI out
+into a computer, open the page in Chrome or Edge and press Listen (Chrome on Android should work too, but hasn't
+been tried with the FM-1); it reads the FM-1's MIDI out
 (on by default) in your browser, and nothing is sent anywhere. You can paint into it with a finger or the mouse, save a
 picture, record a video with the FM-1's own sound from its USB audio, and drop a sound file on it to mix in: it loops in
 time with the FM-1 and paints as the weather. It is one file,
@@ -75,6 +76,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 - **Evolve on the bar line.** On the Aisling page, ALGORITHM sets when Evolve's nudges land: now and then at a phrase's start, as before, or every 4, 8, 16 or 32 bars, every time. It's saved, and the knobs' rule shows it ("EVOLVE EVERY 8 BARS"). The idea comes from Unholy Union, Bunker Evolved and Tessera.
 - **How to say the names.** The [manual](https://aisling.stephen8n.com/manual/#saying-the-names) says AISLING, the pieces and the Irish effects aloud, with what they mean.
 - **[Gear gnome](https://gear.stephen8n.com/):** a page of things that go with the FM-1 under AISLING: keyboards and cables that play with it, and cases and stands that carry it. Some links earn a small commission, and each says so. Decals in AISLING's colours are coming soon.
+- **Help when the FM-1 isn't found.** The manual's [troubleshooting](https://aisling.stephen8n.com/manual/#s13) now covers an FM-1 the browser can't see, installing over AISLING, and the chip's download mode, where The Firmware Hub's Rescue button also sends it: switching off and on brings AISLING back. We haven't tried AISLING from an Android phone or tablet or a Chromebook yet.
 
 ## What's new in 1.1
 

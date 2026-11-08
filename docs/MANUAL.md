@@ -664,7 +664,8 @@ storm: the Drone lays the swell, the Sequence the foam, each note of Sequence 2 
 light. Space is deep space: the Drone a nebula's glow, the Sequence stars that flare where its notes land, Sequence 2
 threads of gas, and the Lead a comet, up for a higher note and down for a lower. On Land, **Ground** (M) changes what it paints on
 (vellum, mist or night) and **Colours** (C) its colours (Heather, Atlantic, Kells or Evening): what is painted keeps its own, and the next notes take the new. For your own, click a layer in the list: a colour wheel and a brightness slider choose its colour, the browser remembers them, and **Copy link** gives an address that opens the page with them. Your own colours are for the landscape; the sea and space keep theirs. Connect the FM-1 by USB, open the
-page in Chrome or Edge (on a computer, a Chromebook or an Android phone; Safari can't read MIDI), and press **Listen**.
+page in Chrome or Edge on a computer (Chrome on a Chromebook or an Android phone has Web MIDI too, but hasn't been tried
+with the FM-1; Safari can't read MIDI), and press **Listen**.
 **Demo** plays a recording of Skellig, as the FM-1 plays it, and paints it as you hear it: it is the one thing the
 page fetches, and opened from disk the demo paints without sound. Paint into it with a finger or the mouse; **Save** keeps a still, and
 **Record** a video with the FM-1's sound (the browser asks to use it as a microphone, because that is how the FM-1's
@@ -723,8 +724,25 @@ build aren't read: AISLING starts with its eight recipes.
 
 ## 13. Troubleshooting
 
-**Update mode:** hold OCT− and OCT+ together for five seconds. A countdown appears; let go before it ends to
-cancel.
+**The FM-1 isn't found:** the web installer says FM-1 not found, or the editor, the visualiser or M-UPGRADE can't
+see it. Check that it's switched on and connected by a USB data cable: some cables only charge. Close anything else
+that may be using its MIDI, such as M-UPGRADE, music software, or another tab with the editor, the visualiser or an
+installer. Then unplug the FM-1, plug it back in and try again. On a phone or tablet, close the browser fully, not
+just the tab. We have tried AISLING from a Mac, but not yet from an Android phone or tablet or a Chromebook; if you
+try one, please say in an issue whether it worked.
+
+**Installing over AISLING:** no button is needed. While AISLING is running, the web installer, The Firmware Hub and
+M-VAVE's M-UPGRADE reach it over USB and install straight over it, whether that's a newer AISLING, another firmware
+or M-VAVE's own. The Firmware Hub suggests holding OCT− while switching on when an install won't start. AISLING
+doesn't use that (OCT− alone at switch-on does nothing, and with OCT+ it's calibration), so check the cable and the
+other apps as above instead.
+
+**Download mode (UBOOT):** hold OCT− and OCT+ together for five seconds. A countdown appears; let go before it ends
+to cancel. At the end the screen goes dark but for **UBOOT**, and the FM-1 waits in the chip's own download mode.
+The Firmware Hub's Rescue button sends it to the same place, and the screen says **UBOOT (USB)**. It's only for
+M-Flasher and the rescue tools (see [A newer FM-1 on an earlier AISLING](#a-newer-fm-1-on-an-earlier-aisling)): the
+web installer and M-UPGRADE can't see the FM-1 while it's there. Nothing has been written, so switch the FM-1 off
+and on and it starts AISLING as before.
 
 **Calibration:** if a button or knob does the wrong thing, hold OCT− and OCT+ while you switch the FM-1 on.
 The screen asks you to press each button and turn each knob in turn.
@@ -753,12 +771,13 @@ device.
 **Safe mode:** if AISLING crashes twice in a row while starting, it starts in SAFE MODE: no sound, but USB
 works, so you can reinstall with `tools/fm1_install.py` or put the stock firmware back with M-UPGRADE. Press
 PLAY to try starting AISLING normally. If even safe mode fails twice, the FM-1 drops into the chip's own
-update mode, and only the rescue below can reach it.
+download mode, and only the rescue below can reach it.
 
 ### Recovering an FM-1 that won't start
 
-An FM-1 in the chip's own update mode shows a blank screen, and neither the installer nor M-VAVE's updater
-can see it. On a Mac, in a checkout of the source, run:
+An FM-1 in the chip's own download mode shows a blank screen, and neither the installer nor M-VAVE's updater
+can see it. If you sent it there yourself (the five-second hold, or The Firmware Hub's Rescue), switch it off
+and on first: that brings AISLING back. On a Mac, in a checkout of the source, run:
 
 ```
 bash tools/fm1_rescue.sh
