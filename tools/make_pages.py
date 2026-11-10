@@ -578,10 +578,14 @@ def main(pkg, version, out):
     shutil.copytree(SRC / "web" / "brand", out, dirs_exist_ok=True)
     # the visualiser, as it is
     shutil.copytree(SRC / "web" / "visualiser", out / "visualiser")
+    # the add-on screen's page and its pictures
+    shutil.copytree(SRC / "web" / "screen", out / "screen")
+    (out / "screen" / "index.html").write_text(stamp((SRC / "web" / "screen" / "index.html").read_text(encoding="utf-8"), "../", "screen"),
+                                               encoding="utf-8")
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
-    print(f"site: {out}: index.html, install/ ({product}), manual/, cheat/, emu/, editor/, visualiser/, words/, firmware/{name} ({len(raw)} B)")
+    print(f"site: {out}: index.html, install/ ({product}), manual/, cheat/, emu/, editor/, visualiser/, screen/, words/, firmware/{name} ({len(raw)} B)")
 
 
 if __name__ == "__main__":

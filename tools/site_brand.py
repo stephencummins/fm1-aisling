@@ -16,6 +16,7 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
        ("manual", "manual", "manual/", "Getting started in a few minutes, then everything else"),
        ("cheat", "cheat sheet", "cheat/", "Every control and the eight pieces on one page, to print, and the steps drawn as flows"),
        ("visualiser", "visualiser", "visualiser/", "An FM-1 running AISLING paints an Irish landscape from its MIDI"),
+       ("screen", "screen", "screen/", "A touch screen beside the FM-1: the landscape, the FM-1's own screen, and its knobs"),
        ("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),
        ("video", "video", "https://youtu.be/3aUARUvwT_Y", "A short film of AISLING and its visualiser, on YouTube"),
        ("source", "source", "https://github.com/stephencummins/fm1-aisling", "The code, on GitHub"),
