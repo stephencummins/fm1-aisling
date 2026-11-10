@@ -15,16 +15,23 @@ expect pheld 0
 expect platch 0
 expect litbtn14 0
 # an effect, held: said, its key dark; let go: gone, lit again (w4, key 7: Repeat)
+# (the flash: the header and the main area its colour and name while held, gone two frames after; every colour reads
+# with black lettering at 4.5:1 or better, every name and line fits)
+expect pfcontrast 0
+expect pffit 0
+expect pflash 0
 expect litkey7 1
 key w4 down
 wait 300
 said Repeat
 expect pheld 128
 expect litkey7 0
+expect pflash 1
 key w4 up
-wait 300
+wait 500
 expect pheld 0
 expect litkey7 1
+expect pflash 0
 # two together (w8 Reverb, key 14; w13 Phaser, key 23)
 key w8 down
 key w13 down
@@ -75,6 +82,10 @@ key b10 up
 wait 300
 expect pheld 0
 expect platch 33554432
+# (latched and let go: no flash; its key blinks, REC is lit)
+wait 300
+expect pflash 0
+expect litbtn11 1
 peakreset
 wait 6000
 expect notes_ch2 0

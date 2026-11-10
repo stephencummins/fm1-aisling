@@ -581,6 +581,32 @@ static int expect(const char *what, const char *val)
         got = last_note[(atoi(what + 11) + 15) % 16];
     else if (!strncmp(what, "act", 3) && what[3] >= '0' && what[3] <= '4')   /* (BERLIN) actN: layer N's activity x100 */
         got = (int)(en_layer_act[what[3] - '0'] * 100.0f);
+    else if (!strcmp(what, "pflash"))             /* (1.3) PERFORM's flash on the screen */
+        got = pflash_showing();
+    else if (!strcmp(what, "pfcontrast")) {       /* (1.3) the flash's colours whose black lettering reads under 4.5:1 */
+        int k, c;
+        got = 0;
+        for (k = 0; k < PERF_N; k++) {
+            uint16_t q[2] = {pkey_col(k), K_PANEL};
+            double l[2];
+            for (c = 0; c < 2; c++) {
+                double ch[3] = {(q[c] >> 11) / 31.0, ((q[c] >> 5) & 63) / 63.0, (q[c] & 31) / 31.0};
+                int i;
+                for (i = 0; i < 3; i++)
+                    ch[i] = ch[i] <= 0.03928 ? ch[i] / 12.92 : pow((ch[i] + 0.055) / 1.055, 2.4);
+                l[c] = 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+            }
+            got += (l[0] + 0.05) / (l[1] + 0.05) < 4.5;
+        }
+    } else if (!strcmp(what, "pffit")) {          /* (1.3) the names and lines wider than the flash allows */
+        int k;
+        got = 0;
+        for (k = 0; k < PERF_N; k++) {
+            char t[16];
+            caps(t, PKEY[k].name, sizeof t);
+            got += text_w(&FONT_L, t) > 232 || text_w(&FONT_XS, PLINE[k]) > 232;
+        }
+    }
     else if (!strcmp(what, "pheld"))              /* (1.3) PERFORM's keys held, a bit a key (0..26) */
         got = (int)ui.pheld;
     else if (!strcmp(what, "platch"))             /* (1.3) and latched */

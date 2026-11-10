@@ -2495,6 +2495,98 @@ static void draw_grid(void)                      /* REC held: the effects, the w
     grid_band(120);
 }
 
+/* (1.3) PERFORM's flash: an effect held, and the header and the main area are its colour, its name large, a line
+ * saying what it does; two held, two bands; more, more bands (eight at most, the rest counted). A steady colour,
+ * never a strobe; the knobs stay, for the hand that turns one while a key is held. A colour a group, a shade a key;
+ * the lettering black on all of them (the host's pfcontrast: 4.5:1 or better). Latched keys aren't flashed once let
+ * go: their keys blink, REC is lit. */
+#define PF_H (HDR_H + MAIN_H)
+#define PF_MAX 8
+static const uint16_t PG_COL[PG_N] = {K_EIRE_O, K_ACC, K_PAD, K_BELL, K_EIRE};
+static const char *const PLINE[PERF_N] = {
+    "the last beat, over and over", "fog rolling into the echo", "half the speed", "a burst of rain",
+    "chopped to the beat", "the Sequence's filter swept", "a beat rolled faster", "the Sequence into the echo",
+    "every filter opens", "the echo rings on and builds", "every filter closes", "the tape slowing down",
+    "backwards", "the Sequence an octave up", "into the plate", "falling away", "the plate climbing an octave",
+    "bells in it", "the cloud holds what it has", "everything into the echo", "dust and wobble", "a jet passing",
+    "a ringing pipe", "a deep phaser", "warm overdrive", "both sequences out", "fewer bits",
+};
+static uint16_t pkey_col(int k)
+{
+    int i, n = 0;
+    for (i = 0; i < k; i++)
+        n += PKEY[i].g == PKEY[k].g;
+    return mix(PG_COL[PKEY[k].g], K_TEXT, PKEY[k].g == PG_BLACK ? n : n * 3);
+}
+static int pflash_up(void) { return ui.perf && ui.pheld; }
+static void pflash_band(uint32_t m, int32_t oy, int32_t hh, int fade)
+{
+    int n = 0, k, j = 0, more;
+    for (k = 0; k < PERF_N; k++)
+        n += (int)(m >> k & 1u);
+    more = n > PF_MAX ? n - (PF_MAX - 1) : 0;
+    if (more)
+        n = PF_MAX;
+    cv_begin(240, (uint32_t)hh, K_BG);
+    for (k = 0; k < PERF_N && j < n; k++) {
+        int32_t y0, bh;
+        uint16_t col, ink = mix(K_BG, K_PANEL, fade);
+        char t[16];
+        if (!(m >> k & 1u))
+            continue;
+        y0 = j * PF_H / n;
+        bh = (j + 1) * PF_H / n - y0 - (j + 1 < n ? 2 : 0);   /* (a black rule between two) */
+        if (more && j == n - 1) {                /* the last band: the rest, counted */
+            cv_rect(0, y0 - oy, 240, bh, mix(K_DIM, K_BG, fade));
+            t[0] = '+', t[1] = (char)('0' + more / 10), t[2] = (char)('0' + more % 10), t[3] = 0;
+            text_c(120, y0 + (bh - 16) / 2 - oy, &FONT_B, more < 10 ? (t[1] = t[2], t[2] = 0, t) : t, ink);
+            break;
+        }
+        col = mix(pkey_col(k), K_BG, fade);
+        cv_rect(0, y0 - oy, 240, bh, col);
+        caps(t, PKEY[k].name, sizeof t);
+        if (n <= 2) {
+            int32_t ty = y0 + (bh - 54) / 2;
+            text_c(120, ty - oy, &FONT_L, t, ink);
+            text_c(120, ty + 38 - oy, &FONT_XS, PLINE[k], ink);
+            if (ui.platch >> k & 1u)
+                text_c(120, y0 + 4 - oy, &FONT_XS, "LATCHED", ink);
+        } else if (n <= 4) {
+            int32_t ty = y0 + (bh - 37) / 2;
+            text_c(120, ty - oy, &FONT_C, t, ink);
+            text_c(120, ty + 22 - oy, &FONT_XS, PLINE[k], ink);
+        } else {
+            text_c(120, y0 + (bh - 16) / 2 - oy, &FONT_B, t, ink);
+        }
+        j++;
+    }
+    cv_blit(0, (uint32_t)oy);
+}
+static void draw_pflash(void)                    /* (each third frame, as the main area) */
+{
+    static uint32_t last;                        /* what was held, for the two frames it takes to go */
+    static uint8_t fade;
+    uint32_t m = pflash_up() ? ui.pheld : 0, h;
+    if (m) {
+        last = m;
+        fade = 0;
+    } else if (!last) {
+        return;
+    } else if ((fade = (uint8_t)(fade + 6)) > 12) {   /* gone: the header and the main area drawn again */
+        last = 0;
+        ui.sig[0] = ui.sig[1] = 0;
+        return;
+    }
+    h = hash(hash(0x50464C41u, last), ui.platch | (uint32_t)fade << 27);
+    if (h == ui.sig[1] && ui.sig[0] == 0x50464C41u)
+        return;
+    ui.sig[0] = 0x50464C41u;
+    ui.sig[1] = h;
+    pflash_band(last, 0, PF_H / 2, fade);
+    pflash_band(last, PF_H / 2, PF_H - PF_H / 2, fade);
+}
+static int pflash_showing(void) { return ui.sig[0] == 0x50464C41u; }
+
 /* the Pattern page: the four lanes, sixteen steps each, the lane edited lit, the accents taller, the step
  * playing a column */
 static void draw_pattern(void)
@@ -3659,6 +3751,18 @@ void ui_frame(void)
         if (!(ui.frame % 3u))
             draw_grid();
         draw_main();                             /* (it says the grid to a screen reader) */
+    } else if (pflash_up() || pflash_showing()) {   /* (1.3) PERFORM, an effect held: its colour and name; the
+                                                  * knobs stay */
+        if (!(ui.frame % 3u))
+            draw_pflash();
+        if (pflash_showing()) {
+            echo_take(plat_ms());                /* (what draw_main takes each frame, kept up) */
+            orbits_take();
+        } else {
+            draw_header();
+            draw_main();
+        }
+        draw_knobs();
     } else {
         draw_header();
         draw_main();
