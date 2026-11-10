@@ -1997,17 +1997,47 @@ static void disc(float cx, float cy, float r, uint16_t c)
 /* (AISLING) the triskele, Newgrange's triple spiral: three spirals, their centres R from (cx, cy), each winding `turns`
  * from its centre out to (cx, cy), where the three meet; a line th wide, each arm drawn to the fraction g (0..1) of
  * its length from its own centre (the launch screen grows it) */
-static void triskele(float cx, float cy, float R, float turns, float th, float g, uint16_t c)
+static void triskele_at(float cx, float cy, float R, float turns, float th, float g, float rot, uint16_t c)
 {
     const float T = turns * FM_TWO_PI, end = T * fm_clampf(g, 0.0f, 1.0f);
     int k;
     for (k = 0; k < 3; k++) {
-        const float phi = FM_TWO_PI * ((float)k / 3.0f - 0.25f), sx = cx + R * fm_cosf(phi), sy = cy + R * fm_sinf(phi);
+        const float phi = FM_TWO_PI * ((float)k / 3.0f - 0.25f) + rot, sx = cx + R * fm_cosf(phi), sy = cy + R * fm_sinf(phi);
         float t;
         for (t = 0.0f; t <= end; t += 0.6f / fm_maxf(R * t / T, 0.6f)) {   /* (a step of ~0.6 px along the arm) */
             const float r = R * t / T, a = phi + FM_PI - (T - t);
             disc(sx + r * fm_cosf(a), sy + r * fm_sinf(a), th * 0.5f, c);
         }
+    }
+}
+static void triskele(float cx, float cy, float R, float turns, float th, float g, uint16_t c)
+{
+    triskele_at(cx, cy, R, turns, th, g, 0.0f, c);
+}
+
+/* (1.3, the user: "more Celtic") a rule as a plait: two strands crossing every PLAIT_P/2 pixels, each passing over
+ * the other in turn (the one under broken either side of the crossing), from x0 to x1 about the row y. Under 2
+ * crossings' room, a plain line, as before */
+#define PLAIT_P 12
+static void plait(int32_t x0, int32_t x1, int32_t y, uint16_t c)
+{
+    int32_t i, n = (x1 - x0) * 2;
+    if (x1 - x0 < PLAIT_P) {
+        if (x1 > x0)
+            cv_rect(x0, y, x1 - x0, 1, c);
+        return;
+    }
+    x1 = x0 + (x1 - x0) / (PLAIT_P / 2) * (PLAIT_P / 2);   /* (it ends on a crossing, the strands together) */
+    n = (x1 - x0) * 2;
+    for (i = 0; i <= n; i++) {
+        const float x = (float)x0 + (float)i * 0.5f, ph = (float)i * (0.5f * FM_TWO_PI / (float)PLAIT_P),
+                    d = 2.0f * fm_sinf(ph);
+        const int32_t q = i % PLAIT_P, cross = (i + PLAIT_P / 2) / PLAIT_P;   /* (q: half pixels past a crossing, 0..11) */
+        const int near = (q <= 2 || q >= PLAIT_P - 2) && i > 2 && i < n - 2;
+        if (!(near && (cross & 1)))
+            disc(x, (float)y + 0.5f + d, 0.62f, c);
+        if (!(near && !(cross & 1)))
+            disc(x, (float)y + 0.5f - d, 0.62f, c);
     }
 }
 
@@ -2541,11 +2571,37 @@ static void draw_grid(void)                      /* REC held: the effects, the w
 /* (1.3) PERFORM at rest: its keys' effects in the main area, as the grid shows its own. Four rows of white keys from
  * F3 up, a group a row, then the eleven black keys; a colour a group; an effect not built yet dim */
 static uint16_t pkey_col(int k);
+/* (1.3 step 5) the map's spare cell, after the eleventh black key's: the triskele, green, turning with the music (a
+ * sixteenth, a forty-eighth of a turn: once round in three bars), still at rest. Lines, no picture; on its own
+ * (own = 1) only its cell is drawn and sent, and only when its angle has moved */
+#define PTR_X 179
+#define PTR_Y 124
+#define PTR_W 57
+#define PTR_H 18
+static uint8_t ptr_at;
+static void ptrisk(int own)
+{
+    const uint8_t at = (uint8_t)(en_bars % 48u);
+    const int32_t ox = own ? 0 : PTR_X, oy = own ? 0 : PTR_Y;
+    if (own) {
+        if (at == ptr_at)
+            return;
+        cv_begin(PTR_W, PTR_H, K_BG);
+    }
+    ptr_at = at;
+    plait(ox + 2, ox + 18, oy + 8, mix(K_BG, K_EIRE, 7));
+    plait(ox + 40, ox + 56, oy + 8, mix(K_BG, K_EIRE, 7));
+    triskele_at((float)(ox + 29), (float)(oy + 9), 4.5f, 1.5f, 1.6f, 1.0f, (float)at * (FM_TWO_PI / 48.0f), K_EIRE);
+    if (own)
+        cv_blit(PTR_X, MAIN_Y + PTR_Y);
+}
 static void draw_pmap(void)
 {
     int k, w = 0, b = 0;
-    if (ui.sig[1] == 0x504D4150u)
+    if (ui.sig[1] == 0x504D4150u) {
+        ptrisk(1);
         return;
+    }
     ui.sig[1] = 0x504D4150u;
     cv_begin(240, MAIN_H, K_BG);
     for (k = 0; k < PERF_N; k++) {
@@ -2557,6 +2613,7 @@ static void draw_pmap(void)
         caps(t, PKEY[k].name, sizeof t);
         text_c(x + 28, y + 1, &FONT_XS, t, soon ? K_LINE : col);
     }
+    ptrisk(0);
     cv_blit(0, MAIN_Y);
 }
 
@@ -2804,7 +2861,11 @@ static void draw_flash(uint32_t now)
     caps(t, VIEW_NAME[ui.view], sizeof t);
     cv_round(x, y, w, h, 5, mix(K_BG, K_PANEL, f));
     n = page_dots(ui.view, &at);
-    if (text_w(&FONT_L, t) <= w - 8)
+    if (text_w(&FONT_UL, t) <= w - 8)            /* (1.3: the uncial hand, as PERFORM's flash; all capitals, so it has them) */
+        text_c(CX, y + (n ? -1 : 6), &FONT_UL, t, on);
+    else if (text_w(&FONT_UM, t) <= w - 8)
+        text_c(CX, y + (n ? 6 : 12), &FONT_UM, t, on);
+    else if (text_w(&FONT_L, t) <= w - 8)
         text_c(CX, y + (n ? 0 : 8), &FONT_L, t, on);
     else
         text_c(CX, y + (n ? 6 : 13), &FONT_C, t, on);
@@ -2954,8 +3015,8 @@ static void draw_main(void)
         int32_t x;
         int k;
         caps(pn, VIEW_NAME[ui.view], sizeof pn);
-        x = 232 - text_w(&FONT_B, pn);
-        cv_text(x, 12, &FONT_B, pn, K_ACC);
+        x = 232 - text_w(&FONT_US, pn);          /* (1.3: the uncial hand) */
+        cv_text(x, 10, &FONT_US, pn, K_ACC);
         if (ui.view == V_DUB) {                  /* (AISLING) the main page: a small green triskele before its name */
             triskele((float)x - 11.0f, 20.0f, 4.0f, 1.5f, 1.6f, 1.0f, K_EIRE);
             x -= 20;
@@ -3078,7 +3139,7 @@ static void draw_knobs(void)
             cv_rect(xt + 25, 2, 1, 7, K_TEXT);
             xt += 56;
             if (xt < 234)
-                cv_rect(xt, 5, 234 - xt, 1, K_LINE);
+                plait(xt, 234, 5, K_LINE);
         } else if (now_touch && ui.touched >= 0 && ui.touched < 4) {   /* a knob turning: what it does, the rule's
                                                                           * whole width */
             char hp[48];
@@ -3086,12 +3147,12 @@ static void draw_knobs(void)
             cv_rect(0, 0, 240, 12, K_BG);
             xt = cv_text(6, -1, &FONT_XS, hp, K_TEXT) + 5;
             if (xt < 234)
-                cv_rect(xt, 5, 234 - xt, 1, K_LINE);
+                plait(xt, 234, 5, K_LINE);
         } else {
             int at = 0, n = page_dots(ui.view, &at);
             xt = 234 - n * 8;                    /* (1.3.0: the page's name and the round's dots top right; here the rule,
                                                   * and at its end (0.5) a dot for each page of this button) */
-            cv_rect(x0, 5, xt - x0, 1, K_LINE);
+            plait(x0, xt, 5, K_LINE);
             for (k = 0; k < n; k++)
                 cv_round(xt + 3 + k * 8, 3, 5, 5, 2, k == at ? K_ACC : K_LINE);
             (void)xd;

@@ -614,6 +614,8 @@ static int expect(const char *what, const char *val)
         got = (int)ui.pheld;
     else if (!strcmp(what, "pcc"))                /* (1.3) the effects a CC holds */
         got = (int)ui.pcc;
+    else if (!strcmp(what, "ptrisk"))             /* (1.3) the map's triskele: its angle within 2 sixteenths of the music's */
+        got = (int)((en_bars + 48u - ptr_at) % 48u) <= 2;
     else if (!strcmp(what, "pnow"))               /* (1.3) every effect sounding (the link's STATE) */
         got = (int)ui.pnow;
     else if (!strcmp(what, "fxcc"))               /* (1.3) the effects' CCs sent out */
