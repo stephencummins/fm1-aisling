@@ -240,6 +240,8 @@ static struct {
     uint32_t solo;                     /* the layers soloed (EN_M_*): the others muted while any is */
     int8_t mac[EN_NMAC];               /* the master actions (HOME's Filter, PERFORM's knobs): -50..50, never saved */
     uint32_t pheld, platch;            /* (1.3) PERFORM's keys held, and latched (a bit a key, PKEY's) */
+    uint32_t pcc;                      /* (1.3) the effects a CC holds, on any page (a bit a key, PKEY's) */
+    uint32_t pnow, pout;               /* every effect sounding (the link's STATE); those by hand, as last sent out */
     uint32_t fx;                       /* the effects held (EN_FX_*), REC's grid */
     uint32_t bfx;                      /* (BERLIN) the grid's effects held on the black keys (EN_FX_*) */
     uint8_t mv;                        /* (BERLIN) the black keys' moves held (EN_MV_*) */
@@ -848,6 +850,10 @@ static const struct {
     {"Drive", EN_FX_DRIVE, PG_COLOUR},               {"Drop", 200 + EN_PF_DROP, PG_BLACK},
     {"Crush", EN_FX_CRUSH, PG_COLOUR},
 };
+/* (1.3) an effect's CC: the low octave's twelve keys 20-31, the fifteen above 102-116 (both runs undefined in MIDI,
+ * so no keyboard's own pedal or wheel lands on one). 64 and over: held; under: let go */
+static int pkey_cc(int k) { return k < 12 ? 20 + k : 102 + k - 12; }
+static int cc_pkey(int n) { return n >= 20 && n < 32 ? n - 20 : n >= 102 && n < 102 + PERF_N - 12 ? n - 102 + 12 : -1; }
 /* (1.2's PERFORM, kept for the USB link alone: LK_PERF's fifteen, the layers muted (0-4), the moves held (5-9), the
  * layers soloed (10-14), and LK_FORGET. No key reaches them now) */
 #define LPERF_N 15
@@ -860,8 +866,20 @@ static void fx_send(void)                        /* all that is held, to the eng
                                                   * keys' (ui.bfx, ui.mv), the link's moves, and PERFORM's keys,
                                                   * held or latched */
 {
-    uint32_t on = ui.perf ? ui.pheld | ui.platch : 0u, fx = 0, mv = 0, pf = 0;
+    uint32_t on = (ui.perf ? ui.pheld | ui.platch : 0u) | ui.pcc, fx = 0, mv = 0, pf = 0, hand;
     int i;
+    /* (1.3) by hand (PERFORM's keys, the grid's that PERFORM has too): each change a CC out, on channel 16, with
+     * MIDI out on. A CC's own are not sent back */
+    hand = ui.perf ? ui.pheld | ui.platch : 0u;
+    for (i = 0; i < PERF_N; i++)
+        if (PKEY[i].d < 100 && ((ui.fx | ui.bfx) >> PKEY[i].d & 1u))
+            hand |= 1u << i;
+    if (proj.par[P_MIDI])
+        for (i = 0; i < PERF_N; i++)
+            if ((hand ^ ui.pout) >> i & 1u)
+                plat_midi_out(0x0Bu | 0xBFu << 8 | (uint32_t)pkey_cc(i) << 16 | (hand >> i & 1u ? 127u : 0u) << 24);
+    ui.pout = hand;
+    ui.pnow = hand | ui.pcc;
     for (i = 0; i < PERF_N; i++)
         if (on >> i & 1u) {
             const int d = PKEY[i].d;
@@ -962,7 +980,7 @@ static void perf_set(int on)                     /* on: the mixer on the knobs; 
         set_view(V_PERF);
     } else {
         ui.moves = 0;                            /* every key and latch let go (and the link's moves) */
-        ui.pheld = ui.platch = 0;
+        ui.pheld = ui.platch = ui.pcc = 0;
         fx_send();
         if (ui.view == V_MIX || ui.view == V_PERF)
             set_view(ui.perf_from);
@@ -1450,7 +1468,7 @@ static void evolve_turn(int e)                   /* (a step a detent; now and th
 /* (1.2; the idea is Penumbra's, the code ours) MIDI CCs, any channel, USB and the TRS jack: 16-19 (General Purpose 1-4)
  * the four knobs of the page on screen, as KNOB 1-4; 74-79 HOME's four and PERFORM's two, whatever the page: Filter,
  * Evolve, Motion, Drift, Wet, Energy. A CC sets the value outright, 0..127 across the knob's range (the centred ones:
- * 64 is 0), and is a touch, as a note. Never SAVE (a DAW's stream would wear the flash); Setup's Lights, Tune and MIDI
+ * 64 is 0), and is a touch, as a note. (1.3) 20-31 and 102-116: PERFORM's 27 effects, a CC a key (pkey_cc). Never SAVE (a DAW's stream would wear the flash); Setup's Lights, Tune and MIDI
  * out are left alone too */
 #define CC_PAGE 16
 #define CC_FIXED 74
@@ -1458,6 +1476,20 @@ static const uint16_t CC_FIXED_K[6] = {K_FILTER, P_EVOLVE, P_MOTION, P_DRIFT, K_
 static void cc_in(int n, int v)
 {
     int k = K_NONE, j = -1, lo, hi;
+    if ((k = cc_pkey(n)) >= 0) {                 /* (1.3) an effect, held while its CC is 64 or over: on any page */
+        const uint32_t b = 1u << k;
+        if (v >= 64 && !(ui.pcc & b)) {
+            ui.pcc |= b;
+            fx_send();
+            say(PKEY[k].name, 0);
+        } else if (v < 64 && (ui.pcc & b)) {
+            ui.pcc &= ~b;
+            fx_send();
+        }
+        ui.act_t = plat_ms();
+        return;
+    }
+    k = K_NONE;
     if (n >= CC_PAGE && n < CC_PAGE + 4) {
         if (grid_up())
             return;                              /* (the grid on the screen: the knobs rest, as by hand) */
@@ -1492,8 +1524,13 @@ static void midi_in(void)
                                                   * (asleep, MIDI never reaches here: sleep_input) */
                 ui.act_t = plat_ms();
         }
-        else if ((st & 0xF0u) == 0xB0u && (n == 120u || n == 123u))
+        else if ((st & 0xF0u) == 0xB0u && (n == 120u || n == 123u)) {
             en_lead_midi(-1, 0);                 /* (all sound off, all notes off: a DAW's stop, say) */
+            if (ui.pcc) {                        /* (1.3: and the effects a CC held) */
+                ui.pcc = 0;
+                fx_send();
+            }
+        }
         else if ((st & 0xF0u) == 0xB0u)
             cc_in((int)n, (int)v);               /* (1.2) */
         else if ((st & 0xF0u) == 0xC0u && n < NPIECES) {   /* (1.1, Penumbra's idea) program change 0-7, any
@@ -2533,7 +2570,7 @@ static uint16_t pkey_col(int k)
         n += PKEY[i].g == PKEY[k].g;
     return mix(PG_COL[PKEY[k].g], K_BAININ, PKEY[k].g == PG_BLACK ? n : n * 3);
 }
-static int pflash_up(void) { return ui.perf && ui.pheld; }
+static int pflash_up(void) { return ui.perf && (ui.pheld | ui.pcc); }
 static void pflash_band(uint32_t m, int32_t oy, int32_t hh, int fade)
 {
     int n = 0, k, j = 0, more;
@@ -2581,7 +2618,7 @@ static void draw_pflash(void)                    /* (each third frame, as the ma
 {
     static uint32_t last;                        /* what was held, for the two frames it takes to go */
     static uint8_t fade;
-    uint32_t m = pflash_up() ? ui.pheld : 0, h;
+    uint32_t m = pflash_up() ? ui.pheld | ui.pcc : 0, h;
     if (m) {
         last = m;
         fade = 0;
@@ -3116,7 +3153,7 @@ static void leds(void)
         const int blink = (plat_ms() / 250u) & 1u;
         b |= 1u << B_SEL;
         for (i = 0; i < PERF_N; i++) {
-            if (PKEY[i].d == PK_SOON || (ui.pheld >> i & 1u))
+            if (PKEY[i].d == PK_SOON || ((ui.pheld | ui.pcc) >> i & 1u))
                 continue;
             if (!(ui.platch >> i & 1u) || blink)
                 k |= 1u << i;

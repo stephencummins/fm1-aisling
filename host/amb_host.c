@@ -105,6 +105,7 @@ void plat_play_red(int red) { (void)red; }      /* the device's PLAY colour: gre
 static uint32_t min_q[MQ], mi_w, mi_r;
 static FILE *midi_log;
 static uint32_t midi_out_count, clock_out_count;
+static uint32_t fxcc_count, fxcc_last;
 int plat_midi_in(uint32_t *pkt)
 {
     if (mi_r == mi_w)
@@ -125,6 +126,8 @@ void plat_midi_out(uint32_t pkt)
         clock_out_count++;
         return;
     }
+    if (((pkt >> 8) & 0xFF) == 0xBF)             /* (1.3) the effects' CCs out: how many, the last (cc << 8 | value) */
+        fxcc_count++, fxcc_last = ((pkt >> 16) & 0xFF) << 8 | ((pkt >> 24) & 0xFF);
     if (midi_log)
         fprintf(midi_log, "%u ms: %02X %02X %02X\n", now_ms, (pkt >> 8) & 0xFF, (pkt >> 16) & 0xFF, (pkt >> 24) & 0xFF);
 }
@@ -609,6 +612,14 @@ static int expect(const char *what, const char *val)
     }
     else if (!strcmp(what, "pheld"))              /* (1.3) PERFORM's keys held, a bit a key (0..26) */
         got = (int)ui.pheld;
+    else if (!strcmp(what, "pcc"))                /* (1.3) the effects a CC holds */
+        got = (int)ui.pcc;
+    else if (!strcmp(what, "pnow"))               /* (1.3) every effect sounding (the link's STATE) */
+        got = (int)ui.pnow;
+    else if (!strcmp(what, "fxcc"))               /* (1.3) the effects' CCs sent out */
+        got = (int)fxcc_count;
+    else if (!strcmp(what, "fxcclast"))
+        got = (int)fxcc_last;
     else if (!strcmp(what, "platch"))             /* (1.3) and latched */
         got = (int)ui.platch;
     else if (!strcmp(what, "bfx"))                /* (BERLIN) the black keys' effects and moves held (0: none) */
@@ -796,6 +807,8 @@ static int expect(const char *what, const char *val)
         got = lc.state[23] | lc.state[24] << 7;
     else if (!strcmp(what, "lgen"))
         got = lc.state[29];
+    else if (!strcmp(what, "lfx"))                /* (1.3) the effects sounding, as STATE tells them */
+        got = lc.state_n >= 34 ? lc.state[30] | lc.state[31] << 7 | lc.state[32] << 14 | lc.state[33] << 21 : -1;
     else if (!strcmp(what, "lstatelen"))
         got = lc.state_n;
     else if (!strncmp(what, "lval", 4))           /* a knob as VALS told it */

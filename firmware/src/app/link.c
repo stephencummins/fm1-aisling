@@ -590,6 +590,8 @@ static void link_state(void)
     put14(f + n, (int)(link_lit_k & 0x3FFFu)), n += 2u;
     put14(f + n, (int)(link_lit_k >> 14 & 0x3FFFu)), n += 2u;
     f[n++] = link_gen & 0x7Fu;
+    put14(f + n, (int)(ui.pnow & 0x3FFFu)), n += 2u;   /* (1.3) the effects sounding, a bit a key (PKEY's) */
+    put14(f + n, (int)(ui.pnow >> 14 & 0x3FFFu)), n += 2u;
     lk_send(f, n);
 }
 

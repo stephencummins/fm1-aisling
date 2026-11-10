@@ -684,6 +684,13 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
   as a touch for the sleep timer, as a note does. CCs never save, and never turn Setup's Tune, MIDI out, Lights or
   Save; while the effects grid is up, 16 to 19 rest, as the knobs do. A change is saved by itself later, as a turn's
   is (Filter, Wet and Energy aren't saved at all). Other CCs are ignored.
+- **In, effects:** each of PERFORM's 27 effects has a CC, on any channel (the second table below). 64 or more holds
+  the effect, less lets it go, as its key does. They work on any page, PERFORM or not; in PERFORM the screen flashes
+  as it does for a key. All notes off and all sound off (CC 123 and 120) let every one go, and so does leaving
+  PERFORM.
+- **Out, effects:** an effect you play by hand, in PERFORM or on the effects grid, sends its CC on channel 16: 127 as
+  it starts, 0 as it ends. So a DAW can record a performance and play it back, and a screen can follow which effects
+  are sounding. Only with MIDI out on. An effect held by a CC isn't sent back.
 - **Don't send it straight back:** if a computer returns the FM-1's own MIDI out (a DAW's thru, say), every layer's
   notes play the Lead. Turn thru off, or MIDI out off on GLO's Setup page.
 
@@ -696,6 +703,20 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
 | 77 | Drift |
 | 78 | Wet (PERFORM's) |
 | 79 | Energy (PERFORM's) |
+
+The effects, in the keys' order from the lowest (the low octave is 20 to 31, the rest 102 to 116):
+
+| CC | Effect | CC | Effect | CC | Effect |
+|---|---|---|---|---|---|
+| 20 | Stutter | 29 | Macalla | 108 | Freeze |
+| 21 | Ceo | 30 | Close | 109 | Wash |
+| 22 | Half time | 31 | Tape stop | 110 | Vinyl |
+| 23 | Fras | 102 | Reverse | 111 | Flange |
+| 24 | Gate | 103 | Octave | 112 | Comb |
+| 25 | Sweep | 104 | Reverb | 113 | Phaser |
+| 26 | Roll | 105 | Dive | 114 | Drive |
+| 27 | Repeat | 106 | Shimmer | 115 | Drop |
+| 28 | Rise | 107 | Ring | 116 | Crush |
 
 ### The visualiser
 
