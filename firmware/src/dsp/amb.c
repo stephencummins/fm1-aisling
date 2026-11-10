@@ -5817,9 +5817,9 @@ static inline void mast_fx(float *lp, float *rp)   /* a sample of the output, bo
         vn_hp[0] += 0.035f * (vn_lp[0] - vn_hp[0]);   /* (250 Hz) */
         vn_hp[1] += 0.035f * (vn_lp[1] - vn_hp[1]);
         vn_rng = vn_rng * 1664525u + 1013904223u;
-        if (vn_rng < 0x00040000u)                /* (a click, some 2.7 a second; a tick far more often, quieter) */
+        if (vn_rng < (1u << 18))                 /* (a click, some 2.7 a second; a tick far more often, quieter) */
             vn_pop = (vn_rng & 1u ? 0.1f : -0.1f) * (0.4f + (float)(vn_rng >> 1 & 255u) * (0.6f / 255.0f));
-        else if (vn_rng < 0x00400000u)
+        else if (vn_rng < (1u << 22))
             vn_pop2 = (vn_rng & 1u ? 0.02f : -0.02f);
         pop = vn_pop + vn_pop2;
         vn_pop *= 0.82f, vn_pop2 *= 0.5f;

@@ -127,7 +127,7 @@ always in the piece's scale, and it answers you.</p>
 <div class="pane shots">
   <img src="img/screen-launch.png" width="240" height="240" alt="The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com">
   <img src="img/screen-main.png" width="240" height="240" alt="The main screen: the chord's name among orbiting dots, the five layers' meters, the two harps' lanes">
-  <img src="img/screen-perform.png" width="240" height="240" alt="PERFORM: Filter, Wet, Energy and Sweep on the knobs">
+  <img src="img/screen-perform.png" width="240" height="240" alt="PERFORM at rest: a map of the 27 effects, a green triskele, and Filter, Wet, Energy and Chorus on the knobs">
 </div>
 <nav class="ways" aria-label="Get AISLING">
   <a class="go" href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge on a computer, with the FM-1 connected by a USB data cable. Nothing to install.</span></a>
@@ -158,8 +158,8 @@ __NEW__
 flows, gives the flute its turn, crosses a bridge and starts its long rise again. You are invited in. The <b>white
 keys</b> play the flute in the piece's scale, so every note fits; play a phrase and it becomes the flute's theme. The
 <b>black keys</b> are effects while held: Ceo (KYOH, fog), Macalla (MOCK-al-a, an echo), Fras (FRASS, a burst of rain), Rise and Close sweep
-every filter, Transpose lifts the harps, and more. SELECT turns the level of the layer you are looking at; PERFORM (SEL)
-mutes and solos the layers and pushes Filter, Wet and Energy.</p>
+every filter, Transpose lifts the harps, and more. SELECT turns the level of the layer you are looking at; in PERFORM (SEL)
+every key is an effect on the whole music while held, 27 of them, and the knobs push Filter, Wet, Energy and Chorus.</p>
 </section>
 <section class="pane">
 <h2 class="bh">What it plays</h2>

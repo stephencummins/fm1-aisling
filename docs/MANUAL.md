@@ -176,8 +176,8 @@ The screen is black, with a few dim stars drifting slowly left while the music p
 - **Top:** the piece, its key and mode, the tempo (EXT under MIDI clock). A dot means unsaved changes.
 - **Top left:** the section of the arc (EMERGE, FLOW, SOLO, BRIDGE), with **hold** and **lock** after it in red
   while they're on, and under it the eight bars of the phrase.
-- **Top right:** "CU_STE", small, and under it the page's name (with SOLO beside it while a solo is on); on the
-  Aisling page, a small green triskele before it.
+- **Top right:** "CU_STE", small, and under it the page's name in an uncial hand (with SOLO beside it while a solo
+  is on); on the Aisling page, a small green triskele before it.
 - **Left:** five **meters**, one for each layer in its own colour: the Drone (violet), the Sequence (pink), the
   Lead (gold), Sequence 2 (cyan), the Atmosphere (grey). Each rises with what its layer is playing. Across each
   one, a white **tick** shows where that layer's filter has moved to: above the middle, brighter; below,
@@ -192,14 +192,14 @@ The screen is black, with a few dim stars drifting slowly left while the music p
   is, in red; with Drift at Hold (the chord never changes) there is no ring.
 - **Right:** the echo's level (ECHO).
 - **Which page:** the line above the knobs ends in a dot for each page of the button you're on, with the page you're
-  on lit. When a button brings a new page, its name shows large over the chord for a moment, with the same dots.
+  on lit. When a button brings a new page, its name shows large over the chord for a moment, in the same uncial hand, with the same dots.
 - **A ring in the middle:** while you turn SELECT on a layer's page, its level as a big knob in its colour, the
   number inside and the layer's name under it (grey and MUTED if it's muted); it fades a moment after.
 - **Below:** two **lanes**, the Sequence (pink) and Sequence 2 (cyan), each as long as its sequence: a big dot
   for each step that plays, a speck for a rest, and a white cursor on the step playing now. Two sequences of
   different lengths drift apart and meet again, and you can see them do it. On a layer's page, the other
   lane is greyed.
-- **Bottom:** the page's four knobs and their values. While a knob turns, the rule above them says what it does;
+- **Bottom:** the page's four knobs and their values, under a rule drawn as a plait. While a knob turns, the rule says what it does;
   while SELECT turns Energy on the Aisling page, it shows "ENERGY", its value and a bar from the middle.
 
 **The filter motion, shown.** On a layer's *sound* page (the one with its brightness knob), a small cyan
@@ -592,7 +592,7 @@ reader names the effect as each key goes down.
 
 ## 10. PERFORM
 
-![PERFORM: the knobs Filter, Wet, Energy and Chorus](img/screen-perform.png)
+![PERFORM at rest: the map of the 27 keys' effects in their groups' colours, a green triskele in the last cell, and the knobs Filter, Wet, Energy and Chorus](img/screen-perform.png)
 
 Tap SEL. The knobs become the master actions: **Filter** (as on the Aisling page), **Wet** (the whole music dry, or drowned in the
 echo: every layer's echo send, the Drone's, both Sequences', the Lead's and the Atmosphere's), **Energy**
@@ -646,7 +646,8 @@ middle (mono) and a little duller than the rest, which is what lets them fit.
 
 **The screen shows the keys.** While nothing is held, the middle of the screen is a map of PERFORM's effects, as the
 effect grid shows its own: four rows of four for the white keys from F3 up, then the black keys, each group in its
-colour. Hold a key and the screen flashes that effect's colour and name; let go and the map is back.
+colour. Hold a key and the screen flashes that effect's colour and name; let go and the map is back. In the map's
+last cell a small green triskele turns with the music, once round in three bars, and stands still when the music stops.
 
 **REC is as on any page.** A tap holds the echo; held, it opens the effect grid. There is no latch.
 
