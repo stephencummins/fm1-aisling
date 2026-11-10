@@ -581,6 +581,10 @@ static int expect(const char *what, const char *val)
         got = last_note[(atoi(what + 11) + 15) % 16];
     else if (!strncmp(what, "act", 3) && what[3] >= '0' && what[3] <= '4')   /* (BERLIN) actN: layer N's activity x100 */
         got = (int)(en_layer_act[what[3] - '0'] * 100.0f);
+    else if (!strcmp(what, "pheld"))              /* (1.3) PERFORM's keys held, a bit a key (0..26) */
+        got = (int)ui.pheld;
+    else if (!strcmp(what, "platch"))             /* (1.3) and latched */
+        got = (int)ui.platch;
     else if (!strcmp(what, "bfx"))                /* (BERLIN) the black keys' effects and moves held (0: none) */
         got = (int)(ui.bfx | ui.mv << 16);
     else if (!strncmp(what, "fo", 2) && what[2] >= '0' && what[2] <= '4' && !what[3])   /* foN: layer N's offset x100 */

@@ -239,6 +239,7 @@ static struct {
     uint32_t mutes, moves;             /* the layers muted (EN_M_*), the moves held (EN_PF_*) */
     uint32_t solo;                     /* the layers soloed (EN_M_*): the others muted while any is */
     int8_t mac[EN_NMAC];               /* the master actions (HOME's Filter, PERFORM's knobs): -50..50, never saved */
+    uint32_t pheld, platch;            /* (1.3) PERFORM's keys held, and latched (a bit a key, PKEY's) */
     uint32_t fx;                       /* the effects held (EN_FX_*), REC's grid */
     uint32_t bfx;                      /* (BERLIN) the grid's effects held on the black keys (EN_FX_*) */
     uint8_t mv;                        /* (BERLIN) the black keys' moves held (EN_MV_*) */
@@ -815,24 +816,68 @@ static void set_piece(int i)                    /* the piece playing kept as it 
 }
 
 /* ----------------------------------------------------------- PERFORM --- */
-/* SEL's mode, on the keys from F3 up, in three sets, a dark key between:
- *   white 1-5    the layers, a press each: muted and back, their levels kept (chord, pings, bass, kick, hats)
- *   black 1-5    the same layers soloed, a press each (more than one: they play together; the rest muted)
- *   white 7-11   dub moves, held as long as the key is: every stab thrown into the echo, the filter pushed
- *                open, pushed shut, the floor dropped (the kick and the bass out), the echo pushed (all in, feeding back)
- *   white 16     (the top key, G5, set apart by the dark keys before it) FORGET, a press: the Lead forgets
- *                its ideas and its theme (the keys' too), and grows new ones (en_lead_forget)
- * Each key that does something is lit: a layer while it sounds, a solo (blinking while on), a move and FORGET (dark
- * while held). The rest do nothing */
-#define PERF_N 15
-static const uint8_t PERF_KEY[PERF_N] = {0, 2, 4, 6, 7,          /* white 1-5: the layers */
-                                         11, 12, 14, 16, 18,     /* white 7-11: the moves */
-                                         1, 3, 5, 8, 10};        /* black 1-5: the solos */
-static const char *const PERF_NAME[PERF_N] = {"DRONE", "SEQ", "LEAD", "SEQ 2", "ATMOS", "SWEEP", "OPEN", "SHUT",
-                                              "DROP", "ECHO", "DRONE", "SEQ", "LEAD", "SEQ 2", "ATMOS"};
+/* (1.3, the Performance release; the user: "stay on perform and manipulate the track while it generates melody ...
+ * I don't really care about the mutings. I'd prefer lots of effects") SEL's mode: every key from F3 up an effect,
+ * as long as the key is held, several together; no REC to hold, no layer's mute. The white keys four groups of four
+ * (rhythm, echo, space, colour), the black keys a fifth in the keyboard's own groups (3 2 3 2 1). REC tapped with
+ * keys held: those stay on (latched; all of them latched already: let go); REC alone: every latch let go.
+ * A key that does something is lit, dark while held, blinking while latched.
+ * What a key does (d): under 100 one of the grid's effects (EN_FX_*), 100 + a move (EN_MV_*), 200 + one of the old
+ * PERFORM's moves (EN_PF_*), PK_SOON: an effect 1.3 has yet to build (the key dark, nothing said) */
+#define PERF_N 27
+#define PK_SOON 255
+enum { PG_RHYTHM, PG_ECHO, PG_SPACE, PG_COLOUR, PG_BLACK, PG_N };
+static const struct {
+    const char *name;
+    uint8_t d, g;
+} PKEY[PERF_N] = {
+    {"Stutter", PK_SOON, PG_RHYTHM},                 {"Ceo", EN_FX_TAKEOFF, PG_BLACK},
+    {"Half time", PK_SOON, PG_RHYTHM},               {"Fras", EN_FX_TWITTER, PG_BLACK},
+    {"Gate", PK_SOON, PG_RHYTHM},                    {"Sweep", EN_FX_SWEEP, PG_BLACK},
+    {"Roll", PK_SOON, PG_RHYTHM},
+    {"Repeat", EN_FX_REPEAT, PG_ECHO},               {"Rise", 100 + EN_MV_RISE, PG_BLACK},
+    {"Macalla", EN_FX_SUPERNOVA, PG_ECHO},           {"Close", 100 + EN_MV_CLOSE, PG_BLACK},
+    {"Tape stop", EN_FX_TAPESTOP, PG_ECHO},
+    {"Reverse", PK_SOON, PG_ECHO},                   {"Octave", EN_FX_OCTAVE, PG_BLACK},
+    {"Reverb", EN_FX_REVERB, PG_SPACE},              {"Dive", PK_SOON, PG_BLACK},
+    {"Shimmer", EN_FX_SHIMMER, PG_SPACE},            {"Ring", PK_SOON, PG_BLACK},
+    {"Freeze", EN_FX_FREEZE, PG_SPACE},
+    {"Wash", EN_FX_WASH, PG_SPACE},                  {"Vinyl", PK_SOON, PG_BLACK},
+    {"Flange", PK_SOON, PG_COLOUR},                  {"Comb", PK_SOON, PG_BLACK},
+    {"Phaser", EN_FX_PHASER, PG_COLOUR},
+    {"Drive", PK_SOON, PG_COLOUR},                   {"Drop", 200 + EN_PF_DROP, PG_BLACK},
+    {"Crush", PK_SOON, PG_COLOUR},
+};
+/* (1.2's PERFORM, kept for the USB link alone: LK_PERF's fifteen, the layers muted (0-4), the moves held (5-9), the
+ * layers soloed (10-14), and LK_FORGET. No key reaches them now) */
+#define LPERF_N 15
+static const char *const LPERF_NAME[LPERF_N] = {"DRONE", "SEQ", "LEAD", "SEQ 2", "ATMOS", "SWEEP", "OPEN", "SHUT",
+                                                "DROP", "ECHO", "DRONE", "SEQ", "LEAD", "SEQ 2", "ATMOS"};
 /* each layer's mute (EN_M_*), in the meters' order: Sequence 2 is two of the engine's bits (DUB-1's kick and hats) */
 static const uint32_t LAYER_MUTE[NLAYER] = {EN_M_CHORD, EN_M_PINGS, EN_M_BASS, EN_M_KICK | EN_M_HATS, EN_M_NOISE};
 #define ALL_MUTE (EN_M_CHORD | EN_M_PINGS | EN_M_BASS | EN_M_KICK | EN_M_HATS | EN_M_NOISE)
+static void fx_send(void)                        /* all that is held, to the engine: the grid's (ui.fx), the black
+                                                  * keys' (ui.bfx, ui.mv), the link's moves, and PERFORM's keys,
+                                                  * held or latched */
+{
+    uint32_t on = ui.perf ? ui.pheld | ui.platch : 0u, fx = 0, mv = 0, pf = 0;
+    int i;
+    for (i = 0; i < PERF_N; i++)
+        if (on >> i & 1u) {
+            const int d = PKEY[i].d;
+            if (d == PK_SOON)
+                continue;
+            if (d < 100)
+                fx |= 1u << d;
+            else if (d < 200)
+                mv |= (uint32_t)(d - 100);
+            else
+                pf |= (uint32_t)(d - 200);
+        }
+    en_fx(ui.fx | ui.bfx | fx);
+    en_move(ui.mv | mv);
+    en_perf(ui.moves | pf);
+}
 static void perf_mutes(void)                     /* to the engine: the mutes, and with a solo, all but it */
 {
     en_mute(ui.mutes | (ui.solo ? ALL_MUTE & ~ui.solo : 0u));
@@ -844,8 +889,6 @@ static int perf_sounds(int i)                    /* layer i (0..4) heard: not mu
     return (ui.mutes & LAYER_MUTE[i]) != LAYER_MUTE[i];
 }
 static void set_view(int v);
-#define PERF_SHIFT 9u                            /* white 6 (D4), held: the knobs the mix */
-#define PERF_FORGET 26u                          /* white 16 (G5), the top key: the Lead's memory erased */
 static void lock_toggle(void)                    /* SEL held: Lock, on or off: the phrases keep their kick, groove and plan,
                                                   * Evolve's own moves rest (not saved; off at boot) */
 {
@@ -854,26 +897,15 @@ static void lock_toggle(void)                    /* SEL held: Lock, on or off: t
     say("LOCK", ui.lock ? "ON" : "OFF");
     card_show("LOCK", ui.lock ? "the sequences kept" : "the sequences free", K_ACC, 0);
 }
-static void perf_key(uint32_t key, int down)
+static void lead_forget(void)                    /* (the link's LK_FORGET) the Lead forgets its ideas and its theme */
 {
-    int i;
-    if (key == PERF_SHIFT) {
-        set_view(down ? V_MIX : V_PERF);
-        if (down)
-            say("MIX", 0);
-        return;
-    }
-    if (key == PERF_FORGET) {                    /* (the user: "the last key ... separated visibly") the Lead forgets */
-        if (down) {
-            en_lead_forget();
-            say("LEAD", "FORGOTTEN");
-            card_show("LEAD FORGOTTEN", "new ideas", K_BASS, 0);
-        }
-        return;
-    }
-    for (i = 0; i < PERF_N && PERF_KEY[i] != key; i++)
-        ;
-    if (i >= PERF_N)
+    en_lead_forget();
+    say("LEAD", "FORGOTTEN");
+    card_show("LEAD FORGOTTEN", "new ideas", K_BASS, 0);
+}
+static void link_perf(int i, int down)           /* (the link's LK_PERF, 1.2's fifteen) */
+{
+    if (i < 0 || i >= LPERF_N)
         return;
     if (i >= 10) {                               /* a solo: on or off, a press each */
         uint32_t m = LAYER_MUTE[i - 10];
@@ -881,14 +913,10 @@ static void perf_key(uint32_t key, int down)
             return;
         ui.solo ^= m;
         perf_mutes();
-        if (ui.view == V_MIX) {                  /* (the mix's knob lit, as for a mute) */
-            ui.touched = (int8_t)(i - 10 < 3 ? i - 10 : 3);
-            ui.touch_until = plat_ms() + 1200u;
-        }
         if (ui.solo & m)
-            say("SOLO", PERF_NAME[i]);
+            say("SOLO", LPERF_NAME[i]);
         else if (ui.solo)                        /* (one let go, others still soloed) */
-            say(PERF_NAME[i], "SOLO OFF");
+            say(LPERF_NAME[i], "SOLO OFF");
         else
             say("SOLO", "OFF");
         return;
@@ -901,20 +929,45 @@ static void perf_key(uint32_t key, int down)
         else
             ui.mutes |= LAYER_MUTE[i];
         perf_mutes();
-        if (ui.view == V_MIX) {                  /* the layer's Mix knob lit (the kick and the hats: Drums) */
-            ui.touched = (int8_t)(i < 3 ? i : 3);
-            ui.touch_until = plat_ms() + 1200u;
-        }
-        say(PERF_NAME[i], (ui.mutes & LAYER_MUTE[i]) == LAYER_MUTE[i] ? "OFF" : "ON");
+        say(LPERF_NAME[i], (ui.mutes & LAYER_MUTE[i]) == LAYER_MUTE[i] ? "OFF" : "ON");
         return;
     }
     if (down)
         ui.moves |= 1u << (i - 5);
     else
         ui.moves &= ~(1u << (i - 5));
-    en_perf(ui.moves);
+    fx_send();
     if (down)
-        say(PERF_NAME[i], 0);
+        say(LPERF_NAME[i], 0);
+}
+static void perf_key(uint32_t key, int down)     /* PERFORM: a key, its effect while held */
+{
+    if (key >= PERF_N || PKEY[key].d == PK_SOON)
+        return;
+    if (down)
+        ui.pheld |= 1u << key;
+    else
+        ui.pheld &= ~(1u << key);
+    fx_send();
+    if (down)
+        say(PKEY[key].name, 0);
+}
+static void perf_latch(void)                     /* PERFORM, REC tapped: the keys held stay on (all latched already:
+                                                  * they let go); none held: every latch let go */
+{
+    if (ui.pheld) {
+        if ((ui.platch & ui.pheld) == ui.pheld) {
+            ui.platch &= ~ui.pheld;
+            say("LATCH", "OFF");
+        } else {
+            ui.platch |= ui.pheld;
+            say("LATCH", "ON");
+        }
+    } else if (ui.platch) {
+        ui.platch = 0;
+        say("LATCH", "CLEAR");
+    }
+    fx_send();
 }
 
 static void set_view(int v);
@@ -926,10 +979,9 @@ static void perf_set(int on)                     /* on: the mixer on the knobs; 
             ui.perf_from = ui.view;
         set_view(V_PERF);
     } else {
-        if (ui.moves) {                          /* the moves let go; the mutes stay */
-            ui.moves = 0;
-            en_perf(0);
-        }
+        ui.moves = 0;                            /* every key and latch let go (and the link's moves) */
+        ui.pheld = ui.platch = 0;
+        fx_send();
         if (ui.view == V_MIX || ui.view == V_PERF)
             set_view(ui.perf_from);
     }
@@ -942,7 +994,10 @@ static void perf_set(int on)                     /* on: the mixer on the knobs; 
  * is still dub hold (REC's release does nothing once a key played) */
 static const uint8_t FX_KEY[EN_NFX] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};
 #define GRID_HOLD 300u                   /* ms of REC held before the grid shows */
-static int grid_up(void) { return ui.fx || ((ui.btn >> B_REC & 1u) && plat_ms() - ui.down_t[B_REC] >= GRID_HOLD); }
+static int grid_up(void)                         /* (1.3: not in PERFORM, where REC is the latch) */
+{
+    return ui.fx || (!ui.perf && (ui.btn >> B_REC & 1u) && plat_ms() - ui.down_t[B_REC] >= GRID_HOLD);
+}
 static int fx_key(uint32_t key, int down)        /* 1: the key was an effect's */
 {
     int e;
@@ -955,9 +1010,11 @@ static int fx_key(uint32_t key, int down)        /* 1: the key was an effect's *
         ui.btn_used |= 1u << B_REC;              /* (REC's release: no dub hold now) */
         say(EN_FX_NAME[e], 0);
     } else {
+        if (!(ui.fx >> e & 1u))                  /* (1.3) not one held on the grid: the key is someone else's */
+            return 0;
         ui.fx &= ~(1u << e);
     }
-    en_fx(ui.fx | ui.bfx);
+    fx_send();
     return 1;
 }
 
@@ -1063,8 +1120,7 @@ static void black_set(int b, int on)             /* a black key's effect on or o
         ui.mv = (uint8_t)(on ? ui.mv | (d - 100) : ui.mv & ~(d - 100));
     else
         ui.bfx = on ? ui.bfx | 1u << d : ui.bfx & ~(1u << d);
-    en_fx(ui.fx | ui.bfx);
-    en_move(ui.mv);
+    fx_send();
 }
 static uint32_t lane_steps(int d) { return proj.par[P_SMODE] ? (uint32_t)(uint16_t)proj.par[P_SGATE0 + d] : en_seq_lane[d]; }
 static void pattern_key(uint32_t key, uint32_t keys)
@@ -1181,6 +1237,10 @@ static void button(int b)
         }
         break;
     case B_REC:
+        if (ui.perf) {                           /* (1.3) PERFORM: the latch */
+            perf_latch();
+            break;
+        }
         if (plat_ms() - ui.down_t[B_REC] >= GRID_HOLD)
             break;                               /* held long enough for the grid: only a tap is dub hold */
         say("HOLD", en_frozen ? "OFF" : "ON");
@@ -1726,11 +1786,11 @@ static void input(void)
                 if (st < 16)
                     en_lead_key(st, 0);
             }
-            if (((btn >> B_REC & 1u) && down) || (!down && ui.fx))
+            if (((btn >> B_REC & 1u) && down && !ui.perf) || (!down && ui.fx))
                 if (fx_key(i, down))
                     continue;                    /* REC held: the effects (and their keys let go) */
-            if (btn >> B_REC & 1u)
-                continue;                        /* (REC held: the other keys do nothing) */
+            if ((btn >> B_REC & 1u) && !ui.perf)
+                continue;                        /* (REC held: the other keys do nothing; PERFORM: its keys go on) */
             if (ui.view == V_PAT && !ui.perf) {  /* the Pattern page: the white keys, the lane's steps */
                 if (down)
                     pattern_key(i, keys);
@@ -2936,23 +2996,17 @@ static void leds(void)
         for (i = 0; i < EN_NFX; i++)
             if (!(i & 3) || (ui.fx >> i & 1u))
                 k |= 1u << FX_KEY[i];
-    } else if (ui.perf) {                        /* PERFORM: the layers heard, the solos, the moves (dark while held) */
+    } else if (ui.perf) {                        /* PERFORM: each effect's key lit, dark while held, blinking latched */
         const int blink = (plat_ms() / 250u) & 1u;
         b |= 1u << B_SEL;
-        if (ui.view != V_MIX && (plat_ms() / 450u) & 1u)   /* white 6: blinking, slower than a solo, to be found;
-                                                          * dark while held (the mix on the knobs) */
-            k |= 1u << PERF_SHIFT;
-        for (i = 0; i < 5; i++) {
-            if (perf_sounds((int)i))
-                k |= 1u << PERF_KEY[i];
-            if (!(ui.moves >> i & 1u))
-                k |= 1u << PERF_KEY[5 + i];
-            if (!(ui.solo & LAYER_MUTE[i]) || blink)
-                k |= 1u << PERF_KEY[10 + i];
+        if (ui.platch)
+            b |= 1u << B_REC;
+        for (i = 0; i < PERF_N; i++) {
+            if (PKEY[i].d == PK_SOON || (ui.pheld >> i & 1u))
+                continue;
+            if (!(ui.platch >> i & 1u) || blink)
+                k |= 1u << i;
         }
-        if (!(ui.keys >> PERF_FORGET & 1u))      /* FORGET: lit steadily (white 6 and the solos blink), dark while held */
-            k |= 1u << PERF_FORGET;
-
     } else if (proj.leds) {                      /* (BERLIN) the white key of the note the Lead sounds */
         const int d = en_lead_deg;
         (void)ap;
@@ -3401,22 +3455,32 @@ static void speak_dump(void)
         msg_text(WARN[i][0], WARN[i][1], t);
         sp_print("WARN", t);
     }
-    for (x = 10; x < PERF_N; x++) {
-        msg_text("SOLO", PERF_NAME[x], t);
+    for (x = 10; x < LPERF_N; x++) {
+        msg_text("SOLO", LPERF_NAME[x], t);
         sp_print("MSG", t);
-        msg_text(PERF_NAME[x], "SOLO OFF", t);
+        msg_text(LPERF_NAME[x], "SOLO OFF", t);
         sp_print("MSG", t);
     }
     msg_text("SOLO", "OFF", t);
     sp_print("MSG", t);
     for (x = 0; x < 10; x++) {
-        msg_text(PERF_NAME[x], x < 5 ? "OFF" : 0, t);
+        msg_text(LPERF_NAME[x], x < 5 ? "OFF" : 0, t);
         sp_print("MSG", t);
         if (x < 5) {
-            msg_text(PERF_NAME[x], "ON", t);
+            msg_text(LPERF_NAME[x], "ON", t);
             sp_print("MSG", t);
         }
     }
+    for (x = 0; x < PERF_N; x++) {               /* (1.3) PERFORM's keys, the ones to come too */
+        msg_text(PKEY[x].name, 0, t);
+        sp_print("MSG", t);
+    }
+    msg_text("LATCH", "ON", t);
+    sp_print("MSG", t);
+    msg_text("LATCH", "OFF", t);
+    sp_print("MSG", t);
+    msg_text("LATCH", "CLEAR", t);
+    sp_print("MSG", t);
     for (x = 0; x < EN_NMODES; x++) {
         msg_text("MODE", EN_MODE_NAME[MODE_ORDER[x]], t);
         sp_print("MSG", t);

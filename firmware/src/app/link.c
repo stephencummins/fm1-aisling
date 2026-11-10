@@ -320,9 +320,9 @@ static void lk_release(void)                     /* whatever it held down lets g
 {
     int i;
     link_v_btn = link_v_keys = 0;
-    for (i = 0; i < PERF_N; i++)
+    for (i = 0; i < LPERF_N; i++)
         if (lk.perf >> i & 1u)
-            perf_key(PERF_KEY[i], 0);
+            link_perf(i, 0);
     lk.perf = 0;
 }
 static void link_off(void)
@@ -425,16 +425,16 @@ static int lk_do(int cmd, const uint8_t *a, uint32_t n)
         link_hold_toggle();
         break;
     case LK_PERF:
-        if (a[0] >= PERF_N)
+        if (a[0] >= LPERF_N)
             return LK_BAD;
         if (a[1])
             lk.perf |= 1u << a[0];
         else
             lk.perf &= ~(1u << a[0]);
-        perf_key(PERF_KEY[a[0]], a[1] != 0);
+        link_perf(a[0], a[1] != 0);
         break;
     case LK_FORGET:
-        perf_key(PERF_FORGET, 1);
+        lead_forget();
         break;
     case LK_KEYS:
         link_v_keys = (uint32_t)(a[0] | a[1] << 7 | a[2] << 14 | a[3] << 21) & ((1u << NKEYS) - 1u);

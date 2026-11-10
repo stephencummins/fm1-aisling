@@ -1,5 +1,6 @@
-# PERFORM (SEL): white 1-5 mute the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere (their levels kept);
-# white 7-11 held: Sweep, Open, Shut, Drop (both sequences out), Push; SEL or a page's button leaves
+# (1.3, the Performance release) PERFORM (SEL): every key an effect while held, several together; the white keys
+# four groups of four (rhythm, echo, space, colour: w0-w3, w4-w7, w8-w11, w12-w15), the black keys eleven more; REC
+# the latch; no mutes. Keys whose effect 1.3 has yet to build are dark and do nothing (w0 Stutter here).
 # (on Blasket, AISLING's: both sequences on, Sequence 2 a quieter echo of the first)
 wait 500
 turn PRESET 4
@@ -10,36 +11,134 @@ tap SEL
 wait 300
 expect view 17
 said PERFORM ON
-# the Sequence muted (white 2): no note on channel 2
-tapkey w1
+expect pheld 0
+expect platch 0
+expect litbtn14 0
+# an effect, held: said, its key dark; let go: gone, lit again (w4, key 7: Repeat)
+expect litkey7 1
+key w4 down
 wait 300
-said SEQ
-peakreset
-wait 6000
-expect notes_ch2 0
-tapkey w1
+said Repeat
+expect pheld 128
+expect litkey7 0
+key w4 up
 wait 300
-peakreset
-wait 6000
-expect notes_ch2 >0
-# Drop held (white 10): both sequences out, the Drone goes on
-key w9 down
+expect pheld 0
+expect litkey7 1
+# two together (w8 Reverb, key 14; w13 Phaser, key 23)
+key w8 down
+key w13 down
 wait 300
+said Phaser
+expect pheld 8404992
+key w8 up
+wait 100
+expect pheld 8388608
+key w13 up
+wait 100
+expect pheld 0
+# one to come: dark, silent, nothing held
+expect litkey0 0
+key w0 down
+wait 300
+said_none Stutter
+expect pheld 0
+key w0 up
+# Drop held (the top black key, b10: key 25): both sequences out, the Drone goes on
+key b10 down
+wait 300
+said Drop
 peakreset
 wait 6000
 expect notes_ch2 0
 expect notes_ch4 0
-key w9 up
+key b10 up
 wait 300
 peakreset
 wait 6000
 expect notes_ch2 >0
+# Rise (b3, key 8): a move, not one of the grid's (what it does to the filters: blackkeys.amb, on Aran)
+key b3 down
+wait 300
+said Rise
+expect pheld 256
+key b3 up
+wait 3000
+# the latch: Drop held, REC tapped: it stays once the key is let go; no echo Hold (REC's tap outside PERFORM)
+key b10 down
+wait 200
+tap REC
+wait 200
+said LATCH ON
+expect frozen 0
+key b10 up
+wait 300
+expect pheld 0
+expect platch 33554432
+peakreset
+wait 6000
+expect notes_ch2 0
+# a second latched beside it (w10 Freeze, key 18); both held and both latched already: REC lets those go
+key w10 down
+wait 200
+tap REC
+wait 200
+key w10 up
+wait 200
+expect platch 33816576
+key w10 down
+wait 200
+tap REC
+wait 200
+said LATCH OFF
+key w10 up
+wait 200
+expect platch 33554432
+# REC alone: every latch let go, and the sequences are back
+tap REC
+wait 300
+said LATCH CLEAR
+expect platch 0
+expect frozen 0
+peakreset
+wait 6000
+expect notes_ch2 >0
+# REC held is no grid here: the keys go on being PERFORM's
+press REC
+wait 500
+key w4 down
+wait 300
+expect pheld 128
+key w4 up
+wait 100
+release REC
+wait 300
+expect pheld 0
+# left with a key held and a latch on: all let go
+key b10 down
+wait 200
+tap REC
+wait 200
+expect platch 33554432
+tap SEL
+wait 300
+said PERFORM OFF
+expect pheld 0
+expect platch 0
+key b10 up
+wait 300
+expect bfx 0
+peakreset
+wait 6000
+expect notes_ch2 >0
 # a page's button leaves PERFORM
+tap SEL
+wait 300
+expect view 17
 tap ENV
 wait 300
 expect view 1
-# (0.5) SEL again leaves it too, back to the page it came from: here the Drone's, then its sound page. It says so,
-# and the keys are the Lead's again: mutes stay
+# (0.5) SEL again leaves it too, back to the page it came from: here the Drone's, then its sound page
 tap SEL
 wait 300
 expect view 17
@@ -56,59 +155,3 @@ expect view 17
 tap SEL
 wait 300
 expect view 8
-# (from the Mix page, D4 held: back to PERFORM's page, not out)
-tap SEL
-wait 300
-expect view 17
-key w5 down
-wait 200
-expect view 7
-tap SEL
-wait 300
-expect view 17
-key w5 up
-wait 200
-expect view 17
-tap SEL
-wait 300
-expect view 8
-tap ENV
-wait 300
-# (BERLIN) the keys follow the meters, left to right: white 4 Sequence 2 (the 4th meter), white 5 the Atmosphere (the
-# 5th), the other untouched; a solo (black 4: Sequence 2) leaves the Atmosphere out too (Aran, AISLING's: Fire,
-# both sequences, Sequence 2 opening over its first 8 bars; Sequence 2 heard: its meter above 2, a moment's reading,
-# which caught it at 6 and 9)
-turn PRESET -2
-wait 6000
-expect piece 2
-tap SEL
-wait 300
-expect view 17
-tapkey w4
-wait 300
-said ATMOS
-expect mutes 32
-wait 3000
-expect act4 0
-expect act3 >2
-tapkey w4
-wait 300
-tapkey w3
-wait 300
-said SEQ 2
-expect mutes 24
-wait 3000
-expect act3 0
-expect act4 >5
-tapkey w3
-wait 300
-tapkey b3
-wait 300
-said SOLO
-wait 3000
-expect act3 >2
-expect act4 0
-expect act1 0
-tapkey b3
-wait 3000
-expect act4 >5
