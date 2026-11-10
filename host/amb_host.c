@@ -604,7 +604,7 @@ static int expect(const char *what, const char *val)
         for (k = 0; k < PERF_N; k++) {
             char t[16];
             caps(t, PKEY[k].name, sizeof t);
-            got += text_w(&FONT_L, t) > 232 || text_w(&FONT_XS, PLINE[k]) > 232;
+            got += text_w(&FONT_UL, t) > 232 || text_w(&FONT_UM, t) > 232 || text_w(&FONT_XS, PLINE[k]) > 232;
         }
     }
     else if (!strcmp(what, "pheld"))              /* (1.3) PERFORM's keys held, a bit a key (0..26) */

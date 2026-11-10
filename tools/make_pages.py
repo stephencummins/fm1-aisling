@@ -182,7 +182,7 @@ relative to the knob you set.</p>
 <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a> by Charles Vestal; its granular cloud follows JIANT's;
 the platform is Felucca by Leo Kuroshita (Hügelton Instruments). GPL-3.0.
 M-VAVE and FM-1 are trademarks of their owners. AISLING is not affiliated with M-VAVE, Hügelton Instruments or
-NACHTFAHRT's author. Its faces are Barlow Semi Condensed and IBM Plex Mono (SIL OFL 1.1).</p>
+NACHTFAHRT's author. Its faces are Barlow Semi Condensed, IBM Plex Mono and Uncial Antiqua (SIL OFL 1.1).</p>
 </div>
 </main>
 </body>

@@ -2544,24 +2544,24 @@ static void pflash_band(uint32_t m, int32_t oy, int32_t hh, int fade)
         if (more && j == n - 1) {                /* the last band: the rest, counted */
             cv_rect(0, y0 - oy, 240, bh, mix(K_DIM, K_BG, fade));
             t[0] = '+', t[1] = (char)('0' + more / 10), t[2] = (char)('0' + more % 10), t[3] = 0;
-            text_c(120, y0 + (bh - 16) / 2 - oy, &FONT_B, more < 10 ? (t[1] = t[2], t[2] = 0, t) : t, ink);
+            text_c(120, y0 + (bh - 19) / 2 - oy, &FONT_US, more < 10 ? (t[1] = t[2], t[2] = 0, t) : t, ink);
             break;
         }
         col = mix(pkey_col(k), K_BG, fade);
         cv_rect(0, y0 - oy, 240, bh, col);
         caps(t, PKEY[k].name, sizeof t);
         if (n <= 2) {
-            int32_t ty = y0 + (bh - 54) / 2;
-            text_c(120, ty - oy, &FONT_L, t, ink);
-            text_c(120, ty + 38 - oy, &FONT_XS, PLINE[k], ink);
+            int32_t ty = y0 + (bh - 58) / 2;
+            text_c(120, ty - oy, &FONT_UL, t, ink);          /* (an uncial hand for the name; the line stays plain) */
+            text_c(120, ty + 42 - oy, &FONT_XS, PLINE[k], ink);
             if (ui.platch >> k & 1u)
                 text_c(120, y0 + 4 - oy, &FONT_XS, "LATCHED", ink);
         } else if (n <= 4) {
-            int32_t ty = y0 + (bh - 37) / 2;
-            text_c(120, ty - oy, &FONT_C, t, ink);
-            text_c(120, ty + 22 - oy, &FONT_XS, PLINE[k], ink);
+            int32_t ty = y0 + (bh - 40) / 2;
+            text_c(120, ty - oy, &FONT_UM, t, ink);
+            text_c(120, ty + 25 - oy, &FONT_XS, PLINE[k], ink);
         } else {
-            text_c(120, y0 + (bh - 16) / 2 - oy, &FONT_B, t, ink);
+            text_c(120, y0 + (bh - 19) / 2 - oy, &FONT_US, t, ink);
         }
         j++;
     }
