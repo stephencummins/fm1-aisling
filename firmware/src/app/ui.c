@@ -952,24 +952,6 @@ static void perf_key(uint32_t key, int down)     /* PERFORM: a key, its effect w
     if (down)
         say(PKEY[key].name, 0);
 }
-static void perf_latch(void)                     /* PERFORM, REC tapped: the keys held stay on (all latched already:
-                                                  * they let go); none held: every latch let go */
-{
-    if (ui.pheld) {
-        if ((ui.platch & ui.pheld) == ui.pheld) {
-            ui.platch &= ~ui.pheld;
-            say("LATCH", "OFF");
-        } else {
-            ui.platch |= ui.pheld;
-            say("LATCH", "ON");
-        }
-    } else if (ui.platch) {
-        ui.platch = 0;
-        say("LATCH", "CLEAR");
-    }
-    fx_send();
-}
-
 static void set_view(int v);
 static void perf_set(int on)                     /* on: the mixer on the knobs; off: back to the page */
 {
@@ -994,10 +976,7 @@ static void perf_set(int on)                     /* on: the mixer on the knobs; 
  * is still dub hold (REC's release does nothing once a key played) */
 static const uint8_t FX_KEY[EN_NFX] = {0, 2, 4, 6, 7, 9, 11, 12, 14, 16, 18, 19, 21, 23, 24, 26};
 #define GRID_HOLD 300u                   /* ms of REC held before the grid shows */
-static int grid_up(void)                         /* (1.3: not in PERFORM, where REC is the latch) */
-{
-    return ui.fx || (!ui.perf && (ui.btn >> B_REC & 1u) && plat_ms() - ui.down_t[B_REC] >= GRID_HOLD);
-}
+static int grid_up(void) { return ui.fx || ((ui.btn >> B_REC & 1u) && plat_ms() - ui.down_t[B_REC] >= GRID_HOLD); }
 static int fx_key(uint32_t key, int down)        /* 1: the key was an effect's */
 {
     int e;
@@ -1242,10 +1221,6 @@ static void button(int b)
         }
         break;
     case B_REC:
-        if (ui.perf) {                           /* (1.3) PERFORM: the latch */
-            perf_latch();
-            break;
-        }
         if (plat_ms() - ui.down_t[B_REC] >= GRID_HOLD)
             break;                               /* held long enough for the grid: only a tap is dub hold */
         say("HOLD", en_frozen ? "OFF" : "ON");
@@ -1791,11 +1766,11 @@ static void input(void)
                 if (st < 16)
                     en_lead_key(st, 0);
             }
-            if (((btn >> B_REC & 1u) && down && !ui.perf) || (!down && ui.fx))
+            if (((btn >> B_REC & 1u) && down) || (!down && ui.fx))
                 if (fx_key(i, down))
                     continue;                    /* REC held: the effects (and their keys let go) */
-            if ((btn >> B_REC & 1u) && !ui.perf)
-                continue;                        /* (REC held: the other keys do nothing; PERFORM: its keys go on) */
+            if (btn >> B_REC & 1u)
+                continue;                        /* (REC held: the other keys do nothing) */
             if (ui.view == V_PAT && !ui.perf) {  /* the Pattern page: the white keys, the lane's steps */
                 if (down)
                     pattern_key(i, keys);
@@ -2508,6 +2483,28 @@ static void draw_grid(void)                      /* REC held: the effects, the w
     grid_band(120);
 }
 
+/* (1.3) PERFORM at rest: its keys' effects in the main area, as the grid shows its own. Four rows of white keys from
+ * F3 up, a group a row, then the eleven black keys; a colour a group; an effect not built yet dim */
+static uint16_t pkey_col(int k);
+static void draw_pmap(void)
+{
+    int k, w = 0, b = 0;
+    if (ui.sig[1] == 0x504D4150u)
+        return;
+    ui.sig[1] = 0x504D4150u;
+    cv_begin(240, MAIN_H, K_BG);
+    for (k = 0; k < PERF_N; k++) {
+        const int blk = PKEY[k].g == PG_BLACK, n = blk ? b++ : w++, soon = PKEY[k].d == PK_SOON;
+        const int32_t x = 2 + (n & 3) * 59, y = (blk ? 84 : 0) + (n >> 2) * 20;
+        const uint16_t col = pkey_col(k);
+        char t[16];
+        cv_round(x, y, 57, 18, 4, soon ? mix(K_BG, K_PANEL, 8) : mix(K_BG, col, 5));
+        caps(t, PKEY[k].name, sizeof t);
+        text_c(x + 28, y + 1, &FONT_XS, t, soon ? K_LINE : col);
+    }
+    cv_blit(0, MAIN_Y);
+}
+
 /* (1.3) PERFORM's flash: an effect held, and the header and the main area are its colour, its name large, a line
  * saying what it does; two held, two bands; more, more bands (eight at most, the rest counted). A steady colour,
  * never a strobe; the knobs stay, for the hand that turns one while a key is held. A colour a group, a shade a key;
@@ -2787,6 +2784,10 @@ static void draw_main(void)
         return;
     }
     ui.grid_said = 0;
+    if (ui.perf && ui.view == V_PERF) {          /* (1.3) PERFORM at rest: its keys' effects */
+        draw_pmap();
+        return;
+    }
     if (ui.view == V_PAT) {                      /* the Pattern page: the steps */
         h = hash(hash(0x50415454u, ui.lane | (uint32_t)proj.par[P_SMODE] << 4 | (uint32_t)en_drum_pos[0] << 8), en_playing);
         for (i = 0; i < EN_NDRUM; i++)
@@ -3114,8 +3115,6 @@ static void leds(void)
     } else if (ui.perf) {                        /* PERFORM: each effect's key lit, dark while held, blinking latched */
         const int blink = (plat_ms() / 250u) & 1u;
         b |= 1u << B_SEL;
-        if (ui.platch)
-            b |= 1u << B_REC;
         for (i = 0; i < PERF_N; i++) {
             if (PKEY[i].d == PK_SOON || (ui.pheld >> i & 1u))
                 continue;

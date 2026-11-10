@@ -1,6 +1,6 @@
 # (1.3, the Performance release) PERFORM (SEL): every key an effect while held, several together; the white keys
 # four groups of four (rhythm, echo, space, colour: w0-w3, w4-w7, w8-w11, w12-w15), the black keys eleven more; REC
-# the latch; no mutes. Keys whose effect 1.3 has yet to build are dark and do nothing (w0 Stutter here).
+# as on any page; no mutes. At rest the screen is a map of the keys' effects. Keys whose effect 1.3 has yet to build are dark and do nothing (w0 Stutter here).
 # (on Blasket, AISLING's: both sequences on, Sequence 2 a quieter echo of the first)
 wait 500
 turn PRESET 4
@@ -71,66 +71,20 @@ said Rise
 expect pheld 256
 key b3 up
 wait 3000
-# the latch: Drop held, REC tapped: it stays once the key is let go; no echo Hold (REC's tap outside PERFORM)
-key b10 down
-wait 200
+# REC is as everywhere else (Stephen, 2026-11-10: no latch): a tap is the echo's Hold
 tap REC
-wait 200
-said LATCH ON
+wait 300
+expect frozen 1
+tap REC
+wait 300
 expect frozen 0
-key b10 up
-wait 300
-expect pheld 0
-expect platch 33554432
-# (latched and let go: no flash; its key blinks, REC is lit)
-wait 300
-expect pflash 0
-expect litbtn11 1
-peakreset
-wait 6000
-expect notes_ch2 0
-# a second latched beside it (w10 Freeze, key 18); both held and both latched already: REC lets those go
-key w10 down
-wait 200
-tap REC
-wait 200
-key w10 up
-wait 200
-expect platch 33816576
-key w10 down
-wait 200
-tap REC
-wait 200
-said LATCH OFF
-key w10 up
-wait 200
-expect platch 33554432
-# REC alone: every latch let go, and the sequences are back
-tap REC
-wait 300
-said LATCH CLEAR
 expect platch 0
-expect frozen 0
-peakreset
-wait 6000
-expect notes_ch2 >0
-# REC held is no grid here: the keys go on being PERFORM's
-press REC
-wait 500
-key w4 down
-wait 300
-expect pheld 128
-key w4 up
-wait 100
-release REC
 wait 300
 expect pheld 0
-# left with a key held and a latch on: all let go
+# left with a key held: let go
 key b10 down
 wait 200
-tap REC
-wait 200
-expect platch 33554432
+expect pheld 33554432
 tap SEL
 wait 300
 said PERFORM OFF

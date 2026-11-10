@@ -620,9 +620,11 @@ Vinyl*, Comb* · **Drop** (both sequences out).
 
 (* not built yet in this draft of 1.3: the key is dark and does nothing.)
 
-**REC is the latch.** Hold one or more effects and tap REC: they stay on when you let go, their keys blinking, REC
-lit. Hold a latched effect and tap REC again to let that one go. Tap REC with nothing held and every latch lets go.
-REC doesn't open the effect grid here, and its tap doesn't hold the echo; **Freeze** does that.
+**The screen shows the keys.** While nothing is held, the middle of the screen is a map of PERFORM's effects, as the
+effect grid shows its own: four rows of four for the white keys from F3 up, then the black keys, each group in its
+colour. Hold a key and the screen flashes that effect's colour and name; let go and the map is back.
+
+**REC is as on any page.** A tap holds the echo; held, it opens the effect grid. There is no latch.
 
 **SAVE, tapped, is Forget.** The Lead forgets everything it remembers: its ideas, its theme (yours too, if you played
 one), a figure you were in the middle of playing, and an answer it was about to give. The note it's playing stops; it
@@ -631,7 +633,7 @@ Nothing else changes, and you stay in PERFORM. SAVE held still saves. (The Noise
 
 There are no mutes or solos in PERFORM any more. A layer's level is SELECT on its own page.
 
-Leaving PERFORM lets every effect go, latched or held.
+Leaving PERFORM lets every effect go.
 
 A page's button leaves. So does SEL again, back to the page you came from.
 
