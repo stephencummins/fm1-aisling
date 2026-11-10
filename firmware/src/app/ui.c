@@ -2502,7 +2502,12 @@ static void draw_grid(void)                      /* REC held: the effects, the w
  * go: their keys blink, REC is lit. */
 #define PF_H (HDR_H + MAIN_H)
 #define PF_MAX 8
-static const uint16_t PG_COL[PG_N] = {K_EIRE_O, K_ACC, K_PAD, K_BELL, K_EIRE};
+/* (the user, 2026-11-10: "more Irish") the flag's orange, the sea, heather, gorse, shamrock; shaded towards bainin */
+#define K_SEA RGB(72, 188, 176)
+#define K_HEATHER RGB(198, 150, 210)
+#define K_GORSE RGB(244, 200, 56)
+#define K_BAININ RGB(246, 238, 214)
+static const uint16_t PG_COL[PG_N] = {K_EIRE_O, K_SEA, K_HEATHER, K_GORSE, K_EIRE};
 static const char *const PLINE[PERF_N] = {
     "the last beat, over and over", "fog rolling into the echo", "half the speed", "a burst of rain",
     "chopped to the beat", "the Sequence's filter swept", "a beat rolled faster", "the Sequence into the echo",
@@ -2516,7 +2521,7 @@ static uint16_t pkey_col(int k)
     int i, n = 0;
     for (i = 0; i < k; i++)
         n += PKEY[i].g == PKEY[k].g;
-    return mix(PG_COL[PKEY[k].g], K_TEXT, PKEY[k].g == PG_BLACK ? n : n * 3);
+    return mix(PG_COL[PKEY[k].g], K_BAININ, PKEY[k].g == PG_BLACK ? n : n * 3);
 }
 static int pflash_up(void) { return ui.perf && ui.pheld; }
 static void pflash_band(uint32_t m, int32_t oy, int32_t hh, int fade)
