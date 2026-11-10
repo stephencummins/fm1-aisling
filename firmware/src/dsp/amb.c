@@ -489,7 +489,8 @@ const char *en_chord_name(const int *pcs, int n, char *buf)
 }
 
 /* ------------------------------------------------------------ commands --- */
-enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2 };
+static float cho_t;                              /* (1.3) the Chorus knob, 0..1 */
+enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS };
 #define QN 512u                                 /* (a piece is every parameter at once: room for twice over and more) */
 _Static_assert(QN >= 2u * (P_NPARAMS + 8), "the command queue can't hold a piece's parameters twice over");
 static uint32_t q[QN];
@@ -529,6 +530,7 @@ void en_macro(int i, int v)                      /* (sent as 0..100) */
 }
 int en_macro_now(int i) { return en_mac_got == mac_sent ? en_mac[i] : EN_MAC_BUSY; }
 void en_lock(int on) { post(C_LOCK, on != 0, 0); }
+void en_chorus(int v) { post(C_CHORUS, v < 0 ? 0 : v > 100 ? 100 : v, 0); }
 void en_prog_rotate(void) { post(C_PROT, 0, 0); }
 void en_prog_rewalk(void) { post(C_REWALK, 0, 0); }
 /* (AISLING, the user's names for three: Ceo, fog (was Take-off, the noise rolling into the echo); Fras, a burst of
@@ -4663,6 +4665,7 @@ static void drain(void)
             break;
         }
         case C_LOCK: lock = (uint8_t)a; break;
+        case C_CHORUS: cho_t = (float)a * 0.01f; break;
         case C_PROT:                             /* Loop to Endless: the one playing up to slot 1, all turned round */
             if (prog_pos > 0) {
                 int16_t t[3][EN_NPROG];
@@ -5585,6 +5588,20 @@ static float gt_g = 1.0f, dr_lp[2], dr_ein, dr_eout, dr_match = 1.0f, rg_ph, rg_
 static float vn_lp[2], vn_hp[2], vn_ph, vn_pop, vn_pop2;
 static uint32_t vn_rng = 0x6C8E9CF5u;
 static int mast_on;
+/* (1.3) PERFORM's Chorus, a knob: the whole output, summed, into a short line; two taps of it, 12 ms back and swaying
+ * 4 ms either way at 0.55 Hz, the right's a quarter turn on the left's, mixed in each side (to 0.7 at 100, the dry down
+ * to 0.8). Off costs nothing; the line cleared as it comes on */
+#define CHO_N 2048
+static int16_t cho_buf[CHO_N] EN_POOL;           /* (int16 at 1/8192: +-4) */
+static uint32_t cho_w;
+static float cho_w8, cho_ph;                     /* its amount as heard (eased), the sway's phase */
+static inline float cho_tap(float d)
+{
+    const int i = (int)d;
+    const float f = d - (float)i, a = (float)cho_buf[(cho_w - (uint32_t)i) & (CHO_N - 1u)],
+                b = (float)cho_buf[(cho_w - (uint32_t)i - 1u) & (CHO_N - 1u)];
+    return (a + (b - a) * f) * (1.0f / 8192.0f);
+}
 static inline float ease1(float x, int on, float t, float up, float down);
 /* (1.3) the buffered effects: BF_N samples of the output's middle, 16 bits (4 full scale), at half the rate
  * (0.74 s). bf_mode the one sounding (BF_*), bf_want the one asked for: the change made through silence (bf_mix
@@ -5753,7 +5770,14 @@ static void mast_ctl(uint32_t on, uint32_t rise, float t)
         }
     }
     bf_ctl(on, rise, t);
-    mast_on = fx_gate > 0.0f || fx_drvw > 0.0f || fx_ring > 0.0f || fx_vin > 0.0f || bf_mode || fx_crush > 0.0f;
+    if (cho_t > 0.0f && cho_w8 == 0.0f) {
+        memset(cho_buf, 0, sizeof cho_buf);
+        cho_w8 = 0.0005f;
+    }
+    cho_w8 += (cho_t - cho_w8) * fm_minf(t / 0.05f, 1.0f);
+    if (cho_t == 0.0f && cho_w8 < 0.0005f)
+        cho_w8 = 0.0f;
+    mast_on = fx_gate > 0.0f || fx_drvw > 0.0f || fx_ring > 0.0f || fx_vin > 0.0f || bf_mode || fx_crush > 0.0f || cho_w8 > 0.0f;
 }
 static inline void mast_fx(float *lp, float *rp)   /* a sample of the output, both sides */
 {
@@ -5815,6 +5839,17 @@ static inline void mast_fx(float *lp, float *rp)   /* a sample of the output, bo
         r *= 1.0f - fx_gate * (1.0f - gt_g);
     } else
         gt_g = 1.0f;
+    if (cho_w8 > 0.0f) {
+        float a, b;
+        cho_buf[cho_w & (CHO_N - 1u)] = (int16_t)(fm_clampf(0.5f * (l + r), -3.99f, 3.99f) * 8192.0f);
+        a = cho_tap(529.0f + 176.0f * sine(cho_ph));
+        b = cho_tap(529.0f + 176.0f * sine(cho_ph + (cho_ph < 0.75f ? 0.25f : -0.75f)));
+        cho_w++;
+        if ((cho_ph += 0.55f / EN_SR) >= 1.0f)
+            cho_ph -= 1.0f;
+        l = l * (1.0f - 0.2f * cho_w8) + 0.7f * cho_w8 * a;
+        r = r * (1.0f - 0.2f * cho_w8) + 0.7f * cho_w8 * b;
+    }
     *lp = l, *rp = r;
 }
 

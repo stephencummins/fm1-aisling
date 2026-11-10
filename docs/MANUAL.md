@@ -232,7 +232,7 @@ the same; the lowest notes, under about C2, on one string). The
 root step is accented and the others quieter (Accent, on the Pattern page). Density decides how many of the steps sound, the least important dropping out first. In Carolan it also drifts, a slow wander about the knob's value, so the harps fill out and thin over a minute or two (Motion sets how far and 0 holds it; so does a knob right up or right down). Now and then
 (Evolve, Motion) a step changes, a note moves, an octave jumps, the sequence comes round early; it follows the Drone's chord
 (Transpose, on the Key page). Its cutoff wanders slowly over minutes, around the Cutoff you set (its Move page, below; its Width is the
-**Sweep**, also on PERFORM).
+**Sweep**).
 
 **The Repeats** (ARP, third page), NACHTFAHRT's Berlin School echo, kept: each note is played again at one of the echo's
 times, by default a dotted eighth (**Repeat A**, as loud as the note: 100), and a second time
@@ -592,13 +592,14 @@ reader names the effect as each key goes down.
 
 ## 10. PERFORM
 
-![PERFORM: the knobs Filter, Wet, Energy and Sweep](img/screen-perform.png)
+![PERFORM: the knobs Filter, Wet, Energy and Chorus](img/screen-perform.png)
 
 Tap SEL. The knobs become the master actions: **Filter** (as on the Aisling page), **Wet** (the whole music dry, or drowned in the
 echo: every layer's echo send, the Drone's, both Sequences', the Lead's and the Atmosphere's), **Energy**
 (sparser or busier: the Sequence's Density, levels, Sweep, note length, Cutoff, and Repeat B, the second
-repeat), and **Sweep** (how far the Sequence's cutoff wanders on its own: the same as its Width on the
-Move page, the piece's). With Motion, Filter, Wet and Energy also move by themselves, the knobs showing where
+repeat), and **Chorus** (the whole music thickened and widened: Off, to 100. Like Wet and Energy it's for
+playing and never saved). Until 1.3 the fourth knob was Sweep; that's still the Width on the Sequence's Move
+page. With Motion, Filter, Wet and Energy also move by themselves, the knobs showing where
 they are; a turn of yours holds until the next section ([The master actions move by
 themselves](#the-master-actions-move-by-themselves)).
 
@@ -683,7 +684,7 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
   the knob's range, and on the centred knobs (Filter, Wet, Energy, the sound pages' ±50) 64 is the middle. A CC counts
   as a touch for the sleep timer, as a note does. CCs never save, and never turn Setup's Tune, MIDI out, Lights or
   Save; while the effects grid is up, 16 to 19 rest, as the knobs do. A change is saved by itself later, as a turn's
-  is (Filter, Wet and Energy aren't saved at all). Other CCs are ignored.
+  is (Filter, Wet, Energy and Chorus aren't saved at all). Other CCs are ignored.
 - **In, effects:** each of PERFORM's 27 effects has a CC, on any channel (the second table below). 64 or more holds
   the effect, less lets it go, as its key does. They work on any page, PERFORM or not; in PERFORM the screen flashes
   as it does for a key. All notes off and all sound off (CC 123 and 120) let every one go, and so does leaving
@@ -703,6 +704,7 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
 | 77 | Drift |
 | 78 | Wet (PERFORM's) |
 | 79 | Energy (PERFORM's) |
+| 80 | Chorus (PERFORM's) |
 
 The effects, in the keys' order from the lowest (the low octave is 20 to 31, the rest 102 to 116):
 
@@ -780,7 +782,7 @@ timing.
   saves.
 - **GLO held on** (1.5 s): the piece back to its recipe ("RESET"). Like any change, it's saved by itself a few seconds after the music stops.
 
-The sleep timer isn't saved. Lock and PERFORM's Filter, Wet and Energy aren't saved either; a piece change (or GLO's reset) returns the three to 0, so
+The sleep timer isn't saved. Lock and PERFORM's Filter, Wet, Energy and Chorus aren't saved either; a piece change (or GLO's reset) returns the four to 0, so
 none of one piece's push carries into the next. Projects saved by DUB-1, AMB-1 or an earlier AISLING
 build aren't read: AISLING starts with its eight recipes.
 

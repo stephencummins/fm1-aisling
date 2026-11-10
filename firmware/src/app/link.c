@@ -57,7 +57,7 @@ enum { LKF_PLAYING = 1, LKF_FROZEN = 2, LKF_DIRTY = 4, LKF_PERF = 8, LKF_SAVING 
 
 /* the knobs that aren't settings, sent as settings are (K_CPU is in STATE; K_NONE is nothing) */
 static const uint8_t LK_EXTRA[] = {K_LEDS, K_SLOT, K_CQ, K_CX, K_LANE, K_LCH, K_FILTER, K_DUB, K_ENERGY, K_SPACE, K_MODE,
-                                   K_PLAY, K_SAVE};
+                                   K_PLAY, K_SAVE, K_CHORUS};
 #define LK_NEXTRA ((int)(sizeof LK_EXTRA / sizeof LK_EXTRA[0]))
 #define LK_NVALS (P_NPARAMS + LK_NEXTRA)
 #define LK_UNSENT ((int16_t)0x7FFF)

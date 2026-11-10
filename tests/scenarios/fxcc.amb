@@ -98,3 +98,28 @@ key w8 up
 release REC
 wait 300
 expect fxcc 6
+# PERFORM's fourth knob is Chorus (1.3; Sweep is the Sequence's Move page's Width): by the knob, by CC 19 there, and
+# by CC 80 anywhere; never saved; a new piece starts without it
+tap SEL
+wait 300
+expect view 17
+listen
+midi B0 13 7F
+wait 300
+said Chorus 100
+midi B0 13 00
+wait 300
+said Chorus Off
+tap SEL
+wait 300
+expect chorus 0
+midi B0 50 40
+wait 300
+expect chorus 50
+expect view 0
+expect store_writes 0
+# a new piece starts without it
+turn PRESET 1
+wait 300
+expect piece 1
+expect chorus 0

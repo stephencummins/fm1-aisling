@@ -807,6 +807,8 @@ static int expect(const char *what, const char *val)
         got = lc.state[23] | lc.state[24] << 7;
     else if (!strcmp(what, "lgen"))
         got = lc.state[29];
+    else if (!strcmp(what, "chorus"))             /* (1.3) PERFORM's Chorus knob */
+        got = ui.chorus;
     else if (!strcmp(what, "lfx"))                /* (1.3) the effects sounding, as STATE tells them */
         got = lc.state_n >= 34 ? lc.state[30] | lc.state[31] << 7 | lc.state[32] << 14 | lc.state[33] << 21 : -1;
     else if (!strcmp(what, "lstatelen"))

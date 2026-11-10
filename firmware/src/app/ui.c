@@ -106,7 +106,8 @@ enum { K_LEDS = 200, K_CPU, K_NONE, K_SLOT, K_CQ, K_CX,    /* (the Chords page: 
        K_FILTER, K_DUB, K_ENERGY, K_SPACE,                   /* the master actions (EN_MAC_*), in that order */
        K_MODE,                                               /* (the Key page: the mode, as ALGORITHM sets it) */
        K_PLAY,                                               /* (the Chords page: Endless or Loop, P_PMODE's bit 2) */
-       K_SAVE };                                             /* (Setup: a turn saves; it shows whether it's saved) */
+       K_SAVE,                                               /* (Setup: a turn saves; it shows whether it's saved) */
+       K_CHORUS };                                           /* (1.3, PERFORM: the output's chorus, never saved) */
 static const char *const LANE_NAME[EN_NDRUM] = {"Steps", "Steps 2", "Octaves", "Octaves 2", "Skips"};   /* (BERLIN:
                                                   * the Sequence's and Sequence 2's) */
 static int lane_seq(int d) { return d == 1 || d == 3; }   /* (a lane's sequence: its accents, its chance) */
@@ -129,7 +130,8 @@ static const uint16_t VIEW_KNOB[NVIEWS][4] = {
     {P_MW2, P_MT2, P_MR2, P_MI2},                /* the Lead's Move (LFO, a third time) */
     {K_SLOT, K_CQ, K_CX, K_PLAY},
     {K_LANE, P_SACCENT, K_LCH, P_SMODE},
-    {K_FILTER, K_DUB, K_ENERGY, P_SWEEP},         /* (Wet, Energy: offsets for playing; Sweep the piece's own) */
+    {K_FILTER, K_DUB, K_ENERGY, K_CHORUS},        /* (Wet, Energy: offsets for playing; (1.3) Chorus the same. Sweep,
+                                                   * here till 1.3, is the Sequence's Move page's Width) */
     {P_TEMPO, P_ROOT, K_MODE, P_TRANS},
     {P_NGRAIN, P_NWIDTH, P_NDRIFT, P_NROOM},       /* the Atmosphere */
     {P_EBLUR, P_ETONE, P_EWIDTH, P_SIZE},
@@ -160,7 +162,7 @@ static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Width", "Time", "Rate", "Intro"},
     {"Slot", "Chord", "Type", "Play"},
     {"Lane", "Accent", "Chance", "Play"},
-    {"Filter", "Wet", "Energy", "Sweep"},
+    {"Filter", "Wet", "Energy", "Chorus"},
     {"Tempo", "Root", "Mode", "Transpose"},
     {"Density", "Width", "Drift", "Air"},
     {"Blur", "Tone", "Width", "Size"},
@@ -192,7 +194,7 @@ static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, 
     {"How far its tone wanders: gently", "How long one move takes", "How often a new move starts", "Bars its tone takes to open"},
     {"The slot you're writing", "Its kind (Empty: a gap)", "Triad, 6, 7, Maj7, 9, 11, Add9", "Endless, or the slots in a loop"},
     {"The lane you're writing", "How much quieter off the root", "How likely the lane's steps play", "Auto patterns, or your own"},
-    {"Down shuts, up opens; Off mid", "The whole music dry, or drowned", "Sparser, or busier", "How far the filter wanders"},
+    {"Down shuts, up opens; Off mid", "The whole music dry, or drowned", "Sparser, or busier", "The whole music, thickened"},
     {"Beats a minute", "The key's root note", "The scale: Minor, Major, ...", "How the steps follow the chord"},
     {"How busy it is", "Mono, to wide", "How quickly it changes", "The air under it"},
     {"Clean repeats, to a dissolving wash", "The repeats darker, or brighter", "The echo mono, to wide", "How long the plate rings"},
@@ -238,6 +240,7 @@ static struct {
                                         * the mix; the page it was started from */
     uint32_t mutes, moves;             /* the layers muted (EN_M_*), the moves held (EN_PF_*) */
     uint32_t solo;                     /* the layers soloed (EN_M_*): the others muted while any is */
+    uint8_t chorus;                    /* (1.3) PERFORM's Chorus, 0..100, never saved */
     int8_t mac[EN_NMAC];               /* the master actions (HOME's Filter, PERFORM's knobs): -50..50, never saved */
     uint32_t pheld, platch;            /* (1.3) PERFORM's keys held, and latched (a bit a key, PKEY's) */
     uint32_t pcc;                      /* (1.3) the effects a CC holds, on any page (a bit a key, PKEY's) */
@@ -536,6 +539,8 @@ static int knob_get(int k)
         return proj.par[P_PMODE] & EN_PLOOP ? 1 : 0;
     if (k == K_SAVE)
         return ui.dirty ? 1 : 0;
+    if (k == K_CHORUS)
+        return ui.chorus;
     return 0;
 }
 static void knob_range(int k, int *lo, int *hi)
@@ -548,7 +553,7 @@ static void knob_range(int k, int *lo, int *hi)
         *hi = 50;
     } else {
         *lo = 0;
-        *hi = k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
+        *hi = k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
             : k == K_LANE ? EN_NDRUM - 1 : k == K_LCH ? 100 : 0;
     }
 }
@@ -558,7 +563,7 @@ static const char *knob_name(int k)
         return en_param_info(k)->name;
     return k == K_LEDS ? "Lights" : k == K_CPU ? "CPU" : k == K_SLOT ? "Slot" : k == K_CQ ? "Chord" : k == K_CX ? "Type"
          : k == K_LANE ? "Lane" : k == K_LCH ? "Chance" : k == K_FILTER ? "Filter" : k == K_DUB ? "Wet"
-         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : "";
+         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : k == K_CHORUS ? "Chorus" : "";
 }
 static void knob_text(int k, char *b)
 {
@@ -612,6 +617,11 @@ static void knob_text(int k, char *b)
         const char *n = v ? "Loop" : "Endless";
         while ((*b++ = *n++))
             ;
+    } else if (k == K_CHORUS) {
+        if (v)
+            itoa_u((uint32_t)v, b);
+        else
+            b[0] = 'O', b[1] = 'f', b[2] = 'f', b[3] = 0;
     } else if (k == K_SAVE) {                    /* changed since the last save: "Save" (turn it); else "Saved" */
         const char *n = v ? "Save" : "Saved";
         while ((*b++ = *n++))
@@ -671,6 +681,10 @@ static void knob_set(int k, int v)
     } else if (k >= K_FILTER && k <= K_SPACE) {
         ui.mac[k - K_FILTER] = (int8_t)v;
         en_macro(k - K_FILTER, v);
+        return;                                  /* (for playing: nothing saved) */
+    } else if (k == K_CHORUS) {
+        ui.chorus = (uint8_t)v;
+        en_chorus(v);
         return;                                  /* (for playing: nothing saved) */
     } else if (k == K_MODE) {                    /* (the knob: the place in MODE_ORDER) */
         set_mode(MODE_ORDER[v]);
@@ -801,6 +815,10 @@ static void mac_home(void)                       /* (the user, 2026-10-28) a pie
     int i;
     for (i = 0; i < EN_NMAC; i++)
         ui.mac[i] = 0;
+    if (ui.chorus) {                             /* ((1.3) and the Chorus) */
+        ui.chorus = 0;
+        en_chorus(0);
+    }
 }
 
 static void set_piece(int i)                    /* the piece playing kept as it is; piece i as it was left */
@@ -1472,7 +1490,7 @@ static void evolve_turn(int e)                   /* (a step a detent; now and th
  * out are left alone too */
 #define CC_PAGE 16
 #define CC_FIXED 74
-static const uint16_t CC_FIXED_K[6] = {K_FILTER, P_EVOLVE, P_MOTION, P_DRIFT, K_DUB, K_ENERGY};
+static const uint16_t CC_FIXED_K[7] = {K_FILTER, P_EVOLVE, P_MOTION, P_DRIFT, K_DUB, K_ENERGY, K_CHORUS};
 static void cc_in(int n, int v)
 {
     int k = K_NONE, j = -1, lo, hi;
@@ -1495,7 +1513,7 @@ static void cc_in(int n, int v)
             return;                              /* (the grid on the screen: the knobs rest, as by hand) */
         j = n - CC_PAGE;
         k = VIEW_KNOB[ui.view][j];
-    } else if (n >= CC_FIXED && n < CC_FIXED + 6) {
+    } else if (n >= CC_FIXED && n < CC_FIXED + 7) {
         k = CC_FIXED_K[n - CC_FIXED];
     }
     if (k == K_NONE || k == K_CPU || k == K_SAVE || k == K_LEDS || k == P_TUNE || k == P_MIDI)
