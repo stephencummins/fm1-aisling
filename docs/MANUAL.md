@@ -610,15 +610,13 @@ The white keys, left to right, in four groups of four:
 
 | Group | 1 | 2 | 3 | 4 |
 |---|---|---|---|---|
-| Rhythm | Stutter* | Half time | Gate | Roll |
-| Echo | Repeat | Macalla | Tape stop | Reverse* |
+| Rhythm | Stutter | Half time | Gate | Roll |
+| Echo | Repeat | Macalla | Tape stop | Reverse |
 | Space | Reverb | Shimmer | Freeze | Wash |
-| Colour | Flange* | Phaser | Drive | Crush* |
+| Colour | Flange | Phaser | Drive | Crush |
 
 The black keys, in their own groups: **Ceo**, **Fras**, **Sweep** · **Rise**, **Close** · **Octave**, **Dive**, **Ring** ·
-**Vinyl**, Comb* · **Drop** (both sequences out).
-
-(* not built yet in this draft of 1.3: the key is dark and does nothing.)
+**Vinyl**, **Comb** · **Drop** (both sequences out).
 
 What the new ones do:
 
@@ -634,6 +632,16 @@ What the new ones do:
 - **Ring:** a ring modulator on the piece's root, two octaves over middle C: bells and clangs out of whatever plays.
 - **Vinyl:** a narrow band, crackle, and the level wobbling slowly, as an old record. (No pitch wobble: that needs
   memory the light effects don't use.)
+- **Stutter:** an eighth note of the music is caught as you press, then goes round and round until you let go.
+  (A sixteenth, in a piece too slow for the eighth to fit.)
+- **Reverse:** each eighth note played backwards, an eighth late.
+- **Flange:** a short, slowly sweeping delay mixed back in: a jet passing.
+- **Comb:** the music through a ringing pipe tuned to the piece's root.
+- **Crush:** fewer samples and fewer bits: gritty and bright. It keeps nothing, so it goes with any of the others.
+
+Stutter, Reverse, Flange and Comb share one line of memory, so only one of them sounds at a time: the last one you
+pressed. If you are still holding another when you let go, that one comes back. They work on the music in the
+middle (mono) and a little duller than the rest, which is what lets them fit.
 
 **The screen shows the keys.** While nothing is held, the middle of the screen is a map of PERFORM's effects, as the
 effect grid shows its own: four rows of four for the white keys from F3 up, then the black keys, each group in its

@@ -1,5 +1,5 @@
 # (BERLIN, the Lead's FORGET: the user's design; 1.3: PERFORM's keys are all effects, so the top key (G5, w15: key 26)
-# no longer forgets: it is Crush's, to come, dark and silent for now. FORGET is SAVE tapped in PERFORM, and stays on the USB link (LK_FORGET): the
+# no longer forgets: it is Crush's. FORGET is SAVE tapped in PERFORM, and stays on the USB link (LK_FORGET): the
 # Lead forgets its ideas and its theme ("LEAD FORGOTTEN", a card), nothing else changes
 wait 500
 turn PRESET 4
@@ -10,11 +10,11 @@ tap SEL
 wait 300
 expect view 17
 said PERFORM ON
-expect litkey26 0
+expect litkey26 1
 key w15 down
 wait 100
-said_none FORGOTTEN
-expect pheld 0
+said Crush
+expect pheld 67108864
 expect card 0
 key w15 up
 wait 100

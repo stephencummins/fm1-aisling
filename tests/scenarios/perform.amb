@@ -44,13 +44,61 @@ expect pheld 8388608
 key w13 up
 wait 100
 expect pheld 0
-# one to come: dark, silent, nothing held
-expect litkey0 0
+# step 4's, each held and let go (w0 Stutter, w7 Reverse, w12 Flange, w15 Crush; b9 Comb): every key lit now
+expect litkey0 1
 key w0 down
-wait 300
-said_none Stutter
-expect pheld 0
+wait 700
+said Stutter
+expect pheld 1
+expect pflash 1
 key w0 up
+wait 100
+expect pheld 0
+key w7 down
+wait 700
+said Reverse
+expect pheld 4096
+expect pflash 1
+key w7 up
+wait 100
+expect pheld 0
+key w12 down
+wait 700
+said Flange
+expect pheld 2097152
+expect pflash 1
+key w12 up
+wait 100
+expect pheld 0
+key w15 down
+wait 700
+said Crush
+expect pheld 67108864
+expect pflash 1
+key w15 up
+wait 100
+expect pheld 0
+key b9 down
+wait 700
+said Comb
+expect pheld 4194304
+expect pflash 1
+key b9 up
+wait 100
+expect pheld 0
+# two buffered ones and Crush together: the last pressed sounds, the first comes back
+key w0 down
+wait 400
+key w12 down
+key w15 down
+wait 800
+key w12 up
+wait 800
+shot heavy.png
+key w0 up
+key w15 up
+wait 300
+expect pheld 0
 # step 3's light effects, each held and let go: said, flashed, gone (w1 Half time, w2 Gate, w3 Roll, w14 Drive;
 # b6 Dive, b7 Ring, b8 Vinyl)
 key w1 down

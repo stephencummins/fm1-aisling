@@ -489,7 +489,7 @@ const char *en_chord_name(const int *pcs, int n, char *buf)
 }
 
 /* ------------------------------------------------------------ commands --- */
-enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET };
+enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2 };
 #define QN 512u                                 /* (a piece is every parameter at once: room for twice over and more) */
 _Static_assert(QN >= 2u * (P_NPARAMS + 8), "the command queue can't hold a piece's parameters twice over");
 static uint32_t q[QN];
@@ -514,7 +514,11 @@ void en_clock(int msg) { post(C_CLOCK, msg, 0); }
 void en_regrow(void) { post(C_REGROW, 0, 0); }
 void en_mute(uint32_t m) { post(C_MUTE, (int)(m & 0xFFu), 0); }
 void en_perf(uint32_t f) { post(C_PERF, (int)(f & 0xFFu), 0); }
-void en_fx(uint32_t m) { post(C_FX, (int)(m >> 16 & 0xFFu), (int)(m & 0xFFFFu)); }   /* (1.3: 24 of them) */
+void en_fx(uint32_t m)                           /* (1.3: all 32, in two: the top eight after) */
+{
+    post(C_FX, (int)(m >> 16 & 0xFFu), (int)(m & 0xFFFFu));
+    post(C_FX2, (int)(m >> 24), 0);
+}
 void en_move(uint32_t m) { post(C_MOVE, 0, (int)(m & 0xFFu)); }
 static uint8_t mac_sent;                         /* (the UI's turns of the master actions, counted: 6 bits) */
 volatile uint8_t en_mac_got;                     /* (the engine's: the count with the last it took) */
@@ -4626,7 +4630,8 @@ static void drain(void)
             mutes = (uint32_t)a;
             break;
         case C_PERF: perf = (uint32_t)a; break;
-        case C_FX: fxm = c & 0xFFFFFFu; break;
+        case C_FX: fxm = (fxm & 0xFF000000u) | (c & 0xFFFFFFu); break;
+        case C_FX2: fxm = (fxm & 0xFFFFFFu) | (uint32_t)a << 24; break;
         case C_MOVE: mvm = c & 0xFFu; break;
         case C_LFORGET:                          /* (the user's design: PERFORM's top key) the Lead forgets everything it
                                                   * remembers: its ideas and its theme (the keys' too), a figure on the
@@ -5580,12 +5585,139 @@ static float gt_g = 1.0f, dr_lp[2], dr_ein, dr_eout, dr_match = 1.0f, rg_ph, rg_
 static float vn_lp[2], vn_hp[2], vn_ph, vn_pop, vn_pop2;
 static uint32_t vn_rng = 0x6C8E9CF5u;
 static int mast_on;
+static inline float ease1(float x, int on, float t, float up, float down);
+/* (1.3) the buffered effects: BF_N samples of the output's middle, 16 bits (4 full scale), at half the rate
+ * (0.74 s). bf_mode the one sounding (BF_*), bf_want the one asked for: the change made through silence (bf_mix
+ * down, the line cleared, up again). bf_play: what the mode has to play yet (Stutter and Reverse: 0 while the first
+ * slice is caught, the music heard as it is) */
+#define BF_N 16384
+#define BF_K 8192.0f
+enum { BF_OFF, BF_STUTTER, BF_FLANGE, BF_COMB, BF_REVERSE };
+static int16_t bf[BF_N] EN_POOL;
+static int bf_mode, bf_want, bf_w, bf_len, bf_half, bf_ph;
+static float bf_mix, bf_play, bf_acc, bf_y0, bf_y1, bf_lfo, bf_d, bf_damp;
+static float fx_crush, cr_hl, cr_hr;
+static int cr_n;
+static inline int16_t bf_q(float x) { return (int16_t)(fm_clampf(x, -3.99f, 3.99f) * BF_K); }
+static void bf_start(int mode)                   /* the line cleared, the slice's length taken from the tempo */
+{
+    int i;
+    for (i = 0; i < BF_N; i++)
+        bf[i] = 0;
+    bf_mode = mode;
+    bf_w = 0, bf_half = 0, bf_play = mode == BF_FLANGE || mode == BF_COMB ? 1.0f : 0.0f;
+    bf_y0 = bf_y1 = bf_damp = 0.0f;
+    /* an eighth (step_len samples of the half rate), a sixteenth if that is too long for the line (Reverse keeps
+     * two slices: half the line each) */
+    bf_len = (int)step_len;
+    while (bf_len > (mode == BF_REVERSE ? BF_N / 2 : BF_N))
+        bf_len /= 2;
+    if (bf_len < 64)
+        bf_len = 64;
+}
+static void bf_ctl(uint32_t on, uint32_t rise, float t)
+{
+    static const uint8_t BIT[5] = {0, EN_FX_STUTTER, EN_FX_FLANGE, EN_FX_COMB, EN_FX_REVERSE};
+    int m;
+    for (m = 1; m < 5; m++)                      /* the last pressed */
+        if (rise >> BIT[m] & 1u)
+            bf_want = m;
+    if (bf_want && !(on >> BIT[bf_want] & 1u)) {  /* let go: another still held, or none */
+        bf_want = 0;
+        for (m = 1; m < 5; m++)
+            if (on >> BIT[m] & 1u)
+                bf_want = m;
+    }
+    if (bf_mode != bf_want) {
+        bf_mix -= fm_minf(t / 0.006f, bf_mix);
+        if (bf_mix <= 0.0f) {
+            bf_mix = 0.0f;
+            if (bf_want)
+                bf_start(bf_want);
+            else
+                bf_mode = 0;
+        }
+    } else if (bf_mode)
+        bf_mix = fm_minf(bf_mix + t / 0.006f, 1.0f);
+    if (bf_mode == BF_FLANGE) {                  /* 1 - 7 ms, a turn in five seconds */
+        if ((bf_lfo += t * 0.2f) >= 1.0f)
+            bf_lfo -= 1.0f;
+        bf_d = (0.004f + 0.003f * sine(bf_lfo)) * (0.5f * EN_SR);
+    } else if (bf_mode == BF_COMB)               /* the key's note, the octave under middle C */
+        bf_d = fm_clampf(0.5f * EN_SR / mtof((float)(48 + par[P_ROOT] % 12)), 8.0f, (float)(BF_N - 4));
+    fx_crush = ease1(fx_crush, (int)(on >> EN_FX_CRUSH & 1u), t, 0.01f, 0.03f);
+}
+static inline float bf_edge(int i, int n)        /* a slice's ends, eased over 48 samples (2 ms) */
+{
+    const int e = i < n - 1 - i ? i : n - 1 - i;
+    return e >= 48 ? 1.0f : (float)e * (1.0f / 48.0f);
+}
+static inline float bf_step(float x)             /* a sample at the half rate: in, the wet out */
+{
+    float y = 0.0f;
+    switch (bf_mode) {
+    case BF_STUTTER:
+        if (!bf_half) {                          /* the slice caught, once */
+            bf[bf_w] = bf_q(x);
+            if (++bf_w >= bf_len)
+                bf_w = 0, bf_half = 1;
+        } else {
+            y = (float)bf[bf_w] * (1.0f / BF_K) * bf_edge(bf_w, bf_len);
+            if (++bf_w >= bf_len)
+                bf_w = 0;
+            bf_play = fm_minf(bf_play + 1.0f / 48.0f, 1.0f);
+        }
+        break;
+    case BF_REVERSE: {                           /* this slice into one half, the last one out of the other,
+                                                  * backwards */
+        const int16_t *rd = bf + (bf_half ? 0 : BF_N / 2);
+        y = (float)rd[bf_len - 1 - bf_w] * (1.0f / BF_K) * bf_edge(bf_w, bf_len);
+        bf[(bf_half ? BF_N / 2 : 0) + bf_w] = bf_q(x);
+        if (++bf_w >= bf_len)
+            bf_w = 0, bf_half ^= 1, bf_play = 1.0f;
+        break;
+    }
+    case BF_FLANGE:
+    case BF_COMB: {
+        const int k = (int)bf_d;
+        const float f = bf_d - (float)k;
+        const int i0 = (bf_w - k) & (BF_N - 1), i1 = (bf_w - k - 1) & (BF_N - 1);
+        y = ((float)bf[i0] + ((float)bf[i1] - (float)bf[i0]) * f) * (1.0f / BF_K);
+        if (bf_mode == BF_COMB) {                /* (the pipe: its ring damped, 0.9 round) */
+            bf_damp += 0.55f * (y - bf_damp);
+            bf[bf_w] = bf_q(0.25f * x + 0.9f * bf_damp);
+        } else
+            bf[bf_w] = bf_q(x + 0.55f * y);
+        bf_w = (bf_w + 1) & (BF_N - 1);
+        break;
+    }
+    default: break;
+    }
+    return y;
+}
+static inline void bf_fx(float *lp, float *rp)
+{
+    /* what is left of the music under the wet, and the wet's level: Stutter and Reverse in its place */
+    static const float DRY[5] = {1.0f, 0.0f, 0.75f, 0.45f, 0.0f}, WET[5] = {0.0f, 1.0f, 0.7f, 0.8f, 1.0f};
+    const float m = 0.5f * (*lp + *rp), w = bf_mix * bf_play;
+    float y;
+    if ((bf_ph ^= 1) != 0) {
+        bf_acc = m;
+        y = 0.5f * (bf_y0 + bf_y1);              /* (the wet, a line between its samples) */
+    } else {
+        bf_y0 = bf_y1;
+        bf_y1 = bf_step(0.5f * (bf_acc + m));
+        y = bf_y0;
+    }
+    *lp = *lp * (1.0f - w * (1.0f - DRY[bf_mode])) + w * WET[bf_mode] * y;
+    *rp = *rp * (1.0f - w * (1.0f - DRY[bf_mode])) + w * WET[bf_mode] * y;
+}
 static inline float ease1(float x, int on, float t, float up, float down)
 {
     x += ((on ? 1.0f : 0.0f) - x) * fm_minf(t / (on ? up : down), 1.0f);
     return !on && x < 0.0005f ? 0.0f : x;
 }
-static void mast_ctl(uint32_t on, float t)
+static void mast_ctl(uint32_t on, uint32_t rise, float t)
 {
     const int dive = (int)(on >> EN_FX_DIVE & 1u);
     fx_gate = ease1(fx_gate, (int)(on >> EN_FX_GATE & 1u), t, 0.005f, 0.03f);
@@ -5620,11 +5752,23 @@ static void mast_ctl(uint32_t on, float t)
             pluck[i].dt2 *= divefac / was;
         }
     }
-    mast_on = fx_gate > 0.0f || fx_drvw > 0.0f || fx_ring > 0.0f || fx_vin > 0.0f;
+    bf_ctl(on, rise, t);
+    mast_on = fx_gate > 0.0f || fx_drvw > 0.0f || fx_ring > 0.0f || fx_vin > 0.0f || bf_mode || fx_crush > 0.0f;
 }
 static inline void mast_fx(float *lp, float *rp)   /* a sample of the output, both sides */
 {
     float l = *lp, r = *rp;
+    if (bf_mode)
+        bf_fx(&l, &r);
+    if (fx_crush > 0.0f) {                       /* every eighth sample held (5.5 kHz), in steps of a 24th */
+        if (++cr_n >= 8) {
+            cr_n = 0;
+            cr_hl = (float)(int)(l * 24.0f + (l < 0.0f ? -0.5f : 0.5f)) * (1.0f / 24.0f);
+            cr_hr = (float)(int)(r * 24.0f + (r < 0.0f ? -0.5f : 0.5f)) * (1.0f / 24.0f);
+        }
+        l += fx_crush * (cr_hl - l);
+        r += fx_crush * (cr_hr - r);
+    }
     if (fx_drvw > 0.0f) {
         const float k = 1.0f + 11.0f * fx_drv;
         float yl = soft(l * k), yr = soft(r * k);
@@ -5680,7 +5824,7 @@ static void fx_ctl(uint32_t n)                   /* once a chunk: the effects' e
     uint32_t on = fxm, rise = fxm & ~fxm_was;
     float lpt, hpt, ec;
     fxm_was = fxm;
-    mast_ctl(on, t);
+    mast_ctl(on, rise, t);
     /* the echo: Time doubles it (halves it, if the tape is too short), Tape stop slows the tape to a quarter */
     fx_ts += ((on >> EN_FX_TAPESTOP & 1u ? 4.0f : 1.0f) - fx_ts) * fm_minf(t / (on >> EN_FX_TAPESTOP & 1u ? 0.7f : 0.25f), 1.0f);
     ec = on >> EN_FX_TIME & 1u ? (echo_len_t * 2.0f <= (float)(TAPE_N - 8) ? 2.0f : 0.5f) : 1.0f;

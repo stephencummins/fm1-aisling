@@ -170,6 +170,11 @@ enum { EN_FX_REPEAT, EN_FX_TIME, EN_FX_TAPESTOP, EN_FX_SHIMMER, EN_FX_LOWPASS, E
         * overdrive that grows while held, level-matched), Ring (a ring modulator on the key's note), Vinyl (a narrow
         * band, crackle, a slow wobble) */
        EN_FX_HALF = EN_NFX, EN_FX_GATE, EN_FX_ROLL, EN_FX_DIVE, EN_FX_DRIVE, EN_FX_RING, EN_FX_VINYL,
+       /* the buffered ones, on one line of memory (the mixed output, mono, at half the rate): one of them at a
+        * time, the last pressed; another still held comes back when it is let go. Stutter (an eighth caught, then
+        * round and round), Flange, Comb (the line a pipe on the key's note), Reverse (each eighth played backwards,
+        * an eighth late). And Crush, which keeps nothing: fewer samples, fewer bits */
+       EN_FX_STUTTER, EN_FX_FLANGE, EN_FX_COMB, EN_FX_REVERSE, EN_FX_CRUSH,
        EN_NFX_ALL };
 extern const char *const EN_FX_NAME[EN_NFX];
 void en_fx(uint32_t mask);

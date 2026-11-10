@@ -831,22 +831,22 @@ static const struct {
     const char *name;
     uint8_t d, g;
 } PKEY[PERF_N] = {
-    {"Stutter", PK_SOON, PG_RHYTHM},                 {"Ceo", EN_FX_TAKEOFF, PG_BLACK},
+    {"Stutter", EN_FX_STUTTER, PG_RHYTHM},                 {"Ceo", EN_FX_TAKEOFF, PG_BLACK},
     {"Half time", EN_FX_HALF, PG_RHYTHM},            {"Fras", EN_FX_TWITTER, PG_BLACK},
     {"Gate", EN_FX_GATE, PG_RHYTHM},                 {"Sweep", EN_FX_SWEEP, PG_BLACK},
     {"Roll", EN_FX_ROLL, PG_RHYTHM},
     {"Repeat", EN_FX_REPEAT, PG_ECHO},               {"Rise", 100 + EN_MV_RISE, PG_BLACK},
     {"Macalla", EN_FX_SUPERNOVA, PG_ECHO},           {"Close", 100 + EN_MV_CLOSE, PG_BLACK},
     {"Tape stop", EN_FX_TAPESTOP, PG_ECHO},
-    {"Reverse", PK_SOON, PG_ECHO},                   {"Octave", EN_FX_OCTAVE, PG_BLACK},
+    {"Reverse", EN_FX_REVERSE, PG_ECHO},                   {"Octave", EN_FX_OCTAVE, PG_BLACK},
     {"Reverb", EN_FX_REVERB, PG_SPACE},              {"Dive", EN_FX_DIVE, PG_BLACK},
     {"Shimmer", EN_FX_SHIMMER, PG_SPACE},            {"Ring", EN_FX_RING, PG_BLACK},
     {"Freeze", EN_FX_FREEZE, PG_SPACE},
     {"Wash", EN_FX_WASH, PG_SPACE},                  {"Vinyl", EN_FX_VINYL, PG_BLACK},
-    {"Flange", PK_SOON, PG_COLOUR},                  {"Comb", PK_SOON, PG_BLACK},
+    {"Flange", EN_FX_FLANGE, PG_COLOUR},                  {"Comb", EN_FX_COMB, PG_BLACK},
     {"Phaser", EN_FX_PHASER, PG_COLOUR},
     {"Drive", EN_FX_DRIVE, PG_COLOUR},               {"Drop", 200 + EN_PF_DROP, PG_BLACK},
-    {"Crush", PK_SOON, PG_COLOUR},
+    {"Crush", EN_FX_CRUSH, PG_COLOUR},
 };
 /* (1.2's PERFORM, kept for the USB link alone: LK_PERF's fifteen, the layers muted (0-4), the moves held (5-9), the
  * layers soloed (10-14), and LK_FORGET. No key reaches them now) */
@@ -2519,7 +2519,7 @@ static void draw_pmap(void)
 #define K_BAININ RGB(246, 238, 214)
 static const uint16_t PG_COL[PG_N] = {K_EIRE_O, K_SEA, K_HEATHER, K_GORSE, K_EIRE};
 static const char *const PLINE[PERF_N] = {
-    "the last beat, over and over", "fog rolling into the echo", "half the speed", "a burst of rain",
+    "a slice, over and over", "fog rolling into the echo", "half the speed", "a burst of rain",
     "chopped to the beat", "the Sequence's filter swept", "a beat rolled faster", "the Sequence into the echo",
     "every filter opens", "the echo rings on and builds", "every filter closes", "the tape slowing down",
     "backwards", "the Sequence an octave up", "into the plate", "falling away", "the plate climbing an octave",
