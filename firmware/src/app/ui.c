@@ -897,7 +897,7 @@ static void lock_toggle(void)                    /* SEL held: Lock, on or off: t
     say("LOCK", ui.lock ? "ON" : "OFF");
     card_show("LOCK", ui.lock ? "the sequences kept" : "the sequences free", K_ACC, 0);
 }
-static void lead_forget(void)                    /* (the link's LK_FORGET) the Lead forgets its ideas and its theme */
+static void lead_forget(void)                    /* (PERFORM's SAVE, the link's LK_FORGET) the Lead forgets its ideas and its theme */
 {
     en_lead_forget();
     say("LEAD", "FORGOTTEN");
@@ -1176,6 +1176,11 @@ static void set_view(int v)
 static void button(int b)
 {
     int v;
+    if (ui.perf && b == B_SAVE) {                /* (1.3) SAVE tapped in PERFORM: the Lead's FORGET, PERFORM kept
+                                                  * (held, it still saves; the Noise page: from any other page) */
+        lead_forget();
+        return;
+    }
     if (ui.perf && (b == B_HOME || b == B_ENV || b == B_ARP || b == B_LFO || b == B_SEQ || b == B_FX || b == B_GLO ||
                     b == B_SAVE || b == B_EDIT)) {   /* (1.3.0) a page's button leaves PERFORM: the keys the scale
                                                       * again, the page its first (SEL brings PERFORM back) */

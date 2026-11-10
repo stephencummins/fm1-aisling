@@ -302,7 +302,7 @@ played is never thrown away). One or two notes are just played, nothing is kept;
 aren't kept either. Your notes sound as you play them; the Lead counts them on the grid, to the nearest sixteenth.
 Stopping the music, or PANIC, forgets notes you are in the middle of playing; PANIC also drops an answer not yet begun
 (a theme already taken stays: the Lead plays it next, in its own time). A new piece starts again from its air. PERFORM's
-**Forget** (the top key) lets the air go too, and the Lead starts again from ideas of its own.
+**Forget** (SAVE, tapped) lets the air go too, and the Lead starts again from ideas of its own.
 
 After your theme, or the piece's air, the Lead's own ideas **grow out of it**. The next one, a bar or two after the answer, starts from
 it: its first notes carried on in a new way, or its first notes and then the same again from another note of the
@@ -623,6 +623,11 @@ Vinyl*, Comb* · **Drop** (both sequences out).
 **REC is the latch.** Hold one or more effects and tap REC: they stay on when you let go, their keys blinking, REC
 lit. Hold a latched effect and tap REC again to let that one go. Tap REC with nothing held and every latch lets go.
 REC doesn't open the effect grid here, and its tap doesn't hold the echo; **Freeze** does that.
+
+**SAVE, tapped, is Forget.** The Lead forgets everything it remembers: its ideas, its theme (yours too, if you played
+one), a figure you were in the middle of playing, and an answer it was about to give. The note it's playing stops; it
+thinks of a new theme and new ideas of its own (the piece's air too is let go), and plays again within a few bars.
+Nothing else changes, and you stay in PERFORM. SAVE held still saves. (The Noise page is SAVE from any other page.)
 
 There are no mutes or solos in PERFORM any more. A layer's level is SELECT on its own page.
 
