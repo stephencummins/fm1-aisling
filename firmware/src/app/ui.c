@@ -2122,21 +2122,8 @@ static void draw_header(void)
     ui.sig[0] = h;
     cv_begin(240, HDR_H, K_BG);
     if (msg) {
-        /* (1.3) in the flash's uncial hand, in capitals, where it has the letters and the room; else as before */
-        char u[2][24];
-        int i, j, ok = 1;
-        for (i = 0; i < 2; i++) {
-            caps(u[i], ui.msg[i], sizeof u[i]);
-            for (j = 0; u[i][j]; j++)
-                ok &= u[i][j] >= 32 && u[i][j] <= 95;
-        }
-        if (ok && text_w(&FONT_US, u[0]) + 8 + text_w(&FONT_US, u[1]) <= 222) {
-            int32_t x = cv_text(10, 4, &FONT_US, u[0], K_TEXT);
-            cv_text(x + 8, 4, &FONT_US, u[1], K_ACC);
-        } else {
-            int32_t x = cv_text(10, 6, &FONT_B, ui.msg[0], K_TEXT);
-            cv_text(x + 8, 6, &FONT_B, ui.msg[1], K_ACC);
-        }
+        int32_t x = cv_text(10, 6, &FONT_B, ui.msg[0], K_TEXT);
+        cv_text(x + 8, 6, &FONT_B, ui.msg[1], K_ACC);
     } else {
         int32_t x = 232, w;
         if (plat_battery() >= 0 || plat_usb_power()) {   /* the battery, at the right edge */
