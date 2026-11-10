@@ -67,6 +67,7 @@ LANDING = """<!doctype html>
 .what { display: flex; gap: 16px; align-items: flex-start; }
 .card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
 .lede { margin: 0; font-size: 14.5px; }
+.what .buy { margin: 10px 0 0; }
 .shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-content: start; }
 .shots img { display: block; box-sizing: border-box; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
 .ways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
@@ -116,11 +117,12 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <div class="two hero">
 <div class="pane what">
 <img class="card" src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
-<p class="lede">AISLING (said ASH-ling: Irish for a dream or a vision, and a pun on <i>AI Synth Link</i>) is a
+<div><p class="lede">AISLING (said ASH-ling: Irish for a dream or a vision, and a pun on <i>AI Synth Link</i>) is a
 generative instrument after the harpers and the west of Ireland. A harp's ostinato runs over a held
 drone, often in a jig's threes; a second harp drifts against it, an octave down; a flute plays long phrases far back in
 the reverb, with surf, wind or rain behind. Let it play for hours, or play with it: the white keys give you the flute,
 always in the piece's scale, and it answers you.</p>
+<p class="small buy">No FM-1 yet? <a href="https://store.stephen8n.com/#g-fm1">Where to buy one</a>.</p></div>
 </div>
 <div class="pane shots">
   <img src="img/screen-launch.png" width="240" height="240" alt="The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com">
