@@ -93,8 +93,8 @@ AISLING starts playing as soon as it's on. A few minutes with it:
 5. **Hold the echo.** Tap REC: the echo stops listening and repeats what it holds while the music goes
    on dry above it. Tap REC again to let it go. Hold REC: the effects grid, sixteen effects on the white
    keys, each one there while its key is held.
-6. **Perform.** Tap SEL: white keys 1–5 mute the five layers, black keys 1–5 solo them, and white keys
-   7–11, held, sweep the sequence, open or shut the filter, drop both sequences out or push the echo.
+6. **Perform.** Tap SEL: every key is an effect while you hold it, several together. Hold some and tap REC and
+   they stay on; REC alone lets them go.
 7. **Watch the filters.** On a layer's sound page, a small cyan dot on the brightness knob's ring shows where
    the filter is now, and the screen says how far it has moved ("MOVING DARKER, -1.5 OCT"). Turn the knob:
    the movement goes on around its new setting.
@@ -337,7 +337,7 @@ opened, it goes on through flow, solo and bridge for ever, until you stop it or 
 ### The filter motion
 
 Nothing in AISLING fades behind your back. A layer whose level is up and which isn't muted always plays at its
-level (your mutes, your solos and PERFORM's Drop are the only ways a layer goes quiet, and they are shown).
+level (PERFORM's Drop is the only way a layer goes quiet, and its key shows it).
 What moves is each layer's **brightness**: the Drone's Colour, the Sequence's and Sequence 2's Cutoff, the
 Lead's Tone and the Atmosphere's Colour. AISLING moves each one's filter by an **offset in octaves from the
 knob**, never to a value of its own. The knob keeps the value you gave it; turn it and the whole movement
@@ -585,7 +585,7 @@ are:
 The first eight are the grid's own effects, not copies: a black key and the grid's white key for the same
 effect are one effect, on while either is held. Rise and Close are offsets from the knobs, like the filter
 motion's, added to it (the Lead's stays within its three quarters of an octave); they never set a filter to
-a value of their own. In PERFORM the black keys solo, and on the Pattern page they accent steps. The screen
+a value of their own. In PERFORM the black keys are its own eleven effects, and on the Pattern page they accent steps. The screen
 reader names the effect as each key goes down.
 
 ---
@@ -600,22 +600,33 @@ echo: every layer's echo send, the Drone's, both Sequences', the Lead's and the 
 repeat), and **Sweep** (how far the Sequence's cutoff wanders on its own: the same as its Width on the
 Move page, the piece's). With Motion, Filter, Wet and Energy also move by themselves, the knobs showing where
 they are; a turn of yours holds until the next section ([The master actions move by
-themselves](#the-master-actions-move-by-themselves)). The keys
-that do something are lit:
+themselves](#the-master-actions-move-by-themselves)).
 
-- **White 1–5:** the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, muted and back (their levels
-  kept). A mute is complete: a muted Lead lets go of its note at once (and plays nothing from the white keys),
-  a muted Drone is silent, and neither sends MIDI notes while muted.
-- **Black 1–5:** the same, soloed (more than one: they play together). (In normal playing, the black keys
-  play effects instead: [The black keys](#the-black-keys).)
-- **White 6, held:** the knobs become the levels (Drone, Seq, Lead, Seq 2).
-- **White 7–11, held:** **Sweep** (the Sequence's filter swept), **Open**, **Shut** (the filter pushed),
-  **Drop** (both sequences out), **Echo** (the echo pushed, everything in and feeding back).
-- **The top key (G), apart from the rest:** **Forget**. A press and the Lead forgets everything it remembers:
-  its ideas, its theme (yours too, if you played one), a figure you were in the middle of playing, and an answer it
-  was about to give. The note it's playing stops; it thinks of a new theme and new ideas of its own (the piece's air too is let go),
-  and plays again within a few bars. Nothing else changes (no setting, nothing saved). The key is lit, and dark
-  while you hold it.
+Every key is an effect, on the whole music, for as long as you hold it. Hold several and they sound together. The
+generator goes on underneath, so you can stay here for a whole piece. The keys that do something are lit, and a key
+goes dark while you hold it.
+
+The white keys, left to right, in four groups of four:
+
+| Group | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| Rhythm | Stutter* | Half time* | Gate* | Roll* |
+| Echo | Repeat | Macalla | Tape stop | Reverse* |
+| Space | Reverb | Shimmer | Freeze | Wash |
+| Colour | Flange* | Phaser | Drive* | Crush* |
+
+The black keys, in their own groups: **Ceo**, **Fras**, **Sweep** · **Rise**, **Close** · **Octave**, Dive*, Ring* ·
+Vinyl*, Comb* · **Drop** (both sequences out).
+
+(* not built yet in this draft of 1.3: the key is dark and does nothing.)
+
+**REC is the latch.** Hold one or more effects and tap REC: they stay on when you let go, their keys blinking, REC
+lit. Hold a latched effect and tap REC again to let that one go. Tap REC with nothing held and every latch lets go.
+REC doesn't open the effect grid here, and its tap doesn't hold the echo; **Freeze** does that.
+
+There are no mutes or solos in PERFORM any more. A layer's level is SELECT on its own page.
+
+Leaving PERFORM lets every effect go, latched or held.
 
 A page's button leaves. So does SEL again, back to the page you came from.
 
