@@ -163,7 +163,14 @@ void en_lock(int on);                          /* PERFORM's Lock: each phrase ke
 /* the effects grid (REC held): the effects held now, a bit each (EN_FX_*), in the grid's order */
 enum { EN_FX_REPEAT, EN_FX_TIME, EN_FX_TAPESTOP, EN_FX_SHIMMER, EN_FX_LOWPASS, EN_FX_HIGHPASS, EN_FX_SWEEP, EN_FX_PHASER,
        EN_FX_REVERB, EN_FX_TAKEOFF, EN_FX_FREEZE, EN_FX_WASH, EN_FX_OCTAVE, EN_FX_RETURN, EN_FX_TWITTER, EN_FX_SUPERNOVA,
-       EN_NFX };
+       EN_NFX,
+       /* (1.3) PERFORM's own, past the grid's sixteen: no key on the grid, no name in EN_FX_NAME. The light ones,
+        * which keep no audio: Half time (the sequences at half speed), Gate (the output chopped on the sixteenths),
+        * Roll (the sequences' notes doubled to thirty-seconds), Dive (the pitch falling an octave), Drive (an
+        * overdrive that grows while held, level-matched), Ring (a ring modulator on the key's note), Vinyl (a narrow
+        * band, crackle, a slow wobble) */
+       EN_FX_HALF = EN_NFX, EN_FX_GATE, EN_FX_ROLL, EN_FX_DIVE, EN_FX_DRIVE, EN_FX_RING, EN_FX_VINYL,
+       EN_NFX_ALL };
 extern const char *const EN_FX_NAME[EN_NFX];
 void en_fx(uint32_t mask);
 /* (BERLIN) the black keys' moves, held: every layer's filter opened together (Rise, +2 octaves), closed (Close, -4),

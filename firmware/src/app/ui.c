@@ -832,20 +832,20 @@ static const struct {
     uint8_t d, g;
 } PKEY[PERF_N] = {
     {"Stutter", PK_SOON, PG_RHYTHM},                 {"Ceo", EN_FX_TAKEOFF, PG_BLACK},
-    {"Half time", PK_SOON, PG_RHYTHM},               {"Fras", EN_FX_TWITTER, PG_BLACK},
-    {"Gate", PK_SOON, PG_RHYTHM},                    {"Sweep", EN_FX_SWEEP, PG_BLACK},
-    {"Roll", PK_SOON, PG_RHYTHM},
+    {"Half time", EN_FX_HALF, PG_RHYTHM},            {"Fras", EN_FX_TWITTER, PG_BLACK},
+    {"Gate", EN_FX_GATE, PG_RHYTHM},                 {"Sweep", EN_FX_SWEEP, PG_BLACK},
+    {"Roll", EN_FX_ROLL, PG_RHYTHM},
     {"Repeat", EN_FX_REPEAT, PG_ECHO},               {"Rise", 100 + EN_MV_RISE, PG_BLACK},
     {"Macalla", EN_FX_SUPERNOVA, PG_ECHO},           {"Close", 100 + EN_MV_CLOSE, PG_BLACK},
     {"Tape stop", EN_FX_TAPESTOP, PG_ECHO},
     {"Reverse", PK_SOON, PG_ECHO},                   {"Octave", EN_FX_OCTAVE, PG_BLACK},
-    {"Reverb", EN_FX_REVERB, PG_SPACE},              {"Dive", PK_SOON, PG_BLACK},
-    {"Shimmer", EN_FX_SHIMMER, PG_SPACE},            {"Ring", PK_SOON, PG_BLACK},
+    {"Reverb", EN_FX_REVERB, PG_SPACE},              {"Dive", EN_FX_DIVE, PG_BLACK},
+    {"Shimmer", EN_FX_SHIMMER, PG_SPACE},            {"Ring", EN_FX_RING, PG_BLACK},
     {"Freeze", EN_FX_FREEZE, PG_SPACE},
-    {"Wash", EN_FX_WASH, PG_SPACE},                  {"Vinyl", PK_SOON, PG_BLACK},
+    {"Wash", EN_FX_WASH, PG_SPACE},                  {"Vinyl", EN_FX_VINYL, PG_BLACK},
     {"Flange", PK_SOON, PG_COLOUR},                  {"Comb", PK_SOON, PG_BLACK},
     {"Phaser", EN_FX_PHASER, PG_COLOUR},
-    {"Drive", PK_SOON, PG_COLOUR},                   {"Drop", 200 + EN_PF_DROP, PG_BLACK},
+    {"Drive", EN_FX_DRIVE, PG_COLOUR},               {"Drop", 200 + EN_PF_DROP, PG_BLACK},
     {"Crush", PK_SOON, PG_COLOUR},
 };
 /* (1.2's PERFORM, kept for the USB link alone: LK_PERF's fifteen, the layers muted (0-4), the moves held (5-9), the

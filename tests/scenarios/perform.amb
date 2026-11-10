@@ -51,6 +51,77 @@ wait 300
 said_none Stutter
 expect pheld 0
 key w0 up
+# step 3's light effects, each held and let go: said, flashed, gone (w1 Half time, w2 Gate, w3 Roll, w14 Drive;
+# b6 Dive, b7 Ring, b8 Vinyl)
+key w1 down
+wait 60
+said Half time
+expect pheld 4
+expect pflash 1
+key w1 up
+wait 60
+expect pheld 0
+key w2 down
+wait 60
+said Gate
+expect pheld 16
+expect pflash 1
+key w2 up
+wait 60
+expect pheld 0
+key w3 down
+wait 60
+said Roll
+expect pheld 64
+expect pflash 1
+key w3 up
+wait 60
+expect pheld 0
+key w14 down
+wait 60
+said Drive
+expect pheld 16777216
+expect pflash 1
+key w14 up
+wait 60
+expect pheld 0
+key b6 down
+wait 60
+said Dive
+expect pheld 32768
+expect pflash 1
+key b6 up
+wait 60
+expect pheld 0
+key b7 down
+wait 60
+said Ring
+expect pheld 131072
+expect pflash 1
+key b7 up
+wait 60
+expect pheld 0
+key b8 down
+wait 60
+said Vinyl
+expect pheld 1048576
+expect pflash 1
+key b8 up
+wait 60
+expect pheld 0
+# three of them together, a while, and let go: the music goes on
+key w2 down
+key w14 down
+key b7 down
+wait 1500
+expect pheld 16908304
+shot light3.png
+key w2 up
+key w14 up
+key b7 up
+wait 400
+expect pheld 0
+expect pflash 0
 # Drop held (the top black key, b10: key 25): both sequences out, the Drone goes on
 key b10 down
 wait 300

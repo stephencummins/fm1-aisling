@@ -610,15 +610,30 @@ The white keys, left to right, in four groups of four:
 
 | Group | 1 | 2 | 3 | 4 |
 |---|---|---|---|---|
-| Rhythm | Stutter* | Half time* | Gate* | Roll* |
+| Rhythm | Stutter* | Half time | Gate | Roll |
 | Echo | Repeat | Macalla | Tape stop | Reverse* |
 | Space | Reverb | Shimmer | Freeze | Wash |
-| Colour | Flange* | Phaser | Drive* | Crush* |
+| Colour | Flange* | Phaser | Drive | Crush* |
 
-The black keys, in their own groups: **Ceo**, **Fras**, **Sweep** · **Rise**, **Close** · **Octave**, Dive*, Ring* ·
-Vinyl*, Comb* · **Drop** (both sequences out).
+The black keys, in their own groups: **Ceo**, **Fras**, **Sweep** · **Rise**, **Close** · **Octave**, **Dive**, **Ring** ·
+**Vinyl**, Comb* · **Drop** (both sequences out).
 
 (* not built yet in this draft of 1.3: the key is dark and does nothing.)
+
+What the new ones do:
+
+- **Half time:** both sequences step half as often. The clock, the Lead and the Atmosphere go on as they were.
+- **Gate:** the whole output chopped on the sixteenths, open for the first half of each.
+- **Roll:** the sequences' notes doubled to thirty-seconds: each one's last note again between the sixteenths and
+  wherever it rests, a little quieter.
+- **Dive:** the pitch falls an octave over a second and a half, and springs back when you let go. Notes take the
+  fall as they start, the Lead and the sequences' sounding notes fall with it; the Drone's chord and the plucked
+  strings already ringing stay where they are.
+- **Drive:** a warm overdrive on everything that grows the longer you hold it (three seconds to the top), filtered
+  after, and held to the level the music had, so it gets thicker, not louder.
+- **Ring:** a ring modulator on the piece's root, two octaves over middle C: bells and clangs out of whatever plays.
+- **Vinyl:** a narrow band, crackle, and the level wobbling slowly, as an old record. (No pitch wobble: that needs
+  memory the light effects don't use.)
 
 **The screen shows the keys.** While nothing is held, the middle of the screen is a map of PERFORM's effects, as the
 effect grid shows its own: four rows of four for the white keys from F3 up, then the black keys, each group in its
