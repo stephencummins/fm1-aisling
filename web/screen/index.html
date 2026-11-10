@@ -47,6 +47,11 @@ ul.how li::marker, ol.steps li::marker { color: var(--brand-green); }
 .faq h3 { margin: 10px 0 4px; font: 600 15.5px/1.3 var(--brand-display); letter-spacing: .02em; }
 .faq div > p { font-size: 13.5px; }
 p.small { color: var(--brand-muted); font-size: 12.5px; }
+/* which firmware: the row names on the left, both answers in plain text (not the parts list's mono "where" column) */
+.fw { margin: 0 0 6px; }
+.fw tbody th { width: 22%; font: 600 14px/1.35 var(--brand-display); letter-spacing: .02em; }
+.fw td { width: 39%; }
+.fw td:last-child { white-space: normal; font: inherit; }
 @media (max-width: 59.99rem) {
   .two.hero { grid-template-columns: minmax(0, 1fr); }
   .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
@@ -60,6 +65,8 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
   .parts tr:first-child { border-top: 0; padding-top: 0; }
   .parts td { border: 0; padding: 0 0 4px; }
   .parts td:last-child { white-space: normal; }
+  .fw tbody th, .fw td { display: block; width: auto; border: 0; padding: 0 0 6px; }
+  .fw td::before { content: attr(data-l); display: block; font: 400 11.5px/1.5 var(--brand-mono); letter-spacing: .04em; color: var(--brand-muted); }
 }
 @media (max-width: 26rem) { .pics { grid-template-columns: minmax(0, 1fr); } }
 @media print { .clip { display: none; } }
@@ -180,34 +187,68 @@ builds load over USB with the screen in place.</p>
 
 <section class="pane" aria-labelledby="faqh">
 <h2 class="bh" id="faqh">Questions</h2>
+<p class="lede">The short answer: the landscape works with any firmware that sends its notes over USB MIDI, but the
+touch controls for the FM-1 (its page, its knobs and the strip of pieces) are made for AISLING. Part by part:</p>
+<table class="parts fw">
+<thead><tr><th scope="col">On the screen</th><th scope="col">With AISLING 1.2</th><th scope="col">With any other firmware</th></tr></thead>
+<tbody>
+<tr><th scope="row">The landscape</th><td data-l="AISLING 1.2">Paints the sky from the flute, the hills and fields from the
+harps, and the bog from the drone.</td><td data-l="Other firmware">Paints, if the firmware sends its notes over USB MIDI. Each part lands
+where its channel puts it (DUB-1's drums on channel 10 would paint fields, its bass on channel 3 the sky), so the
+picture means less.</td></tr>
+<tr><th scope="row">Tap to switch pages, hold for calibration</th><td data-l="AISLING 1.2">Works.</td><td data-l="Other firmware">Works.
+That part is the box's own and doesn't ask the FM-1 anything.</td></tr>
+<tr><th scope="row">The strip of pieces</th><td data-l="AISLING 1.2">A tap changes the piece, and the strip follows the FM-1's
+piece however it was picked.</td><td data-l="Other firmware">Still shows AISLING's eight names. A tap sends a program change, 0 to 7,
+and lights the one you tapped; what the FM-1 does with it is up to its firmware.</td></tr>
+<tr><th scope="row">The FM-1's page</th><td data-l="AISLING 1.2">The FM-1's own screen, bigger, kept up to date as you play.</td>
+<td data-l="Other firmware">A firmware without a screen reader leaves it at WAITING FOR THE FM-1'S SCREEN READER. DUB-1 and its
+relatives have one, but they describe their own pages in their own words, which the box doesn't know, so expect
+little or nothing. Untried.</td></tr>
+<tr><th scope="row">Turning the knobs from the screen</th><td data-l="AISLING 1.2">Drag a knob sideways and the FM-1's knob
+turns.</td><td data-l="Other firmware">Nothing to turn. The box only turns a knob whose values it knows, and it knows
+AISLING's.</td></tr>
+</tbody>
+</table>
 <div class="faq">
 <div>
-<h3>Will it work with any FM-1 firmware, or only ones based on DUB-1?</h3>
-<p><b>The landscape works with anything that sends notes over USB MIDI,</b> not only DUB-1 and its family. The box
-takes any USB MIDI device and paints each note by its channel: channels 1, 5, 9 and 13 are the bog, 2, 6, 10 and 14
-the fields, 3, 7, 11 and 15 the sky, and 4, 8, 12 and 16 the hills. Another firmware's parts land wherever their
-channels put them, so DUB-1's drums (channel 10) would paint fields, and its bass (channel 3) the sky. It paints, but
-the picture means less than it does for AISLING.</p>
-<p><b>The FM-1's page, the knobs and the strip of pieces are AISLING's only.</b> DUB-1 and its relatives speak the
-same screen-reader protocol, but with their own words for their own pages, and the box only knows AISLING's. I've only
-tried it with AISLING.</p>
-</div>
-<div>
-<h3>What about the FM-1's stock firmware?</h3>
-<p>Untried. If it sends its notes over USB MIDI, the landscape should paint from them; the rest won't work.</p>
 <h3>Which AISLING do I need?</h3>
-<p>1.2. The knobs need it, the strip of pieces needs 1.1 or later, and the FM-1's page was made to 1.2's words.
-Earlier versions are untried.</p>
-<h3>Can I get the code?</h3>
-<p>Not yet. It isn't published. When it is, it'll be linked here, under the same licence as AISLING.</p>
+<p>1.2 for all of it. The knobs need 1.2, the first AISLING to take them over MIDI (CC 16 to 19). The strip of pieces
+needs 1.1 or later, for program change. The FM-1's page was made to 1.2's words; earlier versions are untried.</p>
+<h3>What about the FM-1's stock firmware?</h3>
+<p>Untried. If it sends its notes over USB MIDI, the landscape should paint from them. The FM-1's page and the knobs
+won't work, and what it does with the strip's program change is up to it.</p>
+<h3>What if the FM-1 doesn't take a turn?</h3>
+<p>While you drag, the box shows the value it's sending in orange, until the FM-1 says the knob back. If nothing comes
+back within a second and a half (on an older AISLING, say, or with the grid up), it puts the FM-1's own value back
+and says THE FM-1 DIDN'T TAKE IT. The screen never keeps a value the FM-1 doesn't have.</p>
+<h3>Will a new AISLING break the FM-1's page?</h3>
+<p>It could, if a release changes the words AISLING uses to describe its screen; the box would then need an update to
+match. The landscape doesn't depend on them.</p>
 </div>
 <div>
+<h3>Finger or pen?</h3>
+<p>Either: the screen comes with a pen. It's a resistive panel, so press it rather than brush it. A knob only turns once
+your finger has moved about 10 pixels sideways, so resting a finger on one does nothing, and a touch on the knobs
+never switches the page.</p>
+<h3>If I turn a knob on the FM-1, does the screen follow?</h3>
+<p>Yes. The page is rebuilt from what the FM-1 says, so a knob turned on the FM-1, a new page or a new piece shows on
+the screen too. So does the strip of pieces.</p>
+<h3>Can every knob be turned from the screen?</h3>
+<p>Nearly. Setup's four can't (AISLING doesn't take them over MIDI), so their labels show dimmed, and nor can Mode
+while it says Custom.</p>
 <h3>Does turning a knob on the screen save it?</h3>
 <p>No. It's the same as turning the knob on the FM-1: NOT SAVED shows, and you save on the FM-1 as usual. Nothing is
 stored on the box.</p>
-<h3>Can every knob be turned from the screen?</h3>
-<p>Nearly. Setup's four can't (AISLING doesn't take them over MIDI), so their labels show dimmed, and nor can Mode
-while it says Custom. With the grid up, AISLING ignores the knobs, and the box says the FM-1 didn't take it.</p>
+</div>
+<div>
+<h3>Does the box change what the FM-1 plays?</h3>
+<p>Only when you touch it: a tap on the strip changes the piece, and a drag turns a knob. The rest of the time it
+listens to the FM-1's MIDI and asks what's on its screen, which changes nothing.</p>
+<h3>Can I play notes from the screen?</h3>
+<p>No. It turns knobs and picks pieces; the FM-1 still does the playing.</p>
+<h3>Can I get the code?</h3>
+<p>Not yet. It isn't published. When it is, it'll be linked here, under the same licence as AISLING.</p>
 </div>
 <div>
 <h3>Why are the colours paler than on a computer?</h3>
