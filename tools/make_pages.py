@@ -195,7 +195,7 @@ CHEAT = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AISLING cheat sheet</title>
-<meta name="description" content="AISLING's steps drawn as flows (changing a sound, mute and solo, every button's pages), then every control and the eight pieces, to print on one sheet.">
+<meta name="description" content="AISLING's steps drawn as flows (changing a sound, playing the effects, every button's pages), then every control and the eight pieces, to print on one sheet.">
 <style>
 /* On the site's bench on screen (web/brand/site.css); black on white to print, small enough for one sheet */
 .wrap { overflow-x: auto; }

@@ -9,7 +9,7 @@ swing between two tonics, D and C or E minor and D, as the old tunes do. Each pi
 gives the Lead its turn, crosses a bridge, and goes on for ever; every layer's filter moves slowly on its own.
 Listen, and play: let it run, or join in. Play a melody on the white keys and the Lead answers it, takes it as its
 theme and grows new ideas out of it; pick a piece and a key, thin or fill the harps, open the filter, push the
-echo, mute and solo the layers.
+echo, or tap SEL and play the effects on the whole music.
 
 Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling)
 and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CU_STE
