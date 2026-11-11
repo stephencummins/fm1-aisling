@@ -20,7 +20,7 @@ vision), and a pun on *AI Synth Link*; [Saying the names](#saying-the-names) has
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 1.2:** MIDI CCs for the knobs, Evolve on the bar line, and how to say the names. It runs
+**This is 1.3:** PERFORM is all effects, twelve of them new, with Chorus and a CC for each. It runs
 on the FM-1 (install it from the web installer) and in the browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")

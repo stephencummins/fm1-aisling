@@ -38,7 +38,7 @@ remembers and answers) and changes what it plays:
   **Fras** (FRASS, a burst of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 1.2** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 1.3** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -69,6 +69,17 @@ tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
+## What's new in 1.3
+
+- **PERFORM is all effects.** Tap SEL and every one of the 27 keys plays an effect on the whole music for as long as you hold it; hold several and they sound together. The piece goes on underneath, so you can stay there and play a whole track. The white keys are four groups of four (Rhythm, Echo, Space, Colour) and the black keys have groups of their own.
+- **Twelve new effects:** Stutter, Half time, Gate, Roll, Reverse, Flange, Drive, Crush, Dive, Ring, Vinyl and Comb, beside the ones the effects grid already had, and Drop, which takes both sequences out. The [manual](https://aisling.stephen8n.com/manual/#s10) says what each does.
+- **The screen shows what you're holding.** At rest PERFORM is a map of its 27 effects in their groups' colours; hold a key and the screen flashes that effect's colour and name.
+- **Chorus.** PERFORM's fourth knob thickens and widens the whole music, from off to 100. It was Sweep, which is still Width on the Sequence's Move page. Like Wet and Energy it's for playing and isn't saved.
+- **Effects over MIDI.** Each effect has a CC (20 to 31 and 102 to 116), on any channel: 64 or more holds it, less lets it go, on any page. An effect played by hand sends its CC on channel 16, so a DAW can record a performance and play it back. CC 80 is Chorus.
+- **A more Celtic screen.** A plaited rule over the knobs on every page, page names in the uncial hand, and a small green triskele in PERFORM's map that turns with the music.
+- **Gone from PERFORM:** the mutes and solos (a layer's level is SELECT on its own page), and SAVE tapped there is now Forget, which clears what the Lead remembers.
+- **[The touch screen](https://aisling.stephen8n.com/screen/)** build for 1.3 follows all of this: Chorus under your finger, the flash of a held effect, and it now shows as a serial port on a Mac, so it can be reloaded without its BOOT button.
 
 ## What's new in 1.2
 
