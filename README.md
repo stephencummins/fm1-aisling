@@ -73,7 +73,9 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 ## What's new in 1.3.1
 
 - **The effects grid in PERFORM's look.** Hold REC and the grid has a colour for each group (Echo, Filter, Space, Moves), its name in the uncial hand and a plaited rule under each group's name; a held effect's cell fills with its colour. Only the drawing changed: the keys, the effects and the sound are 1.3's.
-- Everything 1.3 brought, below.
+- **PERFORM, from 1.3, played:** every key an effect on the whole music for as long as you hold it, with the screen flashing its colour and name. [Watch a short demo](https://youtube.com/shorts/WtvuUBjDFCo).
+- **[Photos and videos](https://aisling.stephen8n.com/screen/)** are on the touch screen's page: AISLING playing, PERFORM's flash, and the box that gives the FM-1 a second, bigger screen.
+- Everything else 1.3 brought is in [its release notes](https://github.com/stephencummins/fm1-aisling/releases/tag/v1.3), and listed below.
 
 ## What's new in 1.3
 
