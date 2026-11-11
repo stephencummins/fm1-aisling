@@ -238,53 +238,54 @@
 <svg width="47" height="8" viewBox="0 0 47 8" preserveAspectRatio="none" style="position: absolute; left: 196px; top: 662px; width: 47px; height: 8px; overflow: visible; fill: none; stroke: #5b4a3a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"><path d="M 0 4 L 43 4" marker-end="url(#fl-head)"></path></svg>
 
 <!-- cards: the way in and out -->
-<div class="fl-card" style="left: 80px; top: 163px; width: 116px; height: 80px"><span><b class="fl-h">Tap <span class="fl-c">SEL</span></b><br><small class="fl-s">the keys are the mixer</small></span></div>
-<div class="fl-card" style="left: 438px; top: 163px; width: 236px; height: 80px"><span><b class="fl-h">Mute, solo, push</b><br><small class="fl-s">on the keys below. <span class="fl-c">SEL</span> again goes back.</small></span></div>
+<div class="fl-card" style="left: 80px; top: 163px; width: 116px; height: 80px"><span><b class="fl-h">Tap <span class="fl-c">SEL</span></b><br><small class="fl-s">every key is an effect</small></span></div>
+<div class="fl-card" style="left: 438px; top: 163px; width: 236px; height: 80px"><span><b class="fl-h">Hold a key, or several</b><br><small class="fl-s">They sound together. <span class="fl-c">SEL</span> again goes back.</small></span></div>
 <div class="fl-card" style="left: 722px; top: 163px; width: 136px; height: 80px; padding: 2px"><span><b class="fl-h">A page's button</b><br><small class="fl-s"><span class="fl-c">ENV</span>, <span class="fl-c">LFO</span>, <span class="fl-c">HOME</span>...</small></span></div>
 <div class="fl-card" style="left: 64px; top: 634px; width: 132px; height: 64px"><span><b class="fl-h">Hold <span class="fl-c">SEL</span></b></span></div>
 <div style="position: absolute; left: 244px; top: 634px; width: 284px; height: 64px; box-sizing: border-box; display: flex; align-items: center; background: #ffffff; border: 1.5px solid #5b4a3a; border-radius: 4px; padding: 0 8px; font: 400 12px/16px 'IBM Plex Mono', monospace; color: #2b2219"><span>Lock: the sequences stop varying, each pass as the last, until <span class="fl-c">SEL</span> is held again. Not saved.</span></div>
 
 <!-- the screens: AISLING's own, rendered from the firmware's host build -->
-<img src="../img/flow-perform.png" alt="The FM-1's screen on PERFORM, the knobs Filter, Wet, Energy and Chorus" style="position: absolute; left: 244px; top: 130px; width: 146px; height: 146px; border-radius: 8px; display: block">
+<img src="../img/flow-perform.png" alt="The FM-1's screen on PERFORM: a map of the 27 keys' effects in their groups' colours, a green triskele, and the knobs Filter, Wet, Energy and Chorus" style="position: absolute; left: 244px; top: 130px; width: 146px; height: 146px; border-radius: 8px; display: block">
 <img src="../img/flow-perform-off.png" alt="The screen after pressing LFO in PERFORM: PERFORM OFF along the top, the Lead's page below" style="position: absolute; left: 906px; top: 130px; width: 146px; height: 146px; border-radius: 8px; display: block">
 
 <!-- the keys, as the FM-1 has them: black row over white row -->
-<div class="fl-bk" style="left: 106px">Drone</div>
-<div class="fl-bk" style="left: 168px">Seq</div>
-<div class="fl-bk" style="left: 230px">Lead</div>
-<div class="fl-bk" style="left: 354px">Seq 2</div>
-<div class="fl-bk" style="left: 416px">Atmos</div>
-<div class="fl-bk fl-off" style="left: 540px"></div>
-<div class="fl-bk fl-off" style="left: 602px"></div>
-<div class="fl-bk fl-off" style="left: 664px"></div>
-<div class="fl-bk fl-off" style="left: 788px"></div>
-<div class="fl-bk fl-off" style="left: 850px"></div>
-<div class="fl-bk fl-off" style="left: 974px"></div>
+<div class="fl-bk" style="left: 106px">Ceo</div>
+<div class="fl-bk" style="left: 168px">Fras</div>
+<div class="fl-bk" style="left: 230px">Sweep</div>
+<div class="fl-bk" style="left: 354px">Rise</div>
+<div class="fl-bk" style="left: 416px">Close</div>
+<div class="fl-bk" style="left: 540px">Octave</div>
+<div class="fl-bk" style="left: 602px">Dive</div>
+<div class="fl-bk" style="left: 664px">Ring</div>
+<div class="fl-bk" style="left: 788px">Vinyl</div>
+<div class="fl-bk" style="left: 850px">Comb</div>
+<div class="fl-bk" style="left: 974px">Drop</div>
 
-<div class="fl-wk" style="left: 68px">Drone</div>
-<div class="fl-wk" style="left: 130px">Seq</div>
-<div class="fl-wk" style="left: 192px">Lead</div>
-<div class="fl-wk" style="left: 254px">Seq 2</div>
-<div class="fl-wk" style="left: 316px">Atmos</div>
-<div class="fl-wk fl-held" style="left: 378px"><span>Levels<br><small>held</small></span></div>
-<div class="fl-wk fl-held" style="left: 440px"><span>Sweep<br><small>held</small></span></div>
-<div class="fl-wk fl-held" style="left: 502px"><span>Open<br><small>held</small></span></div>
-<div class="fl-wk fl-held" style="left: 564px"><span>Shut<br><small>held</small></span></div>
-<div class="fl-wk fl-held" style="left: 626px"><span>Drop<br><small>held</small></span></div>
-<div class="fl-wk fl-held" style="left: 688px"><span>Echo<br><small>held</small></span></div>
-<div class="fl-wk fl-off" style="left: 750px"></div>
-<div class="fl-wk fl-off" style="left: 812px"></div>
-<div class="fl-wk fl-off" style="left: 874px"></div>
-<div class="fl-wk fl-off" style="left: 936px"></div>
-<div class="fl-wk" style="left: 998px; border: 3px solid #8c3510; color: #8c3510">Forget</div>
+<div class="fl-wk" style="left: 68px">Stutter</div>
+<div class="fl-wk" style="left: 130px">Half<br>time</div>
+<div class="fl-wk" style="left: 192px">Gate</div>
+<div class="fl-wk" style="left: 254px">Roll</div>
+<div class="fl-wk fl-held" style="left: 316px">Repeat</div>
+<div class="fl-wk fl-held" style="left: 378px">Macalla</div>
+<div class="fl-wk fl-held" style="left: 440px">Tape<br>stop</div>
+<div class="fl-wk fl-held" style="left: 502px">Reverse</div>
+<div class="fl-wk" style="left: 564px">Reverb</div>
+<div class="fl-wk" style="left: 626px">Shimmer</div>
+<div class="fl-wk" style="left: 688px">Freeze</div>
+<div class="fl-wk" style="left: 750px">Wash</div>
+<div class="fl-wk fl-held" style="left: 812px">Flange</div>
+<div class="fl-wk fl-held" style="left: 874px">Phaser</div>
+<div class="fl-wk fl-held" style="left: 936px">Drive</div>
+<div class="fl-wk fl-held" style="left: 998px">Crush</div>
 
-<div class="fl-rule" style="left: 68px; width: 306px"></div>
-<div class="fl-rule" style="left: 378px; width: 368px"></div>
-<div class="fl-rule" style="left: 998px; width: 58px; background: #8c3510"></div>
+<div class="fl-rule" style="left: 68px; width: 244px"></div>
+<div class="fl-rule" style="left: 316px; width: 244px"></div>
+<div class="fl-rule" style="left: 564px; width: 244px"></div>
+<div class="fl-rule" style="left: 812px; width: 244px"></div>
 
 <!-- labels -->
-<h2 id="flow-perform-h" style="margin: 0; position: absolute; left: 64px; top: 50px; width: 700px; font: 600 36px/42px 'Barlow Semi Condensed', sans-serif; color: #2b2219">Mute, solo, push</h2>
-<div class="fl-t" style="left: 64px; top: 94px; width: 700px; font-size: 13px; line-height: 18px; color: #5b4a3a">PERFORM: the keys stop playing the Lead until you press a page's button.</div>
+<h2 id="flow-perform-h" style="margin: 0; position: absolute; left: 64px; top: 50px; width: 700px; font: 600 36px/42px 'Barlow Semi Condensed', sans-serif; color: #2b2219">Play the effects</h2>
+<div class="fl-t" style="left: 64px; top: 94px; width: 700px; font-size: 13px; line-height: 18px; color: #5b4a3a">PERFORM: every key is an effect on the whole music, for as long as you hold it.</div>
 
 <div style="position: absolute; left: 792px; top: 62px; width: 18px; height: 12px; box-sizing: border-box; background: #ffffff; border: 2px solid #2b2219; border-radius: 4px"></div>
 <div class="fl-t" style="left: 816px; top: 60px; width: 90px">you do this</div>
@@ -292,8 +293,6 @@
 <div class="fl-t" style="left: 816px; top: 84px; width: 90px">what you get</div>
 <div style="position: absolute; left: 915px; top: 61px; width: 14px; height: 14px; border-radius: 3px; background: #2b2219"></div>
 <div class="fl-t" style="left: 936px; top: 60px; width: 123px">the screen</div>
-<div style="position: absolute; left: 914px; top: 86px; width: 16px; height: 12px; box-sizing: border-box; background: #ffffff; border: 1.5px dashed #767676; border-radius: 4px"></div>
-<div class="fl-t" style="left: 936px; top: 84px; width: 123px">a key that rests</div>
 
 <div class="fl-badge" style="left: 71px; top: 154px">1</div>
 <div class="fl-badge" style="left: 429px; top: 154px">2</div>
@@ -302,20 +301,24 @@
 <div class="fl-t" style="left: 244px; top: 280px; width: 150px">The knobs: Filter, Wet, Energy, Chorus.</div>
 <div class="fl-t" style="left: 906px; top: 280px; width: 150px">OFF, and the keys play the Lead.</div>
 
-<div class="fl-lane" style="left: 106px; top: 328px; width: 400px">BLACK 1-5: SOLO. MORE THAN ONE PLAY TOGETHER</div>
+<div class="fl-lane" style="left: 106px; top: 328px; width: 300px">BLACK KEYS: ELEVEN MORE EFFECTS</div>
+<div class="fl-lane" style="left: 540px; top: 328px; width: 516px; color: #8c3510">SAVE, TAPPED: FORGET. THE LEAD THINKS OF A NEW THEME</div>
 
-<div class="fl-lane" style="left: 68px; top: 500px; width: 306px; color: #2b2219">WHITE 1-5: MUTE</div>
-<div class="fl-t" style="left: 68px; top: 518px; width: 296px">A press: out. Again: back, the level kept. A muted Lead lets go of its note at once.</div>
+<div class="fl-lane" style="left: 68px; top: 500px; width: 244px; color: #2b2219">WHITE 1-4: RHYTHM</div>
+<div class="fl-t" style="left: 68px; top: 518px; width: 240px">Stutter: an eighth caught, round and round. Half time: the sequences at half speed. Gate: chopped on the sixteenths. Roll: the notes doubled.</div>
 
-<div class="fl-lane" style="left: 378px; top: 500px; width: 368px; color: #2b2219">WHITE 6-11: ONLY WHILE HELD</div>
-<div class="fl-t" style="left: 378px; top: 518px; width: 368px">Levels: the knobs become Drone, Seq, Lead, Seq 2. Sweep: the Sequence's filter swept. Open, Shut: the filter pushed. Drop: both sequences out. Echo: everything in and feeding back.</div>
+<div class="fl-lane" style="left: 316px; top: 500px; width: 244px; color: #2b2219">WHITE 5-8: ECHO</div>
+<div class="fl-t" style="left: 316px; top: 518px; width: 240px">Repeat: the Sequence thrown into the echo. Macalla: the echo rings on and builds. Tape stop: the tape slowing. Reverse: each eighth backwards.</div>
 
-<div class="fl-lane" style="left: 760px; top: 500px; width: 296px; color: #8c3510">THE TOP KEY, G: FORGET</div>
-<div class="fl-t" style="left: 760px; top: 518px; width: 296px">The Lead forgets its ideas and its theme, thinks of new ones and plays again within a few bars. Nothing else changes, nothing is saved.</div>
+<div class="fl-lane" style="left: 564px; top: 500px; width: 244px; color: #2b2219">WHITE 9-12: SPACE</div>
+<div class="fl-t" style="left: 564px; top: 518px; width: 240px">Reverb: the dry music into the plate. Shimmer: the plate climbing in octaves. Freeze: the cloud holds. Wash: all into the echo and the plate.</div>
+
+<div class="fl-lane" style="left: 812px; top: 500px; width: 244px; color: #2b2219">WHITE 13-16: COLOUR</div>
+<div class="fl-t" style="left: 812px; top: 518px; width: 240px">Flange: a jet passing. Phaser: deep, on all the music. Drive: warm, growing as you hold. Crush: gritty and bright.</div>
 
 <div class="fl-heading" style="left: 64px; top: 606px; width: 464px">Hold it instead of tapping</div>
-<div class="fl-heading" style="left: 568px; top: 606px; width: 491px">Reading the keys</div>
-<div class="fl-t" style="left: 568px; top: 634px; width: 491px">Each key that does something is lit: a layer while it sounds, a solo blinking while on, a move and Forget dark while held. The rest do nothing.</div>
+<div class="fl-heading" style="left: 568px; top: 606px; width: 491px">The black keys</div>
+<div class="fl-t" style="left: 568px; top: 634px; width: 491px">Ceo: fog. Fras: a burst of rain. Sweep: the Sequence's filter swept. Rise, Close: every filter opened, closed. Octave: the Sequence up. Dive: the pitch falls. Ring: bells. Vinyl: an old record. Comb: a ringing pipe. Drop: both sequences out.</div>
 </div></div></section>
 <section class="flow" id="flow-pages" aria-labelledby="flow-pages-h" tabindex="0"><div class="flow-size"><div class="flow-board">
 <!-- bands -->

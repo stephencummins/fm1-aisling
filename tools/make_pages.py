@@ -306,7 +306,7 @@ __FLOWS_CSS__@media print {
 <h1 class="lab"><b>cheat sheet</b> · AISLING v__VERSION__</h1>
 <p class="lab">__BY__</p>
 </div>
-<nav class="pane lab jump" aria-label="On this page">The steps, drawn: <a href="#flow-lead">change the Lead's instrument</a> · <a href="#flow-layers">any layer's sound</a> · <a href="#flow-perform">mute, solo, push</a> · <a href="#flow-pages">every button's pages</a><span class="jump-hint"> (on a small screen, scroll each one sideways)</span>. Under them, in words: <a href="#controls">every control</a> · <a href="#pieces">the pieces</a></nav>
+<nav class="pane lab jump" aria-label="On this page">The steps, drawn: <a href="#flow-lead">change the Lead's instrument</a> · <a href="#flow-layers">any layer's sound</a> · <a href="#flow-perform">play the effects</a> · <a href="#flow-pages">every button's pages</a><span class="jump-hint"> (on a small screen, scroll each one sideways)</span>. Under them, in words: <a href="#controls">every control</a> · <a href="#pieces">the pieces</a></nav>
 __FLOWS__
 <section class="pane ref" id="controls">
 <h2 class="bh">Every control</h2>
