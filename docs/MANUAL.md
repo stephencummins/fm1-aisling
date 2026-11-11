@@ -20,7 +20,7 @@ vision), and a pun on *AI Synth Link*; [Saying the names](#saying-the-names) has
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 1.3:** PERFORM is all effects, twelve of them new, with Chorus and a CC for each. It runs
+**This is 1.3.1:** PERFORM is all effects, twelve of them new, with Chorus and a CC for each (1.3), and the effects grid redrawn to match. It runs
 on the FM-1 (install it from the web installer) and in the browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
@@ -545,7 +545,7 @@ up a slot. A key writes a slot's root, KNOB 2 its kind, KNOB 3 its type, KNOB 4 
 
 ![The effects grid, REC held: four rows of four, a colour a group, Octave held](img/screen-grid.png)
 
-Hold REC: the grid fills the screen, four rows of four, one effect on each white key. An effect lasts while
+Hold REC: the grid fills the screen, four rows of four, one effect on each white key, a colour for each group (since 1.3.1). An effect lasts while
 its key is held; several can be held together. Let go of REC and the keys still held keep theirs until
 they're let go.
 
