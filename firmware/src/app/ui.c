@@ -2533,25 +2533,36 @@ static void draw_lanes(void)
 static const char *const GRID_CELL[EN_NFX] = {"Repeat", "Time", "Stop", "Shimmer", "Low", "High", "Sweep", "Phaser",
                                               "Reverb", "Ceo", "Freeze", "Wash", "Octave", "Return", "Fras",
                                               "Macalla"};
+/* (the user, 2026-11-10: "more Irish") the flag's orange, the sea, heather, gorse, shamrock; shaded towards bainin */
+#define K_SEA RGB(72, 188, 176)
+#define K_HEATHER RGB(198, 150, 210)
+#define K_GORSE RGB(244, 200, 56)
+#define K_BAININ RGB(246, 238, 214)
+/* (1.3.1; the user, 2026-11-11: "more of how it is shown now") the grid in PERFORM's look: its name in the uncial hand,
+ * a colour a group (Echo the sea and Space heather, as PERFORM's; Filter gorse, Moves the flag's orange), a shade a
+ * cell, a plaited rule after each group's name; a held cell its colour full, the lettering black, as the flash */
 static void grid_band(int32_t oy)                 /* the whole screen, in two bands of 240 x 120 */
 {
     static const char *const GROUP[4] = {"ECHO", "FILTER", "SPACE", "MOVES"};   /* (BERLIN's) */
+    static const uint16_t GCOL[4] = {K_SEA, K_GORSE, K_HEATHER, K_EIRE_O};
     int r, c;
     cv_begin(240, 120, K_BG);
-    text_c(120, 2 - oy, &FONT_S, "EFFECTS", K_ACC);
-    text_c(120, 20 - oy, &FONT_XS, "HOLD A WHITE KEY    TAP REC: HOLD", K_DIM);
+    text_c(120, 0 - oy, &FONT_US, "EFFECTS", K_ACC);
+    text_c(120, 22 - oy, &FONT_XS, "HOLD A WHITE KEY    TAP REC: HOLD", K_DIM);
     for (r = 0; r < 4; r++) {
         int32_t yr = 38 + r * 50;
-        cv_text(6, yr - oy, &FONT_XS, GROUP[r], K_DIM);
+        int32_t gx = cv_text(6, yr - oy, &FONT_XS, GROUP[r], mix(K_BG, GCOL[r], 11));
+        plait(gx + 6, 234, yr + 5 - oy, mix(K_BG, GCOL[r], 6));
         for (c = 0; c < 4; c++) {
             int e = r * 4 + c, on = (int)(ui.fx >> e & 1u);
             int32_t x = 4 + c * 59, y = yr + 13 - oy;
+            const uint16_t col = mix(GCOL[r], K_BAININ, c * 3);
             char t[12];
-            cv_round(x, y, 55, 33, 5, on ? K_ACC : c == 0 ? K_PANEL : mix(K_BG, K_PANEL, 8));
+            cv_round(x, y, 55, 33, 5, on ? col : mix(K_BG, col, 5));
             if (c == 0 && !on)                   /* (the first of a group: its key is lit) */
-                cv_rect(x + 4, y + 29, 47, 2, K_ACC);
+                cv_rect(x + 4, y + 29, 47, 2, col);
             caps(t, GRID_CELL[e], sizeof t);
-            text_c(x + 28, y + 8, &FONT_S, t, on ? K_BG : K_TEXT);
+            text_c(x + 28, y + 8, &FONT_S, t, on ? K_BG : col);
         }
     }
     cv_blit(0, (uint32_t)oy);
@@ -2624,11 +2635,6 @@ static void draw_pmap(void)
  * go: their keys blink, REC is lit. */
 #define PF_H (HDR_H + MAIN_H)
 #define PF_MAX 8
-/* (the user, 2026-11-10: "more Irish") the flag's orange, the sea, heather, gorse, shamrock; shaded towards bainin */
-#define K_SEA RGB(72, 188, 176)
-#define K_HEATHER RGB(198, 150, 210)
-#define K_GORSE RGB(244, 200, 56)
-#define K_BAININ RGB(246, 238, 214)
 static const uint16_t PG_COL[PG_N] = {K_EIRE_O, K_SEA, K_HEATHER, K_GORSE, K_EIRE};
 static const char *const PLINE[PERF_N] = {
     "a slice, over and over", "fog rolling into the echo", "half the speed", "a burst of rain",

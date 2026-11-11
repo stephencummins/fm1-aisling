@@ -543,7 +543,7 @@ up a slot. A key writes a slot's root, KNOB 2 its kind, KNOB 3 its type, KNOB 4 
 
 ## 9. The effects grid
 
-![The effects grid, REC held: four rows of four, Octave held](img/screen-grid.png)
+![The effects grid, REC held: four rows of four, a colour a group, Octave held](img/screen-grid.png)
 
 Hold REC: the grid fills the screen, four rows of four, one effect on each white key. An effect lasts while
 its key is held; several can be held together. Let go of REC and the keys still held keep theirs until
