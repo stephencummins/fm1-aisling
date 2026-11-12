@@ -3271,7 +3271,7 @@ static void draw_knobs(void)
     if (ui.view == V_MIX)
         h = hash(h, ui.mutes);
     if (ui.view == V_SETUP)
-        h = hash(h, 0x534C50u ^ sl.set);
+        h = hash(h, 0x534C50u ^ sl.set ^ (uint32_t)jr.stay << 8);
     if (ui.view == V_DUB)                        /* (1.2) Evolve's timing, lit while Evolve is above 40 */
         h = hash(h, 0x455642u ^ (uint32_t)evb() << 1 ^ (uint32_t)(proj.par[P_EVOLVE] > 40));
     int now_touch = plat_ms() < ui.touch_until, sel_on = ui.view == V_DUB && plat_ms() < ui.sel_until;
