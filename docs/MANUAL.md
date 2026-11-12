@@ -175,6 +175,8 @@ The **Journey page** is its set list: KNOB 1 picks a piece, KNOB 2 puts it in or
 out), and the journey passes over the ones that are out. The journey changes nothing in the pieces and saves
 nothing; the stay and the list aren't saved either, so it's off, with all eight in, every time the FM-1 starts.
 
+![The Journey page: JOURNEY 20 MIN A PIECE over the eight pieces in two columns, Carolan picked, and the knobs Piece, In set and Day](img/screen-journey.png "The Journey page: a stay of 20 minutes, all eight in, the day at 1 hour")
+
 **The day and the weather.** KNOB 4 on the Journey page, **Day**, lays a slow day over whatever plays: Off, or a
 whole day in 20 minutes, 1 hour or 3 hours. It begins at dawn. By day the sequences' filter and the pings' tone
 open and the reverb grows; by night they darken and the room closes in, and the sequences thin a little. Three
