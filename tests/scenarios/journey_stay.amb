@@ -62,3 +62,36 @@ setlist 0
 turn SELECT -5
 wait 420000
 expect piece 7
+# the Set list page: GLO a third time. Knob 1 the piece, knob 2 in or out; SELECT the stay, as on Setup
+tap GLO
+wait 300
+tap GLO
+wait 300
+expect view 27
+expect jrout 0
+turn K1 -8
+turn K1 2
+turn K2 -1
+wait 300
+expect jrout 4
+turn K1 3
+turn K2 -1
+wait 300
+expect jrout 36
+turn SELECT 2
+wait 300
+expect jrstay 10
+shot setlist.png
+# the last one in stays in
+setlist 0x7F
+turn K1 8
+turn K2 -1
+wait 200
+expect jrout 127
+turn K1 -8
+turn K2 1
+wait 200
+expect jrout 126
+tap GLO
+wait 300
+expect view 6

@@ -25,18 +25,18 @@
  * pages, the layer's button pressed again) */
 enum { V_DUB, V_CHORD, V_TEXTURE, V_BASS, V_DRUMS, V_SPACE, V_SETUP, NPAGES, V_MIX = NPAGES, V_CSND, V_PSND, V_BSND,
        V_DSND, V_CFM, V_PFM, V_BFM, V_CHORDS, V_PAT, V_PERF, V_KEY, V_NSND, V_ESND, V_NSND2, V_ARC, V_SMOVE, V_S2MOVE, V_AMOVE,
-       V_LSTYLE, NVIEWS };
+       V_LSTYLE, V_SET, NVIEWS };            /* (1.4) V_SET: the journey's set list, GLO a third time */
 /* (V_PERF: PERFORM's knobs, the master actions; V_MIX while white 6 is held. V_KEY: HOME again, the key and the
  * tempo, the Dub page's second) */
 static const char *const VIEW_NAME[NVIEWS] = {"Aisling", "Drone", "Sequence", "Lead", "Sequence 2", "Space", "Setup",
                                               "Mix", "Drone sound", "Seq sound", "Lead sound", "Seq2 sound",
                                               "Drone move", "Repeats", "Lead move", "Chords", "Pattern", "Perform", "Key",
                                               "Atmosphere", "Echo", "Atmos sound", "Arc", "Seq move", "Seq2 move",
-                                              "Atmos move", "Lead style"};
+                                              "Atmos move", "Lead style", "Set list"};
 #define B_NONE 0xFFu
 static const uint8_t VIEW_BTN[NVIEWS] = {B_HOME, B_ENV, B_ARP, B_LFO, B_SEQ, B_FX, B_GLO, B_NONE, B_NONE, B_NONE, B_NONE,
                                          B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_SAVE, B_NONE, B_NONE,
-                                         B_NONE, B_NONE, B_NONE, B_NONE, B_NONE};
+                                         B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE};
 static int sound_of(int v) { return v == V_CHORD ? V_CSND : v == V_TEXTURE ? V_PSND : v == V_BASS ? V_BSND : v == V_DRUMS ? V_DSND : -1; }
 static int fm_of(int v) { return v == V_TEXTURE ? V_PFM : -1; }   /* (BERLIN: no FM pages; the Sequence's third, its
                                                                    * Repeats, in the Ping FM page's place) */
@@ -62,7 +62,7 @@ static int next_page(int v)                      /* (BERLIN) a layer's button ag
 static int atm_view(int v) { return v == V_NSND || v == V_NSND2 || v == V_AMOVE; }   /* (the Atmosphere's pages) */
 static int page_of(int v)                        /* a sound page: its layer's; the Echo page: Space's */
 {
-    return v == V_KEY ? V_DUB : v == V_ESND ? V_SPACE : v == V_NSND2 || v == V_AMOVE ? V_NSND : v == V_ARC ? V_SETUP
+    return v == V_KEY ? V_DUB : v == V_ESND ? V_SPACE : v == V_NSND2 || v == V_AMOVE ? V_NSND : v == V_ARC || v == V_SET ? V_SETUP
          : parent_of(v) >= 0 ? parent_of(v) : v;
 }
 /* the header's dots, as the buttons sit on the panel: FX ENV LFO GLO, then HOME SAVE ARP SEQ (SELECT's round once) */
@@ -72,7 +72,7 @@ static const uint8_t PAGE_ORDER[NROUND] = {V_SPACE, V_CHORD, V_BASS, V_SETUP, V_
 #define NO_PAGE 0xFFu
 static const uint8_t PAGE_RUN[NROUND][4] = {
     {V_SPACE, V_ESND, NO_PAGE, NO_PAGE},   {V_CHORD, V_CSND, V_CFM, NO_PAGE},
-    {V_BASS, V_BSND, V_LSTYLE, V_BFM},     {V_SETUP, V_ARC, NO_PAGE, NO_PAGE},
+    {V_BASS, V_BSND, V_LSTYLE, V_BFM},     {V_SETUP, V_ARC, V_SET, NO_PAGE},
     {V_DUB, V_KEY, NO_PAGE, NO_PAGE},      {V_NSND, V_NSND2, V_AMOVE, NO_PAGE},
     {V_TEXTURE, V_PSND, V_PFM, V_SMOVE},   {V_DRUMS, V_DSND, V_PAT, V_S2MOVE},
 };
@@ -107,7 +107,8 @@ enum { K_LEDS = 200, K_CPU, K_NONE, K_SLOT, K_CQ, K_CX,    /* (the Chords page: 
        K_MODE,                                               /* (the Key page: the mode, as ALGORITHM sets it) */
        K_PLAY,                                               /* (the Chords page: Endless or Loop, P_PMODE's bit 2) */
        K_SAVE,                                               /* (Setup: a turn saves; it shows whether it's saved) */
-       K_CHORUS };                                           /* (1.3, PERFORM: the output's chorus, never saved) */
+       K_CHORUS,
+       K_JRP, K_JRIN };                                      /* (1.4, the Set list page: the piece, and whether it's in) */                                           /* (1.3, PERFORM: the output's chorus, never saved) */
 static const char *const LANE_NAME[EN_NDRUM] = {"Steps", "Steps 2", "Octaves", "Octaves 2", "Skips"};   /* (BERLIN:
                                                   * the Sequence's and Sequence 2's) */
 static int lane_seq(int d) { return d == 1 || d == 3; }   /* (a lane's sequence: its accents, its chance) */
@@ -143,6 +144,7 @@ static const uint16_t VIEW_KNOB[NVIEWS][4] = {
     {P_MW4, P_MT4, P_MR4, P_MI4},                /* the Atmosphere's Move (SAVE, a third time) */
     {P_ORN, P_GLIDE, P_VIB, P_LMEM},             /* (AISLING) Lead style (LFO, a third time): how it plays; Memory
                                                   * as on the Arc page */
+    {K_JRP, K_JRIN, K_NONE, K_NONE},             /* (1.4) the Set list (GLO, a third time): the journey's pieces */
 };
 static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Filter", "Evolve", "Motion", "Drift"},
@@ -172,10 +174,11 @@ static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Width", "Time", "Rate", "Intro"},
     {"Width", "Time", "Rate", "Intro"},
     {"Ornament", "Glide", "Vibrato", "Memory"},
+    {"Piece", "In set", "", ""},
 };
 /* what each knob does, a line: on the rule above the knobs while it's being turned (in capitals; each fits the
  * rule's 228 px, and every view has its row: the host's expect helpfit) */
-_Static_assert(NVIEWS == 27, "a view added: its KNOB_HELP row too");
+_Static_assert(NVIEWS == 28, "a view added: its KNOB_HELP row too");
 static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, V_DUB .. V_ARC) */
     {"Down shuts, up opens; Off mid", "How often a step changes", "How much, and the sections' pace", "Bars before the chord moves on"},
     {"The root an octave under", "The filter's resonance", "The slow phaser's depth", "How slowly the chord swells in"},
@@ -204,6 +207,7 @@ static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, 
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"Cuts, rolls, slides: how often", "How long it slides, note to note", "How deep the late vibrato", "How much the Lead keeps its ideas"},
+    {"Which piece: the journey's list", "The journey plays it, or passes", "", ""},
 };
 
 /* (BERLIN) the screen's colours: Cosmic, on black (spec 15): lavender text, a cyan accent; the layers in their own
@@ -250,6 +254,7 @@ static struct {
     uint32_t fx;                       /* the effects held (EN_FX_*), REC's grid */
     uint32_t bfx;                      /* (BERLIN) the grid's effects held on the black keys (EN_FX_*) */
     uint8_t mv;                        /* (BERLIN) the black keys' moves held (EN_MV_*) */
+    uint8_t jr_out, jr_cur;            /* (1.4) the Set list: the pieces left out (a bit each), the one looked at */
     uint8_t slot, chords_from;         /* the Chords page: the slot edited; the page it was opened from */
     uint8_t noise_from;                /* the Noise page (SAVE): the page it was opened from */
     int8_t oct_home[NLAYER];           /* each layer's octave as its piece was loaded (OCT- / OCT+ lit away from it) */
@@ -543,6 +548,10 @@ static int knob_get(int k)
         return ui.dirty ? 1 : 0;
     if (k == K_CHORUS)
         return ui.chorus;
+    if (k == K_JRP)
+        return ui.jr_cur;
+    if (k == K_JRIN)
+        return !(ui.jr_out >> ui.jr_cur & 1u);
     return 0;
 }
 static void knob_range(int k, int *lo, int *hi)
@@ -555,7 +564,7 @@ static void knob_range(int k, int *lo, int *hi)
         *hi = 50;
     } else {
         *lo = 0;
-        *hi = k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
+        *hi = k == K_JRP ? NPIECES - 1 : k == K_JRIN ? 1 : k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
             : k == K_LANE ? EN_NDRUM - 1 : k == K_LCH ? 100 : 0;
     }
 }
@@ -565,7 +574,7 @@ static const char *knob_name(int k)
         return en_param_info(k)->name;
     return k == K_LEDS ? "Lights" : k == K_CPU ? "CPU" : k == K_SLOT ? "Slot" : k == K_CQ ? "Chord" : k == K_CX ? "Type"
          : k == K_LANE ? "Lane" : k == K_LCH ? "Chance" : k == K_FILTER ? "Filter" : k == K_DUB ? "Wet"
-         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : k == K_CHORUS ? "Chorus" : "";
+         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : k == K_CHORUS ? "Chorus" : k == K_JRP ? "Piece" : k == K_JRIN ? "In set" : "";
 }
 static void knob_text(int k, char *b)
 {
@@ -582,6 +591,10 @@ static void knob_text(int k, char *b)
             b++;
         *b++ = '%';
         *b = 0;
+    } else if (k == K_JRP || k == K_JRIN) {
+        const char *n = k == K_JRP ? piece_name(v) : v ? "In" : "Out";
+        while ((*b++ = *n++))
+            ;
     } else if (k == K_SLOT) {
         itoa_u((uint32_t)v + 1u, b);
     } else if (k == K_CQ || k == K_CX) {
@@ -666,6 +679,14 @@ static void knob_set(int k, int v)
     } else if (k == K_SLOT) {
         ui.slot = (uint8_t)v;
         return;                                  /* (only where the page looks: nothing saved) */
+    } else if (k == K_JRP) {
+        ui.jr_cur = (uint8_t)v;
+        return;
+    } else if (k == K_JRIN) {                    /* (not saved, as the stay. The last one in stays in) */
+        const uint8_t o = v ? ui.jr_out & (uint8_t)~(1u << ui.jr_cur) : ui.jr_out | (uint8_t)(1u << ui.jr_cur);
+        if (o != (uint8_t)((1u << NPIECES) - 1u))
+            ui.jr_out = o;
+        return;
     } else if (k == K_CQ || k == K_CX) {
         slot_write(ui.slot);
         knob_set((k == K_CQ ? P_CQ0 : P_CX0) + ui.slot, v);
@@ -939,8 +960,8 @@ static struct {
     uint32_t mask;                               /* the layers held out now (EN_M_*) */
     uint32_t bar, six;                           /* the engine's bar last seen; the sixteenth the tempo's ease began */
     uint32_t act;                                /* the last touch when it began (another ends it) */
-    uint8_t stay, out, piece, pb;                /* the stay (JR_MIN's); the pieces left out, a bit each; the piece
-                                                  * the stay is on; the phrase's bar last seen */
+    uint8_t stay, piece, pb;                     /* the stay (JR_MIN's); the piece it is on; the phrase's bar last
+                                                  * seen (the set list: ui.jr_out) */
     uint32_t since;                              /* the stay's start: the piece's arrival, or the last touch */
 } jr;
 static void perf_mutes(void)                     /* to the engine: the mutes, and with a solo, all but it */
@@ -1246,9 +1267,11 @@ static void button(int b)
         set_view(ui.view == V_SPACE ? V_ESND : V_SPACE);
         return;
     }
-    if (b == B_GLO && (ui.view == V_SETUP || ui.view == V_ARC)) {   /* GLO again: the Arc (how the piece builds);
-                                                                       * again: back */
-        set_view(ui.view == V_SETUP ? V_ARC : V_SETUP);
+    if (b == B_GLO && (ui.view == V_SETUP || ui.view == V_ARC || ui.view == V_SET)) {   /* GLO again: the Arc (how
+                                                  * the piece builds); again: (1.4) the journey's Set list; again: back */
+        if (ui.view == V_ARC)
+            ui.jr_cur = (uint8_t)proj.piece;     /* (it opens on the piece playing) */
+        set_view(ui.view == V_SETUP ? V_ARC : ui.view == V_ARC ? V_SET : V_SETUP);
         return;
     }
     if (b == B_HOME && ui.view == V_DUB) {       /* HOME again: the Key page (the key and the tempo); again: back */
@@ -1744,7 +1767,7 @@ static int jr_next(void)                         /* the set list's next piece af
 {
     int i;
     for (i = 1; i < NPIECES; i++)
-        if (!(jr.out >> (proj.piece + i) % NPIECES & 1u))
+        if (!(ui.jr_out >> (proj.piece + i) % NPIECES & 1u))
             return (proj.piece + i) % NPIECES;
     return -1;
 }
@@ -2015,7 +2038,7 @@ static void input(void)
             level_turn(oct_layer(ui.view), e);
         else if (ui.view == V_DUB)               /* (HOME: Energy, the user's: to play the keys and push it at once) */
             energy_turn(e);
-        else if (ui.view == V_SETUP)             /* (1.4) Setup: the journey's stay */
+        else if (ui.view == V_SETUP || ui.view == V_SET)   /* (1.4) Setup and the Set list: the journey's stay */
             jr_turn((int)e);
         ui.turn_t = plat_ms();
     }
@@ -2968,6 +2991,34 @@ static void draw_slots(void)
         }
     }
 }
+/* (1.4) the Set list page: the eight pieces, two across. In: lit; out: dim, and marked OUT; the one playing in the
+ * Drone's colour; the one the knobs are on ringed. The head: the stay (SELECT's, here as on Setup) */
+static void draw_setlist(void)
+{
+    int i;
+    char t[40], *q = t;
+    const char *a = jr.stay ? "JOURNEY " : "JOURNEY OFF: SELECT SETS THE STAY", *b = jr.stay ? JR_NAME[jr.stay] : "",
+               *c = jr.stay ? " A PIECE" : "";
+    while (*a) *q++ = *a++;
+    while (*b) *q++ = *b++;
+    while (*c) *q++ = *c++;
+    *q = 0;
+    text_c(120, -1, &FONT_XS, t, jr.stay ? K_ACC : K_DIM);
+    for (i = 0; i < NPIECES; i++) {
+        const int32_t x = 6 + (i & 1) * 116, y = 16 + (i >> 1) * 24;
+        const int out = ui.jr_out >> i & 1, now = i == proj.piece, sel = i == ui.jr_cur;
+        char d[2], nm[20];
+        if (sel)
+            cv_round(x - 2, y - 2, 116, 25, 5, K_ACC);
+        cv_round(x, y, 112, 21, 4, now ? K_PAD : out ? mix(K_BG, K_PANEL, 6) : K_PANEL);
+        d[0] = (char)('1' + i), d[1] = 0;
+        cv_text(x + 4, y + 5, &FONT_XS, d, now ? K_BG : K_DIM);
+        caps(nm, piece_name(i), sizeof nm);
+        cv_text(x + 16, y + 5, &FONT_XS, nm, now ? K_BG : out ? K_DIM : K_TEXT);
+        if (out)
+            cv_text(x + 108 - text_w(&FONT_XS, "OUT"), y + 5, &FONT_XS, "OUT", now ? K_BG : K_DIM);
+    }
+}
 
 /* the level ring (SELECT on a layer's page): over the middle, the layer's level as a big knob in its colour, the
  * number inside, its name under; the arc glides to the level, a step a brief brightening; muted, grey; it fades out
@@ -3115,6 +3166,18 @@ static void draw_main(void)
             ui.sig[1] = h;
             cv_begin(240, MAIN_H, K_BG);
             draw_slots();
+            draw_flash(now);
+            cv_blit(0, MAIN_Y);
+        }
+        return;
+    }
+    if (ui.view == V_SET) {                      /* (1.4) the Set list page */
+        h = hash(hash(0x5345544Cu, ui.jr_out | (uint32_t)ui.jr_cur << 8 | (uint32_t)jr.stay << 12 | (uint32_t)proj.piece << 16),
+                 (uint32_t)flash_on(now));
+        if (h != ui.sig[1] || flash_on(now)) {
+            ui.sig[1] = h;
+            cv_begin(240, MAIN_H, K_BG);
+            draw_setlist();
             draw_flash(now);
             cv_blit(0, MAIN_Y);
         }
@@ -3823,6 +3886,10 @@ static void speak_dump(void)
                     proj.par[k] = (int16_t)x;
                 else if (k == K_SLOT)
                     ui.slot = (uint8_t)x;
+                else if (k == K_JRP)
+                    ui.jr_cur = (uint8_t)x;
+                else if (k == K_JRIN)
+                    ui.jr_out = (uint8_t)(x ? 0 : 1u << ui.jr_cur);
                 else if (k == K_CQ || k == K_CX)
                     proj.par[(k == K_CQ ? P_CQ0 : P_CX0) + ui.slot] = (int16_t)x;
                 else if (k == K_LANE)

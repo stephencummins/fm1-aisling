@@ -578,6 +578,8 @@ static int expect(const char *what, const char *val)
         got = jr.on ? jr.n + 1 : 0;
     else if (!strcmp(what, "jrmask"))
         got = (int)jr.mask;
+    else if (!strcmp(what, "jrout"))              /* the set list: the pieces left out, a bit each */
+        got = ui.jr_out;
     else if (!strcmp(what, "jrstay"))             /* the stay, in minutes (0: the journey's off) */
         got = JR_MIN[jr.stay];
     else if (!strcmp(what, "evolves"))            /* (1.2) Evolve's nudges so far */
@@ -1144,7 +1146,7 @@ int main(int argc, char **argv)
                 printf("FAIL line %d: %s\n", lineno, line), fails++;
         }
         else if (!strcmp(cmd, "setlist"))        /* (1.4) setlist MASK: the pieces left out, a bit each */
-            jr.out = (uint8_t)strtoul(a, 0, 0);
+            ui.jr_out = (uint8_t)strtoul(a, 0, 0);
         else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4;
@@ -1252,7 +1254,7 @@ int main(int argc, char **argv)
             static const uint8_t REACH[] = {V_DUB, V_KEY, V_CHORD, V_CSND, V_TEXTURE, V_PSND, V_PFM, V_BASS, V_BSND,
                                             V_DRUMS, V_DSND, V_PAT, V_SPACE, V_ESND, V_SETUP, V_MIX, V_PERF, V_NSND,
                                             V_NSND2, V_ARC, V_CFM, V_BFM, V_SMOVE, V_S2MOVE, V_AMOVE,
-                                            V_LSTYLE};
+                                            V_LSTYLE};   /* (the Set list: no sound of its own) */
             float e0[16], e1[16];
             uint32_t m0, m1;
             unsigned k;
