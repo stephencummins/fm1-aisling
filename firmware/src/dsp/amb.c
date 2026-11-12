@@ -490,7 +490,7 @@ const char *en_chord_name(const int *pcs, int n, char *buf)
 
 /* ------------------------------------------------------------ commands --- */
 static float cho_t;                              /* (1.3) the Chorus knob, 0..1 */
-enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT };
+enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT, C_THIN };
 #define QN 512u                                 /* (a piece is every parameter at once: room for twice over and more) */
 _Static_assert(QN >= 2u * (P_NPARAMS + 8), "the command queue can't hold a piece's parameters twice over");
 static uint32_t q[QN];
@@ -515,6 +515,7 @@ void en_clock(int msg) { post(C_CLOCK, msg, 0); }
 void en_regrow(void) { post(C_REGROW, 0, 0); }
 void en_mute(uint32_t m) { post(C_MUTE, (int)(m & 0xFFu), 0); }
 void en_perf(uint32_t f) { post(C_PERF, (int)(f & 0xFFu), 0); }
+void en_thin(uint32_t m) { post(C_THIN, (int)(m & 0xFFu), 0); }
 void en_fx(uint32_t m)                           /* (1.3: all 32, in two: the top eight after) */
 {
     post(C_FX, (int)(m >> 16 & 0xFFu), (int)(m & 0xFFFFu));
@@ -593,6 +594,13 @@ static void nev(int k, float s, float p)         /* a noise event, for the scree
 static void hit(int l, float vel) { en_hit_vel[l] = vel; en_hits[l]++; }
 static float scope_acc;
 static uint32_t scope_ph;
+/* (1.4) the journey's glide: the Drone and the Atmosphere eased out and in (EN_M_CHORD, EN_M_NOISE: a mute cuts; this
+ * takes TH_OUT seconds down, most of the two bars before the piece changes, and TH_IN up). Their gains exactly 1 with
+ * none thinned: the sums as they were */
+#define TH_OUT 5.0f
+#define TH_IN 1.5f
+static uint32_t thin;
+static float th_dr = 1.0f, th_at = 1.0f;
 static uint32_t mutes, perf, fxm, fxm_was;      /* performance: the layers muted, the moves held; the effects held */
 static float perf_sw, perf_echo, mb_c[4], mb_s[4], mb_in;   /* the filter pushed open (+) or shut (-), the echo
                                                  * pushed (mb: Open's and Shut's filter on the music, the kick left
@@ -815,7 +823,7 @@ static uint32_t dr_rng = 0x6A09E667u;
 static float dr_pedal = 0.7f, dr_rev = 1.0f, dr_echo = 1.0f;   /* (the pedal's level; the sends, x1 at 50) */          /* (its own: the voices' phases leave the music's draws alone) */
 
 static uint8_t dr_midi[2];                        /* the banks whose notes went out on MIDI: their note-offs owed */
-static int dr_heard(void) { return !(mutes & EN_M_CHORD) && par[P_CHORD] > 0; }   /* (its MIDI only while heard) */
+static int dr_heard(void) { return !((mutes | thin) & EN_M_CHORD) && par[P_CHORD] > 0; }   /* (its MIDI only while heard) */
 static void dr_midi_off(int b)                   /* a bank's MIDI notes let go (muted, level 0, or dying away) */
 {
     int i;
@@ -4650,6 +4658,11 @@ static void drain(void)
             mutes = (uint32_t)a;
             break;
         case C_PERF: perf = (uint32_t)a; break;
+        case C_THIN:
+            if (a & ~thin & EN_M_CHORD)          /* (the Drone thinned out: its notes off on MIDI, as muted) */
+                dr_midi_off(0), dr_midi_off(1);
+            thin = (uint32_t)a;
+            break;
         case C_FX: fxm = (fxm & 0xFF000000u) | (c & 0xFFFFFFu); break;
         case C_FX2: fxm = (fxm & 0xFFFFFFu) | (uint32_t)a << 24; break;
         case C_MOVE: mvm = c & 0xFFu; break;
@@ -5121,6 +5134,9 @@ static void render_atmos(uint32_t n)
     int ch, k;
     atm_gate += ((en_playing ? 1.0f : 0.0f) - atm_gate) * fm_minf((float)n / (0.5f * EN_SR), 1.0f);
     g = mutes & EN_M_NOISE || c == ATM_NONE ? 0.0f : crackle_vol * atm_gate;   /* (its level: nothing more) */
+    th_at = amt_ramp(th_at, thin & EN_M_NOISE ? 0.0f : 1.0f, (float)n * (1.0f / (TH_IN * EN_SR)),
+                     (float)n * (1.0f / (TH_OUT * EN_SR)));   /* (1.4: the glide) */
+    g *= th_at;
     atm_g_out = g;
     en_atm_gain = g;
     if (g < 1e-5f) {
@@ -5423,6 +5439,9 @@ static void render_crackle(uint32_t n)
     if (cr_gate < 1e-4f)
         cr_gate = 0.0f;
     g = mutes & EN_M_NOISE ? 0.0f : crackle_vol * cr_gate;   /* (muted: its level kept) */
+    th_at = amt_ramp(th_at, thin & EN_M_NOISE ? 0.0f : 1.0f, (float)n * (1.0f / (TH_IN * EN_SR)),
+                     (float)n * (1.0f / (TH_OUT * EN_SR)));   /* (1.4: the glide) */
+    g *= th_at;
     atm_g_out = g;
     en_atm_gain = g;
     if (g <= 0.0f) {
@@ -6477,6 +6496,9 @@ static void render_drone(uint32_t n)
     float c[4], ch[4], cf1[4], cf2[4];
     uint32_t j;
     int b, i;
+    th_dr = amt_ramp(th_dr, thin & EN_M_CHORD ? 0.0f : 1.0f, (float)n * (1.0f / (TH_IN * EN_SR)),
+                     (float)n * (1.0f / (TH_OUT * EN_SR)));   /* (1.4: the glide; 1 exactly but then) */
+    g *= th_dr;
     if (!dr_on[0] && !dr_on[1] && dr_lvl[0] <= 0.0f && dr_lvl[1] <= 0.0f) {
         ch_live = 0;                             /* (Choir from rest when it next sounds) */
         return;

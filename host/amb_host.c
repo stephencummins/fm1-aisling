@@ -574,6 +574,10 @@ static int expect(const char *what, const char *val)
         got = proj.pool;
     else if (!strcmp(what, "evbars"))             /* (1.2) Evolve's timing: 0 now and then, 1..4 every 4, 8, 16, 32 bars */
         got = proj.evbars;
+    else if (!strcmp(what, "jr"))                 /* (1.4) the journey's glide: bars into it + 1, 0 none */
+        got = jr.on ? jr.n + 1 : 0;
+    else if (!strcmp(what, "jrmask"))
+        got = (int)jr.mask;
     else if (!strcmp(what, "evolves"))            /* (1.2) Evolve's nudges so far */
         got = (int)ui_evolve_n;
     else if (!strcmp(what, "evolvebar"))          /* (1.2) the bar of the last (from 0 at the top) */
@@ -1133,6 +1137,10 @@ int main(int argc, char **argv)
             accel_off = 0;
         } else if (!strcmp(cmd, "master"))
             master = (uint32_t)atoi(a);
+        else if (!strcmp(cmd, "journey")) {      /* (1.4) journey N: the glide to piece N begun by hand */
+            if (!jr_go(atoi(a)))
+                printf("FAIL line %d: %s\n", lineno, line), fails++;
+        }
         else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4;

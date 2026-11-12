@@ -925,9 +925,24 @@ static void fx_send(void)                        /* all that is held, to the eng
     en_move(ui.mv | mv);
     en_perf(ui.moves | pf);
 }
+/* (1.4) THE JOURNEY's glide: one piece into the next without two playing at once (there isn't the load for a
+ * crossfade). Over 16 bars the layers thin out into the echo and the plate (the Lead, Sequence 2, Sequence 1, then the
+ * Drone and the Atmosphere eased), the tempo eases across under the tail, the piece changes with nothing sounding but
+ * that tail, and the new piece's layers come in: the Drone and the Atmosphere, Sequence 1, Sequence 2, the Lead. The
+ * layers held out are laid over the hand's mutes, never stored in them. A touch ends it: before the change, the piece
+ * stays; after, the new one whole at once. The change is set_piece's without its save: nothing is marked to be
+ * saved, so a journey never writes the flash */
+#define JR_THIN (EN_M_CHORD | EN_M_NOISE)        /* (eased by the engine: en_thin; the rest stop sounding new notes) */
+static struct {
+    uint8_t on, to, changed, n;                  /* gliding; the piece it goes to; changed yet; bars into it */
+    int16_t tempo;                               /* the tempo sent last, easing */
+    uint32_t mask;                               /* the layers held out now (EN_M_*) */
+    uint32_t bar, six;                           /* the engine's bar last seen; the sixteenth the tempo's ease began */
+    uint32_t act;                                /* the last touch when it began (another ends it) */
+} jr;
 static void perf_mutes(void)                     /* to the engine: the mutes, and with a solo, all but it */
 {
-    en_mute(ui.mutes | (ui.solo ? ALL_MUTE & ~ui.solo : 0u));
+    en_mute(ui.mutes | (ui.solo ? ALL_MUTE & ~ui.solo : 0u) | (jr.mask & ~JR_THIN));
 }
 static int perf_sounds(int i)                    /* layer i (0..4) heard: not muted, not soloed out */
 {
@@ -1713,6 +1728,81 @@ static void nudge(int layer, int how)
 #ifdef EN_HOST
 static uint32_t ui_evolve_n, ui_evolve_bar;      /* Evolve's nudges so far, and the bar of the last */
 #endif
+static void jr_send(void)
+{
+    perf_mutes();
+    en_thin(jr.mask & JR_THIN);
+}
+static void jr_end(void)
+{
+    if (!jr.changed)                             /* (it stays: its own tempo back) */
+        en_set(P_TEMPO, proj.par[P_TEMPO]);
+    jr.on = 0;
+    jr.mask = 0;
+    jr_send();
+}
+static int jr_go(int to)                         /* the glide to piece `to` begun: 0 if it can't be */
+{
+    to = (to % NPIECES + NPIECES) % NPIECES;
+    if (jr.on || !en_playing || en_frozen || to == proj.piece)
+        return 0;
+    jr.on = 1, jr.to = (uint8_t)to, jr.changed = 0, jr.n = 0;
+    jr.bar = en_bar_no;
+    jr.act = ui.act_t;
+    jr.tempo = proj.par[P_TEMPO];
+    jr.mask = EN_M_BASS;                         /* the Lead first */
+    jr_send();
+    return 1;
+}
+static void jr_tick(void)
+{
+    const uint32_t b = en_bar_no;
+    if (!jr.on)
+        return;
+    if (!en_playing || ui.act_t != jr.act) {     /* stopped, or a touch */
+        jr_end();
+        return;
+    }
+    if (!jr.changed && jr.n >= 4) {              /* the tempo across, bars 4 to 8: only the Drone and the tail sound */
+        const int t0 = proj.par[P_TEMPO], t1 = proj.slot[jr.to].par[P_TEMPO];
+        uint32_t d = en_bars - jr.six;
+        int v;
+        d = d > 64u ? 64u : d;
+        v = t0 + (t1 - t0) * (int)d / 64;
+        if (v != jr.tempo)
+            en_set(P_TEMPO, jr.tempo = (int16_t)v);
+    }
+    if (b == jr.bar)
+        return;
+    jr.bar = b;
+    switch (++jr.n) {
+    case 2: jr.mask |= EN_M_KICK | EN_M_HATS; break;
+    case 4: jr.mask |= EN_M_PINGS, jr.six = en_bars; break;
+    case 6: jr.mask |= JR_THIN; break;
+    case 8:                                      /* the piece: set_piece's change, never its save */
+        mac_home();
+        project_piece(jr.to);
+        project_apply();
+        oct_home_take();
+        en_seed(plat_ms());
+        en_regrow();
+        say_as("PIECE", piece_name(proj.piece), 0);
+        sp_piece();
+        undo_clear();
+        jr.changed = 1;
+        jr.act = ui.act_t;
+        jr.bar = en_bar_no;
+        jr.mask &= ~(uint32_t)JR_THIN;
+        break;
+    case 10: jr.mask &= ~(uint32_t)EN_M_PINGS; break;
+    case 12: jr.mask &= ~(uint32_t)(EN_M_KICK | EN_M_HATS); break;
+    case 14: jr.mask &= ~(uint32_t)EN_M_BASS; break;
+    case 16: jr_end(); return;
+    default: return;
+    }
+    jr_send();
+}
+
 static void nudge_tick(void)                     /* Evolve's nudges: on a phrase's first bar, now and then, one layer;
                                                   * (1.2) or every N bars, every time (evolve_turn) */
 {
@@ -2672,7 +2762,10 @@ static int pflash_up(void) { return ui.perf && (ui.pheld | ui.pcc); }
 static int pk_under(int k)
 {
     const uint32_t b = 1u << k;
+    const int d = PKEY[k].d;
     if (!(ui.pcc & b) || (ui.pnow & ~ui.pcc & b) || (ui.perf && (ui.pheld | ui.platch) & b))
+        return 0;
+    if (d >= 200 || d == EN_FX_HALF || d == EN_FX_OCTAVE || d == EN_FX_FREEZE)   /* (the switches: on is on) */
         return 0;
     return ui.pamt[k] >= 64 && ui.pamt[k] < 127 ? ui.pamt[k] - 63 : 0;
 }
@@ -3917,6 +4010,7 @@ void ui_frame(void)
         ui.s2_hand = 0;
     prog_take();
     nudge_tick();
+    jr_tick();
     if (!sleep_input())
         input();
     mac_take();

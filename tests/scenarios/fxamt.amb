@@ -77,3 +77,11 @@ midi B0 68 00
 wait 400
 expect pbar 0
 expect lstatelen 35
+# (found on the FM-1, 2026-11-12) a switch held by CC at a part value has no amount: no bar, nothing listed.
+# Freeze is CC 108 (key 18)
+midi B0 68 00
+midi B0 6C 60
+wait 700
+expect lamt18 64
+midi B0 6C 00
+wait 300
