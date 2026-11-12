@@ -578,6 +578,8 @@ static int expect(const char *what, const char *val)
         got = jr.on ? jr.n + 1 : 0;
     else if (!strcmp(what, "jrmask"))
         got = (int)jr.mask;
+    else if (!strcmp(what, "jrstay"))             /* the stay, in minutes (0: the journey's off) */
+        got = JR_MIN[jr.stay];
     else if (!strcmp(what, "evolves"))            /* (1.2) Evolve's nudges so far */
         got = (int)ui_evolve_n;
     else if (!strcmp(what, "evolvebar"))          /* (1.2) the bar of the last (from 0 at the top) */
@@ -1141,6 +1143,8 @@ int main(int argc, char **argv)
             if (!jr_go(atoi(a)))
                 printf("FAIL line %d: %s\n", lineno, line), fails++;
         }
+        else if (!strcmp(cmd, "setlist"))        /* (1.4) setlist MASK: the pieces left out, a bit each */
+            jr.out = (uint8_t)strtoul(a, 0, 0);
         else if (!strcmp(cmd, "midi")) {
             uint32_t s = (uint32_t)strtoul(a, 0, 16), d1 = (uint32_t)strtoul(b, 0, 16), d2 = (uint32_t)strtoul(c, 0, 16);
             uint32_t cin = s >= 0xF0 ? 0x0F : s >> 4;

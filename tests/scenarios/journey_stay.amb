@@ -1,0 +1,64 @@
+# 1.4: the journey. Setup's SELECT: off, or a stay of 5, 10, 20 or 40 minutes on each piece; then the glide to the
+# set list's next, begun on a phrase's first bar. A touch and the stay starts again. Nothing is saved
+wait 500
+expect playing 1
+expect piece 0
+listen
+tap GLO
+wait 300
+expect view 6
+expect jrstay 0
+turn SELECT 1
+wait 200
+expect jrstay 5
+said journey, 5 minutes a piece
+turn SELECT 10
+wait 200
+expect jrstay 40
+turn SELECT -20
+wait 200
+expect jrstay 0
+said journey off
+turn SELECT 1
+wait 300
+shot setup_journey.png
+# under five minutes: still here, no glide
+wait 280000
+expect piece 0
+expect jr 0
+# a touch at 4 min 40: the whole stay again
+tapkey 5
+wait 100000
+expect piece 0
+expect jr 0
+wait 180000
+expect piece 0
+# five minutes from the touch, and a phrase and the glide's first half: gone on to Burren
+wait 110000
+expect piece 1
+expect dirty 0
+expect store_writes <2
+# Aran and Carolan left out: Blasket next
+setlist 0x0C
+wait 420000
+expect piece 4
+expect dirty 0
+expect store_writes <2
+# a program change picks one outright (and, as by hand, the piece is marked to save); the journey goes on from it
+midi C0 06 00
+wait 2000
+expect piece 6
+wait 280000
+expect piece 6
+wait 140000
+expect piece 7
+# only this one in: it stays
+setlist 0x7F
+wait 420000
+expect piece 7
+expect jr 0
+# off: it stays
+setlist 0
+turn SELECT -5
+wait 420000
+expect piece 7

@@ -939,6 +939,9 @@ static struct {
     uint32_t mask;                               /* the layers held out now (EN_M_*) */
     uint32_t bar, six;                           /* the engine's bar last seen; the sixteenth the tempo's ease began */
     uint32_t act;                                /* the last touch when it began (another ends it) */
+    uint8_t stay, out, piece, pb;                /* the stay (JR_MIN's); the pieces left out, a bit each; the piece
+                                                  * the stay is on; the phrase's bar last seen */
+    uint32_t since;                              /* the stay's start: the piece's arrival, or the last touch */
 } jr;
 static void perf_mutes(void)                     /* to the engine: the mutes, and with a solo, all but it */
 {
@@ -1728,6 +1731,23 @@ static void nudge(int layer, int how)
 #ifdef EN_HOST
 static uint32_t ui_evolve_n, ui_evolve_bar;      /* Evolve's nudges so far, and the bar of the last */
 #endif
+/* (1.4) the journey: a stay on each piece (Setup's SELECT: off, 5, 10, 20 or 40 minutes), then the glide to the next
+ * of the set list, on a phrase's start. A touch, or a piece picked, and the stay starts again. Not saved: off at
+ * every start, as Sleep; nor is anything it does (the pieces are left as they were saved) */
+#define NJR 5
+static const uint8_t JR_MIN[NJR] = {0, 5, 10, 20, 40};
+static const char *const JR_NAME[NJR] = {"OFF", "5 MIN", "10 MIN", "20 MIN", "40 MIN"};
+static const char *const JR_SAID[NJR] = {"journey off", "journey, 5 minutes a piece", "journey, 10 minutes a piece",
+                                         "journey, 20 minutes a piece", "journey, 40 minutes a piece"};
+static uint32_t jr_touch(void) { return (int32_t)(ui.act_t - ui.turn_t) > 0 ? ui.act_t : ui.turn_t; }
+static int jr_next(void)                         /* the set list's next piece after this one: -1, there's no other */
+{
+    int i;
+    for (i = 1; i < NPIECES; i++)
+        if (!(jr.out >> (proj.piece + i) % NPIECES & 1u))
+            return (proj.piece + i) % NPIECES;
+    return -1;
+}
 static void jr_send(void)
 {
     perf_mutes();
@@ -1739,6 +1759,8 @@ static void jr_end(void)
         en_set(P_TEMPO, proj.par[P_TEMPO]);
     jr.on = 0;
     jr.mask = 0;
+    jr.since = plat_ms();                        /* (the stay, from here) */
+    jr.piece = (uint8_t)proj.piece;
     jr_send();
 }
 static int jr_go(int to)                         /* the glide to piece `to` begun: 0 if it can't be */
@@ -1747,19 +1769,47 @@ static int jr_go(int to)                         /* the glide to piece `to` begu
     if (jr.on || !en_playing || en_frozen || to == proj.piece)
         return 0;
     jr.on = 1, jr.to = (uint8_t)to, jr.changed = 0, jr.n = 0;
+    jr.piece = (uint8_t)proj.piece;
     jr.bar = en_bar_no;
-    jr.act = ui.act_t;
+    jr.act = jr_touch();
     jr.tempo = proj.par[P_TEMPO];
     jr.mask = EN_M_BASS;                         /* the Lead first */
     jr_send();
     return 1;
 }
+static void jr_turn(int e)                       /* (a step a detent; off at the left) */
+{
+    int v = (int)jr.stay + e;
+    jr.stay = (uint8_t)(v < 0 ? 0 : v >= NJR ? NJR - 1 : v);
+    jr.since = plat_ms();
+    jr.piece = (uint8_t)proj.piece;
+    say_as("JOURNEY", JR_NAME[jr.stay], 0);
+    if (ann_on()) {
+        ann_say(JR_SAID[jr.stay], 0, ANN_NOW);
+        sp_said = 1;
+    }
+}
 static void jr_tick(void)
 {
     const uint32_t b = en_bar_no;
-    if (!jr.on)
+    if (!jr.on) {
+        const uint32_t now = plat_ms(), t = jr_touch();
+        const uint8_t pb = en_phrase_bar;
+        const int top = pb == 0 && jr.pb != 0;   /* a phrase's first bar, just begun */
+        int to;
+        jr.pb = pb;
+        if (!jr.stay)
+            return;
+        if (!en_playing || proj.piece != jr.piece)   /* (stopped: the time waits; a piece picked: from now) */
+            jr.since = now, jr.piece = (uint8_t)proj.piece;
+        if ((int32_t)(t - jr.since) > 0)         /* a touch: the whole stay again */
+            jr.since = t;
+        if (top && now - jr.since >= JR_MIN[jr.stay] * 60000u && (to = jr_next()) >= 0)
+            jr_go(to);
         return;
-    if (!en_playing || ui.act_t != jr.act) {     /* stopped, or a touch */
+    }
+    if (!en_playing || jr_touch() != jr.act || proj.piece != (jr.changed ? jr.to : jr.piece)) {
+        /* stopped, a touch, or a piece picked (a program change) */
         jr_end();
         return;
     }
@@ -1790,7 +1840,7 @@ static void jr_tick(void)
         sp_piece();
         undo_clear();
         jr.changed = 1;
-        jr.act = ui.act_t;
+        jr.act = jr_touch();
         jr.bar = en_bar_no;
         jr.mask &= ~(uint32_t)JR_THIN;
         break;
@@ -1965,6 +2015,8 @@ static void input(void)
             level_turn(oct_layer(ui.view), e);
         else if (ui.view == V_DUB)               /* (HOME: Energy, the user's: to play the keys and push it at once) */
             energy_turn(e);
+        else if (ui.view == V_SETUP)             /* (1.4) Setup: the journey's stay */
+            jr_turn((int)e);
         ui.turn_t = plat_ms();
     }
     if ((e = plat_enc(EN_ALGO)) != 0) {         /* a layer's page: its voice; the Chords page: the walk */
@@ -3254,7 +3306,9 @@ static void draw_knobs(void)
             x0 = cv_text(6, -1, &FONT_XS, t, K_DIM) + 5;
         } else if (ui.view == V_SETUP) {         /* (1.1) Setup: the sleep timer (ALGORITHM's), at the rule's start */
             x0 = cv_text(6, -1, &FONT_XS, "SLEEP", K_DIM) + 4;
-            x0 = cv_text(x0, -1, &FONT_XS, SLEEP_NAME[sl.set], sl.set ? K_ACC : K_DIM) + 5;
+            x0 = cv_text(x0, -1, &FONT_XS, SLEEP_NAME[sl.set], sl.set ? K_ACC : K_DIM) + 7;
+            x0 = cv_text(x0, -1, &FONT_XS, "JOURNEY", K_DIM) + 4;   /* (1.4) and the journey's stay (SELECT's) */
+            x0 = cv_text(x0, -1, &FONT_XS, JR_NAME[jr.stay], jr.stay ? K_ACC : K_DIM) + 5;
         } else if (ui.view == V_DUB && evb()) {  /* (1.2) HOME: Evolve's timing, when it's set (ALGORITHM's); dim while
                                                   * Evolve is 40 or under, so nothing moves */
             x0 = cv_text(6, -1, &FONT_XS, "EVOLVE", K_DIM) + 4;
@@ -3531,6 +3585,8 @@ static void sp_page(int all)
     if (ui.view == V_SETUP) {                    /* (1.1) the sleep timer */
         sp_cat(", ");
         sp_cat(SLEEP_SAID[sl.set]);
+        sp_cat(", ");
+        sp_cat(JR_SAID[jr.stay]);
     }
     if (ui.view == V_DUB && evb()) {             /* (1.2) Evolve's timing */
         sp_cat(", ");
