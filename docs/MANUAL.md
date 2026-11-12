@@ -644,6 +644,11 @@ Stutter, Reverse, Flange and Comb share one line of memory, so only one of them 
 pressed. If you are still holding another when you let go, that one comes back. They work on the music in the
 middle (mono) and a little duller than the rest, which is what lets them fit.
 
+Each effect held adds to the audio load, and the heavy ones add most: Shimmer, Reverb, Wash, Phaser, Crush, Drive,
+Macalla and the four above. On the busiest piece, Aran, eight heavy effects held together dropped out about once a
+minute on one FM-1 (21 times in 20 minutes; with Comb among them, 24 times in 3), where Aran with nothing held didn't
+drop out at all. If you hear clicks with a lot held, let some go. How many Aran carries cleanly hasn't been measured.
+
 **The screen shows the keys.** While nothing is held, the middle of the screen is a map of PERFORM's effects, as the
 effect grid shows its own: four rows of four for the white keys from F3 up, then the black keys, each group in its
 colour. Hold a key and the screen flashes that effect's colour and name; let go and the map is back. In the map's
@@ -831,7 +836,8 @@ has the next block's time to catch up, and only a run of slow blocks drops out. 
 four pieces at their recipes dropped out over ten minutes each, on one FM-1: Samhain 29 times, Skellig 117, Aran 251 and
 Blasket 374. A piece changed by hand can load the chip more: in one short test, Aran's Sequence on 16ths instead of
 8ths added about 8 points by itself. Holding GLO on puts a piece back to its recipe, and takes your changes with it. A
-computer reading the USB audio adds about 6 points to the load.
+computer reading the USB audio adds about 6 points to the load. So do PERFORM's effects, held: see the note after
+their list.
 
 **No USB audio on an older Mac:** in a simple test on macOS 13.7.8, the FM-1's MIDI appeared but no sound device did,
 so expect no USB sound or recording there. AISLING lists the audio first, as Felucca does, and that didn't fix it.
