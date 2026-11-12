@@ -38,7 +38,7 @@ remembers and answers) and changes what it plays:
   **Fras** (FRASS, a burst of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 1.3.1** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 1.4** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
