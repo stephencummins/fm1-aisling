@@ -600,8 +600,12 @@ static uint32_t scope_ph;
  * none thinned: the sums as they were */
 #define TH_OUT 5.0f
 #define TH_IN 1.5f
-static uint32_t thin;
-static float th_dr = 1.0f, th_at = 1.0f;
+uint32_t en14_thin;
+float en14_chord_set;                            /* the Drone's level as the piece sets it: chord_vol is it thinned */
+float en14_th_dr = 1.0f, en14_th_at = 1.0f;
+#define thin en14_thin
+#define th_dr en14_th_dr
+#define th_at en14_th_at
 static uint32_t mutes, perf, fxm, fxm_was;      /* performance: the layers muted, the moves held; the effects held */
 static float perf_sw, perf_echo, mb_c[4], mb_s[4], mb_in;   /* the filter pushed open (+) or shut (-), the echo
                                                  * pushed (mb: Open's and Shut's filter on the music, the kick left
@@ -623,18 +627,28 @@ static float ec_g = 0.6f, ec_lpc = 0.68f, ec_wide = 1.0f;   /* the echo's Blur, 
 static int8_t mac[EN_NMAC];                     /* the master actions, -50..50 */
 volatile int8_t en_mac[EN_NMAC];
 static int8_t pofs[P_NPARAMS];
-static int8_t dofs[P_NPARAMS];                  /* (1.4) the day's and the weather's offsets: all 0 with the day off */
+int8_t en14_dofs[P_NPARAMS];
+#define dofs en14_dofs
+                  /* (1.4) the day's and the weather's offsets: all 0 with the day off */
 #ifdef EN_HOST
 int en_test_dofs(int p) { return dofs[p]; }
 #endif
 static int dd_off;                              /* (Density's slow drift, below: added to Density as heard) */
 static float dub_up;                            /* Dub turned up, 0..1: the echo darker, feeding back past its knob */                  /* what they add to the piece's parameters */
+int8_t en14_mofs[P_NPARAMS];
+#define mofs en14_mofs
+                  /* (1.4) the master actions' own; pofs their sum with the day's, made
+                                                 * here and not in pe(): pe() is in every loop's setting-up */
+static __attribute__((noinline)) void ofs_sum(int p)
+{
+    int o = mofs[p] + (par[p] || p != P_CRACKLE ? dofs[p] : 0);   /* (an Atmosphere the piece keeps silent stays
+                                                                   * silent) */
+    pofs[p] = (int8_t)(o < -127 ? -127 : o > 127 ? 127 : o);
+}
 static int pe(int p)                            /* a parameter as heard: the piece's, moved by the master actions */
 {
     int v = par[p] + (par[p] || (p != P_SEQ && p != P_SEQ2) ? pofs[p] : 0);   /* (a sequence the piece keeps silent,
                                                   * level 0, stays silent: Energy doesn't wake it) */
-    if (par[p] || p != P_CRACKLE)                /* (1.4: an Atmosphere the piece keeps silent stays silent) */
-        v += dofs[p];
     if (p == P_DENSITY)
         v += dd_off;
     return v < PARAMS[p].lo ? PARAMS[p].lo : v > PARAMS[p].hi ? PARAMS[p].hi : v;
@@ -1186,7 +1200,8 @@ static uint32_t mvm;                             /* (BERLIN) the black keys' mov
 static float mv_rise, mv_close;                  /* Rise and Close, eased (0..1) */
 /* (1.4) each effect's amount, kept as what is taken off full (0: full, as 1.3, and the sums come out the same to
  * the bit; 63/64: the least). 32 and 33: Rise and Close */
-static float fx_dim[34];
+float en14_fx_dim[34];
+#define fx_dim en14_fx_dim
 #define FX_A(e) (1.0f - fx_dim[e])
 #ifdef EN_HOST
 int en_test_amt(int e) { return 127 - (int)(fx_dim[e] * 64.0f + 0.5f); }   /* (the tests: as its CC) */
@@ -4174,10 +4189,13 @@ static void apply(int p, int v)
     if (v > pi->hi)
         v = pi->hi;
     par[p] = (int16_t)v;
+    if (p == P_CRACKLE)
+        ofs_sum(p);
     v = pe(p);                                   /* (as the master actions move it) */
     switch (p) {
     case P_CHORD:
-        chord_vol = (float)(v * v) * 0.0001f;
+        en14_chord_set = (float)(v * v) * 0.0001f;
+        chord_vol = en14_chord_set * en14_th_dr;
         if (!v)                                  /* (at 0, as muted: its MIDI notes let go) */
             dr_midi_off(0), dr_midi_off(1);
         break;
@@ -4464,7 +4482,7 @@ void en_init(void)
         am_off[i] = 0.0f;
     en_mac_got = mac_sent;
     for (i = 0; i < P_NPARAMS; i++)
-        pofs[i] = 0;
+        mofs[i] = 0, ofs_sum(i);
     for (i = 0; i < P_NPARAMS; i++)
         apply(i, PARAMS[i].def);
     pool_set(EN_MODE_POOL[par[P_MODE]]);
@@ -4560,7 +4578,8 @@ static void macro(int i, int v)
     for (k = 0; k < sizeof OF; k++)
         if (OF[k] == i) {
             int o = MOVE[k].at50 * v / 50, before = pe(MOVE[k].p);
-            pofs[MOVE[k].p] = (int8_t)o;
+            mofs[MOVE[k].p] = (int8_t)o;
+            ofs_sum(MOVE[k].p);
             if (pe(MOVE[k].p) != before)
                 apply(MOVE[k].p, par[MOVE[k].p]);
         }
@@ -4669,6 +4688,7 @@ static void drain(void)
             if (a < P_NPARAMS && dofs[a] != (int8_t)b) {
                 const int before = pe(a);
                 dofs[a] = (int8_t)b;
+                ofs_sum(a);
                 if (pe(a) != before)
                     apply(a, par[a]);
             }
@@ -5135,6 +5155,17 @@ static void curlew_call(float col, float ring, float busy)
     cw_gl = fm_cosf(p), cw_gr = fm_sinf(p);
     cw_start();
 }
+float en14_crackle_th;
+#define crackle_th en14_crackle_th
+               /* (1.4) the Drone's and the Atmosphere's levels as thinned */
+static __attribute__((noinline)) void th_step(uint32_t n)   /* once a chunk, before the renders */
+{
+    const float up = (float)n * (1.0f / (TH_IN * EN_SR)), dn = (float)n * (1.0f / (TH_OUT * EN_SR));
+    th_dr = amt_ramp(th_dr, thin & EN_M_CHORD ? 0.0f : 1.0f, up, dn);
+    th_at = amt_ramp(th_at, thin & EN_M_NOISE ? 0.0f : 1.0f, up, dn);
+    chord_vol = en14_chord_set * th_dr;                /* (1 exactly with none thinned: the sums as they were) */
+    crackle_th = crackle_vol * th_at;
+}
 static void render_atmos(uint32_t n)
 {
     const int c = atm_char;
@@ -5148,10 +5179,7 @@ static void render_atmos(uint32_t n)
     uint32_t j;
     int ch, k;
     atm_gate += ((en_playing ? 1.0f : 0.0f) - atm_gate) * fm_minf((float)n / (0.5f * EN_SR), 1.0f);
-    g = mutes & EN_M_NOISE || c == ATM_NONE ? 0.0f : crackle_vol * atm_gate;   /* (its level: nothing more) */
-    th_at = amt_ramp(th_at, thin & EN_M_NOISE ? 0.0f : 1.0f, (float)n * (1.0f / (TH_IN * EN_SR)),
-                     (float)n * (1.0f / (TH_OUT * EN_SR)));   /* (1.4: the glide) */
-    g *= th_at;
+    g = mutes & EN_M_NOISE || c == ATM_NONE ? 0.0f : crackle_th * atm_gate;   /* (its level: nothing more) */
     atm_g_out = g;
     en_atm_gain = g;
     if (g < 1e-5f) {
@@ -5453,10 +5481,7 @@ static void render_crackle(uint32_t n)
     cr_gate += ((en_playing ? 1.0f : 0.0f) - cr_gate) * fm_minf((float)n / (0.5f * EN_SR), 1.0f);
     if (cr_gate < 1e-4f)
         cr_gate = 0.0f;
-    g = mutes & EN_M_NOISE ? 0.0f : crackle_vol * cr_gate;   /* (muted: its level kept) */
-    th_at = amt_ramp(th_at, thin & EN_M_NOISE ? 0.0f : 1.0f, (float)n * (1.0f / (TH_IN * EN_SR)),
-                     (float)n * (1.0f / (TH_OUT * EN_SR)));   /* (1.4: the glide) */
-    g *= th_at;
+    g = mutes & EN_M_NOISE ? 0.0f : crackle_th * cr_gate;   /* (muted: its level kept) */
     atm_g_out = g;
     en_atm_gain = g;
     if (g <= 0.0f) {
@@ -5666,7 +5691,9 @@ enum { BF_OFF, BF_STUTTER, BF_FLANGE, BF_COMB, BF_REVERSE };
 static int16_t bf[BF_N] EN_POOL;
 static int bf_mode, bf_want, bf_w, bf_len, bf_half, bf_ph;
 static float bf_mix, bf_play, bf_acc, bf_y0, bf_y1, bf_lfo, bf_d, bf_damp;
-static float bf_amt = 1.0f;                      /* (1.4) the amount of the one sounding, eased */
+float en14_bf_amt = 1.0f, en14_bf_mx;           /* (en14_bf_mx: the ramp; bf_mix is it by the amount) */
+#define bf_amt en14_bf_amt
+                                                 /* (1.4) en14_bf_amt: the amount of the one sounding, eased */
 static float fx_crush, cr_hl, cr_hr;
 static int cr_n;
 static inline int16_t bf_q(float x) { return (int16_t)(fm_clampf(x, -3.99f, 3.99f) * BF_K); }
@@ -5707,16 +5734,16 @@ static void bf_ctl(uint32_t on, uint32_t rise, float t)
                 bf_want = m;
     }
     if (bf_mode != bf_want) {
-        bf_mix -= fm_minf(t / 0.006f, bf_mix);
-        if (bf_mix <= 0.0f) {
-            bf_mix = 0.0f;
+        en14_bf_mx -= fm_minf(t / 0.006f, en14_bf_mx);
+        if (en14_bf_mx <= 0.0f) {
+            en14_bf_mx = 0.0f;
             if (bf_want)
                 bf_start(bf_want), bf_amt = FX_A(BIT[bf_want]);
             else
                 bf_mode = 0;
         }
     } else if (bf_mode)
-        bf_mix = fm_minf(bf_mix + t / 0.006f, 1.0f);
+        en14_bf_mx = fm_minf(en14_bf_mx + t / 0.006f, 1.0f);
     if (bf_mode)                                 /* (1.4) its amount, eased (20 ms: a CC swept makes no steps) */
         bf_amt += (FX_A(BIT[bf_mode]) - bf_amt) * fm_minf(t / 0.02f, 1.0f);
     if (bf_mode == BF_FLANGE) {                  /* 1 - 7 ms, a turn in five seconds */
@@ -5725,6 +5752,7 @@ static void bf_ctl(uint32_t on, uint32_t rise, float t)
         bf_d = (0.004f + 0.003f * sine(bf_lfo)) * (0.5f * EN_SR);
     } else if (bf_mode == BF_COMB)               /* the key's note, the octave under middle C */
         bf_d = fm_clampf(0.5f * EN_SR / mtof((float)(48 + par[P_ROOT] % 12)), 8.0f, (float)(BF_N - 4));
+    bf_mix = en14_bf_mx * bf_amt;               /* (what bf_fx reads: the ramp by the amount) */
     fx_crush = ease1(fx_crush, on, EN_FX_CRUSH, t, 0.01f, 0.03f);
 }
 static inline float bf_edge(int i, int n)        /* a slice's ends, eased over 48 samples (2 ms) */
@@ -5779,7 +5807,7 @@ static inline void bf_fx(float *lp, float *rp)
 {
     /* what is left of the music under the wet, and the wet's level: Stutter and Reverse in its place */
     static const float DRY[5] = {1.0f, 0.0f, 0.75f, 0.45f, 0.0f}, WET[5] = {0.0f, 1.0f, 0.7f, 0.8f, 1.0f};
-    const float m = 0.5f * (*lp + *rp), w = bf_mix * bf_play * bf_amt;
+    const float m = 0.5f * (*lp + *rp), w = bf_mix * bf_play;
     float y;
     if ((bf_ph ^= 1) != 0) {
         bf_acc = m;
@@ -6511,9 +6539,6 @@ static void render_drone(uint32_t n)
     float c[4], ch[4], cf1[4], cf2[4];
     uint32_t j;
     int b, i;
-    th_dr = amt_ramp(th_dr, thin & EN_M_CHORD ? 0.0f : 1.0f, (float)n * (1.0f / (TH_IN * EN_SR)),
-                     (float)n * (1.0f / (TH_OUT * EN_SR)));   /* (1.4: the glide; 1 exactly but then) */
-    g *= th_dr;
     if (!dr_on[0] && !dr_on[1] && dr_lvl[0] <= 0.0f && dr_lvl[1] <= 0.0f) {
         ch_live = 0;                             /* (Choir from rest when it next sounds) */
         return;
@@ -7097,6 +7122,7 @@ void en_render(int32_t *out, uint32_t n, uint32_t gain_q12)
         if (timed)
             pulse_left -= (float)k;
         control(k);
+        th_step(k);
         render_chunk(out, k, gain);
         if (roll_wait > 0 && (roll_wait -= (int32_t)k) <= 0) {
             roll_wait = 0;
