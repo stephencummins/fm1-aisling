@@ -111,7 +111,7 @@ second.
 | Control | What it does |
 |---|---|
 | MASTER | The volume, with room at the quiet end: a low listening level sits about a quarter of the way up. The USB audio doesn't follow it: there, the computer sets the volume |
-| SELECT | On a layer's pages (the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, and each one's further pages), the layer's level, 1 a click: a ring in the middle of the screen shows it, and the header says it ("SEQ 64"). On the Aisling page it turns **Energy**, PERFORM's (the same value, 1 a click: the screen shows twice), so you can play the keys and push Energy at once: the knobs' rule shows "ENERGY 24" with a bar while you turn, and the header says it. Elsewhere it does nothing (the pages are on their buttons, the tempo on the Key page) |
+| SELECT | On a layer's pages (the Drone, the Sequence, the Lead, Sequence 2, the Atmosphere, and each one's further pages), the layer's level, 1 a click: a ring in the middle of the screen shows it, and the header says it ("SEQ 64"). On the Aisling page it turns **Energy**, PERFORM's (the same value, 1 a click: the screen shows twice), so you can play the keys and push Energy at once: the knobs' rule shows "ENERGY 24" with a bar while you turn, and the header says it. On GLO's Setup and Journey pages it sets the journey's stay (see [The journey](#3-controls)). Elsewhere it does nothing (the pages are on their buttons, the tempo on the Key page) |
 | PRESETS | The piece (eight) |
 | ALGORITHM | On a layer's page, its voice (on the Atmosphere's pages, its character). On the Chords page, the chord walk's character (Home, Wander, Free). On the Aisling page, Evolve's timing (see Nudges, below). On the Setup page, the sleep timer (see Sleep, below) |
 | OCT− / OCT+ | On the Sequence's, the Lead's and Sequence 2's pages, the layer's octave, a step a press (the Sequence −2 to 2, the Lead and Sequence 2 −2 to 1): the page's Octave knob shows it, the header says it ("SEQ OCTAVE −1"). OCT+ is lit while that octave is above where the piece was loaded, OCT− while it's below. On the other pages they do nothing. With HOME held, OCT− undoes and OCT+ redoes (see Undo, below). Both held 5 s: the update mode |
@@ -162,6 +162,28 @@ a key or a turn wakes it, and that touch only wakes it: the screen comes back, a
 if it was playing. MIDI doesn't wake it (a sequencer left running would), and MIDI sent while it sleeps is ignored.
 The USB audio isn't faded, since it comes before MASTER, but it stops with the music. The timer isn't saved: it's off
 every time the FM-1 starts.
+
+**The journey.** Left alone, AISLING can walk through its pieces by itself. On GLO's Setup page (or its Journey page,
+GLO a third time), SELECT sets a stay: Off, or 5, 10, 20 or 40 minutes on each piece. When the stay is up, at the
+start of the next phrase, the piece glides into the next one over sixteen bars: the Lead falls silent, then the
+sequences, then the pings; the Atmosphere thins and the tempo moves across under the Drone and the echo's tail; the
+piece changes, and the layers come back in the other order. Nothing stops and nothing clicks. A touch (a button, a
+key, a knob, or a note over MIDI) starts the stay again, so it never changes under your hands, and a touch during
+a glide calls it off where it is. While the music is stopped the time waits.
+
+The **Journey page** is its set list: KNOB 1 picks a piece, KNOB 2 puts it in or out (the last piece in can't go
+out), and the journey passes over the ones that are out. The journey changes nothing in the pieces and saves
+nothing; the stay and the list aren't saved either, so it's off, with all eight in, every time the FM-1 starts.
+
+**The day and the weather.** KNOB 4 on the Journey page, **Day**, lays a slow day over whatever plays: Off, or a
+whole day in 20 minutes, 1 hour or 3 hours. It begins at dawn. By day the sequences' filter and the pings' tone
+open and the reverb grows; by night they darken and the room closes in, and the sequences thin a little. Three
+fronts of weather cross each day (a middling one at dawn, a slight one in the afternoon, a heavy one in the
+evening): the Atmosphere rises with each, and at the worst of the evening's a shower falls (Fras, lightly, for
+40 seconds at most). A piece whose Atmosphere is at 0 stays dry. A small sun, or a moon by night, crosses the top of
+the Aisling page while the day is on. The time runs only while the music plays. The day moves none of the piece's
+own values (the knobs read as you left them) and saves nothing, and it isn't saved itself: off every time the FM-1
+starts. It works with the journey or without it.
 
 A long press says what it did on a card in the middle of the screen.
 
@@ -532,8 +554,9 @@ Reverb, Echo. **Its Move page:** Width, Time, Rate, Intro.
 (the plate).
 
 **GLO: Setup:** Tune (±50 cents), MIDI out, Lights, Save; ALGORITHM the sleep timer (see
-[Sleep](#3-controls)). **GLO again: Arc:** Lead in, Bridge, Arc,
-Memory (see [The arc and the filter motion](#6-the-arc-and-the-filter-motion)).
+[Sleep](#3-controls)); SELECT the journey's stay. **GLO again: Arc:** Lead in, Bridge, Arc,
+Memory (see [The arc and the filter motion](#6-the-arc-and-the-filter-motion)). **GLO a third time: Journey:** Piece,
+In set, and Day; SELECT the stay (see [The journey](#3-controls)).
 
 **EDIT: Chords:** eight slots. In **Endless** the walk writes them and slot 1 plays; on each change they move
 up a slot. A key writes a slot's root, KNOB 2 its kind, KNOB 3 its type, KNOB 4 Play: Endless or **Loop**
@@ -793,7 +816,7 @@ timing.
   saves.
 - **GLO held on** (1.5 s): the piece back to its recipe ("RESET"). Like any change, it's saved by itself a few seconds after the music stops.
 
-The sleep timer isn't saved. Lock and PERFORM's Filter, Wet, Energy and Chorus aren't saved either; a piece change (or GLO's reset) returns the four to 0, so
+The sleep timer isn't saved, nor are the journey's stay, its set list or the day. Lock and PERFORM's Filter, Wet, Energy and Chorus aren't saved either; a piece change (or GLO's reset) returns the four to 0, so
 none of one piece's push carries into the next. Projects saved by DUB-1, AMB-1 or an earlier AISLING
 build aren't read: AISLING starts with its eight recipes.
 

@@ -70,6 +70,12 @@ AMB-1. It doesn't read what they saved (it starts with its own eight recipes), a
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
 
+## What's new in 1.4
+
+- **The journey.** Left alone, AISLING walks through its pieces. SELECT on GLO's Setup page sets a stay (5, 10, 20 or 40 minutes a piece); then the piece glides into the next over sixteen bars, layer by layer, the tempo moving across under the Drone, with nothing stopped. A touch starts the stay again. GLO a third time is the **Journey** page: which pieces are in the set.
+- **The day and the weather.** KNOB 4 on the Journey page lays a slow day over whatever plays, a whole one in 20 minutes, 1 hour or 3 hours: brighter and wider by day, darker and closer at night, the Atmosphere rising with three fronts of weather and a light shower in the worst of the evening's. A sun or a moon crosses the top of the Aisling page. It moves none of the piece's values and saves nothing.
+- **An effect's CC is its amount.** From 64 to 127 the value is how much of the effect there is (127 all of it, as its key gives), so a fader or a pedal fades an effect in. PERFORM's flash shows an amount under full as a bar.
+
 ## What's new in 1.3.1
 
 - **The effects grid in PERFORM's look.** Hold REC and the grid has a colour for each group (Echo, Filter, Space, Moves), its name in the uncial hand and a plaited rule under each group's name; a held effect's cell fills with its colour. Only the drawing changed: the keys, the effects and the sound are 1.3's.
@@ -160,7 +166,7 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | SEQ | Sequence 2 (Chance, Octave, Length, Level); again, its sound; again, the Pattern page (write the steps on the keys); again, its Move page |
 | SAVE | The Atmosphere (Density, Width, Drift, Air); again, its sound (Colour, Ring, Reverb, Echo); again, its Move page. Held: save |
 | FX | Space (Echo, Echo time, Feedback, Reverb); again, the Echo page (Blur, Tone, Width, Size) |
-| GLO | Setup (Tune, MIDI out, Lights, Save; ALGORITHM, the sleep timer); again, the Arc (Lead in, Bridge, Arc, Memory). Held: save; held on: the piece back to its recipe |
+| GLO | Setup (Tune, MIDI out, Lights, Save; ALGORITHM, the sleep timer); again, the Arc (Lead in, Bridge, Arc, Memory); again, the Journey (Piece, In set, Day; SELECT, the stay on each piece). Held: save; held on: the piece back to its recipe |
 | ALGORITHM | On a layer's page, its voice (the Atmosphere: its character); on the Aisling page, Evolve's timing; on the Setup page, the sleep timer |
 | PRESETS | The piece |
 | SELECT | On a layer's pages, its level; on the Aisling page, Energy (elsewhere nothing) |
