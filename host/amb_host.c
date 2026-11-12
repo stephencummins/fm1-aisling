@@ -612,6 +612,12 @@ static int expect(const char *what, const char *val)
     }
     else if (!strcmp(what, "pheld"))              /* (1.3) PERFORM's keys held, a bit a key (0..26) */
         got = (int)ui.pheld;
+    else if (!strncmp(what, "amt", 3) && what[3] >= '0' && what[3] <= '9') {   /* (1.4) "amtK": key K's amount in the
+                                                  * engine, as its CC (127 full); -1 a switch */
+        const int d = PKEY[atoi(what + 3)].d;
+        extern int en_test_amt(int e);
+        got = d < 100 ? en_test_amt(d) : d == 100 + EN_MV_RISE ? en_test_amt(32) : d == 100 + EN_MV_CLOSE ? en_test_amt(33) : -1;
+    }
     else if (!strcmp(what, "pcc"))                /* (1.3) the effects a CC holds */
         got = (int)ui.pcc;
     else if (!strcmp(what, "ptrisk"))             /* (1.3) the map's triskele: its angle within 2 sixteenths of the music's */

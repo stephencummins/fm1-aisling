@@ -244,6 +244,8 @@ static struct {
     int8_t mac[EN_NMAC];               /* the master actions (HOME's Filter, PERFORM's knobs): -50..50, never saved */
     uint32_t pheld, platch;            /* (1.3) PERFORM's keys held, and latched (a bit a key, PKEY's) */
     uint32_t pcc;                      /* (1.3) the effects a CC holds, on any page (a bit a key, PKEY's) */
+    uint8_t pamt[32], psent[34];       /* (1.4) each key's amount as its CC last had it (64..127), and what the
+                                        * engine was last sent (by the engine's numbers; 0: nothing yet, full) */
     uint32_t pnow, pout;               /* every effect sounding (the link's STATE); those by hand, as last sent out */
     uint32_t fx;                       /* the effects held (EN_FX_*), REC's grid */
     uint32_t bfx;                      /* (BERLIN) the grid's effects held on the black keys (EN_FX_*) */
@@ -901,8 +903,17 @@ static void fx_send(void)                        /* all that is held, to the eng
     for (i = 0; i < PERF_N; i++)
         if (on >> i & 1u) {
             const int d = PKEY[i].d;
+            /* (1.4) its amount, sent before it is held: full by hand (a key, the grid, a black key), a CC's by its
+             * value. Half time, Freeze and Octave are switches: the engine makes nothing of theirs; Drop has none */
+            const int e = d < 100 ? d : d == 100 + EN_MV_RISE ? 32 : d == 100 + EN_MV_CLOSE ? 33 : -1;
+            const int byhand = (hand >> i & 1u) || (e == 32 && ui.mv & EN_MV_RISE) || (e == 33 && ui.mv & EN_MV_CLOSE);
+            const int want = byhand || ui.pamt[i] < 64 ? 127 : ui.pamt[i];
             if (d == PK_SOON)
                 continue;
+            if (e >= 0 && want != (ui.psent[e] ? ui.psent[e] : 127)) {
+                ui.psent[e] = (uint8_t)want;
+                en_amt(e, want);
+            }
             if (d < 100)
                 fx |= 1u << d;
             else if (d < 200)
@@ -1496,10 +1507,15 @@ static void cc_in(int n, int v)
     int k = K_NONE, j = -1, lo, hi;
     if ((k = cc_pkey(n)) >= 0) {                 /* (1.3) an effect, held while its CC is 64 or over: on any page */
         const uint32_t b = 1u << k;
-        if (v >= 64 && !(ui.pcc & b)) {
-            ui.pcc |= b;
-            fx_send();
-            say(PKEY[k].name, 0);
+        if (v >= 64) {                           /* (1.4) 64..127 its amount too: 127 full, as 1.3 */
+            const int was = ui.pamt[k];
+            ui.pamt[k] = (uint8_t)(v > 127 ? 127 : v);
+            if (!(ui.pcc & b)) {
+                ui.pcc |= b;
+                fx_send();
+                say(PKEY[k].name, 0);
+            } else if (was != ui.pamt[k])
+                fx_send();
         } else if (v < 64 && (ui.pcc & b)) {
             ui.pcc &= ~b;
             fx_send();

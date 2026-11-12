@@ -178,6 +178,7 @@ enum { EN_FX_REPEAT, EN_FX_TIME, EN_FX_TAPESTOP, EN_FX_SHIMMER, EN_FX_LOWPASS, E
        EN_NFX_ALL };
 extern const char *const EN_FX_NAME[EN_NFX];
 void en_fx(uint32_t mask);
+void en_amt(int e, int cc);                     /* (1.4) an effect's amount, as its CC (64..127; 127 full): before en_fx */
 void en_chorus(int v);                          /* (1.3) PERFORM's Chorus: 0 off .. 100; the whole output, never saved */
 /* (BERLIN) the black keys' moves, held: every layer's filter opened together (Rise, +2 octaves), closed (Close, -4),
  * both sequences three scale steps up (Transpose) */
