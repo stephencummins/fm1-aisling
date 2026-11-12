@@ -692,8 +692,13 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
   Save; while the effects grid is up, 16 to 19 rest, as the knobs do. A change is saved by itself later, as a turn's
   is (Filter, Wet, Energy and Chorus aren't saved at all). Other CCs are ignored.
 - **In, effects:** each of PERFORM's 27 effects has a CC, on any channel (the second table below). 64 or more holds
-  the effect, less lets it go, as its key does. They work on any page, PERFORM or not; in PERFORM the screen flashes
-  as it does for a key. All notes off and all sound off (CC 123 and 120) let every one go, and so does leaving
+  the effect, less lets it go, as its key does. From 64 to 127 the value is also how much of the effect there is:
+  127 is all of it, as its key gives, and 64 is next to none, so a fader or a pedal on the CC fades an effect in.
+  What "more" means depends on the effect: more of it in the mix for most, a deeper fall for Dive, more growl for
+  Drive, a longer way for Rise and Close. Half time, Freeze, Octave and Drop are either held or not, whatever the
+  value. A key pressed by hand is always all of it. They work on any page, PERFORM or not; in PERFORM the screen
+  flashes as it does for a key, with a bar up the left edge of the effect's band when it is under full: the taller
+  the bar, the more of the effect. All notes off and all sound off (CC 123 and 120) let every one go, and so does leaving
   PERFORM.
 - **Out, effects:** an effect you play by hand, in PERFORM or on the effects grid, sends its CC on channel 16: 127 as
   it starts, 0 as it ends. So a DAW can record a performance and play it back, and a screen can follow which effects
