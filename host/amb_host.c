@@ -819,6 +819,20 @@ static int expect(const char *what, const char *val)
         got = ui.chorus;
     else if (!strcmp(what, "lfx"))                /* (1.3) the effects sounding, as STATE tells them */
         got = lc.state_n >= 34 ? lc.state[30] | lc.state[31] << 7 | lc.state[32] << 14 | lc.state[33] << 21 : -1;
+    else if (!strncmp(what, "lamt", 4)) {         /* (1.4) "lamtK": key K's amount as STATE tells it (64: full) */
+        int i, k = atoi(what + 4);
+        got = 64;
+        for (i = 0; lc.state_n >= 35 && i < lc.state[34]; i++)
+            if (lc.state[35 + 2 * i] == k)
+                got = lc.state[36 + 2 * i];
+    }
+    else if (!strcmp(what, "pbar"))               /* (1.4) the flash's bands that show an amount's bar */
+    {
+        int k;
+        got = 0;
+        for (k = 0; k < PERF_N; k++)
+            got += pflash_up() && pk_under(k) != 0;
+    }
     else if (!strcmp(what, "lstatelen"))
         got = lc.state_n;
     else if (!strncmp(what, "lval", 4))           /* a knob as VALS told it */

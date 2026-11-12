@@ -2668,6 +2668,14 @@ static uint16_t pkey_col(int k)
     return mix(PG_COL[PKEY[k].g], K_BAININ, PKEY[k].g == PG_BLACK ? n : n * 3);
 }
 static int pflash_up(void) { return ui.perf && (ui.pheld | ui.pcc); }
+/* (1.4) a key's amount under full, in 63rds (1..63), or 0: full, or not sounding. Only a CC makes less than full */
+static int pk_under(int k)
+{
+    const uint32_t b = 1u << k;
+    if (!(ui.pcc & b) || (ui.pnow & ~ui.pcc & b) || (ui.perf && (ui.pheld | ui.platch) & b))
+        return 0;
+    return ui.pamt[k] >= 64 && ui.pamt[k] < 127 ? ui.pamt[k] - 63 : 0;
+}
 static void pflash_band(uint32_t m, int32_t oy, int32_t hh, int fade)
 {
     int n = 0, k, j = 0, more;
@@ -2693,6 +2701,12 @@ static void pflash_band(uint32_t m, int32_t oy, int32_t hh, int fade)
         }
         col = mix(pkey_col(k), K_BG, fade);
         cv_rect(0, y0 - oy, 240, bh, col);
+        if (pk_under(k)) {                       /* (1.4) under full: a bar up the band's left edge, as tall as its
+                                                  * amount, clear of the lettering (at full there is none, and the
+                                                  * flash is 1.3's) */
+            const int32_t h = bh * pk_under(k) / 64 > 2 ? bh * pk_under(k) / 64 : 2;
+            cv_rect(0, y0 + bh - h - oy, 6, h, ink);
+        }
         caps(t, PKEY[k].name, sizeof t);
         if (n <= 2) {
             int32_t ty = y0 + (bh - 58) / 2;
@@ -2727,6 +2741,12 @@ static void draw_pflash(void)                    /* (each third frame, as the ma
         return;
     }
     h = hash(hash(0x50464C41u, last), ui.platch | (uint32_t)fade << 27);
+    {
+        int k;
+        for (k = 0; k < PERF_N; k++)             /* (1.4: and each amount under full) */
+            if (pk_under(k))
+                h = hash(h, (uint32_t)(k << 8 | pk_under(k)));
+    }
     if (h == ui.sig[1] && ui.sig[0] == 0x50464C41u)
         return;
     ui.sig[0] = 0x50464C41u;

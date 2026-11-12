@@ -56,3 +56,24 @@ expect amt7 127
 key w4 up
 wait 300
 expect pheld 0
+# 1.4: the screen and the link. Reverb by CC at 96 on PERFORM: its band shows a bar, the link says 33 of 64;
+# at 127 no bar and nothing listed (a 1.3 frame and a 0); by hand over a CC's part amount, full, no bar
+midi B0 68 60
+wait 400
+expect pbar 1
+link hello
+wait 700
+expect lamt14 33
+expect lstatelen 37
+midi B0 68 7F
+wait 400
+expect pbar 0
+expect lamt14 64
+expect lstatelen 35
+midi B0 68 50
+wait 300
+expect pbar 1
+midi B0 68 00
+wait 400
+expect pbar 0
+expect lstatelen 35
