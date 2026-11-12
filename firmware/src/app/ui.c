@@ -32,7 +32,7 @@ static const char *const VIEW_NAME[NVIEWS] = {"Aisling", "Drone", "Sequence", "L
                                               "Mix", "Drone sound", "Seq sound", "Lead sound", "Seq2 sound",
                                               "Drone move", "Repeats", "Lead move", "Chords", "Pattern", "Perform", "Key",
                                               "Atmosphere", "Echo", "Atmos sound", "Arc", "Seq move", "Seq2 move",
-                                              "Atmos move", "Lead style", "Set list"};
+                                              "Atmos move", "Lead style", "Journey"};
 #define B_NONE 0xFFu
 static const uint8_t VIEW_BTN[NVIEWS] = {B_HOME, B_ENV, B_ARP, B_LFO, B_SEQ, B_FX, B_GLO, B_NONE, B_NONE, B_NONE, B_NONE,
                                          B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_NONE, B_SAVE, B_NONE, B_NONE,
@@ -108,7 +108,11 @@ enum { K_LEDS = 200, K_CPU, K_NONE, K_SLOT, K_CQ, K_CX,    /* (the Chords page: 
        K_PLAY,                                               /* (the Chords page: Endless or Loop, P_PMODE's bit 2) */
        K_SAVE,                                               /* (Setup: a turn saves; it shows whether it's saved) */
        K_CHORUS,
-       K_JRP, K_JRIN };                                      /* (1.4, the Set list page: the piece, and whether it's in) */                                           /* (1.3, PERFORM: the output's chorus, never saved) */
+       K_JRP, K_JRIN, K_DAY };
+#define NDAY 4                                   /* (1.4) the day: off, or a whole day in 20 minutes, 1 hour, 3 hours */
+static const char *const DAY_NAME[NDAY] = {"Off", "20 min", "1 hour", "3 hours"};
+static void dy_set(int v);
+enum { DUMMY_K_END = 0 };                                      /* (1.4, the Set list page: the piece, and whether it's in) */                                           /* (1.3, PERFORM: the output's chorus, never saved) */
 static const char *const LANE_NAME[EN_NDRUM] = {"Steps", "Steps 2", "Octaves", "Octaves 2", "Skips"};   /* (BERLIN:
                                                   * the Sequence's and Sequence 2's) */
 static int lane_seq(int d) { return d == 1 || d == 3; }   /* (a lane's sequence: its accents, its chance) */
@@ -144,7 +148,7 @@ static const uint16_t VIEW_KNOB[NVIEWS][4] = {
     {P_MW4, P_MT4, P_MR4, P_MI4},                /* the Atmosphere's Move (SAVE, a third time) */
     {P_ORN, P_GLIDE, P_VIB, P_LMEM},             /* (AISLING) Lead style (LFO, a third time): how it plays; Memory
                                                   * as on the Arc page */
-    {K_JRP, K_JRIN, K_NONE, K_NONE},             /* (1.4) the Set list (GLO, a third time): the journey's pieces */
+    {K_JRP, K_JRIN, K_NONE, K_DAY},              /* (1.4) the Journey (GLO, a third time): its pieces; the day */
 };
 static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Filter", "Evolve", "Motion", "Drift"},
@@ -174,7 +178,7 @@ static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Width", "Time", "Rate", "Intro"},
     {"Width", "Time", "Rate", "Intro"},
     {"Ornament", "Glide", "Vibrato", "Memory"},
-    {"Piece", "In set", "", ""},
+    {"Piece", "In set", "", "Day"},
 };
 /* what each knob does, a line: on the rule above the knobs while it's being turned (in capitals; each fits the
  * rule's 228 px, and every view has its row: the host's expect helpfit) */
@@ -207,7 +211,7 @@ static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, 
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"Cuts, rolls, slides: how often", "How long it slides, note to note", "How deep the late vibrato", "How much the Lead keeps its ideas"},
-    {"Which piece: the journey's list", "The journey plays it, or passes", "", ""},
+    {"Which piece: the journey's list", "The journey plays it, or passes", "", "Dawn to night: light and weather"},
 };
 
 /* (BERLIN) the screen's colours: Cosmic, on black (spec 15): lavender text, a cyan accent; the layers in their own
@@ -254,6 +258,7 @@ static struct {
     uint32_t fx;                       /* the effects held (EN_FX_*), REC's grid */
     uint32_t bfx;                      /* (BERLIN) the grid's effects held on the black keys (EN_FX_*) */
     uint8_t mv;                        /* (BERLIN) the black keys' moves held (EN_MV_*) */
+    uint8_t day, shower;               /* (1.4) the day (DAY_NAME's); its shower falling (Fras, lightly) */
     uint8_t jr_out, jr_cur;            /* (1.4) the Set list: the pieces left out (a bit each), the one looked at */
     uint8_t slot, chords_from;         /* the Chords page: the slot edited; the page it was opened from */
     uint8_t noise_from;                /* the Noise page (SAVE): the page it was opened from */
@@ -548,6 +553,8 @@ static int knob_get(int k)
         return ui.dirty ? 1 : 0;
     if (k == K_CHORUS)
         return ui.chorus;
+    if (k == K_DAY)
+        return ui.day;
     if (k == K_JRP)
         return ui.jr_cur;
     if (k == K_JRIN)
@@ -564,7 +571,7 @@ static void knob_range(int k, int *lo, int *hi)
         *hi = 50;
     } else {
         *lo = 0;
-        *hi = k == K_JRP ? NPIECES - 1 : k == K_JRIN ? 1 : k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
+        *hi = k == K_DAY ? NDAY - 1 : k == K_JRP ? NPIECES - 1 : k == K_JRIN ? 1 : k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
             : k == K_LANE ? EN_NDRUM - 1 : k == K_LCH ? 100 : 0;
     }
 }
@@ -574,7 +581,7 @@ static const char *knob_name(int k)
         return en_param_info(k)->name;
     return k == K_LEDS ? "Lights" : k == K_CPU ? "CPU" : k == K_SLOT ? "Slot" : k == K_CQ ? "Chord" : k == K_CX ? "Type"
          : k == K_LANE ? "Lane" : k == K_LCH ? "Chance" : k == K_FILTER ? "Filter" : k == K_DUB ? "Wet"
-         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : k == K_CHORUS ? "Chorus" : k == K_JRP ? "Piece" : k == K_JRIN ? "In set" : "";
+         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : k == K_CHORUS ? "Chorus" : k == K_DAY ? "Day" : k == K_JRP ? "Piece" : k == K_JRIN ? "In set" : "";
 }
 static void knob_text(int k, char *b)
 {
@@ -591,8 +598,8 @@ static void knob_text(int k, char *b)
             b++;
         *b++ = '%';
         *b = 0;
-    } else if (k == K_JRP || k == K_JRIN) {
-        const char *n = k == K_JRP ? piece_name(v) : v ? "In" : "Out";
+    } else if (k == K_JRP || k == K_JRIN || k == K_DAY) {
+        const char *n = k == K_DAY ? DAY_NAME[v] : k == K_JRP ? piece_name(v) : v ? "In" : "Out";
         while ((*b++ = *n++))
             ;
     } else if (k == K_SLOT) {
@@ -679,6 +686,9 @@ static void knob_set(int k, int v)
     } else if (k == K_SLOT) {
         ui.slot = (uint8_t)v;
         return;                                  /* (only where the page looks: nothing saved) */
+    } else if (k == K_DAY) {                     /* (not saved: off at every start) */
+        dy_set(v);
+        return;
     } else if (k == K_JRP) {
         ui.jr_cur = (uint8_t)v;
         return;
@@ -902,6 +912,7 @@ static const char *const LPERF_NAME[LPERF_N] = {"DRONE", "SEQ", "LEAD", "SEQ 2",
                                                 "DROP", "ECHO", "DRONE", "SEQ", "LEAD", "SEQ 2", "ATMOS"};
 /* each layer's mute (EN_M_*), in the meters' order: Sequence 2 is two of the engine's bits (DUB-1's kick and hats) */
 static const uint32_t LAYER_MUTE[NLAYER] = {EN_M_CHORD, EN_M_PINGS, EN_M_BASS, EN_M_KICK | EN_M_HATS, EN_M_NOISE};
+#define DAY_SHOWER 84                            /* (the shower's amount, as a CC) */
 #define ALL_MUTE (EN_M_CHORD | EN_M_PINGS | EN_M_BASS | EN_M_KICK | EN_M_HATS | EN_M_NOISE)
 static void fx_send(void)                        /* all that is held, to the engine: the grid's (ui.fx), the black
                                                   * keys' (ui.bfx, ui.mv), the link's moves, and PERFORM's keys,
@@ -942,6 +953,12 @@ static void fx_send(void)                        /* all that is held, to the eng
             else
                 pf |= (uint32_t)(d - 200);
         }
+    if (ui.shower && !((ui.fx | ui.bfx | fx) >> EN_FX_TWITTER & 1u)) {   /* (1.4) the day's shower: Fras, lightly,
+                                                  * unless a hand or a CC has it */
+        if (ui.psent[EN_FX_TWITTER] != DAY_SHOWER)
+            ui.psent[EN_FX_TWITTER] = DAY_SHOWER, en_amt(EN_FX_TWITTER, DAY_SHOWER);
+        fx |= 1u << EN_FX_TWITTER;
+    }
     en_fx(ui.fx | ui.bfx | fx);
     en_move(ui.mv | mv);
     en_perf(ui.moves | pf);
@@ -1770,6 +1787,95 @@ static int jr_next(void)                         /* the set list's next piece af
         if (!(ui.jr_out >> (proj.piece + i) % NPIECES & 1u))
             return (proj.piece + i) % NPIECES;
     return -1;
+}
+/* (1.4) the day and the weather: a slow round laid over whatever plays. The light: the plucks' filter, the pings'
+ * tone and the plate's size, open by day, darker and closer at night; the pace: Density a few points; the weather:
+ * the Atmosphere's level, three fronts a day, and at the heaviest a shower (Fras, lightly, 40 s at most). All as
+ * offsets in the engine (en_day), so the piece's own values never move and nothing is marked to save. The time
+ * runs while it plays; it begins at dawn. Off: every offset 0, and the sound as it was to the bit */
+#define DAY_NP 5
+static const uint8_t DAY_MIN[NDAY] = {0, 20, 60, 180};
+static const struct { uint8_t p; int8_t day, night; } DAY_P[DAY_NP - 1] = {
+    {P_CUTOFF, 8, -12}, {P_SWEEP, 6, -10}, {P_SIZE, 8, -10}, {P_DENSITY, 4, -6}};
+static struct {
+    uint32_t t, span, last, calc, sh_t;          /* ms into the day; a day; the tick before; the last sum; the shower's start */
+    int8_t sent[DAY_NP];
+    uint8_t wet;
+} dy;
+static float dy_frac(float x) { return x - (float)(int32_t)x; }
+static float dy_ph(void) { return dy.span ? (float)dy.t / (float)dy.span : 0.0f; }   /* 0 dawn, .25 noon, .5 dusk */
+static float dy_light(float ph) { return fm_sinf(FM_TWO_PI * dy_frac(ph)); }   /* -1 midnight .. 1 noon */
+static float dy_weather(float ph)                /* 0 fair .. 1 the worst of it */
+{
+    const float f = fm_sinf(FM_TWO_PI * dy_frac(3.0f * ph + 0.15f));
+    return f <= 0.0f ? 0.0f : f * (0.55f + 0.45f * fm_sinf(FM_TWO_PI * dy_frac(ph + 0.45f)));
+}
+static void dy_send(float l, float w, int on)
+{
+    int i;
+    for (i = 0; i < DAY_NP; i++) {
+        const float v = !on ? 0.0f : i == DAY_NP - 1 ? -6.0f + 26.0f * w
+                      : l > 0.0f ? l * (float)DAY_P[i].day : -l * (float)DAY_P[i].night;
+        const int o = (int)(v + (v < 0.0f ? -0.5f : 0.5f));
+        if (o != dy.sent[i])
+            dy.sent[i] = (int8_t)o, en_day(i == DAY_NP - 1 ? P_CRACKLE : DAY_P[i].p, o);
+    }
+}
+static void fx_send(void);
+static void cv_disc(int32_t cx, int32_t cy, int32_t r, uint16_t c);
+static void dy_set(int v)
+{
+    v = v < 0 ? 0 : v >= NDAY ? NDAY - 1 : v;
+    if (v == ui.day)
+        return;
+    if (!ui.day)
+        dy.t = 0;                                /* (from off: dawn) */
+    else if (v)
+        dy.t = (uint32_t)((float)dy.t * (float)DAY_MIN[v] / (float)DAY_MIN[ui.day]);   /* (the same hour) */
+    ui.day = (uint8_t)v;
+    dy.span = DAY_MIN[v] * 60000u;
+    dy.last = plat_ms(), dy.calc = 0;
+    if (!v) {
+        dy_send(0.0f, 0.0f, 0);
+        dy.wet = 0;
+        if (ui.shower)
+            ui.shower = 0, fx_send();
+    }
+}
+static void dy_tick(void)
+{
+    const uint32_t now = plat_ms(), dt = now - dy.last;
+    float ph, w;
+    int wet, sh;
+    dy.last = now;
+    if (!ui.day)
+        return;
+    if (en_playing && (dy.t += dt) >= dy.span)
+        dy.t -= dy.span;
+    if (dy.calc && now - dy.calc < 250u)
+        return;
+    dy.calc = now | 1u;
+    ph = dy_ph(), w = dy_weather(ph);
+    dy_send(dy_light(ph), w, 1);
+    wet = en_playing && w > 0.8f;
+    if (wet && !dy.wet)
+        dy.sh_t = now;
+    dy.wet = (uint8_t)wet;
+    sh = wet && now - dy.sh_t < 40000u;
+    if (sh != ui.shower)
+        ui.shower = (uint8_t)sh, fx_send();
+}
+/* the sun by day, the moon by night, on its arc at the top of the main page */
+static void draw_sun(void)
+{
+    const float ph = dy_ph(), f = ph < 0.5f ? 2.0f * ph : 2.0f * ph - 1.0f;
+    const int32_t x = 98 + (int32_t)(44.0f * f + 0.5f), y = 14 - (int32_t)(9.0f * fm_sinf(3.14159265f * f) + 0.5f);
+    if (ph < 0.5f)
+        cv_disc(x, y, 4, K_CLAP);
+    else {
+        cv_disc(x, y, 4, K_TEXT);
+        cv_disc(x + 3, y - 1, 4, K_BG);
+    }
 }
 static void jr_send(void)
 {
@@ -3270,6 +3376,8 @@ static void draw_main(void)
         if (ui.view == V_DUB) {                  /* (AISLING) the main page: a small green triskele before its name */
             triskele((float)x - 11.0f, 20.0f, 4.0f, 1.5f, 1.6f, 1.0f, K_EIRE);
             x -= 20;
+            if (ui.day)                          /* (1.4) the day on: its sun or moon */
+                draw_sun();
         }
         for (k = 0; k < NROUND; k++)             /* (under it, the round's dots, in the panel's order: FX ENV LFO GLO
                                                   * HOME SAVE ARP SEQ) */
@@ -3886,6 +3994,8 @@ static void speak_dump(void)
                     proj.par[k] = (int16_t)x;
                 else if (k == K_SLOT)
                     ui.slot = (uint8_t)x;
+                else if (k == K_DAY)
+                    ui.day = (uint8_t)(x == hi ? 0 : x);   /* (left off) */
                 else if (k == K_JRP)
                     ui.jr_cur = (uint8_t)x;
                 else if (k == K_JRIN)
@@ -4134,6 +4244,7 @@ void ui_frame(void)
     prog_take();
     nudge_tick();
     jr_tick();
+    dy_tick();
     if (!sleep_input())
         input();
     mac_take();

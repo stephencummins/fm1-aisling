@@ -490,7 +490,7 @@ const char *en_chord_name(const int *pcs, int n, char *buf)
 
 /* ------------------------------------------------------------ commands --- */
 static float cho_t;                              /* (1.3) the Chorus knob, 0..1 */
-enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT, C_THIN };
+enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT, C_THIN, C_DAY };
 #define QN 512u                                 /* (a piece is every parameter at once: room for twice over and more) */
 _Static_assert(QN >= 2u * (P_NPARAMS + 8), "the command queue can't hold a piece's parameters twice over");
 static uint32_t q[QN];
@@ -515,6 +515,7 @@ void en_clock(int msg) { post(C_CLOCK, msg, 0); }
 void en_regrow(void) { post(C_REGROW, 0, 0); }
 void en_mute(uint32_t m) { post(C_MUTE, (int)(m & 0xFFu), 0); }
 void en_perf(uint32_t f) { post(C_PERF, (int)(f & 0xFFu), 0); }
+void en_day(int p, int o) { post(C_DAY, p, o); }
 void en_thin(uint32_t m) { post(C_THIN, (int)(m & 0xFFu), 0); }
 void en_fx(uint32_t m)                           /* (1.3: all 32, in two: the top eight after) */
 {
@@ -622,12 +623,18 @@ static float ec_g = 0.6f, ec_lpc = 0.68f, ec_wide = 1.0f;   /* the echo's Blur, 
 static int8_t mac[EN_NMAC];                     /* the master actions, -50..50 */
 volatile int8_t en_mac[EN_NMAC];
 static int8_t pofs[P_NPARAMS];
+static int8_t dofs[P_NPARAMS];                  /* (1.4) the day's and the weather's offsets: all 0 with the day off */
+#ifdef EN_HOST
+int en_test_dofs(int p) { return dofs[p]; }
+#endif
 static int dd_off;                              /* (Density's slow drift, below: added to Density as heard) */
 static float dub_up;                            /* Dub turned up, 0..1: the echo darker, feeding back past its knob */                  /* what they add to the piece's parameters */
 static int pe(int p)                            /* a parameter as heard: the piece's, moved by the master actions */
 {
     int v = par[p] + (par[p] || (p != P_SEQ && p != P_SEQ2) ? pofs[p] : 0);   /* (a sequence the piece keeps silent,
                                                   * level 0, stays silent: Energy doesn't wake it) */
+    if (par[p] || p != P_CRACKLE)                /* (1.4: an Atmosphere the piece keeps silent stays silent) */
+        v += dofs[p];
     if (p == P_DENSITY)
         v += dd_off;
     return v < PARAMS[p].lo ? PARAMS[p].lo : v > PARAMS[p].hi ? PARAMS[p].hi : v;
@@ -4658,6 +4665,14 @@ static void drain(void)
             mutes = (uint32_t)a;
             break;
         case C_PERF: perf = (uint32_t)a; break;
+        case C_DAY:
+            if (a < P_NPARAMS && dofs[a] != (int8_t)b) {
+                const int before = pe(a);
+                dofs[a] = (int8_t)b;
+                if (pe(a) != before)
+                    apply(a, par[a]);
+            }
+            break;
         case C_THIN:
             if (a & ~thin & EN_M_CHORD)          /* (the Drone thinned out: its notes off on MIDI, as muted) */
                 dr_midi_off(0), dr_midi_off(1);

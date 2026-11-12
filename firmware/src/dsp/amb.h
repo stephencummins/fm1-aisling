@@ -145,6 +145,7 @@ enum { EN_M_CHORD = 1, EN_M_PINGS = 2, EN_M_BASS = 4, EN_M_KICK = 8, EN_M_HATS =
                                                 * OCT- + OCT+ on its page; its level kept) */
 enum { EN_PF_SWEEP = 1, EN_PF_OPEN = 2, EN_PF_CLOSE = 4, EN_PF_DROP = 8, EN_PF_ECHO = 16 };   /* (KICKDROP: Drop, the kick and the bass) */
 void en_mute(uint32_t mask);
+void en_day(int p, int o);                      /* (1.4) the day's offset on parameter p (0: none; never saved) */
 void en_thin(uint32_t mask);                    /* (1.4) the Drone and the Atmosphere eased out (EN_M_CHORD, EN_M_NOISE) */
 void en_perf(uint32_t flags);
 /* the master actions (HOME's and PERFORM's knobs), -50..50 each, 0: the piece as it is; for playing, never saved.

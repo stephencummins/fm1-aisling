@@ -578,6 +578,12 @@ static int expect(const char *what, const char *val)
         got = jr.on ? jr.n + 1 : 0;
     else if (!strcmp(what, "jrmask"))
         got = (int)jr.mask;
+    else if (!strcmp(what, "day"))
+        got = ui.day;
+    else if (!strcmp(what, "shower"))
+        got = ui.shower;
+    else if (!strncmp(what, "dayofs", 6))        /* dayofsN: the day's offset as sent, N of DAY_P (4: the weather) */
+        got = dy.sent[atoi(what + 6) % DAY_NP];
     else if (!strcmp(what, "jrout"))              /* the set list: the pieces left out, a bit each */
         got = ui.jr_out;
     else if (!strcmp(what, "jrstay"))             /* the stay, in minutes (0: the journey's off) */
@@ -1144,6 +1150,13 @@ int main(int argc, char **argv)
         else if (!strcmp(cmd, "journey")) {      /* (1.4) journey N: the glide to piece N begun by hand */
             if (!jr_go(atoi(a)))
                 printf("FAIL line %d: %s\n", lineno, line), fails++;
+        }
+        else if (!strcmp(cmd, "day")) {          /* (1.4) day N [SPAN_MS [PERMILLE]]: the day set; its length; the hour */
+            dy_set(atoi(a));
+            if (b[0])
+                dy.span = (uint32_t)strtoul(b, 0, 0);
+            if (c[0])
+                dy.t = (uint32_t)((uint64_t)dy.span * strtoul(c, 0, 0) / 1000u), dy.calc = 0;
         }
         else if (!strcmp(cmd, "setlist"))        /* (1.4) setlist MASK: the pieces left out, a bit each */
             ui.jr_out = (uint8_t)strtoul(a, 0, 0);
