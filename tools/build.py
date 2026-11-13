@@ -53,6 +53,7 @@ SDK_SHA256 = {
 
 PRODUCT = "FM-1_353000000"          # package identity; release builds are FM-1_353XXYYZZ (see main)
 VERSION = None                      # FELUCCA_VERSION for release builds (default: firmware/src/ui.c)
+FX = False                          # --fx: AISLING FX (its own identity and package name: see main)
 QUIET = False                       # a test build that makes no sound (--release X.Y-quiet)
 
 
@@ -209,6 +210,8 @@ def build_app():
         if v in ("0", "1"):
             flags.append(f"-D{flag}={v}")
     flags.append(f'-DFELUCCA_ID="{PRODUCT}"')
+    if FX:
+        flags.append("-DAISLING_FX=1")           # AISLING FX: USB sound in, through the effects, no voices
     if VERSION:
         flags.append(f'-DEN_VERSION="{VERSION}"')
     if QUIET:
@@ -345,11 +348,13 @@ def mmio_check():
 
 
 def main():
-    global PRODUCT, VERSION, QUIET
+    global PRODUCT, VERSION, QUIET, FX
     ap = argparse.ArgumentParser()
     ap.add_argument("--release", metavar="X.Y[.Z]", help="release build: identity FM-1_353XXYYZZ, version string X.Y[.Z]")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
+    ap.add_argument("--fx", action="store_true", help="AISLING FX: USB sound in, through the effects, no voices")
     a = ap.parse_args()
+    FX = a.fx
     name = "amb.fwsc"
     if a.release:
         # identity FM-1_353 (AISLING's: Ireland's dialling code; NACHTFAHRT's is 197) + major, minor, patch as two
@@ -364,6 +369,11 @@ def main():
         VERSION = a.release.upper()
         QUIET = (m[4] or "").lower() == "-quiet"    # (the suffix sets it, so a quiet build can't be mislabelled)
         name = f"aisling-{a.release}.fwsc"
+    if FX:
+        # AISLING FX: its own line of identities, FM-1_3539 + major (one digit), minor, patch; a build that is not a
+        # release is FM-1_353900000
+        PRODUCT = "FM-1_3539" + PRODUCT[-5:]
+        name = name.replace("aisling-", "aislingfx-") if a.release else "aislingfx-dev.fwsc"
     fm1pkg_make.SDK = a.sdk
     for rel, sha in SDK_SHA256.items():          # fail early without the SDK
         if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:

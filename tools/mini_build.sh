@@ -17,5 +17,8 @@ ssh "$MINI" "export PATH=/opt/homebrew/bin:/usr/local/bin:\$PATH; cd ~/$MINI_DIR
 mkdir -p build
 name=amb.fwsc
 case "$1" in --release) name="aisling-$2.fwsc" ;; esac
+case " $* " in *" --fx "*)                  # AISLING FX: its own package names (tools/build.py)
+    case "$name" in amb.fwsc) name=aislingfx-dev.fwsc ;; *) name="aislingfx-${name#aisling-}" ;; esac ;;
+esac
 scp -q "$MINI:$MINI_DIR/build/$name" "build/$name"
 echo "mini_build: build/$name"

@@ -25,6 +25,9 @@ static uint32_t want_half = 2u;                     /* the half the next ISR sho
 #if FELUCCA_UAC
 static int32_t ubuf[2u * REND_FRAMES];              /* USB audio's pair, before MASTER (en_usb_out) */
 #endif
+#if FELUCCA_SPK
+static int16_t ibuf[2u * REND_FRAMES];              /* (AISLING FX) the computer's sound for one render (en_fx_in) */
+#endif
 
 #define DBG_MAGIC 0x44424731u                       /* "DBG1": read with `fm1t memr` */
 struct en_dbg {
@@ -46,6 +49,10 @@ static void render_block(int32_t *o)                /* ALNK0: one half, measured
         for (k = 0; k < HALF_FRAMES; k += REND_FRAMES) {
 #if FELUCCA_UAC
             en_usb_out = uac.feed ? ubuf : 0;       /* (made only while a computer is reading) */
+#endif
+#if FELUCCA_SPK
+            spk_take(ibuf, REND_FRAMES);            /* the computer's sound, at this clock: the effects' input */
+            en_fx_in = ibuf;
 #endif
             en_render(o + 2u * k, REND_FRAMES, master_q12 * ui_gain_q12 >> 12);   /* (1.1) the sleep fade (ui.c) */
 #if FELUCCA_UAC
@@ -136,6 +143,10 @@ void fm1_timer5_irq(void)
          * the consumer side of its ring, and usb_poll never runs nested, so the two never interleave */
         if (en_dbg.in_audio)
             uac_service();
+#endif
+#if FELUCCA_SPK
+        if (en_dbg.in_audio)                        /* (and the computer's packets in: EP3 only) */
+            spk_service();
 #endif
     }
     if (usb_due && !en_dbg.in_audio) {

@@ -5650,6 +5650,12 @@ static float mf_lp = 14.2f, mf_hp = 4.3f;        /* the master filter: log2 of i
 static float mf_c[2][4], mf_s[8], mf_u[8];      /* (mf_u: the USB pair's own) */
 int32_t *en_usb_out;
 static int32_t *usb_at;
+#ifdef AISLING_FX
+const int16_t *en_fx_in;
+static const int16_t *fxin_at;
+#define FXIN_GAIN (0.8f / 32768.0f)              /* full scale in: 0.8 on the bus, as a loud piece */
+#define FXIN_SEND 0.5f                           /* of it into the echo and the plate, before their own amounts */
+#endif
 #define USB_GAIN 1.0f                            /* (0.5) the USB pair's level: as the analogue at MASTER 2048 */
 static float fx_vt, fx_wash, fx_cf, fx_rep, fx_sw, fx_swl, fx_swm = 1.0f, fx_ph, fx_phl, fx_phz[2][6], fx_phlast[2];
 static float tw_amp, tw_env, tw_f, tw_glide, tw_ph, tw_pan;
@@ -6938,6 +6944,19 @@ static void render_chunk(int32_t *out, uint32_t n, float gain)
     for (j = 0; j < n; j++)
         mixl[j] = mixr[j] = rsend[j] = esend[j] = 0.0f;
     lfo_step();
+#ifdef AISLING_FX
+    /* AISLING FX: no voices. The sound from the computer is the music: the dry, and its mean into the echo and
+     * the plate, which the piece's Echo and Reverb (and Dub and Space) turn up as they do the voices' */
+    if (fxin_at) {
+        for (j = 0; j < n; j++) {
+            const float il = (float)fxin_at[2 * j] * FXIN_GAIN, ir = (float)fxin_at[2 * j + 1] * FXIN_GAIN;
+            mixl[j] = il;
+            mixr[j] = ir;
+            rsend[j] = esend[j] = (il + ir) * (0.5f * FXIN_SEND);
+        }
+        fxin_at += 2u * n;
+    }
+#else
     render_plucks(n);
     render_drone(n);
     render_lead(n);
@@ -6947,6 +6966,7 @@ static void render_chunk(int32_t *out, uint32_t n, float gain)
         render_crackle(n);
     else
         render_atmos(n);
+#endif
     layer_act();
     if (fxm & 0xFFFFu || tw_env > 1e-4f || fx_ph > 0.005f)   /* (the grid's sixteen) */
         render_fx(n);
@@ -7094,6 +7114,9 @@ void en_render(int32_t *out, uint32_t n, uint32_t gain_q12)
 {
     const float gain = (float)gain_q12 * (1.0f / 4096.0f) * 2.0f;
     usb_at = en_usb_out;
+#ifdef AISLING_FX
+    fxin_at = en_fx_in;
+#endif
     if (en_load > 75u)                           /* (the last block ran heavy: shed for half a second; the classics
                                                   * pass: from 75, was 80, and shedding more) */
         shed_left = (int32_t)(0.5f * EN_SR);
