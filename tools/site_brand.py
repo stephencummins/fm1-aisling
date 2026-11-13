@@ -33,7 +33,8 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
        ("video", "video", "https://youtu.be/3aUARUvwT_Y", "A short film of AISLING and its visualiser, on YouTube"),
        ("source", "source", REPO, "The code, on GitHub"),
        STEPHEN8N)
-FX1_NAV = (("controls", "controls", "fx1/controls/", "Every knob, button and key of the FM-1 running FX-1 and what it does, drawn"),
+FX1_NAV = (("install", "install", "fx1/install/", "Put AISLING FX-1 on your FM-1 from Chrome or Edge"),
+           ("controls", "controls", "fx1/controls/", "Every knob, button and key of the FM-1 running FX-1 and what it does, drawn"),
            ("manual", "manual", "fx1/manual/", "Setting it up with a computer, the effects, the screen, and going back"),
            ("source", "source", "https://github.com/stephencummins/fx1-aisling", "FX-1's code, on GitHub"),
            STEPHEN8N)

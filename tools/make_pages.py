@@ -14,9 +14,10 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
                               help (manual, controls, cheat sheet, troubleshooting), the download and the source
   fm1/controls/index.html     the FM-1's controls drawn (docs/img/fm1-controls.svg, tools/gen_fm1_figure.py, in the
                               FM-1's colours, chosen on the page), then the README's "In short"
-  fx1/index.html, controls/, manual/
+  fx1/index.html, controls/, manual/, install/
                               AISLING FX-1, the FM-1 as a USB effects box: its page, its controls drawn
-                              (docs/img/fx1-controls.svg) with docs/FX1.md's table, and docs/FX1.md as a manual
+                              (docs/img/fx1-controls.svg) with docs/FX1.md's table, docs/FX1.md as a manual, and its
+                              installer: the FM-1's page and code, worded for FX-1, writing FX-1's release package
   smk37/                      the SMK-37 Elite's pages, from its own tree (tools/make_pages_smk37.py --marks DIR, on its
                               branch): given --smk37 DIR (or SMK37_PAGES=DIR), they are copied in and given this site's
                               bar; without, the bar and the root point at where they are published on their own
@@ -33,11 +34,15 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
                               "In short" (each control drawn as it looks) and pieces table; to print, those on one
                               sheet, then a page for each flow
   firmware/aisling-VERSION.fwsc   the package the installer writes; also the download
+  firmware/aislingfx-1.0.fwsc     FX-1's, for fx1/install/: the release's asset, byte for byte (FX1_SHA256), from
+                                  build/ or given with --fx1 FILE (or FX1_PKG=FILE)
 
-  tools/make_pages.py build/aisling-0.1.fwsc 0.1 OUT_DIR [--smk37 DIR]
+  tools/make_pages.py build/aisling-0.1.fwsc 0.1 OUT_DIR [--smk37 DIR] [--fx1 FILE]
 
 The package must be a release build (tools/mini_build.sh --release X.Y): its identity, FM-1_353XXYYZZ, is
-what the installer checks the download against and what the FM-1 reports after the install."""
+what the installer checks the download against and what the FM-1 reports after the install. FX-1's is
+FM-1_391XXYYZZ."""
+import hashlib
 import html
 import json
 import re
@@ -55,6 +60,7 @@ from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the pa
 
 REPO = "https://github.com/stephencummins/fm1-aisling"
 FX1_REPO, FX1_VERSION = "https://github.com/stephencummins/fx1-aisling", "1.0"           # its release
+FX1_SHA256 = "9412ae355356aec34878597786cba0d63cc0a55608db6c1794ed42bc82682815"           # aislingfx-1.0.fwsc, its asset
 SMK37_REPO, SMK37_VERSION = "https://github.com/stephencummins/smk37-aisling", "1.3.1"  # the Elite's
 BY = 'by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
 
@@ -444,8 +450,8 @@ PART_CARDS = (
     ("fx1", "v__FX1__ · released", True,
      "An FM-1 as an effects box: a computer's sound in over USB, through AISLING's filter, echo and reverb and its "
      "effects, out of the FM-1's socket and back to the computer.",
-     (("download", FX1_REPO + "/releases/tag/v__FX1__", True), ("manual", "fx1/manual/", False),
-      ("controls", "fx1/controls/", False))),
+     (("install", "fx1/install/", True), ("download", FX1_REPO + "/releases/tag/v__FX1__", False),
+      ("manual", "fx1/manual/", False), ("controls", "fx1/controls/", False))),
     ("smk37", "v__SMK37__ · released · Elite only", True,
      "The same AISLING on M-VAVE's 37-key keyboard: the FM-1's 27 keys in the middle, its pads playing the effects, its "
      "faders the mix.",
@@ -609,10 +615,10 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <p class="lab">__BY__</p>
 </div>
 <div class="pane notice" role="note">
-<p><strong>1.0, released.</strong> Its package, <code>aislingfx-1.0.fwsc</code>, is on
-<a href="__FX1_REPO__/releases/tag/v1.0">the 1.0 release</a>. There is no install page for it yet: it goes on with the
-command-line installer, as the <a href="manual/#s1">manual</a> says. It has run on one FM-1 so
-far. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+<p><strong>1.0, released.</strong> It installs from Chrome or Edge on its <a href="install/">install page</a>, and its
+package, <code>aislingfx-1.0.fwsc</code>, is on <a href="__FX1_REPO__/releases/tag/v1.0">the 1.0 release</a> for the
+command-line installer. It has run on one FM-1 so far, put on from the command line: the install page is new, and does
+the same as AISLING's. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
 </div>
 <div class="two hero">
 <div class="pane what">
@@ -625,17 +631,18 @@ cable, goes through AISLING's filter, echo and plate reverb and the effects on i
 __SHOTS__
 </div>
 <nav class="ways" aria-label="AISLING FX-1's pages">
-  <a class="go" href="__FX1_REPO__/releases/tag/v1.0"><strong>Download 1.0</strong><span>The package, on GitHub beside its source (GPL-3.0), to put on with <code>tools/fm1_install.py</code>.</span></a>
+  <a class="go" href="install/"><strong>Install <em class="v">v1.0</em></strong><span>From Chrome or Edge on a computer, with the FM-1 connected by a USB data cable. Nothing to install.</span></a>
   <a href="manual/"><strong>Manual</strong><span>Installing it, setting it up with a computer, the knobs, the screen, what has been tried and what hasn't, and going back.</span></a>
   <a href="controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does in FX-1.</span></a>
-  <a href="../fm1/"><strong>AISLING</strong><span>The instrument FX-1 is made from, to install from Chrome or Edge: also the way back.</span></a>
+  <a href="__FX1_REPO__/releases/tag/v1.0"><strong>Download 1.0</strong><span>The package, on GitHub beside its source (GPL-3.0), for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
 </nav>
 <div class="two">
 <section class="pane">
 <h2 class="bh">How it goes</h2>
 <ol class="path">
-  <li>Put FX-1 on the FM-1: download <code>aislingfx-1.0.fwsc</code> from the release and install it with
-      <code>tools/fm1_install.py</code>, over AISLING, another firmware or the stock one.</li>
+  <li>Put FX-1 on the FM-1 from its <a href="install/">install page</a>, in Chrome or Edge, over AISLING, another
+      firmware or the stock one (or download <code>aislingfx-1.0.fwsc</code> from the release and install it with
+      <code>tools/fm1_install.py</code>).</li>
   <li>Connect the FM-1 to the computer with a USB data cable. It shows up as a sound device, <b>AISLING FX-1</b>.</li>
   <li>Make it the computer's sound output, or a track's in your music software, and play something. The screen says
       PLAYING and its meters move.</li>
@@ -653,7 +660,8 @@ __SHOTS__
   <li>In the simulator, every control and key measured: 17 of PERFORM's 27 effects change a computer's sound, and four
       of the black keys' eleven (the rest were made for AISLING's own voices). The manual and the controls drawing
       say which.</li>
-  <li>Not yet: how late the sound comes out (the latency), a long session on the FM-1, and a newer FM-1.</li>
+  <li>Not yet: how late the sound comes out (the latency), a long session on the FM-1, a newer FM-1, and putting FX-1
+      on from the install page.</li>
   <li>To know: FX-1 doesn't save by itself (hold GLO to save), and saves where AISLING does, as AISLING's piece;
       Setup's sleep timer, if set, quiets the socket while the computer still plays.</li>
 </ul>
@@ -915,6 +923,72 @@ def controls_page(kind, svg_path):
             .replace("__TABLE__", md_table(kind["table"][1], kind["table"][0], kind.get("manual"))).replace("__AFTER__", kind["after"]))
 
 
+# FX-1's installer: the FM-1's page (web/amb_installer.html) and its code as they are, FX-1's words where the page has
+# AISLING's. Each is changed where it is once, so a change to the page that moves one stops the build instead of leaving
+# AISLING's words on FX-1's page. Its "Back to the stock firmware" becomes "Going back", pointing at AISLING's page
+FX1_INSTALL_EDITS = (
+    ("<title>Install · AISLING</title>", "<title>Install · AISLING FX-1</title>"),
+    ("put AISLING on your FM-1</h1>", "put AISLING FX-1 on your FM-1</h1>"),
+    ('href="../manual/#recovering', 'href="../../manual/#recovering'),
+    ("AISLING is by CU_STE", "AISLING FX-1 is by CU_STE"),
+    ('"https://github.com/stephencummins/fm1-aisling" target="_blank" rel="noopener">github.com/stephencummins/fm1-aisling<',
+     f'"{FX1_REPO}" target="_blank" rel="noopener">{FX1_REPO.removeprefix("https://")}<'),
+)
+FX1_INSTALL_BACK = """<section class="pane" id="back">
+  <h2 class="bh" data-t="backh"></h2>
+  <p data-t="back1"></p>
+  <p data-t="back2"></p>
+  <p class="btns"><a class="btn" href="../../install/" data-t="backgo1"></a>
+  <a class="btn" href="../../install/#stock" data-t="backgo2"></a></p>
+  </section>"""
+FX1_INSTALL_TEXT = {
+    "en": {"ready": "Ready to install AISLING FX-1 ", "manual": "Back to AISLING FX-1",
+           "chipother": "not one AISLING FX-1 knows", "backh": "Going back",
+           "back1": "AISLING goes back over FX-1 from its own install page, as over any firmware. When that was tried, with "
+                    "no save made in FX-1, AISLING's saved pieces were as they had been.",
+           "back2": "The stock firmware goes back as it does from AISLING, and only in the version whose bootloader your "
+                    "FM-1 already has: V16 with M-VAVE's M-UPGRADE, V15 from The Firmware Hub. What FX-1 saved may be lost.",
+           "backgo1": "Install AISLING", "backgo2": "Back to the stock firmware"},
+    "ja": {"ready": "インストールできます: AISLING FX-1 ", "manual": "AISLING FX-1 のページへ",
+           "chipother": "AISLING FX-1 の知らないチップ", "backh": "元に戻す",
+           "back1": "AISLING は、ほかのファームウェアと同じように、AISLING のインストールページから FX-1 の上に入れられます。"
+                    "FX-1 で保存せずに試したところ、AISLING で保存した曲はそのまま残っていました。",
+           "back2": "純正ファームウェアも AISLING からと同じように戻せますが、FM-1 にすでに入っているブートローダーと同じバージョンに"
+                    "限ります（V16 は M-VAVE の M-UPGRADE で、V15 は The Firmware Hub から）。FX-1 で保存したものは消えることがあります。",
+           "backgo1": "AISLING をインストールする", "backgo2": "純正ファームウェアに戻す"},
+}
+
+
+def fx1_installer(page):
+    """FX-1's installer page from the FM-1's (before its code and metadata go in)."""
+    for old, new in FX1_INSTALL_EDITS:
+        if page.count(old) != 1:
+            raise SystemExit(f"web/amb_installer.html: {old!r} is not there once, for FX-1's installer")
+        page = page.replace(old, new)
+    page, n = re.subn(r'<section class="pane" id="stock">.*?</section>', FX1_INSTALL_BACK, page, flags=re.S)
+    if n != 1:
+        raise SystemExit("web/amb_installer.html: no one stock section, for FX-1's installer")
+    words = "".join(f"Object.assign(TEXT.{lang}, {json.dumps(t, ensure_ascii=False)});\n" for lang, t in FX1_INSTALL_TEXT.items())
+    mark = 'let lang = "en";'
+    if page.count(mark) != 1:
+        raise SystemExit(f"web/amb_installer.html: {mark!r} is not there once, for FX-1's installer")
+    return page.replace(mark, "/* AISLING FX-1's words (tools/make_pages.py) */\n" + words + mark)
+
+
+def fx1_package(path):
+    """FX-1's package: the release's asset, byte for byte, with its identity and its loader -> (bytes, identity)."""
+    if not path.exists():
+        raise SystemExit(f"no {path}: FX-1's package, from its release (gh release download v{FX1_VERSION} "
+                         f"-R stephencummins/fx1-aisling -p '*.fwsc' -D build), or give one with --fx1 FILE")
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != FX1_SHA256:
+        raise SystemExit(f"{path}: not FX-1 {FX1_VERSION}'s release package (its sha256 differs from FX1_SHA256)")
+    product = product_of(raw)
+    if not re.fullmatch(r"FM-1_391(?!000000)\d{6}", product) or b"FELUCCA-LOADER-1" not in raw:
+        raise SystemExit(f"{path}: identity {product!r}, or no update loader: not a release of FX-1")
+    return raw, product
+
+
 def fx1_landing():
     """FX-1's page, with its screens if there are any in docs/img (fx1-*.png, from the simulator: tests/scenarios-fx)."""
     shots = [(f, a) for f, a in FX1_SHOTS if (SRC / "docs" / "img" / f).exists()]
@@ -957,9 +1031,12 @@ def check_visualiser_bar():
             raise SystemExit(f"web/visualiser/index.html: its {cls} differs from tools/site_brand.py's:\n  {found}\n  {want}")
 
 
-def main(pkg, version, out, smk37=None):
+def main(pkg, version, out, smk37=None, fx1=None):
     check_visualiser_bar()
     pkg, out = Path(pkg), Path(out)
+    fx1 = Path(fx1) if fx1 else SRC / "build" / f"aislingfx-{FX1_VERSION}.fwsc"
+    fx1_raw, fx1_product = fx1_package(fx1)
+    fx1_name = f"aislingfx-{FX1_VERSION}.fwsc"
     if smk37:
         smk37 = Path(smk37)
         for f in ("index.html", "controls/index.html", "docs/index.html", "img/smk37-panel.svg"):
@@ -976,19 +1053,23 @@ def main(pkg, version, out, smk37=None):
     name = f"aisling-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
     if out.exists():
         shutil.rmtree(out)
-    for d in ("install", "manual", "cheat", "firmware", "fm1/controls", "fx1/controls", "fx1/manual"):
+    for d in ("install", "manual", "cheat", "firmware", "fm1/controls", "fx1/controls", "fx1/manual", "fx1/install"):
         (out / d).mkdir(parents=True)
     shutil.copy(pkg, out / "firmware" / name)
-    # the installer
+    (out / "firmware" / fx1_name).write_bytes(fx1_raw)
+    # the installer, and FX-1's: the same page and code, each with its package's metadata
     page = (SRC / "web" / "amb_installer.html").read_text(encoding="utf-8")
     lib = strip_module((SRC / "web" / "fm1pkg.js").read_text(encoding="utf-8")) + "\n" + \
         strip_module((SRC / "web" / "fm1ota.js").read_text(encoding="utf-8"))
-    meta = json.dumps({"version": version, "product": product, "pkg": "../firmware/" + name})
     for mark in ("/*LIB*/", "/*META*/"):
         if page.count(mark) != 1:
             raise SystemExit(f"amb_installer.html must contain {mark} once")
+    meta = json.dumps({"version": version, "product": product, "pkg": "../firmware/" + name})
     (out / "install" / "index.html").write_text(stamp(page.replace("/*LIB*/", lib).replace("/*META*/", meta), "../", "install"),
                                                 encoding="utf-8")
+    meta = json.dumps({"version": FX1_VERSION, "product": fx1_product, "pkg": "../../firmware/" + fx1_name})
+    (out / "fx1" / "install" / "index.html").write_text(
+        stamp(fx1_installer(page).replace("/*LIB*/", lib).replace("/*META*/", meta), "../../", "install", "fx1"), encoding="utf-8")
     # the manual (a complete page; its images beside it). It's made by its own process, so it's told what isn't here
     away = [] if smk37 else ["--away", f"smk37={SMK37_AWAY}"]
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "MANUAL.md"),
@@ -1061,9 +1142,10 @@ def main(pkg, version, out, smk37=None):
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
-    print(f"site: {out}: index.html, fm1/ (and controls/), fx1/ (controls/, manual/), "
+    print(f"site: {out}: index.html, fm1/ (and controls/), fx1/ (controls/, manual/, install/ ({fx1_product})), "
           f"smk37/ {'(from ' + str(smk37) + ')' if smk37 else '(not here: ' + SMK37_AWAY + ')'}, install/ ({product}), "
-          f"manual/, cheat/, emu/, editor/, visualiser/, screen/, words/, firmware/{name} ({len(raw)} B)")
+          f"manual/, cheat/, emu/, editor/, visualiser/, screen/, words/, firmware/{name} ({len(raw)} B) "
+          f"and {fx1_name} ({len(fx1_raw)} B)")
 
 
 if __name__ == "__main__":
@@ -1076,6 +1158,13 @@ if __name__ == "__main__":
             sys.exit(__doc__)
         smk = args[i + 1]
         del args[i:i + 2]
+    fx = os.environ.get("FX1_PKG") or None
+    if "--fx1" in args:
+        i = args.index("--fx1")
+        if i + 1 >= len(args):
+            sys.exit(__doc__)
+        fx = args[i + 1]
+        del args[i:i + 2]
     if len(args) != 3:
         sys.exit(__doc__)
-    main(*args, smk37=smk)
+    main(*args, smk37=smk, fx1=fx)
