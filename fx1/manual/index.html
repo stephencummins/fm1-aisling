@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual · AISLING FX-1</title>
+<meta name="description" content="The manual for AISLING FX-1, an M-VAVE FM-1 running AISLING's effects on a computer's sound, over USB.">
+<style>
+/* The manual's own, on the site's bench (web/brand/site.css): the contents down the side, the text beside them */
+.prose { font-size: 14px; line-height: 1.65; }
+.prose > :first-child { margin-top: 0; }
+.prose h2, .prose h3 { font-family: var(--brand-display); font-weight: 600; text-wrap: balance; line-height: 1.25; color: var(--brand-ink); }
+.prose h2 { font-size: 19px; letter-spacing: .02em; margin: 2.4rem 0 .7rem; padding-top: .8rem; border-top: 1px solid var(--brand-rule); }
+.prose h2 .num { color: var(--brand-green); margin-right: .25em; font-variant-numeric: tabular-nums; }
+.prose h3 { font-size: 16px; letter-spacing: .01em; margin: 1.7rem 0 .4rem; }
+.prose p, .prose li { max-width: 78ch; }
+.prose p { margin: 0 0 .9rem; }
+.prose ul, .prose ol { padding-left: 1.3rem; margin: 0 0 .9rem; }
+.prose li { margin: .55rem 0; }
+.prose li::marker { color: var(--brand-green); }
+.skip { position: absolute; left: 16px; top: -100px; background: var(--brand-ground); border: 1px solid var(--brand-ink); padding: 6px 12px; z-index: 30; }
+.skip:focus { top: 8px; }
+.prose code, .prose pre { font-family: inherit; font-size: .93em; }
+.prose code { background: var(--brand-strip); padding: .05em .3em; border: 1px solid var(--brand-rule); }
+.prose pre { background: var(--brand-strip); border: 1px solid var(--brand-rule); padding: 12px 14px; overflow-x: auto; line-height: 1.45; margin: 0 0 1.1rem; }
+.prose pre code { background: none; padding: 0; border: 0; font-size: inherit; }
+.prose pre:focus-visible, .prose summary:focus-visible { outline: 2px solid var(--brand-green); outline-offset: 2px; }
+.prose hr { display: none; }
+.table { overflow-x: auto; margin: 0 0 1.2rem; }
+.prose table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+.prose th, .prose td { text-align: left; vertical-align: top; padding: .4rem .7rem .4rem 0; border-bottom: 1px solid var(--brand-rule); }
+.prose th { font-weight: 400; font-size: 12.5px; color: var(--brand-muted); border-bottom-color: var(--brand-muted); }
+.prose td:first-child { white-space: nowrap; }
+.prose .lede { font-size: 14.5px; margin-bottom: 1.2rem; }
+.status, .callout { background: var(--brand-strip); border: 1px solid var(--brand-rule); padding: 10px 14px; margin: 0 0 1.1rem; max-width: 78ch; }
+.callout { border-left: 3px solid var(--brand-green); }
+.status p, .callout p { margin: 0; }
+.prose details { border: 1px solid var(--brand-rule); background: var(--brand-strip); padding: 0 14px; margin: 0 0 1.1rem; }
+.prose details > summary { cursor: pointer; padding: 9px 0; }
+.prose details[open] > summary { margin-bottom: .4rem; }
+.prose details > :last-child { margin-bottom: 1rem; }
+.swatch { display: inline-block; width: .7em; height: .7em; margin-right: .4em; vertical-align: .02em; box-shadow: 0 0 0 1px var(--brand-ink); }
+.figs { display: flex; flex-wrap: wrap; gap: 16px; margin: .4rem 0 1.4rem; }
+.prose figure { margin: 0; flex: 0 1 auto; }
+.prose figure img { display: block; max-width: 100%; height: auto; }
+.prose figure.shot img { width: 300px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.prose figure.wide { flex-basis: 100%; }
+.prose figure.wide img { width: 100%; }
+.prose figcaption { color: var(--brand-muted); font-size: 12.5px; margin-top: .35rem; max-width: 300px; }
+.prose figure.wide figcaption { max-width: none; }
+/* the contents: down the side, staying in sight as the text goes by; first on a phone */
+nav.contents { padding: 14px 16px 16px; font-size: 12.5px; line-height: 1.45; }
+nav.contents ol { list-style: none; margin: 0; padding: 0; }
+nav.contents li { margin: 0; }
+nav.contents a { display: block; padding: 3px 0; color: var(--brand-ink); text-decoration: none; }
+nav.contents a:hover { color: var(--brand-green); text-decoration: underline; }
+@media (min-width: 48rem) { nav.contents { position: sticky; top: calc(var(--brand-bar) + .45rem); max-height: calc(100vh - var(--brand-bar) - 1rem); overflow-y: auto; box-sizing: border-box; } }
+@media (max-width: 47.99rem) { nav.contents ol { columns: 2 12rem; column-gap: 1.2rem; } nav.contents li { break-inside: avoid; } }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+<link rel="canonical" href="https://aisling.stephen8n.com/fx1/manual/">
+<meta name="theme-color" content="#f3ead7">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../fonts/BarlowSemiCondensed-SemiBold.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../fonts/IBMPlexMono-Regular.woff2">
+<link rel="stylesheet" href="../../site.css">
+<script src="../../wall.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="wall" data-art="fx1-manual" aria-hidden="true"></div>
+<div class="sitebar"><div class="sitebar-in">
+<a class="sitebar-home" href="../../" title="AISLING: the FM-1, FX-1 and SMK-37"><img class="sitebar-mark" src="../../mark.png" width="30" height="30" alt=""><span class="sitebar-name">AISLING</span><span class="sitebar-by">by CU_STE</span></a>
+<nav class="sitebar-kit" aria-label="AISLING for"><a href="../../fm1/" title="AISLING on the M-VAVE FM-1: the instrument, to install">FM-1</a><a href="../../fx1/" title="AISLING FX-1: an FM-1 as a USB effects box for a computer's sound" aria-current="true">FX-1</a><a href="../../smk37/" title="AISLING on the M-VAVE SMK-37 Elite: 37 keys, pads and faders">SMK-37</a></nav>
+<nav class="sitebar-nav" aria-label="AISLING's pages"><a href="../../fx1/controls/" title="Every knob, button and key of the FM-1 running FX-1 and what it does, drawn">controls</a><a href="../../fx1/manual/" title="Setting it up with a computer, the effects, the screen, and going back" aria-current="page">manual</a><a href="https://github.com/stephencummins/fx1-aisling" title="FX-1's code, on GitHub">source</a><a href="https://www.stephen8n.com" title="Stephen Cummins's other things">stephen8n</a></nav>
+</div></div>
+<main id="content" class="bench">
+<div class="strip">
+<h1 class="lab"><b>manual</b> · AISLING FX-1, an FM-1 as a USB effects box</h1>
+<a class="btn" href="../controls/">controls</a>
+</div>
+<div class="cols">
+<aside class="side">
+<nav class="contents" aria-label="Contents"><h2 class="bh" id="contents">Contents</h2>
+<ol><li><a href="#s1">Putting it on the FM-1</a></li><li><a href="#s2">Setting it up with a computer</a></li><li><a href="#s3">The controls</a></li><li><a href="#s4">The screen</a></li><li><a href="#s5">The effects</a></li><li><a href="#s6">Saving</a></li><li><a href="#s7">MIDI</a></li><li><a href="#s8">What has been tried</a></li><li><a href="#s9">Going back to AISLING</a></li></ol>
+</nav>
+</aside>
+<article class="pane prose">
+<p class="lede">AISLING FX-1 turns an M-VAVE FM-1 into an effects box for a computer. Connect the FM-1 to the computer with a USB cable and choose it as the computer's sound output: whatever the computer plays (a song, a track in your music software, a browser tab) comes in over the cable, goes through AISLING's filter, its echo and its plate reverb and the effects on its keys, and comes out of the FM-1's 3.5 mm socket. The same sound goes back up the cable too, so the computer can record it. It is AISLING with its voices taken out: no harps, no drone, no flute, only what the computer sends.</p>
+<div class="status"><p><strong>Status.</strong> 1.0, the first release. FX-1 has run on one FM-1 and played a computer's sound cleanly through its effects; it has gone on over AISLING and over the stock firmware, and AISLING back over it; what each control does was measured in AISLING's simulator (see <a href="#s8">What has been tried</a>). Its package is on <a href="https://github.com/stephencummins/fx1-aisling/releases/tag/v1.0">the 1.0 release</a>; there is no install page for it yet.</p></div>
+<p>AISLING FX-1 is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>), from AISLING's own source, in a repository of its own: <a href="https://github.com/stephencummins/fx1-aisling">github.com/stephencummins/fx1-aisling</a>. GPL-3.0. It is not affiliated with M-VAVE.</p>
+<div class="figs"><figure class="wide"><img src="img/fx1-controls.svg" width="1500" height="980" alt="A drawing of the FM-1 running AISLING FX-1, each control labelled with what it does to the computer&#x27;s sound, and the controls and keys that change nothing dimmed: The controls, below, says the same in words" loading="lazy"><figcaption>The FM-1 (a drawing), running AISLING FX-1: the dimmed controls and keys change nothing in the computer's sound</figcaption></figure></div>
+<hr>
+<h2 id="s1"><span class="num">1</span> Putting it on the FM-1</h2>
+<p>Download <code>aislingfx-1.0.fwsc</code> from <a href="https://github.com/stephencummins/fx1-aisling/releases/tag/v1.0">the 1.0 release</a> and put it on with the command-line installer, which is in the source and needs Python 3 with mido and python-rtmidi. Connect the FM-1 by USB first. It goes on over AISLING, over another firmware or over the stock one:</p>
+<pre tabindex="0" aria-label="Command"><code>git clone https://github.com/stephencummins/fx1-aisling
+pip3 install mido python-rtmidi
+python3 fx1-aisling/tools/fm1_install.py aislingfx-1.0.fwsc</code></pre>
+<p>To build it yourself, the toolchain is AISLING's (see <a href="https://github.com/stephencummins/fx1-aisling/blob/main/BUILDING.md">BUILDING.md</a>), with one flag: in the clone, <code>./build.sh --fx</code> makes <code>build/aislingfx-dev.fwsc</code>, and <code>./build.sh --release 1.0 --fx</code> makes 1.0.</p>
+<p>The FM-1 then starts as <strong>AISLING FX-1</strong>: the launch screen says so, and so does its name over USB. Its identity is its own, FM-1_391 and six digits (F, X and 1 on a phone's keys: 1.0 is FM-1_391010000, and a build that is not a release FM-1_391000000), so The Firmware Hub and AISLING's web installer don't take it for AISLING. Without <code>--fx</code> the same source builds AISLING.</p>
+<h2 id="s2"><span class="num">2</span> Setting it up with a computer</h2>
+<ol><li>Connect the FM-1's USB-C socket to the computer with a data cable. With a cable that only charges, the screen stays at NO COMPUTER.</li><li>The computer finds a USB sound device called <strong>AISLING FX-1 FM-1</strong>, with an output (to the FM-1) and an input (from it). It needs no driver: it is a standard USB audio device, as AISLING's recording stream is.</li><li>Choose it as the computer's sound output, or as the output of one track in your music software, and play something. The screen goes from NOTHING SENT YET to OPEN, NO PACKETS when the computer opens the stream, and to PLAYING when the sound arrives.</li><li>Listen at the FM-1's 3.5 mm socket, on headphones or into a mixer. MASTER sets the level there.</li><li>To record what comes out, choose the FM-1 as the computer's input too. That stream is at a fixed level, before MASTER: the computer sets its volume.</li></ol>
+<p>The stream is 44.1 kHz, 16-bit, stereo, the only rate it offers, so the computer converts to it where it must. The FM-1 keeps time with the computer's clock: it watches how full its buffer is and resamples a little faster or slower to match, so two clocks that disagree slightly make no clicks.</p>
+<h2 id="s3"><span class="num">3</span> The controls</h2>
+<p>At HOME the four knobs are FX-1's own: the filter, the two sends and the dry. The rest are AISLING's, acting on the computer's sound where AISLING's acted on its voices. A piece still sits underneath, unheard: its echo and reverb amounts, its echo's feedback and its tempo are where FX-1 starts, and PRESETS changes them all at once. The voices' pages are still there too, but with no voices they change nothing you can hear.</p>
+<div class="table"><table><thead><tr><th>Control</th><th>What it does</th></tr></thead><tbody><tr><td>MASTER</td><td>The level at the 3.5 mm socket. The stream back to the computer doesn't follow it</td></tr><tr><td>KNOB 1 at HOME</td><td><strong>Filter</strong>, on the whole sound: Off in the middle. Turned down it shuts, a low-pass, to about 200 Hz at the end; turned up it opens, a high-pass, to about 800 Hz. It drifts a little by itself while the FM-1 plays (see PLAY)</td></tr><tr><td>KNOB 2 at HOME</td><td><strong>Echo</strong>: how much of the sound goes into the echo. The same Echo as the Space page's, and saved with the piece</td></tr><tr><td>KNOB 3 at HOME</td><td><strong>Reverb</strong>: how much goes into the plate reverb; 0, none. The Space page's Reverb, saved with the piece</td></tr><tr><td>KNOB 4 at HOME</td><td><strong>Dry</strong>: how much of the sound itself goes straight out, 0 to 100. The echo and the plate are fed the same whatever it says, so at 0 only they are heard (for a send and return). Not saved: 100 at every start</td></tr><tr><td>PRESETS</td><td>The piece underneath: its echo and reverb amounts, its feedback, its plate's size and its tempo, which the echo's time counts in (at the same Echo time, Skellig's repeats come 1.2 s apart, Aran's 0.95 s)</td></tr><tr><td>SELECT, ALGORITHM</td><td>On the voices' pages, a layer's level and its voice: nothing to hear. On the Setup page, as in AISLING, the journey's stay and the sleep timer (see <a href="#s6">Saving</a> on sleep)</td></tr><tr><td>OCT− / OCT+</td><td>A layer's octave: nothing to hear. With HOME held, undo and redo</td></tr><tr><td>SEL</td><td>A tap: PERFORM, the keys' effects (see <a href="#s5">The effects</a>); another tap: back</td></tr><tr><td>FX</td><td>The Space page: Echo, Echo time (six steps, an eighth to a whole bar, in the piece's beats), Feedback (in seconds of tail: 0 is a single repeat; at 100 each repeat is about 13 dB under the last, and it never runs away), Reverb. Again, the Echo page: Blur, Tone (lower is darker), Width (0: the echo in mono), Size (the plate's length)</td></tr><tr><td>GLO</td><td>The Setup page: Tune and Lights (nothing to hear), MIDI out, Save. Held half a second: save</td></tr><tr><td>HOME</td><td>The HOME page; again, the Key page, whose Tempo is the beat the echo's time counts in (Root, Mode and Transpose change nothing here)</td></tr><tr><td>PLAY</td><td>Play / rest. The sound comes through either way. Playing, the Filter and the echo's Wet drift slowly by themselves, as AISLING's do (a turn of yours holds until the next section); at rest they keep still</td></tr><tr><td>REC</td><td>A tap: hold. The echo and the plate keep what they have and go on repeating it, while the sound still comes through dry. Held: the effects grid on the white keys</td></tr><tr><td>White keys</td><td>Nothing (they play the Lead, and FX-1 has none). With REC held, the grid's effects; in PERFORM, effects</td></tr><tr><td>Black keys</td><td>An effect each, while held: Shimmer, Freeze, Macalla and Fras work here (see <a href="#s5">The effects</a>)</td></tr><tr><td>ENV, ARP, LFO, SEQ, SAVE, EDIT</td><td>The voices' pages: nothing to hear. SAVE held half a second still saves</td></tr></tbody></table></div>
+<h2 id="s4"><span class="num">4</span> The screen</h2>
+<div class="figs"><figure class="shot"><img src="img/fx1-screen.png" width="240" height="240" alt="AISLING FX-1&#x27;s screen while the computer&#x27;s sound plays: PLAYING, the level in left and right, the stream&#x27;s counts, and the knobs Filter, Echo, Reverb and Dry" loading="lazy"><figcaption>PLAYING: the sound coming in, and the stream's counts</figcaption></figure></div>
+<p>On every page but PERFORM's, the middle of the screen is the sound coming in. The header says AISLING FX-1 and the stream's rate, 44.1 KHZ.</p>
+<ul><li><strong class="lead">The state</strong>, large: NO COMPUTER (no USB, a cable that only charges, or the computer asleep), NOTHING SENT YET (a computer is there, but hasn't opened the stream: the FM-1 isn't its output yet), OPEN, NO PACKETS (it has opened the stream, and no sound has come yet), PLAYING. The line under the counts says what to do next.</li><li><strong class="lead">L and R</strong>, the level coming in, over 40 dB. The bar turns red at full scale: turn the computer down a little.</li><li><strong class="lead">The counts</strong>: PACKETS, the packets that have come in; GAPS, the times the buffer ran dry when the effects wanted sound; LOST, packets that arrived with the buffer full; WAITING, the fewest frames the buffer has held lately (the FM-1 steers it to about 376, under a hundredth of a second). GAPS and LOST should stay at 0, and the line turns orange if they don't. ODD PACKETS, in red, counts packets that weren't a whole number of frames.</li></ul>
+<p>These tell a stream that won't start from one that isn't being sent: stuck at NOTHING SENT YET, the computer's sound is going somewhere else; stuck at OPEN, NO PACKETS, the computer opened the stream and sends nothing. For two seconds after a button, the page's name covers the state.</p>
+<div class="figs"><figure class="shot"><img src="img/fx1-idle.png" width="240" height="240" alt="The screen with a computer connected that hasn&#x27;t opened the stream: NOTHING SENT YET, and under it PICK AISLING FX-1 AS ITS OUTPUT AND PLAY" loading="lazy"><figcaption>NOTHING SENT YET: the computer is there, its sound is going elsewhere</figcaption></figure></div>
+<h2 id="s5"><span class="num">5</span> The effects</h2>
+<p>The sound goes straight out at the Dry knob's level, and the same sound, both sides mixed, goes into the echo and the reverb at the Echo and Reverb knobs' levels. At a piece's own settings the echo is quiet, about a twentieth of the dry: turn Echo up, or Dry down, to hear it, and the keys that work through the echo (Macalla) with it.</p>
+<p>Every key's effect is AISLING's, and lasts as long as the key is held. Some were made for AISLING's voices, and with no voices they change nothing. Measured in the simulator, these are the ones that change the computer's sound:</p>
+<div class="table"><table><thead><tr><th>Where</th><th>Effects that work</th><th>Effects that change nothing</th></tr></thead><tbody><tr><td>Black keys</td><td>Shimmer (an octave up, in a wash), Freeze (a cloud of grains that holds after the sound stops), Macalla (a long echo, with Echo up), Fras (its own bleeps, even with nothing coming in)</td><td>Ceo, Repeat, Octave, Return, Rise, Close, Transpose</td></tr><tr><td>REC held, the white keys (the grid)</td><td>Time, Tape stop (slight), Shimmer, Low-pass (mild), High-pass, Phaser, Reverb, Freeze, Wash, Fras (bleeps), Macalla (slight)</td><td>Repeat, Sweep, Ceo, Octave, Return</td></tr><tr><td>PERFORM (SEL), all 27 keys</td><td>Stutter, Gate, Reverse, Macalla (slight), Tape stop (slight), Reverb, Shimmer, Freeze, Wash, Flange, Phaser, Drive, Crush, Ring, Vinyl (crackle and a wobble), Comb, Fras (bleeps)</td><td>Half time, Roll, Repeat, Ceo, Sweep, Rise, Close, Octave, Dive, Drop</td></tr></tbody></table></div>
+<div class="figs"><figure class="shot"><img src="img/fx1-perform.png" width="240" height="240" alt="PERFORM: the map of the 27 keys&#x27; effects in their groups&#x27; colours, and the knobs Filter, Wet, Energy and Chorus" loading="lazy"><figcaption>PERFORM, as in AISLING: the keys' 27 effects</figcaption></figure></div>
+<p>PERFORM's knobs: <strong>Filter</strong> is HOME's Filter; <strong>Wet</strong> turns up the echo's send, a little; <strong>Chorus</strong> thickens and widens the whole sound; <strong>Energy</strong> changes nothing here. On the Journey page (GLO a third time), the Day setting adds a slow drift to the echo and, now and then, Fras's bleeps.</p>
+<h2 id="s6"><span class="num">6</span> Saving</h2>
+<p>AISLING saves by itself when it rests; FX-1 always counts as playing, so it doesn't. To keep your settings, hold GLO (or SAVE) for half a second, or turn Setup's Save.</p>
+<ul><li><strong class="lead">Saved</strong>: the Echo and the Reverb, the Space and Echo pages (Echo time, Feedback, Blur, Tone, Width, Size), MIDI out, Lights, and the piece.</li><li><strong class="lead">Not saved</strong>: the Filter, PERFORM's Wet, Energy and Chorus, the sleep timer and the Day. The Dry knob is 100 at every start.</li></ul>
+<p><strong class="lead">Where it saves.</strong> FX-1 is AISLING underneath, so it saves where AISLING does, in AISLING's own format: one save holding the eight pieces and the settings. It reads what AISLING saved, and starts on the piece AISLING was playing, with that piece's echo and reverb; a save in FX-1 stores its settings as the piece's, as a save in AISLING does, so AISLING then plays that piece with them. It doesn't read what NACHTFAHRT, DUB-1 or AMB-1 saved (with their saves it starts on AISLING's own recipes), and they save in the same place in the FM-1's memory, so a save in FX-1 replaces theirs, and theirs replaces FX-1's. Installing another firmware may lose what FX-1 saved. FX-1 uses no samples.</p>
+<p><strong class="lead">Sleep.</strong> Setup's sleep timer (ALGORITHM there; off unless you set it) fades the socket after the time you choose, even with the computer's sound still coming in, and the sound coming in doesn't wake it: a touch does. The stream back to the computer goes on. If you use FX-1 for long stretches without touching it, leave the timer off.</p>
+<h2 id="s7"><span class="num">7</span> MIDI</h2>
+<p>FX-1 sends no notes and no clock: there is nothing playing to send them for. While Setup's MIDI out is on, an effect you play sends its control change on channel 16, 127 as it starts and 0 as it ends, as AISLING's do, so music software can record a performance and play it back.</p>
+<p>What comes in is as in AISLING (its manual's <a href="https://aisling.stephen8n.com/manual/#s11">MIDI</a> has the numbers), so music software can play FX-1 along with a track: CC 74 turns the Filter, CC 16 to 19 the four knobs of the page on the screen (at HOME, Filter, Echo, Reverb and Dry), CC 78 and 80 PERFORM's Wet and Chorus, and each effect's own CC holds it on, 127, and lets it go, 0. A program change chooses a piece, and with it the echo's and the reverb's settings.</p>
+<h2 id="s8"><span class="num">8</span> What has been tried</h2>
+<p><strong class="lead">On an FM-1</strong> (one, with the first flash chip), with a Mac playing through it:</p>
+<ul><li>The sound plays: PLAYING, with GAPS 0 and LOST 0, the buffer holding about 370 frames.</li><li>It sounds right, and the screen keeps up with no lag.</li><li>Turning Dry down leaves the effects as they were.</li><li>Installing, with <code>tools/fm1_install.py</code>: the 1.0 package (the one on the release) over AISLING 1.4, AISLING 1.4 back over 1.0, and 1.0 over the stock firmware (V16). Each time FX-1 went on, a tone sent down the cable came back up it through the effects.</li><li>AISLING's saved pieces after going to FX-1 and back, with no save in FX-1: as they were, byte for byte, all eight loading.</li></ul>
+<p><strong class="lead">In the simulator</strong> (the whole app run on a computer, fed a tone, bursts and noise, each change measured against the same run without it): every control and key above, the saving, and the sleep timer.</p>
+<p><strong class="lead">Not yet:</strong></p>
+<ul><li>How late the sound comes out of the socket (the latency).</li><li>A long session on the FM-1, and more than one kind of computer.</li><li>The keys' effects on music, by ear, on the FM-1.</li><li>A save in FX-1 on the FM-1, then AISLING reading it (the source says it takes FX-1's settings as the piece's).</li><li>A newer FM-1 (the second flash chip), and installing over the stock V15.</li></ul>
+<h2 id="s9"><span class="num">9</span> Going back to AISLING</h2>
+<p>Install AISLING over FX-1 as over any firmware: from Chrome or Edge with the <a href="https://aisling.stephen8n.com/install/">web installer</a>, or with <code>tools/fm1_install.py</code> and a release package (tried: AISLING 1.4 over FX-1 1.0, its saved pieces as they were). To go back to the stock firmware, see <a href="https://aisling.stephen8n.com/install/#stock">Back to stock</a>.</p>
+</article>
+</div>
+
+</main>
+</body>
+</html>

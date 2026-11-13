@@ -1,0 +1,4 @@
+# Cloudflare Pages. The visualiser's two files moved with it; its old addresses, which have query strings, are the landing
+# page's to forward (_redirects can't match those). GitHub Pages ignores this file.
+/share.jpg /visualiser/share.jpg 301
+/skellig.mp3 /visualiser/skellig.mp3 301

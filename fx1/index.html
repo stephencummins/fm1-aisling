@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING FX-1 · an FM-1 as a USB effects box</title>
+<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. 1.0, released.">
+<meta property="og:title" content="AISLING FX-1 · an FM-1 as a USB effects box">
+<meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. 1.0, released.">
+<meta property="og:url" content="https://aisling.stephen8n.com/fx1/">
+<style>
+/* FX-1's page's own, as the FM-1's: what it is beside its screens, the ways in as a hairline grid */
+.what { display: flex; gap: 16px; align-items: flex-start; }
+.card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.lede { margin: 0; font-size: 14.5px; }
+.notice { border-left: 4px solid var(--brand-rust); background: var(--brand-strip); }
+.notice strong { font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; color: var(--brand-rust); }
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-content: start; }
+.shots img { display: block; box-sizing: border-box; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.shots p { grid-column: 1 / -1; margin: 0; }
+.ways { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
+.ways a { display: block; padding: 12px 16px 14px; background: var(--brand-ground); color: var(--brand-ink); text-decoration: none; }
+.ways a:hover { background: var(--brand-strip); color: var(--brand-ink); }
+.ways a:focus-visible { outline-offset: -3px; }
+.ways strong { display: block; margin-bottom: 4px; font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; }
+.ways span { display: block; font-size: 12.5px; color: var(--brand-muted); }
+.ways a.go, .ways a.go span { background: var(--brand-green); color: var(--brand-ground); }
+.ways a.go:hover, .ways a.go:hover span { background: #0f5332; }
+.ways a.go:focus-visible { outline-color: var(--brand-ground); }
+.pane p { margin: 0 0 10px; }
+.pane p:last-child { margin-bottom: 0; }
+.pane p b { font-weight: 400; color: var(--brand-green); }
+ol.path { list-style: none; counter-reset: step; padding: 0; margin: 0 0 10px; }
+ol.path li { counter-increment: step; position: relative; padding: 0 0 8px 28px; }
+ol.path li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 18px; text-align: right;
+                     font: 600 15px/1.45 var(--brand-display); color: var(--brand-green); }
+ul.plain { list-style: square; padding-left: 1.2rem; margin: 0 0 10px; }
+ul.plain li { margin: 0 0 6px; }
+ul.plain li::marker { color: var(--brand-green); }
+p.small { color: var(--brand-muted); font-size: 12.5px; }
+@media (max-width: 59.99rem) {
+  .two.hero { grid-template-columns: minmax(0, 1fr); }
+  .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
+  .ways { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 29.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 26rem) { .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; } }
+</style>
+<link rel="canonical" href="https://aisling.stephen8n.com/fx1/">
+<meta name="theme-color" content="#f3ead7">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/BarlowSemiCondensed-SemiBold.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/IBMPlexMono-Regular.woff2">
+<link rel="stylesheet" href="../site.css">
+<script src="../wall.js" defer></script>
+</head>
+<body>
+<div class="wall" data-art="fx1-home" aria-hidden="true"></div>
+<div class="sitebar"><div class="sitebar-in">
+<a class="sitebar-home" href="../" title="AISLING: the FM-1, FX-1 and SMK-37"><img class="sitebar-mark" src="../mark.png" width="30" height="30" alt=""><span class="sitebar-name">AISLING</span><span class="sitebar-by">by CU_STE</span></a>
+<nav class="sitebar-kit" aria-label="AISLING for"><a href="../fm1/" title="AISLING on the M-VAVE FM-1: the instrument, to install">FM-1</a><a href="../fx1/" title="AISLING FX-1: an FM-1 as a USB effects box for a computer's sound" aria-current="page">FX-1</a><a href="../smk37/" title="AISLING on the M-VAVE SMK-37 Elite: 37 keys, pads and faders">SMK-37</a></nav>
+<nav class="sitebar-nav" aria-label="AISLING's pages"><a href="../fx1/controls/" title="Every knob, button and key of the FM-1 running FX-1 and what it does, drawn">controls</a><a href="../fx1/manual/" title="Setting it up with a computer, the effects, the screen, and going back">manual</a><a href="https://github.com/stephencummins/fx1-aisling" title="FX-1's code, on GitHub">source</a><a href="https://www.stephen8n.com" title="Stephen Cummins's other things">stephen8n</a></nav>
+</div></div>
+<main class="bench">
+<div class="strip">
+<h1 class="lab"><b>aisling fx-1</b> · an M-VAVE FM-1 as a USB effects box</h1>
+<p class="lab">by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a></p>
+</div>
+<div class="pane notice" role="note">
+<p><strong>1.0, released.</strong> Its package, <code>aislingfx-1.0.fwsc</code>, is on
+<a href="https://github.com/stephencummins/fx1-aisling/releases/tag/v1.0">the 1.0 release</a>. There is no install page for it yet: it goes on with the
+command-line installer, as the <a href="manual/#s1">manual</a> says. It has run on one FM-1 so
+far. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+</div>
+<div class="two hero">
+<div class="pane what">
+<img class="card" src="../img/card-fx1.png" width="240" height="240" alt="A gold 8-bit harp on green, with FX beside it">
+<p class="lede">AISLING FX-1 is AISLING with its voices taken out and a computer's sound let in. Connect an M-VAVE FM-1
+to a computer by USB and choose <b>AISLING FX-1</b> as the sound output: whatever the computer plays comes in over the
+cable, goes through AISLING's filter, echo and plate reverb and the effects on its keys, and comes out of the FM-1's
+3.5&nbsp;mm socket. It goes back up the cable too, for the computer to record.</p>
+</div>
+<div class="pane shots">
+  <img src="../img/fx1-screen.png" width="240" height="240" alt="AISLING FX-1&#x27;s screen while the computer&#x27;s sound plays: PLAYING, the level in, left and right, and the stream&#x27;s counts">
+  <img src="../img/fx1-idle.png" width="240" height="240" alt="The screen with a computer that hasn&#x27;t opened the stream: NOTHING SENT YET">
+  <img src="../img/fx1-perform.png" width="240" height="240" alt="PERFORM: the keys&#x27; effects on the computer&#x27;s sound">
+</div>
+</div>
+<nav class="ways" aria-label="AISLING FX-1's pages">
+  <a class="go" href="https://github.com/stephencummins/fx1-aisling/releases/tag/v1.0"><strong>Download 1.0</strong><span>The package, on GitHub beside its source (GPL-3.0), to put on with <code>tools/fm1_install.py</code>.</span></a>
+  <a href="manual/"><strong>Manual</strong><span>Installing it, setting it up with a computer, the knobs, the screen, what has been tried and what hasn't, and going back.</span></a>
+  <a href="controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does in FX-1.</span></a>
+  <a href="../fm1/"><strong>AISLING</strong><span>The instrument FX-1 is made from, to install from Chrome or Edge: also the way back.</span></a>
+</nav>
+<div class="two">
+<section class="pane">
+<h2 class="bh">How it goes</h2>
+<ol class="path">
+  <li>Put FX-1 on the FM-1: download <code>aislingfx-1.0.fwsc</code> from the release and install it with
+      <code>tools/fm1_install.py</code>, over AISLING, another firmware or the stock one.</li>
+  <li>Connect the FM-1 to the computer with a USB data cable. It shows up as a sound device, <b>AISLING FX-1</b>.</li>
+  <li>Make it the computer's sound output, or a track's in your music software, and play something. The screen says
+      PLAYING and its meters move.</li>
+  <li>Listen at the FM-1's socket. At HOME the knobs are the Filter, the Echo, the Reverb and the Dry; in PERFORM (SEL)
+      the keys are effects while held.</li>
+  <li>To record what comes out, choose the FM-1 as the computer's input as well.</li>
+</ol>
+</section>
+<section class="pane">
+<h2 class="bh">Tried, and not yet</h2>
+<ul class="plain">
+  <li>On the FM-1: the sound plays with no gaps and no packets lost, it sounds right, the screen keeps up, and turning
+      the Dry down leaves the effects' share as it was. It went on over AISLING and over the stock firmware, and
+      AISLING went back over it with its pieces as they were.</li>
+  <li>In the simulator, every control and key measured: 17 of PERFORM's 27 effects change a computer's sound, and four
+      of the black keys' eleven (the rest were made for AISLING's own voices). The manual and the controls drawing
+      say which.</li>
+  <li>Not yet: how late the sound comes out (the latency), a long session on the FM-1, and a newer FM-1.</li>
+  <li>To know: FX-1 doesn't save by itself (hold GLO to save), and saves where AISLING does, as AISLING's piece;
+      Setup's sleep timer, if set, quiets the socket while the computer still plays.</li>
+</ul>
+<p class="small">The <a href="manual/">manual</a> keeps this list as it changes.</p>
+</section>
+</div>
+<div class="pane">
+<p class="small">AISLING FX-1 is AISLING's own code with a second USB sound stream, the one coming in, and the voices
+left out; everything else is AISLING's, a fork of <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a>
+by FartyPants by way of <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> and
+<a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a>, on Felucca by Leo Kuroshita (Hügelton Instruments).
+GPL-3.0. M-VAVE and FM-1 are trademarks of their owners; AISLING is not affiliated with M-VAVE.</p>
+</div>
+</main>
+</body>
+</html>

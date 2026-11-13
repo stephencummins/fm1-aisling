@@ -1,0 +1,12 @@
+The emulator's screen reader: its words and its voice, from fm1-reader by Charles Vestal,
+https://github.com/charlesvestal/fm1-reader/tree/15355a6c76858f3c8141ec7bb7efb39195073fe1
+
+words.js and tts.js: MIT (LICENSE).
+
+The voice, tts_worker.js and espeak/: GPL-3.0-or-later (espeak/LICENSE). espeak/espeak.js and
+espeak/espeak.wasm are eSpeak NG, English only, compiled to WebAssembly from eSpeak NG's commit
+ba90c8e9f440ad544f674a790bb5f53878b6ffc5,
+https://github.com/espeak-ng/espeak-ng/tree/ba90c8e9f440ad544f674a790bb5f53878b6ffc5
+with espeak/tts_wrap.c and espeak/build_espeak_web.sh, both here (espeak/README.md says how).
+
+AISLING, and this page: GPL-3.0-only, https://github.com/stephencummins/fm1-aisling
