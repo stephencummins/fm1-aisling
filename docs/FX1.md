@@ -7,10 +7,11 @@ effects on its keys, and comes out of the FM-1's 3.5 mm socket. The same sound g
 computer can record it. It is AISLING with its voices taken out: no harps, no drone, no flute, only what the computer
 sends.
 
-**Status.** In testing: not released. FX-1 has run on one FM-1 and played a computer's sound cleanly through its
+**Status.** 1.0, the first release. FX-1 has run on one FM-1 and played a computer's sound cleanly through its
 effects; it has gone on over AISLING and over the stock firmware, and AISLING back over it; what each control does was
-measured in AISLING's simulator (see [What has been tried](#8-what-has-been-tried)). There is no download and no
-install page yet: it is built from the source. The first release will be 1.0.
+measured in AISLING's simulator (see [What has been tried](#8-what-has-been-tried)). Its package is on
+[the 1.0 release](https://github.com/stephencummins/fx1-aisling/releases/tag/v1.0); there is no install page for it
+yet.
 
 AISLING FX-1 is by CU_STE ([www.stephen8n.com](https://www.stephen8n.com)), from AISLING's own source, in a repository
 of its own: [github.com/stephencummins/fx1-aisling](https://github.com/stephencummins/fx1-aisling). GPL-3.0. It is
@@ -36,16 +37,19 @@ not affiliated with M-VAVE.
 
 ## 1. Putting it on the FM-1
 
-There is no release yet, so FX-1 is built from the source as AISLING is (the toolchain is in
-[BUILDING.md](https://github.com/stephencummins/fx1-aisling/blob/main/BUILDING.md)), with one flag, and put on
-with the command-line installer. It goes on over AISLING, over another firmware or over the stock one:
+Download `aislingfx-1.0.fwsc` from [the 1.0 release](https://github.com/stephencummins/fx1-aisling/releases/tag/v1.0)
+and put it on with the command-line installer, which is in the source and needs Python 3 with mido and
+python-rtmidi. Connect the FM-1 by USB first. It goes on over AISLING, over another firmware or over the stock one:
 
 ```
 git clone https://github.com/stephencummins/fx1-aisling
-cd fx1-aisling
-./build.sh --fx                                     # build/aislingfx-dev.fwsc
-python3 tools/fm1_install.py build/aislingfx-dev.fwsc
+pip3 install mido python-rtmidi
+python3 fx1-aisling/tools/fm1_install.py aislingfx-1.0.fwsc
 ```
+
+To build it yourself, the toolchain is AISLING's (see
+[BUILDING.md](https://github.com/stephencummins/fx1-aisling/blob/main/BUILDING.md)), with one flag: in the clone,
+`./build.sh --fx` makes `build/aislingfx-dev.fwsc`, and `./build.sh --release 1.0 --fx` makes 1.0.
 
 The FM-1 then starts as **AISLING FX-1**: the launch screen says so, and so does its name over USB. Its identity is
 its own, FM-1_391 and six digits (F, X and 1 on a phone's keys: 1.0 is FM-1_391010000, and a build that is not a
@@ -180,7 +184,7 @@ settings.
 - The sound plays: PLAYING, with GAPS 0 and LOST 0, the buffer holding about 370 frames.
 - It sounds right, and the screen keeps up with no lag.
 - Turning Dry down leaves the effects as they were.
-- Installing, with `tools/fm1_install.py`: 1.0 over AISLING 1.4, AISLING 1.4 back over 1.0, and 1.0 over the stock
+- Installing, with `tools/fm1_install.py`: the 1.0 package (the one on the release) over AISLING 1.4, AISLING 1.4 back over 1.0, and 1.0 over the stock
   firmware (V16). Each time FX-1 went on, a tone sent down the cable came back up it through the effects.
 - AISLING's saved pieces after going to FX-1 and back, with no save in FX-1: as they were, byte for byte, all eight
   loading.
