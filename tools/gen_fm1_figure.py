@@ -79,6 +79,29 @@ FM1 = dict(
           "SEL (PERFORM): every one of the 27 keys an effect while held.   HOME held with OCT− or OCT+: undo or redo."),
 )
 
+# AISLING FX-1 (the aislingfx branch): the same panel, the computer's sound in place of the voices. K1-K4 are drawn
+# with HOME's four; the voices' pages are dimmed, and so are the effects that change nothing in the computer's sound
+# (each measured in the simulator, amb_host built with AISLING_FX, against the same run without it: 2026-11-13)
+FX1 = dict(
+    file="fx1-controls.svg", screen="fx1-screen.png",
+    aria="The FM-1's panel running AISLING FX-1, each control labelled with what it does to the computer's sound",
+    knobs=(("MASTER", "Level at|the socket"), ("SELECT", "-A layer's level"), ("PRESETS", "Piece: its echo,|reverb, tempo"),
+           ("ALGORITHM", "-A voice")),
+    k=("Filter", "Echo", "Reverb", "Dry"), k_rule=None,
+    octave=("-A layer's octave", "-A layer's octave"),
+    top=(("FX", "Space,|Echo"), ("SEL", "Perform"), ("ENV", "-Drone"), ("LFO", "-Lead"),
+         ("EDIT", "-Chords"), ("GLO", "Setup|held: save")),
+    bot=(("HOME", "Home,|Key"), ("SAVE", "-Atmosphere"), ("ARP", "-Sequence"), ("SEQ", "-Sequence 2"),
+         ("PLAY|STOP", "Rest: the|drift stops"), ("REC", "Hold|held: effects")),
+    keys_top="White keys: nothing (they play the Lead, and FX-1 has none).   "
+             "Black keys: an effect each while held; the dim ones change nothing here.",
+    black=("-Ceo", "Macalla", "Fras", "-Repeat", "Shimmer", "Freeze", "-Octave", "-Return", "-Rise", "-Close", "-Transpose"),
+    grid=("-Repeat", "Time", "Tape stop", "Shimmer", "Low-pass", "High-pass", "-Sweep", "Phaser",
+          "Reverb", "-Ceo", "Freeze", "Wash", "-Octave", "-Return", "Fras", "Macalla"),
+    foot=("REC held: sixteen effects on the white keys, as long as each is held:",
+          "SEL (PERFORM): 17 of the 27 keys' effects work here.   K1–K4 as drawn at HOME; elsewhere, the page's four."),
+)
+
 
 def png_data_uri(path):
     b = io.BytesIO()
@@ -209,7 +232,7 @@ def panel(kind, screen_png):
 
 def main():
     shots = [Path(a) for a in sys.argv[1:3]]
-    for kind, default in ((FM1, OUT / "screen-main.png"),):
+    for kind, default in ((FM1, OUT / "screen-main.png"), (FX1, OUT / "fx1-screen.png")):
         png = shots.pop(0) if shots else default
         (OUT / kind["file"]).write_text(panel(kind, png), encoding="utf-8")
         print(f"figure: {OUT / kind['file']}")
