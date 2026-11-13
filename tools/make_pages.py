@@ -54,6 +54,8 @@ from site_brand import NAV, PRODUCTS, SITE, stamp  # noqa: E402
 from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the package format)
 
 REPO = "https://github.com/stephencummins/fm1-aisling"
+FX1_REPO, FX1_VERSION = "https://github.com/stephencummins/fx1-aisling", "1.0"           # its release
+SMK37_REPO, SMK37_VERSION = "https://github.com/stephencummins/smk37-aisling", "1.3.1"  # the Elite's
 BY = 'by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
 
 LANDING = """<!doctype html>
@@ -367,8 +369,9 @@ CHOOSER = """<!doctype html>
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-/* The root's own: what AISLING is, then the three things it runs on side by side, each drawn (without its words: here
-   the drawings only tell them apart), with how far it has got and its pages. The rest is the site's (web/brand/site.css) */
+/* The root's own: what AISLING is, then the three things it runs on side by side, each pictured (the drawings without
+   their words: here they only tell them apart; FX-1's is a photo of an FM-1 running it), with how far it has got and
+   its pages. The rest is the site's (web/brand/site.css) */
 .what { display: flex; gap: 16px; align-items: flex-start; }
 .card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
 .lede { margin: 0; font-size: 14.5px; max-width: 92ch; }
@@ -380,6 +383,7 @@ CHOOSER = """<!doctype html>
 .pic { height: 168px; margin: 0 0 14px; }
 .pic svg { display: block; width: 100%; height: 100%; }
 .pic svg text { display: none; }
+.pic img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .part h2 { margin: 0 0 6px; font: 600 26px/1.1 var(--brand-display); letter-spacing: .08em; }
 .part > a:hover h2 { color: var(--brand-green); }
 .state { margin: 0 0 8px; font-size: 12px; letter-spacing: .03em; color: var(--brand-rust); }
@@ -437,14 +441,16 @@ PART_CARDS = (
      "The instrument: eight pieces that play themselves for hours, the flute on the white keys, the effects on the black "
      "ones. Install it from Chrome or Edge, or try it here without an FM-1.",
      (("install", "install/", True), ("try it", "emu/", False), ("manual", "manual/", False), ("controls", "fm1/controls/", False))),
-    ("fx1", "in testing on one FM-1 · not released", False,
+    ("fx1", "v__FX1__ · released", True,
      "An FM-1 as an effects box: a computer's sound in over USB, through AISLING's filter, echo and reverb and its "
      "effects, out of the FM-1's socket and back to the computer.",
-     (("manual", "fx1/manual/", False), ("controls", "fx1/controls/", False))),
-    ("smk37", "runs on an Elite · no download yet", False,
+     (("download", FX1_REPO + "/releases/tag/v__FX1__", True), ("manual", "fx1/manual/", False),
+      ("controls", "fx1/controls/", False))),
+    ("smk37", "v__SMK37__ · released · Elite only", True,
      "The same AISLING on M-VAVE's 37-key keyboard: the FM-1's 27 keys in the middle, its pads playing the effects, its "
      "faders the mix.",
-     (("controls", "smk37/controls/", False), ("docs", "smk37/docs/", False))),
+     (("download", SMK37_REPO + "/releases/tag/v__SMK37__", True), ("controls", "smk37/controls/", False),
+      ("docs", "smk37/docs/", False))),
 )
 
 # the controls pages: an FM-1 drawn, in its colours, then a table of the controls
@@ -538,9 +544,9 @@ FX1_CONTROLS = dict(
     title="AISLING FX-1 · the controls",
     desc="An M-VAVE FM-1 running AISLING FX-1, the USB effects box, drawn: what each knob, button and key does to a computer's sound.",
     strip="AISLING FX-1, an FM-1 as a USB effects box", button=("../manual/", "manual"),
-    notice='<div class="pane notice" role="note">\n<p><strong>Not released.</strong> AISLING FX-1 runs on one FM-1, in '
-           'testing. What is drawn here is what the firmware does; the <a href="../manual/">manual</a> says which of it has '
-           'been tried on the FM-1 itself.</p>\n</div>\n',
+    notice='<div class="pane notice" role="note">\n<p><strong>1.0.</strong> What is drawn here is what the firmware '
+           'does, measured in AISLING\'s simulator; the <a href="../manual/">manual</a> says which of it has been tried on '
+           'the FM-1 itself.</p>\n</div>\n',
     svg="fx1-controls.svg", table_head="The controls", table=("docs/FX1.md", "The controls"), manual="../manual/",
     after='The <a href="../manual/">manual</a> has the rest: setting it up with a computer, the screen, and going back to '
           'AISLING.')
@@ -551,9 +557,9 @@ FX1_LANDING = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AISLING FX-1 · an FM-1 as a USB effects box</title>
-<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. In testing; not released.">
+<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. 1.0, released.">
 <meta property="og:title" content="AISLING FX-1 · an FM-1 as a USB effects box">
-<meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. In testing; not released.">
+<meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. 1.0, released.">
 <meta property="og:url" content="__SITE__fx1/">
 <style>
 /* FX-1's page's own, as the FM-1's: what it is beside its screens, the ways in as a hairline grid */
@@ -603,8 +609,10 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <p class="lab">__BY__</p>
 </div>
 <div class="pane notice" role="note">
-<p><strong>In testing: not released.</strong> AISLING FX-1 has run on one FM-1 so far. There is no download and no
-install page for it yet: it is built from its source and put on with the command-line installer. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+<p><strong>1.0, released.</strong> Its package, <code>aislingfx-1.0.fwsc</code>, is on
+<a href="__FX1_REPO__/releases/tag/v1.0">the 1.0 release</a>. There is no install page for it yet: it goes on with the
+command-line installer, as the <a href="manual/#s1">manual</a> says. It has run on one FM-1 so
+far. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
 </div>
 <div class="two hero">
 <div class="pane what">
@@ -617,17 +625,17 @@ cable, goes through AISLING's filter, echo and plate reverb and the effects on i
 __SHOTS__
 </div>
 <nav class="ways" aria-label="AISLING FX-1's pages">
-  <a class="go" href="manual/"><strong>Manual</strong><span>Setting it up with a computer, the knobs, the screen, what has been tried and what hasn't, and going back.</span></a>
+  <a class="go" href="__FX1_REPO__/releases/tag/v1.0"><strong>Download 1.0</strong><span>The package, on GitHub beside its source (GPL-3.0), to put on with <code>tools/fm1_install.py</code>.</span></a>
+  <a href="manual/"><strong>Manual</strong><span>Installing it, setting it up with a computer, the knobs, the screen, what has been tried and what hasn't, and going back.</span></a>
   <a href="controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does in FX-1.</span></a>
-  <a href="https://github.com/stephencummins/fx1-aisling"><strong>Source</strong><span>fx1-aisling on GitHub, GPL-3.0: <code>./build.sh --fx</code> builds it.</span></a>
   <a href="../fm1/"><strong>AISLING</strong><span>The instrument FX-1 is made from, to install from Chrome or Edge: also the way back.</span></a>
 </nav>
 <div class="two">
 <section class="pane">
 <h2 class="bh">How it goes</h2>
 <ol class="path">
-  <li>Put FX-1 on the FM-1: for now, a build from the source, with <code>tools/fm1_install.py</code>, over AISLING,
-      another firmware or the stock one.</li>
+  <li>Put FX-1 on the FM-1: download <code>aislingfx-1.0.fwsc</code> from the release and install it with
+      <code>tools/fm1_install.py</code>, over AISLING, another firmware or the stock one.</li>
   <li>Connect the FM-1 to the computer with a USB data cable. It shows up as a sound device, <b>AISLING FX-1</b>.</li>
   <li>Make it the computer's sound output, or a track's in your music software, and play something. The screen says
       PLAYING and its meters move.</li>
@@ -873,12 +881,19 @@ def where(h):
     return h
 
 
+def vers(s, version):
+    """The parts' versions put into a card's words or links."""
+    return (s.replace("__VERSION__", html.escape(version)).replace("__FX1__", FX1_VERSION)
+            .replace("__SMK37__", SMK37_VERSION))
+
+
 def part_cards(version, pics):
     cards = []
     for key, state, out, does, links in PART_CARDS:
         label, start, what = next((label, start, what) for k, label, start, what in PRODUCTS if k == key)
-        state = state.replace("__VERSION__", html.escape(version))
-        btns = "".join(f'<li><a class="btn{" go" if go else ""}" href="{where(h)}">{t}</a></li>' for t, h, go in links)
+        state = vers(state, version)
+        btns = "".join(f'<li><a class="btn{" go" if go else ""}" href="{where(vers(h, version))}">{t}</a></li>'
+                       for t, h, go in links)
         cards.append(f'<section class="part" aria-labelledby="p-{key}">\n'
                      f'<a href="{start}" title="{html.escape(what)}"><div class="pic">{pics[key]}</div>'
                      f'<h2 id="p-{key}">{label}</h2><p class="state{" out" if out else ""}">{state}</p>'
@@ -905,7 +920,7 @@ def fx1_landing():
     shots = [(f, a) for f, a in FX1_SHOTS if (SRC / "docs" / "img" / f).exists()]
     pics = "".join(f'  <img src="../img/{f}" width="240" height="240" alt="{html.escape(a)}">\n' for f, a in shots)
     return (FX1_LANDING.replace("__SHOTS__", f'<div class="pane shots">\n{pics}</div>' if shots else "")
-            .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY))
+            .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY).replace("__FX1_REPO__", FX1_REPO))
 
 
 # FX-1's screens, as the simulator draws them, for its page
@@ -985,9 +1000,10 @@ def main(pkg, version, out, smk37=None):
     shutil.copy(SRC / "docs" / "card-fx1.png", out / "img" / "card-fx1.png")
     shutil.copy(SRC / "web" / "visualiser" / "share.jpg", out / "img" / "visualiser.jpg")
     # the root: the three parts, each drawn
-    pics = {"fm1": drawing(SRC / "docs" / "img" / "fm1-controls.svg"), "fx1": drawing(SRC / "docs" / "img" / "fx1-controls.svg"),
-            "smk37": drawing(smk37 / "img" / "smk37-panel.svg") if smk37 else
-            f'<img src="{SMK37_AWAY}img/smk37-panel.svg" alt="" style="width:100%;height:100%;object-fit:contain">'}
+    pics = {"fm1": drawing(SRC / "docs" / "img" / "fm1-controls.svg"),
+            "fx1": '<img src="img/fx1-photo.webp" width="984" height="590" alt="">',     # docs/img: CU_STE's FM-1, skinned
+            "smk37": drawing(smk37 / "img" / "smk37-panel.svg").replace('<svg ', '<svg data-skin="grey" ', 1) if smk37
+            else f'<img src="{SMK37_AWAY}img/smk37-panel.svg" alt="">'}
     (out / "index.html").write_text(stamp(CHOOSER.replace("__PARTS__", part_cards(version, pics)).replace("__SITE__", SITE)
                                           .replace("__BY__", BY), "", None, None), encoding="utf-8")
     # the FM-1's page, written as if at the root (as it was) and moved down one
