@@ -124,3 +124,14 @@ static int32_t batt_raw = -1;
 int32_t plat_battery(void) { return batt_raw; }
 int plat_usb_power(void) { return usb.config && !usb.suspended; }
 uint32_t plat_xruns(void) { return audio_xruns; }
+#if FELUCCA_SPK
+void plat_fx(struct plat_fx *s)
+{
+    s->state = !usb.config || usb.suspended ? 0u : !spk.alt ? 1u : !spk.go ? 2u : 3u;
+    s->pkts = spk.pkts;
+    s->dry = spk.underruns;
+    s->lost = spk.overruns;
+    s->odd = spk.odd;
+    s->fill = spk.fill_min;
+}
+#endif

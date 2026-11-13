@@ -199,6 +199,7 @@ extern int32_t *en_usb_out;
 /* (AISLING FX) the sound to put through the effects in place of the voices: the render's n frames, 16-bit, L R
  * (0: silence). Set it before the render */
 extern const int16_t *en_fx_in;
+extern float en_fx_level[2];                     /* its peak, L and R, 0 .. 1 of full scale, falling slowly: the meters */
 #endif
 
 /* MIDI out, from the render: the app sends it (USB); status, data 1, data 2 */

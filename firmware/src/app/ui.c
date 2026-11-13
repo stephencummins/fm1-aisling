@@ -3219,6 +3219,63 @@ static void draw_flash(uint32_t now)
 
 #define AISLING_BY "CU_STE"                      /* (the user's name, as signed (2026-10-30): on the main screen and the launch screen) */
 #define AISLING_AT "www.stephen8n.com"           /* (and the user's site, under it on the launch screen) */
+#ifdef AISLING_FX
+/* (AISLING FX-1) the main area: there are no voices to show, so the sound from the computer: whether it is coming, its
+ * level left and right, and the stream's counts (packets in, takes that ran dry, packets lost, frames waiting), which
+ * are how a stream that will not start is told from one that is not being sent */
+static void draw_fx(uint32_t now)
+{
+    static const char *const ST[4] = {"NO COMPUTER", "NOTHING SENT YET", "OPEN, NO PACKETS", "PLAYING"};
+    static const char *const HINT[4] = {"PLUG THE USB-C SOCKET INTO A COMPUTER", "PICK AISLING FX-1 AS ITS OUTPUT AND PLAY",
+                                        "THE COMPUTER OPENED THE STREAM", "SEL: PERFORM, THE KEYS' EFFECTS"};
+    static const char *const LBL[4] = {"PACKETS ", "  DRY ", "  LOST ", "  WAITING "};
+    struct plat_fx s;
+    uint32_t v[4];
+    char t[64], *q = t;
+    int ch, k;
+    plat_fx(&s);
+    if (s.state > 3u)
+        s.state = 3u;
+    cv_begin(240, MAIN_H, K_BG);
+    cv_text(8, 2, &FONT_XS, "USB IN", K_DIM);
+    cv_text(232 - text_w(&FONT_XS, AISLING_BY), -2, &FONT_XS, AISLING_BY, K_DIM);
+    cv_text(232 - text_w(&FONT_US, "FX-1"), 10, &FONT_US, "FX-1", K_ACC);
+    triskele(232.0f - (float)text_w(&FONT_US, "FX-1") - 11.0f, 20.0f, 4.0f, 1.5f, 1.6f, 1.0f, K_EIRE);
+    text_c(120, 36, s.state == 3u ? &FONT_C : &FONT_B, ST[s.state], s.state == 3u ? K_EIRE : s.state == 2u ? K_EIRE_O : K_TEXT);
+    for (ch = 0; ch < 2; ch++) {                 /* the level in, each side: a bar over 40 dB, red at full scale */
+        const int32_t y = 66 + ch * 15;
+        float l = en_fx_level[ch];
+        int32_t w;
+        l = l < 0.01f ? 0.0f : 1.0f + 0.2171f * fm_logf(l);          /* (20 log10 l / 40, + 1) */
+        w = (int32_t)(l * 168.0f);
+        cv_text(26, y - 3, &FONT_XS, ch ? "R" : "L", K_DIM);
+        cv_round(40, y, 168, 9, 3, K_PANEL);
+        if (w > 4)
+            cv_round(40, y, w > 168 ? 168 : w, 9, 3, en_fx_level[ch] >= 0.99f ? K_FROST : K_EIRE);
+    }
+    v[0] = s.pkts, v[1] = s.dry, v[2] = s.lost, v[3] = s.fill;
+    for (k = 0; k < 4; k++) {
+        const char *a = LBL[k];
+        while (*a)
+            *q++ = *a++;
+        itoa_u(v[k], q);
+        while (*q)
+            q++;
+    }
+    text_c(120, 100, &FONT_XS, t, s.dry || s.lost ? K_EIRE_O : K_DIM);
+    if (s.odd) {
+        char o[32] = "ODD PACKETS ";
+        itoa_u(s.odd, o + 12);
+        text_c(120, 114, &FONT_XS, o, K_FROST);
+    } else
+        text_c(120, 118, &FONT_XS, HINT[s.state], K_DIM);
+    draw_oct(now);
+    draw_card(now);
+    draw_flash(now);
+    cv_blit(0, MAIN_Y);
+}
+#endif
+
 static void draw_main(void)
 {
     uint32_t now = plat_ms(), h = hash(2166136261u, (uint32_t)en_frozen << 16 | proj.piece << 24 | (uint32_t)en_playing << 17), i;
@@ -3248,6 +3305,10 @@ static void draw_main(void)
         draw_pmap();
         return;
     }
+#ifdef AISLING_FX                                /* every other page: the sound coming in */
+    draw_fx(now);
+    return;
+#endif
     if (ui.view == V_PAT) {                      /* the Pattern page: the steps */
         h = hash(hash(0x50415454u, ui.lane | (uint32_t)proj.par[P_SMODE] << 4 | (uint32_t)en_drum_pos[0] << 8), en_playing);
         for (i = 0; i < EN_NDRUM; i++)
@@ -4298,7 +4359,13 @@ static void splash_band(int f, int32_t oy)
     if (f >= 1)
         triskele(120.0f, 70.0f - (float)oy, 15.0f, 2.0f, 2.8f, (float)f / 12.0f, K_EIRE);
     if (f >= 6)
-        text_c(120, 112 - oy, &FONT_L, "AISLING", mix(K_BG, K_TEXT, f >= 13 ? 16 : 2 * (f - 5)));
+        text_c(120, 112 - oy, &FONT_L,
+#ifdef AISLING_FX
+               "AISLING FX-1",
+#else
+               "AISLING",
+#endif
+               mix(K_BG, K_TEXT, f >= 13 ? 16 : 2 * (f - 5)));
     if (f >= 12)
         text_c(120, 152 - oy, &FONT_S, "by " AISLING_BY, mix(K_BG, K_EIRE_O, f >= 19 ? 16 : 2 * (f - 11)));
     if (f >= 16)

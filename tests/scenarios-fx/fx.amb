@@ -1,0 +1,13 @@
+# (AISLING FX-1) the main area shows the sound from the computer: its state, its level each side and the stream's
+# counts; PERFORM's map is as AISLING's. The simulator sends a tone (the right a third of the left) while AMB_FXSTATE
+# is 3 or unset; 0, 1 and 2 are the states before sound (run_tests.sh shoots each).
+wait 1500
+shot main.png
+tap SEL
+wait 300
+expect view 17
+shot perform.png
+tap SEL
+wait 300
+splash 23
+shot splash.png

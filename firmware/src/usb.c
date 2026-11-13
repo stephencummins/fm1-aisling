@@ -280,9 +280,9 @@ static const uint8_t STR1[] = {12, 3, 'D', 0, 'U', 0, 'B', 0, '-', 0, '1', 0};  
 static const uint8_t STR2[] = {30, 3, 'F', 0, 'e', 0, 'l', 0, 'u', 0, 'c', 0, 'c', 0, 'a', 0, ' ', 0, 'U', 0, 'p', 0,
                                'd', 0, 'a', 0, 't', 0, 'e', 0};
 #else
-#if FELUCCA_SPK                                         /* AISLING FX FM-1 ("FM-1": what the tools look for) */
-static const uint8_t STR2[] = {32, 3, 'A', 0, 'I', 0, 'S', 0, 'L', 0, 'I', 0, 'N', 0, 'G', 0, ' ', 0, 'F', 0, 'X', 0,
-                               ' ', 0, 'F', 0, 'M', 0, '-', 0, '1', 0};
+#if FELUCCA_SPK                                         /* AISLING FX-1 FM-1 ("FM-1": what the tools look for) */
+static const uint8_t STR2[] = {36, 3, 'A', 0, 'I', 0, 'S', 0, 'L', 0, 'I', 0, 'N', 0, 'G', 0, ' ', 0, 'F', 0, 'X', 0,
+                               '-', 0, '1', 0, ' ', 0, 'F', 0, 'M', 0, '-', 0, '1', 0};
 #else
 static const uint8_t STR2[] = {22, 3, 'D', 0, 'U', 0, 'B', 0, '-', 0, '1', 0, ' ', 0, 'F', 0, 'M', 0, '-', 0, '1', 0};   /* DUB-1 FM-1 */
 #endif

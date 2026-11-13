@@ -129,7 +129,7 @@ static void ota_commit(const uint8_t *parm)
 
 #include "app/app.h"
 #ifdef AISLING_FX
-#define ANN_NAME "AISLING FX " EN_VERSION
+#define ANN_NAME "AISLING FX-1 " EN_VERSION
 #else
 #define ANN_NAME "AISLING " EN_VERSION
 #endif

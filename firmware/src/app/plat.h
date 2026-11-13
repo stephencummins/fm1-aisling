@@ -25,6 +25,15 @@ enum { EN_SELECT, EN_ALGO, EN_PRESET, EN_K1, EN_K2, EN_K3, EN_K4, NE };
 #define NKEYS 27                       /* F3 .. G5 */
 
 uint32_t plat_ms(void);
+#ifdef AISLING_FX
+/* (AISLING FX) the sound from the computer, for the screen. state: 0 no computer, 1 a computer, sending nothing (the
+ * stream closed), 2 the stream open and no packet yet, 3 playing */
+struct plat_fx {
+    uint32_t state, pkts, dry, lost, odd, fill;  /* packets in; takes that found too little; packets with no room;
+                                                  * packets of an odd length; frames waiting, at the last window's low */
+};
+void plat_fx(struct plat_fx *s);
+#endif
 uint32_t plat_buttons(void);           /* held: bit B_* */
 uint32_t plat_keys(void);              /* held: bit k = key k (0 = F3) */
 int32_t plat_enc(int role);            /* detents since the last call, + = clockwise; EN_* */

@@ -12,3 +12,8 @@ $CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unuse
     -DEN_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -o build/host/amb_host host/amb_host.c \
     firmware/src/dsp/amb.c -lm
 echo "host: build/host/amb_host"
+# AISLING FX-1, the same app with -DAISLING_FX (tools/build.py --fx): a tone for the computer's sound
+$CC -O2 -ffp-contract=off -std=c99 -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -DAISLING_FX=1 \
+    -DEN_HOST -Ifirmware/src -Ifirmware/src/dsp -Ibuild/gen -o build/host/amb_host_fx host/amb_host.c \
+    firmware/src/dsp/amb.c -lm
+echo "host: build/host/amb_host_fx"

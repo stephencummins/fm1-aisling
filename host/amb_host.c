@@ -172,6 +172,15 @@ int plat_store_save(uint32_t obj, const void *src, uint32_t len)
 static uint32_t cpu_pct;
 uint32_t plat_cpu_pct(void) { return cpu_pct; }
 uint32_t plat_xruns(void) { return 0; }
+#ifdef AISLING_FX                                /* (AISLING FX's screen, to see it drawn: AMB_FXSTATE 0..3) */
+void plat_fx(struct plat_fx *s)
+{
+    memset(s, 0, sizeof *s);
+    s->state = getenv("AMB_FXSTATE") ? (uint32_t)atoi(getenv("AMB_FXSTATE")) : 3u;
+    if (s->state == 3u)
+        s->pkts = now_ms, s->fill = 376;
+}
+#endif
 uint32_t plat_cpu_peak(void) { return cpu_pct; }
 int32_t plat_battery(void) { return getenv("AMB_BATT") ? atoi(getenv("AMB_BATT")) : -1; }   /* (to see it drawn) */
 int plat_usb_power(void) { return getenv("AMB_USB") != 0; }
@@ -477,6 +486,18 @@ static void run_ms(uint32_t ms)
         now_ms++;
         while (audio_due_ms <= (double)now_ms) {      /* 256-frame blocks, as the device renders them */
             double t0 = now_ns(), dt;
+#ifdef AISLING_FX                                /* a tone in, the right quieter, while "playing" */
+            {
+                static int16_t fxb[512];
+                static double ph;
+                int q, on = !getenv("AMB_FXSTATE") || atoi(getenv("AMB_FXSTATE")) == 3;
+                for (q = 0; q < 256; q++, ph += 330.0 / 44100.0) {
+                    fxb[2 * q] = (int16_t)(on ? sin(6.283185307 * ph) * 20000.0 : 0.0);
+                    fxb[2 * q + 1] = (int16_t)(fxb[2 * q] / 3);
+                }
+                en_fx_in = fxb;
+            }
+#endif
             en_render(blk, 256, master * ui_gain_q12 >> 12);   /* (1.1) the sleep timer's fade, as the device */
             seq_apart += en_loop_pos[0] != en_loop_pos[1];
 #ifdef EN_WEB

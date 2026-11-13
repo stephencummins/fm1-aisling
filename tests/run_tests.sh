@@ -63,6 +63,11 @@ if command -v emcc >/dev/null 2>&1; then
     run emu sh -c "sh web/emu/build.sh >/dev/null && node tests/host/emu_test.mjs build/emu/amb.wasm"
     run app sh -c "sh web/app/build.sh >/dev/null && node tests/host/app_test.mjs build/app/amb.wasm"
 fi
+mkdir -p build/scenarios/fx                      # AISLING FX-1's screen, in each state of the stream from the computer
+for st in 0 1 2 3; do
+    mkdir -p "build/scenarios/fx/$st"
+    run "scenario-fx-$st" env AMB_FXSTATE=$st build/host/amb_host_fx tests/scenarios-fx/fx.amb "build/scenarios/fx/$st"
+done
 for s in tests/scenarios/*.amb; do
     n=$(basename "$s" .amb)
     mkdir -p "build/scenarios/$n"

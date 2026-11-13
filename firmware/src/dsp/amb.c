@@ -672,6 +672,10 @@ static int irand(int n) { return n > 0 ? (int)((rnd() >> 8) % (uint32_t)n) : 0; 
 
 static void midi(uint32_t st, uint32_t d1, uint32_t d2)
 {
+#ifdef AISLING_FX                                /* no voices: no notes and no clock out, only the effects' CCs */
+    if ((st & 0xF0u) != 0xB0u)
+        return;
+#endif
     if (par[P_MIDI])
         en_midi_out(st, d1, d2);
 }
@@ -5652,6 +5656,7 @@ int32_t *en_usb_out;
 static int32_t *usb_at;
 #ifdef AISLING_FX
 const int16_t *en_fx_in;
+float en_fx_level[2];
 static const int16_t *fxin_at;
 #define FXIN_GAIN (0.8f / 32768.0f)              /* full scale in: 0.8 on the bus, as a loud piece */
 #define FXIN_SEND 0.5f                           /* of it into the echo and the plate, before their own amounts */
@@ -6947,14 +6952,25 @@ static void render_chunk(int32_t *out, uint32_t n, float gain)
 #ifdef AISLING_FX
     /* AISLING FX: no voices. The sound from the computer is the music: the dry, and its mean into the echo and
      * the plate, which the piece's Echo and Reverb (and Dub and Space) turn up as they do the voices' */
-    if (fxin_at) {
-        for (j = 0; j < n; j++) {
-            const float il = (float)fxin_at[2 * j] * FXIN_GAIN, ir = (float)fxin_at[2 * j + 1] * FXIN_GAIN;
-            mixl[j] = il;
-            mixr[j] = ir;
-            rsend[j] = esend[j] = (il + ir) * (0.5f * FXIN_SEND);
+    {
+        float pl = 0.0f, pr = 0.0f;
+        if (fxin_at) {
+            for (j = 0; j < n; j++) {
+                const float il = (float)fxin_at[2 * j] * FXIN_GAIN, ir = (float)fxin_at[2 * j + 1] * FXIN_GAIN;
+                const float al = il < 0.0f ? -il : il, ar = ir < 0.0f ? -ir : ir;
+                mixl[j] = il;
+                mixr[j] = ir;
+                rsend[j] = esend[j] = (il + ir) * (0.5f * FXIN_SEND);
+                if (al > pl)
+                    pl = al;
+                if (ar > pr)
+                    pr = ar;
+            }
+            fxin_at += 2u * n;
         }
-        fxin_at += 2u * n;
+        pl *= 1.0f / (32768.0f * FXIN_GAIN), pr *= 1.0f / (32768.0f * FXIN_GAIN);
+        en_fx_level[0] = pl > en_fx_level[0] * 0.96f ? pl : en_fx_level[0] * 0.96f;   /* (down 20 dB in a third of a second) */
+        en_fx_level[1] = pr > en_fx_level[1] * 0.96f ? pr : en_fx_level[1] * 0.96f;
     }
 #else
     render_plucks(n);
