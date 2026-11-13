@@ -8,12 +8,13 @@ computer can record it. It is AISLING with its voices taken out: no harps, no dr
 sends.
 
 **Status.** In testing: not released. FX-1 has run on one FM-1 and played a computer's sound cleanly through its
-effects; what each control does was measured in AISLING's simulator (see [What has been tried](#8-what-has-been-tried)).
-There is no download and no install page yet: it is built from the source.
+effects; it has gone on over AISLING and over the stock firmware, and AISLING back over it; what each control does was
+measured in AISLING's simulator (see [What has been tried](#8-what-has-been-tried)). There is no download and no
+install page yet: it is built from the source. The first release will be 1.0.
 
-AISLING FX-1 is by CU_STE ([www.stephen8n.com](https://www.stephen8n.com)), from AISLING's own source: the `aislingfx`
-branch of [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling/tree/aislingfx).
-GPL-3.0. It is not affiliated with M-VAVE.
+AISLING FX-1 is by CU_STE ([www.stephen8n.com](https://www.stephen8n.com)), from AISLING's own source, in a repository
+of its own: [github.com/stephencummins/fx1-aisling](https://github.com/stephencummins/fx1-aisling). GPL-3.0. It is
+not affiliated with M-VAVE.
 
 ![A drawing of the FM-1 running AISLING FX-1, each control labelled with what it does to the computer's sound, and the controls and keys that change nothing dimmed: The controls, below, says the same in words](img/fx1-controls.svg "The FM-1 (a drawing), running AISLING FX-1: the dimmed controls and keys change nothing in the computer's sound")
 
@@ -36,18 +37,20 @@ GPL-3.0. It is not affiliated with M-VAVE.
 ## 1. Putting it on the FM-1
 
 There is no release yet, so FX-1 is built from the source as AISLING is (the toolchain is in
-[BUILDING.md](https://github.com/stephencummins/fm1-aisling/blob/aislingfx/BUILDING.md)), with one flag, and put on
-with the command-line installer:
+[BUILDING.md](https://github.com/stephencummins/fx1-aisling/blob/main/BUILDING.md)), with one flag, and put on
+with the command-line installer. It goes on over AISLING, over another firmware or over the stock one:
 
 ```
-git checkout aislingfx
+git clone https://github.com/stephencummins/fx1-aisling
+cd fx1-aisling
 ./build.sh --fx                                     # build/aislingfx-dev.fwsc
 python3 tools/fm1_install.py build/aislingfx-dev.fwsc
 ```
 
 The FM-1 then starts as **AISLING FX-1**: the launch screen says so, and so does its name over USB. Its identity is
-its own, FM-1_391 and six digits (F, X and 1 on a phone's keys; a build that is not a release is FM-1_391000000), so
-The Firmware Hub and AISLING's web installer don't take it for AISLING.
+its own, FM-1_391 and six digits (F, X and 1 on a phone's keys: 1.0 is FM-1_391010000, and a build that is not a
+release FM-1_391000000), so The Firmware Hub and AISLING's web installer don't take it for AISLING. Without `--fx`
+the same source builds AISLING.
 
 ## 2. Setting it up with a computer
 
@@ -147,6 +150,13 @@ AISLING saves by itself when it rests; FX-1 always counts as playing, so it does
 - **Not saved**: the Filter, PERFORM's Wet, Energy and Chorus, the sleep timer and the Day. The Dry knob is 100 at
   every start.
 
+**Where it saves.** FX-1 is AISLING underneath, so it saves where AISLING does, in AISLING's own format: one save
+holding the eight pieces and the settings. It reads what AISLING saved, and starts on the piece AISLING was playing,
+with that piece's echo and reverb; a save in FX-1 stores its settings as the piece's, as a save in AISLING does, so
+AISLING then plays that piece with them. It doesn't read what NACHTFAHRT, DUB-1 or AMB-1 saved (with their saves it starts on AISLING's own recipes),
+and they save in the same place in the FM-1's memory, so a save in FX-1 replaces theirs, and theirs replaces FX-1's.
+Installing another firmware may lose what FX-1 saved. FX-1 uses no samples.
+
 **Sleep.** Setup's sleep timer (ALGORITHM there; off unless you set it) fades the socket after the time you choose,
 even with the computer's sound still coming in, and the sound coming in doesn't wake it: a touch does. The stream
 back to the computer goes on. If you use FX-1 for long stretches without touching it, leave the timer off.
@@ -165,11 +175,15 @@ settings.
 
 ## 8. What has been tried
 
-**On an FM-1**, with a computer playing through it:
+**On an FM-1** (one, with the first flash chip), with a Mac playing through it:
 
 - The sound plays: PLAYING, with GAPS 0 and LOST 0, the buffer holding about 370 frames.
 - It sounds right, and the screen keeps up with no lag.
 - Turning Dry down leaves the effects as they were.
+- Installing, with `tools/fm1_install.py`: 1.0 over AISLING 1.4, AISLING 1.4 back over 1.0, and 1.0 over the stock
+  firmware (V16). Each time FX-1 went on, a tone sent down the cable came back up it through the effects.
+- AISLING's saved pieces after going to FX-1 and back, with no save in FX-1: as they were, byte for byte, all eight
+  loading.
 
 **In the simulator** (the whole app run on a computer, fed a tone, bursts and noise, each change measured against
 the same run without it): every control and key above, the saving, and the sleep timer.
@@ -179,9 +193,12 @@ the same run without it): every control and key above, the saving, and the sleep
 - How late the sound comes out of the socket (the latency).
 - A long session on the FM-1, and more than one kind of computer.
 - The keys' effects on music, by ear, on the FM-1.
+- A save in FX-1 on the FM-1, then AISLING reading it (the source says it takes FX-1's settings as the piece's).
+- A newer FM-1 (the second flash chip), and installing over the stock V15.
 
 ## 9. Going back to AISLING
 
 Install AISLING over FX-1 as over any firmware: from Chrome or Edge with the
-[web installer](https://aisling.stephen8n.com/install/), or with `tools/fm1_install.py` and a release package. To
-go back to the stock firmware, see [Back to stock](https://aisling.stephen8n.com/install/#stock).
+[web installer](https://aisling.stephen8n.com/install/), or with `tools/fm1_install.py` and a release package
+(tried: AISLING 1.4 over FX-1 1.0, its saved pieces as they were). To go back to the stock firmware, see
+[Back to stock](https://aisling.stephen8n.com/install/#stock).

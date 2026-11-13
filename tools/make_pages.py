@@ -604,8 +604,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 </div>
 <div class="pane notice" role="note">
 <p><strong>In testing: not released.</strong> AISLING FX-1 has run on one FM-1 so far. There is no download and no
-install page for it yet: it is built from the source's <code>aislingfx</code> branch and put on with the command-line
-installer. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+install page for it yet: it is built from its source and put on with the command-line installer. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
 </div>
 <div class="two hero">
 <div class="pane what">
@@ -620,14 +619,15 @@ __SHOTS__
 <nav class="ways" aria-label="AISLING FX-1's pages">
   <a class="go" href="manual/"><strong>Manual</strong><span>Setting it up with a computer, the knobs, the screen, what has been tried and what hasn't, and going back.</span></a>
   <a href="controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does in FX-1.</span></a>
-  <a href="__REPO__/tree/aislingfx"><strong>Source</strong><span>The <code>aislingfx</code> branch on GitHub, GPL-3.0: <code>./build.sh --fx</code> builds it.</span></a>
+  <a href="https://github.com/stephencummins/fx1-aisling"><strong>Source</strong><span>fx1-aisling on GitHub, GPL-3.0: <code>./build.sh --fx</code> builds it.</span></a>
   <a href="../fm1/"><strong>AISLING</strong><span>The instrument FX-1 is made from, to install from Chrome or Edge: also the way back.</span></a>
 </nav>
 <div class="two">
 <section class="pane">
 <h2 class="bh">How it goes</h2>
 <ol class="path">
-  <li>Put FX-1 on the FM-1: for now, a build from the branch, with <code>tools/fm1_install.py</code>.</li>
+  <li>Put FX-1 on the FM-1: for now, a build from the source, with <code>tools/fm1_install.py</code>, over AISLING,
+      another firmware or the stock one.</li>
   <li>Connect the FM-1 to the computer with a USB data cable. It shows up as a sound device, <b>AISLING FX-1</b>.</li>
   <li>Make it the computer's sound output, or a track's in your music software, and play something. The screen says
       PLAYING and its meters move.</li>
@@ -640,13 +640,14 @@ __SHOTS__
 <h2 class="bh">Tried, and not yet</h2>
 <ul class="plain">
   <li>On the FM-1: the sound plays with no gaps and no packets lost, it sounds right, the screen keeps up, and turning
-      the Dry down leaves the effects' share as it was.</li>
+      the Dry down leaves the effects' share as it was. It went on over AISLING and over the stock firmware, and
+      AISLING went back over it with its pieces as they were.</li>
   <li>In the simulator, every control and key measured: 17 of PERFORM's 27 effects change a computer's sound, and four
       of the black keys' eleven (the rest were made for AISLING's own voices). The manual and the controls drawing
       say which.</li>
-  <li>Not yet: how late the sound comes out (the latency), and a long session on the FM-1.</li>
-  <li>To know: FX-1 doesn't save by itself (hold GLO to save), and Setup's sleep timer, if set, quiets the socket
-      while the computer still plays.</li>
+  <li>Not yet: how late the sound comes out (the latency), a long session on the FM-1, and a newer FM-1.</li>
+  <li>To know: FX-1 doesn't save by itself (hold GLO to save), and saves where AISLING does, as AISLING's piece;
+      Setup's sleep timer, if set, quiets the socket while the computer still plays.</li>
 </ul>
 <p class="small">The <a href="manual/">manual</a> keeps this list as it changes.</p>
 </section>

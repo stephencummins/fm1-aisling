@@ -35,7 +35,7 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
        STEPHEN8N)
 FX1_NAV = (("controls", "controls", "fx1/controls/", "Every knob, button and key of the FM-1 running FX-1 and what it does, drawn"),
            ("manual", "manual", "fx1/manual/", "Setting it up with a computer, the effects, the screen, and going back"),
-           ("source", "source", REPO + "/tree/aislingfx", "The code, on GitHub: the aislingfx branch"),
+           ("source", "source", "https://github.com/stephencummins/fx1-aisling", "FX-1's code, on GitHub"),
            STEPHEN8N)
 SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, fader and button of the Elite and what it does"],
              ["docs", "docs", "smk37/docs/", "How the port works: the flash, the pins, building, testing, and what's still open"],

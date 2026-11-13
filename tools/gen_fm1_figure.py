@@ -79,7 +79,7 @@ FM1 = dict(
           "SEL (PERFORM): every one of the 27 keys an effect while held.   HOME held with OCT− or OCT+: undo or redo."),
 )
 
-# AISLING FX-1 (the aislingfx branch): the same panel, the computer's sound in place of the voices. K1-K4 are drawn
+# AISLING FX-1 (fx1-aisling; the --fx build): the same panel, the computer's sound in place of the voices. K1-K4 are drawn
 # with HOME's four; the voices' pages are dimmed, and so are the effects that change nothing in the computer's sound
 # (each measured in the simulator, amb_host built with AISLING_FX, against the same run without it: 2026-11-13)
 FX1 = dict(
