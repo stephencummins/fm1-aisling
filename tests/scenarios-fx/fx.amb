@@ -3,6 +3,11 @@
 # is 3 or unset; 0, 1 and 2 are the states before sound (run_tests.sh shoots each).
 wait 1500
 shot main.png
+expect helpfit 0
+# the home knobs: the filter, the two sends and the dry (0: only the echo and the plate)
+spin K4 -100
+wait 400
+shot dry.png
 tap SEL
 wait 300
 expect view 17

@@ -5657,6 +5657,8 @@ static int32_t *usb_at;
 #ifdef AISLING_FX
 const int16_t *en_fx_in;
 float en_fx_level[2];
+int en_fx_dry = 100;
+static float fxdry_s = 1.0f;                     /* (as it sounds: eased, so a turn does not step) */
 static const int16_t *fxin_at;
 #define FXIN_GAIN (0.8f / 32768.0f)              /* full scale in: 0.8 on the bus, as a loud piece */
 #define FXIN_SEND 0.5f                           /* of it into the echo and the plate, before their own amounts */
@@ -6954,12 +6956,14 @@ static void render_chunk(int32_t *out, uint32_t n, float gain)
      * the plate, which the piece's Echo and Reverb (and Dub and Space) turn up as they do the voices' */
     {
         float pl = 0.0f, pr = 0.0f;
+        const float dry_to = (float)en_fx_dry * 0.01f;
         if (fxin_at) {
             for (j = 0; j < n; j++) {
                 const float il = (float)fxin_at[2 * j] * FXIN_GAIN, ir = (float)fxin_at[2 * j + 1] * FXIN_GAIN;
                 const float al = il < 0.0f ? -il : il, ar = ir < 0.0f ? -ir : ir;
-                mixl[j] = il;
-                mixr[j] = ir;
+                fxdry_s += (dry_to - fxdry_s) * 0.002f;
+                mixl[j] = il * fxdry_s;
+                mixr[j] = ir * fxdry_s;
                 rsend[j] = esend[j] = (il + ir) * (0.5f * FXIN_SEND);
                 if (al > pl)
                     pl = al;

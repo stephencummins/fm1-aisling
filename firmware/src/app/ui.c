@@ -108,7 +108,11 @@ enum { K_LEDS = 200, K_CPU, K_NONE, K_SLOT, K_CQ, K_CX,    /* (the Chords page: 
        K_PLAY,                                               /* (the Chords page: Endless or Loop, P_PMODE's bit 2) */
        K_SAVE,                                               /* (Setup: a turn saves; it shows whether it's saved) */
        K_CHORUS,
-       K_JRP, K_JRIN, K_DAY };
+       K_JRP, K_JRIN, K_DAY
+#ifdef AISLING_FX
+       , K_FXDRY                                              /* (AISLING FX-1: the computer's sound, undressed) */
+#endif
+     };
 #define NDAY 4                                   /* (1.4) the day: off, or a whole day in 20 minutes, 1 hour, 3 hours */
 static const char *const DAY_NAME[NDAY] = {"Off", "20 min", "1 hour", "3 hours"};
 static void dy_set(int v);
@@ -118,7 +122,11 @@ static const char *const LANE_NAME[EN_NDRUM] = {"Steps", "Steps 2", "Octaves", "
 static int lane_seq(int d) { return d == 1 || d == 3; }   /* (a lane's sequence: its accents, its chance) */
 _Static_assert(P_NPARAMS <= K_LEDS, "the knobs' own codes must come after the parameters");
 static const uint16_t VIEW_KNOB[NVIEWS][4] = {
+#ifdef AISLING_FX                                /* (nothing to evolve: the filter, the two sends and the dry) */
+    {K_FILTER, P_ECHO, P_REVERB, K_FXDRY},
+#else
     {K_FILTER, P_EVOLVE, P_MOTION, P_DRIFT},
+#endif
     {P_PEDAL, P_CRES, P_PHASER, P_CATT},          /* (BERLIN) the Drone */
     {P_DENSITY, P_SEQOCT, P_SEQLEN, P_SEQGRID},  /* the Sequence */
     {P_LDENS, P_LOCT, P_ORN, P_VIB},             /* (the Lead; AISLING: Ornament for Glide, on Lead style) */
@@ -151,7 +159,11 @@ static const uint16_t VIEW_KNOB[NVIEWS][4] = {
     {K_JRP, K_JRIN, K_NONE, K_DAY},              /* (1.4) the Journey (GLO, a third time): its pieces; the day */
 };
 static const char *const KNOB_LABEL[NVIEWS][4] = {
+#ifdef AISLING_FX
+    {"Filter", "Echo", "Reverb", "Dry"},
+#else
     {"Filter", "Evolve", "Motion", "Drift"},
+#endif
     {"Pedal", "Reso", "Phaser", "Attack"},
     {"Density", "Octave", "Length", "Grid"},
     {"Phrases", "Octave", "Ornament", "Vibrato"},
@@ -184,7 +196,11 @@ static const char *const KNOB_LABEL[NVIEWS][4] = {
  * rule's 228 px, and every view has its row: the host's expect helpfit) */
 _Static_assert(NVIEWS == 28, "a view added: its KNOB_HELP row too");
 static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, V_DUB .. V_ARC) */
+#ifdef AISLING_FX
+    {"Down shuts, up opens; Off mid", "How much goes into the echo", "How much goes into the plate", "The sound itself; 0 is all wet"},
+#else
     {"Down shuts, up opens; Off mid", "How often a step changes", "How much, and the sections' pace", "Bars before the chord moves on"},
+#endif
     {"The root an octave under", "The filter's resonance", "The slow phaser's depth", "How slowly the chord swells in"},
     {"How many of the steps sound", "Two octaves down to two up", "Steps before it returns", "Eighths, or sixteenths"},
     {"How often it plays a phrase", "Two octaves down to one up", "Cuts, rolls, slides: how often", "How deep the late vibrato"},
@@ -559,6 +575,10 @@ static int knob_get(int k)
         return ui.jr_cur;
     if (k == K_JRIN)
         return !(ui.jr_out >> ui.jr_cur & 1u);
+#ifdef AISLING_FX
+    if (k == K_FXDRY)
+        return en_fx_dry;
+#endif
     return 0;
 }
 static void knob_range(int k, int *lo, int *hi)
@@ -571,6 +591,12 @@ static void knob_range(int k, int *lo, int *hi)
         *hi = 50;
     } else {
         *lo = 0;
+#ifdef AISLING_FX
+        if (k == K_FXDRY) {
+            *hi = 100;
+            return;
+        }
+#endif
         *hi = k == K_DAY ? NDAY - 1 : k == K_JRP ? NPIECES - 1 : k == K_JRIN ? 1 : k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
             : k == K_LANE ? EN_NDRUM - 1 : k == K_LCH ? 100 : 0;
     }
@@ -644,6 +670,10 @@ static void knob_text(int k, char *b)
             itoa_u((uint32_t)v, b);
         else
             b[0] = 'O', b[1] = 'f', b[2] = 'f', b[3] = 0;
+#ifdef AISLING_FX
+    } else if (k == K_FXDRY) {
+        itoa_u((uint32_t)v, b);
+#endif
     } else if (k == K_SAVE) {                    /* changed since the last save: "Save" (turn it); else "Saved" */
         const char *n = v ? "Save" : "Saved";
         while ((*b++ = *n++))
@@ -719,6 +749,11 @@ static void knob_set(int k, int v)
         ui.chorus = (uint8_t)v;
         en_chorus(v);
         return;                                  /* (for playing: nothing saved) */
+#ifdef AISLING_FX
+    } else if (k == K_FXDRY) {
+        en_fx_dry = v;
+        return;                                  /* (not saved: full at every start) */
+#endif
     } else if (k == K_MODE) {                    /* (the knob: the place in MODE_ORDER) */
         set_mode(MODE_ORDER[v]);
         return;
@@ -3228,7 +3263,7 @@ static void draw_fx(uint32_t now)
     static const char *const ST[4] = {"NO COMPUTER", "NOTHING SENT YET", "OPEN, NO PACKETS", "PLAYING"};
     static const char *const HINT[4] = {"PLUG THE USB-C SOCKET INTO A COMPUTER", "PICK AISLING FX-1 AS ITS OUTPUT AND PLAY",
                                         "THE COMPUTER OPENED THE STREAM", "SEL: PERFORM, THE KEYS' EFFECTS"};
-    static const char *const LBL[4] = {"PACKETS ", "  DRY ", "  LOST ", "  WAITING "};
+    static const char *const LBL[4] = {"PACKETS ", "  GAPS ", "  LOST ", "  WAITING "};
     struct plat_fx s;
     uint32_t v[4];
     char t[64], *q = t;
