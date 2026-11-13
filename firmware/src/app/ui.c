@@ -2569,6 +2569,10 @@ static void draw_header(void)
             x -= text_w(&FONT_XS, c);
             cv_text(x, 8, &FONT_XS, c, K_DIM);   /* (the leftmost on the right: its changing width moves nothing) */
         } else {                                 /* elsewhere: the tempo and the beat light */
+#ifdef AISLING_FX                                /* (FX-1: no piece plays, so no tempo and no beat: the stream's rate) */
+        x -= text_w(&FONT_XS, "44.1 KHZ");
+        cv_text(x, 8, &FONT_XS, "44.1 KHZ", K_DIM);
+#else
         x -= text_w(&FONT_S, t);
         cv_text(x, 6, &FONT_S, t, en_playing ? K_TEXT : K_DIM);
         x -= 16;
@@ -2580,7 +2584,13 @@ static void draw_header(void)
             for (j = 0; j < 5; j++)
                 cv_rect(x + 2 + j, 9 + j, 1, 11 - 2 * j, K_DIM);
         }
+#endif
         }
+#ifdef AISLING_FX                                /* (FX-1: its own name in the tag; no piece, no key) */
+        w = text_w(&FONT_B, "AISLING FX-1") + 12;
+        cv_round(4, 4, w, 20, 6, K_TEXT);
+        cv_text(10, 6, &FONT_B, "AISLING FX-1", K_BG);
+#else
         w = text_w(&FONT_B, piece_name(proj.piece)) + 12;   /* the piece, in a coral tag */
         cv_round(4, 4, w, 20, 6, K_TEXT);
         cv_text(10, 6, &FONT_B, piece_name(proj.piece), K_BG);
@@ -2588,6 +2598,7 @@ static void draw_header(void)
             w = cv_text(w + 10, 8, &FONT_XS, EN_NOTE_NAME[proj.par[P_ROOT]], K_TEXT);
             cv_text(w + 3, 8, &FONT_XS, mode_name(), K_DIM);
         }
+#endif
     }
     cv_blit(0, 0);
 }
@@ -3576,11 +3587,14 @@ static void draw_knobs(void)
             x0 = cv_text(x0, -1, &FONT_XS, SLEEP_NAME[sl.set], sl.set ? K_ACC : K_DIM) + 7;
             x0 = cv_text(x0, -1, &FONT_XS, "JOURNEY", K_DIM) + 4;   /* (1.4) and the journey's stay (SELECT's) */
             x0 = cv_text(x0, -1, &FONT_XS, JR_NAME[jr.stay], jr.stay ? K_ACC : K_DIM) + 5;
-        } else if (ui.view == V_DUB && evb()) {  /* (1.2) HOME: Evolve's timing, when it's set (ALGORITHM's); dim while
+        }
+#ifndef AISLING_FX                               /* (FX-1: nothing evolves) */
+        else if (ui.view == V_DUB && evb()) {  /* (1.2) HOME: Evolve's timing, when it's set (ALGORITHM's); dim while
                                                   * Evolve is 40 or under, so nothing moves */
             x0 = cv_text(6, -1, &FONT_XS, "EVOLVE", K_DIM) + 4;
             x0 = cv_text(x0, -1, &FONT_XS, EVB_NAME[evb()], proj.par[P_EVOLVE] > 40 ? K_ACC : K_DIM) + 5;
         }
+#endif
         if (sel_on) {                            /* (HOME) SELECT turning: Energy, its value and a bar from the
                                                   * middle (as PERFORM's knob, -50..50), the rule's whole width */
             char v[8];
