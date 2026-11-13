@@ -8,8 +8,18 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
                               the harp, the bar, the look and the fonts every page shares (web/brand, tools/site_brand.py)
   _headers, _redirects        Cloudflare's (web/brand); GitHub Pages serves them as two stray files
   visualiser/                 the visualiser (web/visualiser)
-  index.html                  what AISLING is, and the ways in: install, try, the visualiser; then the help (manual,
-                              cheat sheet, troubleshooting), the download and the source
+  index.html                  the root: what AISLING is, then the three things it runs on (site_brand.PRODUCTS), each
+                              drawn, with how far it has got and its pages; the bar's switch goes between them too
+  fm1/index.html              the FM-1's page: what AISLING is, and the ways in: install, try, the visualiser; then the
+                              help (manual, controls, cheat sheet, troubleshooting), the download and the source
+  fm1/controls/index.html     the FM-1's controls drawn (docs/img/fm1-controls.svg, tools/gen_fm1_figure.py, in the
+                              FM-1's colours, chosen on the page), then the README's "In short"
+  fx1/index.html, controls/, manual/
+                              AISLING FX-1, the FM-1 as a USB effects box: its page, its controls drawn
+                              (docs/img/fx1-controls.svg) with docs/FX1.md's table, and docs/FX1.md as a manual
+  smk37/                      the SMK-37 Elite's pages, from its own tree (tools/make_pages_smk37.py --marks DIR, on its
+                              branch): given --smk37 DIR (or SMK37_PAGES=DIR), they are copied in and given this site's
+                              bar; without, the bar and the root point at where they are published on their own
   img/                        screenshots (docs/img), the card (docs/card.png, tools/make_card.py) and the
                               visualiser's painting (web/visualiser/share.jpg, also the page's preview image)
   emu/                        AISLING in the browser (build/emu, from web/emu/build.sh), with its screen reader's
@@ -24,7 +34,7 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
                               sheet, then a page for each flow
   firmware/aisling-VERSION.fwsc   the package the installer writes; also the download
 
-  tools/make_pages.py build/aisling-0.1.fwsc 0.1 OUT_DIR
+  tools/make_pages.py build/aisling-0.1.fwsc 0.1 OUT_DIR [--smk37 DIR]
 
 The package must be a release build (tools/mini_build.sh --release X.Y): its identity, FM-1_353XXYYZZ, is
 what the installer checks the download against and what the FM-1 reports after the install."""
@@ -39,7 +49,8 @@ from pathlib import Path
 SRC = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SRC / "web"))
 sys.path.insert(0, str(SRC / "tools"))
-from site_brand import NAV, SITE, stamp  # noqa: E402
+import site_brand  # noqa: E402
+from site_brand import NAV, PRODUCTS, SITE, stamp  # noqa: E402
 from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the package format)
 
 REPO = "https://github.com/stephencummins/fm1-aisling"
@@ -50,18 +61,17 @@ LANDING = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>{ const q = new URLSearchParams(location.search); if (['embed', 'clean', 'scene', 'ground', 'palette', 'demo'].some((k) => q.has(k))) location.replace('visualiser/' + location.search + location.hash) }</script>
 <title>AISLING · Irish ambient for the FM-1</title>
 <meta name="description" content="A generative Irish ambient instrument for the M-VAVE FM-1: harps and a flute over a held drone, in the old modes, with the weather of the west coast behind them. Let it play for hours, or play the flute with it on the keys.">
 <meta property="og:title" content="AISLING · Irish ambient for the FM-1">
 <meta property="og:description" content="A generative Irish ambient instrument for the M-VAVE FM-1. Install it from the browser, try it without one, and watch it paint an Irish landscape.">
-<meta property="og:url" content="__SITE__">
+<meta property="og:url" content="__SITE__fm1/">
 <meta property="og:image" content="__SITE__img/visualiser.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-/* The landing page's own: what it is beside the screens, the ways in as a hairline grid, the layers' colours on the list
+/* The FM-1's page's own: what it is beside the screens, the ways in as a hairline grid, the layers' colours on the list
    (3:1 or more on the vellum). The rest is the site's (web/brand/site.css) */
 :root { --drone: #6a44b3; --seq: #b02f7c; --lead: #9a6400; --seq2: #1d6a94; --atmos: #7a6a54; }
 .what { display: flex; gap: 16px; align-items: flex-start; }
@@ -102,7 +112,10 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
   .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
 }
 @media (max-width: 47.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } ul.new { columns: 1; } }
-@media (min-width: 30rem) and (max-width: 47.99rem) { .ways.help { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 30rem) and (max-width: 47.99rem) {
+  .ways.help { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ways.help::after { content: ""; background: var(--brand-ground); }   /* nine in twos: the last cell blank, not ruled */
+}
 @media (max-width: 26rem) { .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; } }
 </style>
 <!--AISLING-HEAD-->
@@ -144,11 +157,14 @@ __NEW__
 <h2 class="bh" id="helph">Help, and the files</h2>
 <nav class="ways help" aria-label="Help and the files">
   <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
+  <a href="fm1/controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does, in your FM-1's colours.</span></a>
   <a href="cheat/"><strong>Cheat sheet</strong><span>The steps drawn as flows, then every control and the eight pieces, to print on one sheet.</span></a>
   <a href="manual/#s13"><strong>If it goes wrong</strong><span>An FM-1 the browser can't see, installing over AISLING, download mode, calibration, safe mode, and bringing back one that won't start.</span></a>
   <a href="install/#stock"><strong>Back to stock</strong><span>The official firmware, in the version whose bootloader your FM-1 has: V16 with M-VAVE's M-UPGRADE, V15 from The Firmware Hub.</span></a>
   <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>The package itself, for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
   <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. A fork of NACHTFAHRT, by way of DUB-1 and AMB-1.</span></a>
+  <a href="editor/"><strong>Editor</strong><span>Every setting of a piece on one panel, in the browser or on your FM-1 over USB.</span></a>
+  <a href="https://gear.stephen8n.com/"><strong>Gear</strong><span>What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases.</span></a>
 </nav>
 </section>
 <div class="two">
@@ -335,11 +351,326 @@ __CONTROLS__
 """
 
 
-def md_rows(section):
-    """The first table under the README's "## SECTION": its rows, each a list of its cells as written (markdown); the
-    first is the head, the second the rule."""
-    lines = (SRC / "README.md").read_text(encoding="utf-8").splitlines()
-    i = lines.index("## " + section)
+CHOOSER = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>{ const q = new URLSearchParams(location.search); if (['embed', 'clean', 'scene', 'ground', 'palette', 'demo'].some((k) => q.has(k))) location.replace('visualiser/' + location.search + location.hash) }</script>
+<title>AISLING · Irish ambient for the FM-1 and the SMK-37</title>
+<meta name="description" content="AISLING is a generative Irish ambient instrument: harps and a flute over a held drone, in the old modes. It runs on the M-VAVE FM-1 and the SMK-37 Elite, and AISLING FX-1 makes an FM-1 an effects box for a computer's sound.">
+<meta property="og:title" content="AISLING · Irish ambient for the FM-1 and the SMK-37">
+<meta property="og:description" content="A generative Irish ambient instrument for the M-VAVE FM-1 and the SMK-37 Elite, and AISLING FX-1, an FM-1 as a USB effects box.">
+<meta property="og:url" content="__SITE__">
+<meta property="og:image" content="__SITE__img/visualiser.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+/* The root's own: what AISLING is, then the three things it runs on side by side, each drawn (without its words: here
+   the drawings only tell them apart), with how far it has got and its pages. The rest is the site's (web/brand/site.css) */
+.what { display: flex; gap: 16px; align-items: flex-start; }
+.card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.lede { margin: 0; font-size: 14.5px; max-width: 92ch; }
+.parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
+.part { display: flex; flex-direction: column; min-width: 0; background: var(--brand-ground); }
+.part > a { display: block; flex: 1; padding: 16px 16px 12px; color: var(--brand-ink); text-decoration: none; }
+.part > a:hover { background: var(--brand-strip); color: var(--brand-ink); }
+.part > a:focus-visible { outline-offset: -3px; }
+.pic { height: 168px; margin: 0 0 14px; }
+.pic svg { display: block; width: 100%; height: 100%; }
+.pic svg text { display: none; }
+.part h2 { margin: 0 0 6px; font: 600 26px/1.1 var(--brand-display); letter-spacing: .08em; }
+.part > a:hover h2 { color: var(--brand-green); }
+.state { margin: 0 0 8px; font-size: 12px; letter-spacing: .03em; color: var(--brand-rust); }
+.state.out { color: var(--brand-green); }
+.does { margin: 0; font-size: 12.5px; color: var(--brand-muted); }
+.part ul { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0 16px 16px; }
+p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
+/* narrower: one under another, the drawing beside the words; a phone: the drawing above them */
+@media (max-width: 59.99rem) {
+  .parts { grid-template-columns: minmax(0, 1fr); }
+  .part > a { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); column-gap: 20px; align-content: start; }
+  .part > a > * { grid-column: 2; }
+  .pic { grid-column: 1; grid-row: 1 / span 3; height: 150px; margin: 0; }
+}
+@media (max-width: 29.99rem) {
+  .part > a { display: block; }
+  .pic { height: 130px; margin: 0 0 12px; }
+  .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; }
+}
+</style>
+<!--AISLING-HEAD-->
+</head>
+<body>
+<!--AISLING-BAR-->
+<main class="bench">
+<div class="strip">
+<h1 class="lab"><b>aisling</b> · generative Irish ambient for M-VAVE's FM-1 and SMK-37 Elite</h1>
+<p class="lab">__BY__</p>
+</div>
+<div class="pane what">
+<img class="card" src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
+<p class="lede">AISLING (said ASH-ling: Irish for a dream or a vision) is a generative instrument after the harpers and the
+west of Ireland: a harp's ostinato over a held drone, a second harp drifting against it, a flute far back in the reverb,
+with surf, wind or rain behind. It was written for the M-VAVE FM-1, and runs on M-VAVE's SMK-37 Elite too; AISLING FX-1
+turns an FM-1 into an effects box for a computer's sound. Which have you got?</p>
+</div>
+<div class="parts">
+__PARTS__
+</div>
+<div class="pane">
+<p class="small">AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>), a fork of
+<a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, by way of
+<a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> and <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a>;
+GPL-3.0. Each part's page has the rest. M-VAVE, FM-1 and SMK-37 are trademarks of their owners; AISLING is not
+affiliated with M-VAVE.</p>
+</div>
+</main>
+</body>
+</html>
+"""
+
+# a part on the root: its key, the state it's in (and whether that's out), what it does, its links (label, where, go?)
+PART_CARDS = (
+    ("fm1", "v__VERSION__ · released", True,
+     "The instrument: eight pieces that play themselves for hours, the flute on the white keys, the effects on the black "
+     "ones. Install it from Chrome or Edge, or try it here without an FM-1.",
+     (("install", "install/", True), ("try it", "emu/", False), ("manual", "manual/", False), ("controls", "fm1/controls/", False))),
+    ("fx1", "in testing on one FM-1 · not released", False,
+     "An FM-1 as an effects box: a computer's sound in over USB, through AISLING's filter, echo and reverb and its "
+     "effects, out of the FM-1's socket and back to the computer.",
+     (("manual", "fx1/manual/", False), ("controls", "fx1/controls/", False))),
+    ("smk37", "runs on an Elite · no download yet", False,
+     "The same AISLING on M-VAVE's 37-key keyboard: the FM-1's 27 keys in the middle, its pads playing the effects, its "
+     "faders the mix.",
+     (("controls", "smk37/controls/", False), ("docs", "smk37/docs/", False))),
+)
+
+# the controls pages: an FM-1 drawn, in its colours, then a table of the controls
+CONTROLS = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<meta name="description" content="__DESC__">
+<style>
+/* The controls page's own (as the SMK-37 Elite's): the drawing, which scrolls sideways rather than shrink past reading,
+   its colours, and the table. The rest is the site's (web/brand/site.css) */
+.wrap { overflow-x: auto; }
+svg.fmp { display: block; width: 100%; min-width: 900px; height: auto; }
+.skins { margin: 0 0 10px; }
+.skins button { font: inherit; margin-left: 6px; padding: 2px 10px; border: 1px solid var(--brand-rule); border-radius: 0;
+                background: transparent; color: inherit; cursor: pointer; }
+.skins button[aria-pressed="true"] { border-color: var(--brand-green); box-shadow: inset 0 0 0 1px var(--brand-green); }
+.notice { border-left: 4px solid var(--brand-rust); background: var(--brand-strip); }
+.notice strong { font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; color: var(--brand-rust); }
+.pane p { margin: 0 0 10px; }
+.pane p:last-child { margin-bottom: 0; }
+p.small { color: var(--brand-muted); font-size: 12.5px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: 6px 12px 6px 0; border-top: 1px solid var(--brand-rule); }
+thead th { font-weight: 400; font-size: 12.5px; color: var(--brand-muted); border-top: 0; }
+td:first-child { font: 600 15px/1.4 var(--brand-display); letter-spacing: .02em; white-space: nowrap; }
+td b, td i { font-weight: 400; font-style: normal; color: var(--brand-green); }
+thead:has(th:empty) { display: none; }
+@media (max-width: 47.99rem) {
+  table, tbody, tr, td { display: block; }
+  thead { display: none; }
+  tr { padding: 6px 0; border-top: 1px solid var(--brand-rule); }
+  td { padding: 0; border-top: 0; }
+  td:first-child { white-space: normal; }
+}
+</style>
+<!--AISLING-HEAD-->
+</head>
+<body>
+<!--AISLING-BAR-->
+<main class="bench">
+<div class="strip">
+<h1 class="lab"><b>controls</b> · __STRIP__</h1>
+<a class="btn" href="__BUTTON_HREF__">__BUTTON__</a>
+</div>
+__NOTICE__<div class="pane wrap">
+<p class="skins" id="skins" hidden>Your FM-1's colours: __SKINS__</p>
+__PANEL__
+<p class="small"><a href="__SVG__">The drawing alone</a>, at full size.</p>
+<script>
+(function () {
+  var svg = document.querySelector("svg.fmp"), bar = document.getElementById("skins"), key = "aisling-fm1-skin";
+  function set(k) {
+    svg.setAttribute("data-skin", k);
+    bar.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", b.value === k ? "true" : "false"); });
+  }
+  var k = "orange";
+  try { k = localStorage.getItem(key) || k; } catch (e) {}
+  bar.hidden = false;
+  set(bar.querySelector('button[value="' + k + '"]') ? k : "orange");
+  bar.addEventListener("click", function (e) {
+    if (e.target.tagName !== "BUTTON") return;
+    set(e.target.value);
+    try { localStorage.setItem(key, e.target.value); } catch (x) {}
+  });
+})();
+</script>
+</div>
+<section class="pane wrap" aria-labelledby="shorth">
+<h2 class="bh" id="shorth">__TABLE_HEAD__</h2>
+__TABLE__
+</section>
+<div class="pane">
+<p>__AFTER__</p>
+</div>
+</main>
+</body>
+</html>
+"""
+
+FM1_CONTROLS = dict(
+    title="AISLING on the FM-1 · the controls",
+    desc="The M-VAVE FM-1 running AISLING, drawn: every knob, button and key labelled with what it does, in the FM-1's colours, then all of it in short.",
+    strip="AISLING on the M-VAVE FM-1", button=("../../cheat/", "cheat sheet"), notice="",
+    svg="fm1-controls.svg", table_head="In short", table=("README.md", "In short"),
+    after='The <a href="../../manual/">manual</a> has the rest; the <a href="../../cheat/">cheat sheet</a> draws the steps '
+          'as flows, then this table with each control as it looks, to print on one sheet.')
+FX1_CONTROLS = dict(
+    title="AISLING FX-1 · the controls",
+    desc="An M-VAVE FM-1 running AISLING FX-1, the USB effects box, drawn: what each knob, button and key does to a computer's sound.",
+    strip="AISLING FX-1, an FM-1 as a USB effects box", button=("../manual/", "manual"),
+    notice='<div class="pane notice" role="note">\n<p><strong>Not released.</strong> AISLING FX-1 runs on one FM-1, in '
+           'testing. What is drawn here is what the firmware does; the <a href="../manual/">manual</a> says which of it has '
+           'been tried on the FM-1 itself.</p>\n</div>\n',
+    svg="fx1-controls.svg", table_head="The controls", table=("docs/FX1.md", "The controls"), manual="../manual/",
+    after='The <a href="../manual/">manual</a> has the rest: setting it up with a computer, the screen, and going back to '
+          'AISLING.')
+
+FX1_LANDING = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING FX-1 · an FM-1 as a USB effects box</title>
+<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. In testing; not released.">
+<meta property="og:title" content="AISLING FX-1 · an FM-1 as a USB effects box">
+<meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. In testing; not released.">
+<meta property="og:url" content="__SITE__fx1/">
+<style>
+/* FX-1's page's own, as the FM-1's: what it is beside its screens, the ways in as a hairline grid */
+.what { display: flex; gap: 16px; align-items: flex-start; }
+.card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.lede { margin: 0; font-size: 14.5px; }
+.notice { border-left: 4px solid var(--brand-rust); background: var(--brand-strip); }
+.notice strong { font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; color: var(--brand-rust); }
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-content: start; }
+.shots img { display: block; box-sizing: border-box; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.shots p { grid-column: 1 / -1; margin: 0; }
+.ways { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
+.ways a { display: block; padding: 12px 16px 14px; background: var(--brand-ground); color: var(--brand-ink); text-decoration: none; }
+.ways a:hover { background: var(--brand-strip); color: var(--brand-ink); }
+.ways a:focus-visible { outline-offset: -3px; }
+.ways strong { display: block; margin-bottom: 4px; font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; }
+.ways span { display: block; font-size: 12.5px; color: var(--brand-muted); }
+.ways a.go, .ways a.go span { background: var(--brand-green); color: var(--brand-ground); }
+.ways a.go:hover, .ways a.go:hover span { background: #0f5332; }
+.ways a.go:focus-visible { outline-color: var(--brand-ground); }
+.pane p { margin: 0 0 10px; }
+.pane p:last-child { margin-bottom: 0; }
+.pane p b { font-weight: 400; color: var(--brand-green); }
+ol.path { list-style: none; counter-reset: step; padding: 0; margin: 0 0 10px; }
+ol.path li { counter-increment: step; position: relative; padding: 0 0 8px 28px; }
+ol.path li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 18px; text-align: right;
+                     font: 600 15px/1.45 var(--brand-display); color: var(--brand-green); }
+ul.plain { list-style: square; padding-left: 1.2rem; margin: 0 0 10px; }
+ul.plain li { margin: 0 0 6px; }
+ul.plain li::marker { color: var(--brand-green); }
+p.small { color: var(--brand-muted); font-size: 12.5px; }
+@media (max-width: 59.99rem) {
+  .two.hero { grid-template-columns: minmax(0, 1fr); }
+  .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
+  .ways { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 29.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 26rem) { .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; } }
+</style>
+<!--AISLING-HEAD-->
+</head>
+<body>
+<!--AISLING-BAR-->
+<main class="bench">
+<div class="strip">
+<h1 class="lab"><b>aisling fx-1</b> · an M-VAVE FM-1 as a USB effects box</h1>
+<p class="lab">__BY__</p>
+</div>
+<div class="pane notice" role="note">
+<p><strong>In testing: not released.</strong> AISLING FX-1 has run on one FM-1 so far. There is no download and no
+install page for it yet: it is built from the source's <code>aislingfx</code> branch and put on with the command-line
+installer. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+</div>
+<div class="two hero">
+<div class="pane what">
+<img class="card" src="../img/card-fx1.png" width="240" height="240" alt="A gold 8-bit harp on green, with FX beside it">
+<p class="lede">AISLING FX-1 is AISLING with its voices taken out and a computer's sound let in. Connect an M-VAVE FM-1
+to a computer by USB and choose <b>AISLING FX-1</b> as the sound output: whatever the computer plays comes in over the
+cable, goes through AISLING's filter, echo and plate reverb and the effects on its keys, and comes out of the FM-1's
+3.5&nbsp;mm socket. It goes back up the cable too, for the computer to record.</p>
+</div>
+__SHOTS__
+</div>
+<nav class="ways" aria-label="AISLING FX-1's pages">
+  <a class="go" href="manual/"><strong>Manual</strong><span>Setting it up with a computer, the knobs, the screen, what has been tried and what hasn't, and going back.</span></a>
+  <a href="controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does in FX-1.</span></a>
+  <a href="__REPO__/tree/aislingfx"><strong>Source</strong><span>The <code>aislingfx</code> branch on GitHub, GPL-3.0: <code>./build.sh --fx</code> builds it.</span></a>
+  <a href="../fm1/"><strong>AISLING</strong><span>The instrument FX-1 is made from, to install from Chrome or Edge: also the way back.</span></a>
+</nav>
+<div class="two">
+<section class="pane">
+<h2 class="bh">How it goes</h2>
+<ol class="path">
+  <li>Put FX-1 on the FM-1: for now, a build from the branch, with <code>tools/fm1_install.py</code>.</li>
+  <li>Connect the FM-1 to the computer with a USB data cable. It shows up as a sound device, <b>AISLING FX-1</b>.</li>
+  <li>Make it the computer's sound output, or a track's in your music software, and play something. The screen says
+      PLAYING and its meters move.</li>
+  <li>Listen at the FM-1's socket. At HOME the knobs are the Filter, the Echo, the Reverb and the Dry; in PERFORM (SEL)
+      the keys are effects while held.</li>
+  <li>To record what comes out, choose the FM-1 as the computer's input as well.</li>
+</ol>
+</section>
+<section class="pane">
+<h2 class="bh">Tried, and not yet</h2>
+<ul class="plain">
+  <li>On the FM-1: the sound plays with no gaps and no packets lost, it sounds right, the screen keeps up, and turning
+      the Dry down leaves the effects' share as it was.</li>
+  <li>In the simulator, every control and key measured: 17 of PERFORM's 27 effects change a computer's sound, and four
+      of the black keys' eleven (the rest were made for AISLING's own voices). The manual and the controls drawing
+      say which.</li>
+  <li>Not yet: how late the sound comes out (the latency), and a long session on the FM-1.</li>
+  <li>To know: FX-1 doesn't save by itself (hold GLO to save), and Setup's sleep timer, if set, quiets the socket
+      while the computer still plays.</li>
+</ul>
+<p class="small">The <a href="manual/">manual</a> keeps this list as it changes.</p>
+</section>
+</div>
+<div class="pane">
+<p class="small">AISLING FX-1 is AISLING's own code with a second USB sound stream, the one coming in, and the voices
+left out; everything else is AISLING's, a fork of <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a>
+by FartyPants by way of <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> and
+<a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a>, on Felucca by Leo Kuroshita (Hügelton Instruments).
+GPL-3.0. M-VAVE and FM-1 are trademarks of their owners; AISLING is not affiliated with M-VAVE.</p>
+</div>
+</main>
+</body>
+</html>
+"""
+
+def md_rows(section, path="README.md"):
+    """The first table under a markdown file's "## SECTION" (or "## N. SECTION"): its rows, each a list of its cells as
+    written (markdown); the first is the head, the second the rule."""
+    lines = (SRC / path).read_text(encoding="utf-8").splitlines()
+    heads = [i for i, line in enumerate(lines) if re.fullmatch(r"## (\d+\. )?" + re.escape(section), line)]
+    if len(heads) != 1:
+        raise SystemExit(f"{path}: {len(heads)} headings ## {section}")
+    i = heads[0]
     rows = []
     for line in lines[i + 1:]:
         if line.startswith("|"):
@@ -347,16 +678,27 @@ def md_rows(section):
         elif rows:
             break
     if len(rows) < 3:
-        raise SystemExit(f"README.md: no table under ## {section}")
+        raise SystemExit(f"{path}: no table under ## {section}")
     return rows
 
 
-def md_table(section):
-    """The first table under the README's "## SECTION", as HTML (the cells' **bold** and *italics* kept)."""
-    rows = md_rows(section)
+def md_table(section, path="README.md", manual=None):
+    """The first table under a markdown file's "## SECTION", as HTML (the cells' **bold**, *italics* and `code` kept, and
+    their links: one to a section of the same file, [x](#N-slug), goes to MANUAL#sN, where that file is the manual)."""
+    rows = md_rows(section, path)
+
+    def link(m):
+        text, to = m.groups()
+        if to.startswith("#"):
+            if manual is None:
+                raise SystemExit(f"{path}: {section}: a link to {to} with no manual for it to go to")
+            to = manual + "#s" + to[1:].split("-")[0]
+        return f'<a href="{html.escape(to)}">{text}</a>'
 
     def cell(c):
         c = html.escape(c, quote=False)
+        c = re.sub(r"`([^`]+)`", r"<code>\1</code>", c)
+        c = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", link, c)
         return re.sub(r"\*([^*]+)\*", r"<i>\1</i>", re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", c))
     head = "".join(f"<th scope=\"col\">{cell(c)}</th>" for c in rows[0])
     body = "".join("<tr>" + "".join(f"<td>{cell(c)}</td>" for c in r) + "</tr>\n" for r in rows[2:])
@@ -506,6 +848,79 @@ def flows():
     return page
 
 
+SMK37_AWAY = "https://stephencummins.github.io/smk37-aisling/"   # where its pages are published on their own
+
+
+def drawing(path, alt=None):
+    """A drawing (an svg of tools/gen_fm1_figure.py's or the SMK-37 Elite's) to put inline: described by `alt`, or, with
+    none, hidden from a screen reader (the root's, inside a link that says what it is)."""
+    svg = Path(path).read_text(encoding="utf-8")
+    if " id=" in svg:
+        raise SystemExit(f"{path}: an id in a drawing that goes inline beside others")
+    head = re.match(r'<svg [^>]*?role="img" aria-label="[^"]*"', svg)
+    if not head:
+        raise SystemExit(f"{path}: not one of the drawings")
+    say = f'role="img" aria-label="{html.escape(alt)}"' if alt else 'aria-hidden="true" focusable="false"'
+    return re.sub(r'role="img" aria-label="[^"]*"', say, svg, count=1)
+
+
+def where(h):
+    """A link on the root to one of the parts' pages: relative, unless that part's pages are published elsewhere."""
+    for key, _, start, _ in PRODUCTS:
+        if h.startswith(key + "/") and start.startswith("https:"):
+            return start + h[len(key) + 1:]
+    return h
+
+
+def part_cards(version, pics):
+    cards = []
+    for key, state, out, does, links in PART_CARDS:
+        label, start, what = next((label, start, what) for k, label, start, what in PRODUCTS if k == key)
+        state = state.replace("__VERSION__", html.escape(version))
+        btns = "".join(f'<li><a class="btn{" go" if go else ""}" href="{where(h)}">{t}</a></li>' for t, h, go in links)
+        cards.append(f'<section class="part" aria-labelledby="p-{key}">\n'
+                     f'<a href="{start}" title="{html.escape(what)}"><div class="pic">{pics[key]}</div>'
+                     f'<h2 id="p-{key}">{label}</h2><p class="state{" out" if out else ""}">{state}</p>'
+                     f'<p class="does">{does}</p></a>\n<ul>{btns}</ul>\n</section>')
+    return "\n".join(cards)
+
+
+def controls_page(kind, svg_path):
+    """One of the FM-1's controls pages (FM1_CONTROLS, FX1_CONTROLS): its drawing, its skins' buttons, its table."""
+    svg = svg_path.read_text(encoding="utf-8")
+    skins = ["orange"] + sorted(set(re.findall(r'data-skin="(\w+)"', svg)))
+    buttons = "".join(f'<button type="button" value="{k}" aria-pressed="false">{k}</button>' for k in skins)
+    btn_href, btn = kind["button"]
+    return (CONTROLS.replace("__TITLE__", kind["title"]).replace("__DESC__", html.escape(kind["desc"]))
+            .replace("__STRIP__", kind["strip"]).replace("__BUTTON_HREF__", btn_href).replace("__BUTTON__", btn)
+            .replace("__NOTICE__", kind["notice"]).replace("__SKINS__", buttons)
+            .replace("__PANEL__", drawing(svg_path, re.search(r'aria-label="([^"]*)"', svg).group(1)))
+            .replace("__SVG__", "../../img/" + svg_path.name).replace("__TABLE_HEAD__", kind["table_head"])
+            .replace("__TABLE__", md_table(kind["table"][1], kind["table"][0], kind.get("manual"))).replace("__AFTER__", kind["after"]))
+
+
+def fx1_landing():
+    """FX-1's page, with its screens if there are any in docs/img (fx1-*.png, from the simulator: tests/scenarios-fx)."""
+    shots = [(f, a) for f, a in FX1_SHOTS if (SRC / "docs" / "img" / f).exists()]
+    pics = "".join(f'  <img src="../img/{f}" width="240" height="240" alt="{html.escape(a)}">\n' for f, a in shots)
+    return (FX1_LANDING.replace("__SHOTS__", f'<div class="pane shots">\n{pics}</div>' if shots else "")
+            .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY))
+
+
+# FX-1's screens, as the simulator draws them, for its page
+FX1_SHOTS = (("fx1-screen.png", "AISLING FX-1's screen while the computer's sound plays: PLAYING, the level in, left and "
+                                "right, and the stream's counts"),
+             ("fx1-idle.png", "The screen with a computer that hasn't opened the stream: NOTHING SENT YET"),
+             ("fx1-perform.png", "PERFORM: the keys' effects on the computer's sound"))
+
+
+def manual_images(md, dest):
+    """The images a manual names (docs/img/...), beside it."""
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in sorted(set(re.findall(r"\]\(img/([^)\s]+)", (SRC / "docs" / md).read_text(encoding="utf-8")))):
+        shutil.copy(SRC / "docs" / "img" / name, dest / name)
+
+
 def cheat_sheet(version):
     return (CHEAT.replace("__VERSION__", html.escape(version)).replace("__BY__", BY)
             .replace("__CONTROLS__", controls()).replace("__PIECES__", md_table("The pieces"))
@@ -514,19 +929,28 @@ def cheat_sheet(version):
 
 
 def check_visualiser_bar():
-    """The visualiser carries its own copy of the bar, because it fetches nothing. Stop if it no longer says what NAV says
-    (a new page in NAV, say): it would be published with one page missing."""
+    """The visualiser carries its own copy of the bar, because it fetches nothing. Stop if it no longer says what the
+    switch (PRODUCTS) and the FM-1's NAV say (a new page in NAV, say): it would be published with one page missing.
+    (Before site_brand.away: its copy points at the parts' places here, and main moves the SMK-37's if it must.)"""
     page = (SRC / "web" / "visualiser" / "index.html").read_text(encoding="utf-8")
-    nav = re.search(r'<nav class="sitebar-nav".*?</nav>', page, re.S)
-    found = re.findall(r'href="([^"]+)"[^>]*>([^<]+)</a>', nav.group(0)) if nav else []
-    want = [(href if href.startswith("https:") else SITE + href, label) for _, label, href, _ in NAV]
-    if found != want:
-        raise SystemExit(f"web/visualiser/index.html: its bar differs from NAV in tools/site_brand.py:\n  {found}\n  {want}")
+    for cls, items in (("sitebar-kit", PRODUCTS), ("sitebar-nav", NAV)):
+        nav = re.search(rf'<nav class="{cls}".*?</nav>', page, re.S)
+        found = re.findall(r'href="([^"]+)"[^>]*>([^<]+)</a>', nav.group(0)) if nav else []
+        want = [(href if href.startswith("https:") else SITE + href, label) for _, label, href, _ in items]
+        if found != want:
+            raise SystemExit(f"web/visualiser/index.html: its {cls} differs from tools/site_brand.py's:\n  {found}\n  {want}")
 
 
-def main(pkg, version, out):
+def main(pkg, version, out, smk37=None):
     check_visualiser_bar()
     pkg, out = Path(pkg), Path(out)
+    if smk37:
+        smk37 = Path(smk37)
+        for f in ("index.html", "controls/index.html", "docs/index.html", "img/smk37-panel.svg"):
+            if not (smk37 / f).exists():
+                raise SystemExit(f"{smk37}: no {f}: make the SMK-37 Elite's pages with tools/make_pages_smk37.py --marks DIR")
+    else:
+        site_brand.away("smk37", SMK37_AWAY)
     raw = pkg.read_bytes()
     product = product_of(raw)
     if not re.fullmatch(r"FM-1_353\d{6}", product):
@@ -536,7 +960,7 @@ def main(pkg, version, out):
     name = f"aisling-{re.sub(r'[^A-Za-z0-9.-]', '-', version)}.fwsc"
     if out.exists():
         shutil.rmtree(out)
-    for d in ("install", "manual", "cheat", "firmware"):
+    for d in ("install", "manual", "cheat", "firmware", "fm1/controls", "fx1/controls", "fx1/manual"):
         (out / d).mkdir(parents=True)
     shutil.copy(pkg, out / "firmware" / name)
     # the installer
@@ -549,18 +973,48 @@ def main(pkg, version, out):
             raise SystemExit(f"amb_installer.html must contain {mark} once")
     (out / "install" / "index.html").write_text(stamp(page.replace("/*LIB*/", lib).replace("/*META*/", meta), "../", "install"),
                                                 encoding="utf-8")
-    # the manual (a complete page; its images beside it)
+    # the manual (a complete page; its images beside it). It's made by its own process, so it's told what isn't here
+    away = [] if smk37 else ["--away", f"smk37={SMK37_AWAY}"]
     subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "MANUAL.md"),
-                    str(out / "manual" / "index.html")], check=True, capture_output=True)
+                    str(out / "manual" / "index.html")] + away, check=True, capture_output=True)
     shutil.copytree(SRC / "docs" / "img", out / "manual" / "img")
-    # the landing page and its screenshots
+    # the pages' pictures: the screenshots and the drawings (docs/img), the cards, the visualiser's painting
     shutil.copytree(SRC / "docs" / "img", out / "img")
     shutil.copy(SRC / "docs" / "card.png", out / "img" / "card.png")
+    shutil.copy(SRC / "docs" / "card-fx1.png", out / "img" / "card-fx1.png")
     shutil.copy(SRC / "web" / "visualiser" / "share.jpg", out / "img" / "visualiser.jpg")
-    (out / "index.html").write_text(stamp(LANDING.replace("__VERSION__", html.escape(version)).replace("__PKG__", name)
-                                          .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY)
-                                          .replace("__NEW__", whats_new(version)), ""),
-                                    encoding="utf-8")
+    # the root: the three parts, each drawn
+    pics = {"fm1": drawing(SRC / "docs" / "img" / "fm1-controls.svg"), "fx1": drawing(SRC / "docs" / "img" / "fx1-controls.svg"),
+            "smk37": drawing(smk37 / "img" / "smk37-panel.svg") if smk37 else
+            f'<img src="{SMK37_AWAY}img/smk37-panel.svg" alt="" style="width:100%;height:100%;object-fit:contain">'}
+    (out / "index.html").write_text(stamp(CHOOSER.replace("__PARTS__", part_cards(version, pics)).replace("__SITE__", SITE)
+                                          .replace("__BY__", BY), "", None, None), encoding="utf-8")
+    # the FM-1's page, written as if at the root (as it was) and moved down one
+    page = (LANDING.replace("__VERSION__", html.escape(version)).replace("__PKG__", name).replace("__REPO__", REPO)
+            .replace("__SITE__", SITE).replace("__BY__", BY).replace("__NEW__", whats_new(version)))
+    page = re.sub(r'\b(href|src)="(?!https?:|#|/|mailto:)', r'\1="../', page)
+    (out / "fm1" / "index.html").write_text(stamp(page, "../", None, "fm1"), encoding="utf-8")
+    # the controls pages, the FM-1's and FX-1's
+    (out / "fm1" / "controls" / "index.html").write_text(
+        stamp(controls_page(FM1_CONTROLS, SRC / "docs" / "img" / "fm1-controls.svg"), "../../", "controls", "fm1"), encoding="utf-8")
+    (out / "fx1" / "controls" / "index.html").write_text(
+        stamp(controls_page(FX1_CONTROLS, SRC / "docs" / "img" / "fx1-controls.svg"), "../../", "controls", "fx1"), encoding="utf-8")
+    # FX-1's page and its manual (docs/FX1.md, its images beside it)
+    (out / "fx1" / "index.html").write_text(stamp(fx1_landing(), "../", None, "fx1"), encoding="utf-8")
+    subprocess.run([sys.executable, str(SRC / "tools" / "manual_html.py"), str(SRC / "docs" / "FX1.md"),
+                    str(out / "fx1" / "manual" / "index.html"), "--part", "fx1"] + away, check=True, capture_output=True)
+    manual_images("FX1.md", out / "fx1" / "manual" / "img")
+    # the SMK-37 Elite's pages, made on its branch, given this site's bar
+    if smk37:
+        shutil.copytree(smk37, out / "smk37")
+        for f, root, key in (("index.html", "../", None), ("controls/index.html", "../../", "controls"),
+                             ("docs/index.html", "../../", "docs")):
+            page = stamp((out / "smk37" / f).read_text(encoding="utf-8"), root, key, "smk37")
+            # its docs name its pages where they're published on their own: here, a link to one of them goes to its
+            # copy beside it, but for the one that shows that address as its text
+            page = re.sub(rf'<a href="{re.escape(SMK37_AWAY)}([^"]*)">(?!stephencummins\.github\.io)',
+                          lambda m: f'<a href="{root}smk37/{m.group(1)}">', page)
+            (out / "smk37" / f).write_text(page, encoding="utf-8")
     # the cheat sheet
     (out / "cheat" / "index.html").write_text(stamp(cheat_sheet(version), "../", "cheat"), encoding="utf-8")
     emu = SRC / "build" / "emu"
@@ -578,8 +1032,11 @@ def main(pkg, version, out):
     (out / "editor" / "index.html").write_text(stamp((SRC / "web" / "editor" / "index.html").read_text(encoding="utf-8"), "../", "editor"), encoding="utf-8")
     # the harp, the bar's style and the fonts, at the root, for every page; Cloudflare's two files with them
     shutil.copytree(SRC / "web" / "brand", out, dirs_exist_ok=True)
-    # the visualiser, as it is
+    # the visualiser, as it is, but for its switch's SMK-37 if those pages aren't here
     shutil.copytree(SRC / "web" / "visualiser", out / "visualiser")
+    if not smk37:
+        v = out / "visualiser" / "index.html"
+        v.write_text(v.read_text(encoding="utf-8").replace(f'href="{SITE}smk37/"', f'href="{SMK37_AWAY}"'), encoding="utf-8")
     # the add-on screen's page and its pictures
     shutil.copytree(SRC / "web" / "screen", out / "screen")
     (out / "screen" / "index.html").write_text(stamp((SRC / "web" / "screen" / "index.html").read_text(encoding="utf-8"), "../", "screen"),
@@ -587,10 +1044,21 @@ def main(pkg, version, out):
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
-    print(f"site: {out}: index.html, install/ ({product}), manual/, cheat/, emu/, editor/, visualiser/, screen/, words/, firmware/{name} ({len(raw)} B)")
+    print(f"site: {out}: index.html, fm1/ (and controls/), fx1/ (controls/, manual/), "
+          f"smk37/ {'(from ' + str(smk37) + ')' if smk37 else '(not here: ' + SMK37_AWAY + ')'}, install/ ({product}), "
+          f"manual/, cheat/, emu/, editor/, visualiser/, screen/, words/, firmware/{name} ({len(raw)} B)")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    import os
+    args = sys.argv[1:]
+    smk = os.environ.get("SMK37_PAGES") or None
+    if "--smk37" in args:
+        i = args.index("--smk37")
+        if i + 1 >= len(args):
+            sys.exit(__doc__)
+        smk = args[i + 1]
+        del args[i:i + 2]
+    if len(args) != 3:
         sys.exit(__doc__)
-    main(*sys.argv[1:4])
+    main(*args, smk37=smk)

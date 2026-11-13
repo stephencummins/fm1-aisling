@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """docs/MANUAL.md -> docs/manual.html. The Markdown is the source; run this after editing it.
 
-  tools/manual_html.py [IN.md [OUT.html]] [--fragment]
+  tools/manual_html.py [IN.md [OUT.html]] [--fragment] [--part fx1] [--away smk37=URL]
 
 --fragment writes the page without its <!doctype>/<html>/<head>/<body> wrapper (for hosts that
-add their own); the default is a complete document that opens in any browser.
+add their own); the default is a complete document that opens in any browser. --part says whose manual it is (PARTS):
+the FM-1's (the default) at manual/, the FX-1's at fx1/manual/.
 
 Handles what the manual uses: headings, paragraphs, **bold**, `code`, lists, tables, fenced
 code, rules, and the contents list (linked to the sections by number). An image is
@@ -17,6 +18,7 @@ import re
 import sys
 from pathlib import Path
 
+import site_brand
 from site_brand import stamp
 
 SRC = Path(__file__).resolve().parents[1]
@@ -24,7 +26,6 @@ PART_COLOURS = {}                                     # (X0X marks its parts wit
 
 CSS = """
 /* The manual's own, on the site's bench (web/brand/site.css): the contents down the side, the text beside them */
-html { scroll-padding-top: 4rem; }
 .prose { font-size: 14px; line-height: 1.65; }
 .prose > :first-child { margin-top: 0; }
 .prose h2, .prose h3 { font-family: var(--brand-display); font-weight: 600; text-wrap: balance; line-height: 1.25; color: var(--brand-ink); }
@@ -72,7 +73,7 @@ nav.contents ol { list-style: none; margin: 0; padding: 0; }
 nav.contents li { margin: 0; }
 nav.contents a { display: block; padding: 3px 0; color: var(--brand-ink); text-decoration: none; }
 nav.contents a:hover { color: var(--brand-green); text-decoration: underline; }
-@media (min-width: 48rem) { nav.contents { position: sticky; top: 3.5rem; max-height: calc(100vh - 4rem); overflow-y: auto; box-sizing: border-box; } }
+@media (min-width: 48rem) { nav.contents { position: sticky; top: calc(var(--brand-bar) + .45rem); max-height: calc(100vh - var(--brand-bar) - 1rem); overflow-y: auto; box-sizing: border-box; } }
 @media (max-width: 47.99rem) { nav.contents ol { columns: 2 12rem; column-gap: 1.2rem; } nav.contents li { break-inside: avoid; } }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 """
@@ -100,8 +101,9 @@ def on_the_bench(body):
         contents = nav.group(0).replace('<h2 id="contents">Contents</h2>', '<h2 class="bh" id="contents">Contents</h2>')
         contents = contents.replace("<hr>\n", "")
         side = f'<aside class="side">\n{contents}</aside>\n'
-    strip = (f'<div class="strip">\n<h1 class="lab"><b>{title.lower()}</b> · {NAME}, Irish ambient for the M-VAVE FM-1</h1>\n'
-             f'<a class="btn" href="../cheat/">cheat sheet</a>\n</div>\n')
+    part = PARTS[PART]
+    strip = (f'<div class="strip">\n<h1 class="lab"><b>{title.lower()}</b> · {part["name"]}, {part["what"]}</h1>\n'
+             f'<a class="btn" href="{part["button"][0]}">{part["button"][1]}</a>\n</div>\n')
     text = f'<article class="pane prose">\n{body}\n</article>\n'
     return strip + (f'<div class="cols">\n{side}{text}</div>\n' if side else text)
 
@@ -132,7 +134,27 @@ def slug(title):
 
 NAME = "AISLING"
 IMG_BASE = SRC / "docs"
+# whose manual: its name (a "# NAME" title is the manual's own), what it is, where it sits below the site's root, and
+# the strip's button
+PARTS = {"fm1": dict(name=NAME, what="Irish ambient for the M-VAVE FM-1", root="../", button=("../cheat/", "cheat sheet"),
+                     desc="a generative Irish ambient instrument for the M-VAVE FM-1"),
+         "fx1": dict(name=NAME + " FX-1", what="an FM-1 as a USB effects box", root="../../", button=("../controls/", "controls"),
+                     desc="an M-VAVE FM-1 running AISLING's effects on a computer's sound, over USB")}
+PART = "fm1"
 EMBED = False                                         # --fragment: images as data URIs
+
+
+def size(path):
+    """An image's width and height, for its <img> to keep its place before it loads: a lazy image that grows above a
+    heading jumped to from the contents pushes that heading down the page. A PNG's from its header, an SVG's from its
+    viewBox."""
+    data = path.read_bytes()
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    box = re.search(rb'<svg[^>]*?viewBox="[\d.]+ [\d.]+ ([\d.]+) ([\d.]+)"', data)
+    if box:
+        return round(float(box.group(1))), round(float(box.group(2)))
+    raise SystemExit(f"{path}: not a PNG, nor an SVG with a viewBox: its size is unknown")
 
 
 def figure(alt, src, caption=None):
@@ -144,7 +166,8 @@ def figure(alt, src, caption=None):
     else:
         url = src
     cls = "wide" if src.endswith(".svg") else "shot"
-    return (f'<figure class="{cls}"><img src="{url}" alt="{html.escape(alt)}" loading="lazy">'
+    w, h = size(path)
+    return (f'<figure class="{cls}"><img src="{url}" width="{w}" height="{h}" alt="{html.escape(alt)}" loading="lazy">'
             f"<figcaption>{inline(caption)}</figcaption></figure>")
 
 
@@ -194,7 +217,7 @@ def convert(md):
             continue
         if ln.startswith("# "):                         # the title; AISLING's own a way home (the site's root)
             t = ln[2:].strip()
-            if t == NAME:                               # the site's bar is the page's way home
+            if t in (NAME, PARTS[PART]["name"]):        # the site's bar is the page's way home
                 out.append('<h1>Manual</h1>')
             else:
                 out.append(f'<a class="home" href="../">{NAME}</a>\n<h1>{inline(t)}</h1>')
@@ -258,15 +281,28 @@ def convert(md):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if a != "--fragment"]
-    global EMBED
-    fragment = "--fragment" in sys.argv
+    global EMBED, PART
+    argv = sys.argv[1:]
+    if "--part" in argv:
+        i = argv.index("--part")
+        PART = argv[i + 1]
+        if PART not in PARTS:
+            raise SystemExit(f"--part: one of {', '.join(PARTS)}")
+        del argv[i:i + 2]
+    while "--away" in argv:                          # --away KEY=URL: a part whose pages aren't in this build (make_pages)
+        i = argv.index("--away")
+        key, _, url = argv[i + 1].partition("=")
+        site_brand.away(key, url)
+        del argv[i:i + 2]
+    args = [a for a in argv if a != "--fragment"]
+    fragment = "--fragment" in argv
+    name = PARTS[PART]["name"]
     EMBED = fragment
     src = Path(args[0]) if args else SRC / "docs" / "MANUAL.md"
     dst = Path(args[1]) if len(args) > 1 else SRC / "docs" / "manual.html"
     md = src.read_text()
     h1 = re.search(r"^# (.+)$", md, re.M)
-    title, what = (f"Manual · {NAME}", "The manual") if not h1 or h1.group(1) == NAME else (f"{NAME}: {h1.group(1)}", h1.group(1))
+    title, what = (f"Manual · {name}", "The manual") if not h1 or h1.group(1) in (NAME, name) else (f"{NAME}: {h1.group(1)}", h1.group(1))
     body = convert(md)
     if not fragment:
         body = on_the_bench(body)
@@ -274,7 +310,7 @@ def main():
     main_class = "" if fragment else ' class="bench"'
     skip = '<a class="skip" href="#content">Skip to content</a>\n'
     page = (f"<title>{html.escape(title)}</title>\n"
-            f'<meta name="description" content="{html.escape(what)} for {NAME}, a generative Irish ambient instrument for the M-VAVE FM-1.">\n'
+            f'<meta name="description" content="{html.escape(what)} for {name}, {PARTS[PART]["desc"]}.">\n'
             f'<style>{(FRAGMENT_CSS if fragment else "") + CSS}</style>\n{skip}<!--AISLING-BAR-->\n'
             f'<main id="content"{main_class}>\n{body}\n</main>\n')
     if not fragment:
@@ -282,7 +318,7 @@ def main():
         page = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
                 '<meta name="viewport" content="width=device-width, initial-scale=1">\n' + head + "</style>\n" +
                 "<!--AISLING-HEAD-->\n</head>\n<body>\n" + rest + "</body>\n</html>\n")
-        page = stamp(page, "../", "manual")
+        page = stamp(page, PARTS[PART]["root"], "manual", PART)
     else:
         page = page.replace("<!--AISLING-BAR-->\n", "")
     dst.write_text(page)
