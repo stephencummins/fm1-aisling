@@ -222,3 +222,5 @@ the pieces and MIDI CCs for the knobs from Penumbra; Evolve on the bar line is a
 
 M-VAVE and FM-1 are trademarks of their owners. AISLING is not affiliated with M-VAVE, Hügelton Instruments or
 NACHTFAHRT's author.
+
+You can also try AISLING in the browser, no flashing needed, in the free community [FM-1 Emulator](https://fm1-emulator.atst.tools/).
