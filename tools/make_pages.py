@@ -397,6 +397,8 @@ CHOOSER = """<!doctype html>
 .does { margin: 0; font-size: 12.5px; color: var(--brand-muted); }
 .part ul { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0 16px 16px; }
 p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
+.store .bh { margin: 0 0 8px; } .store .state { display: inline; margin-left: 8px; font: 400 12px/1 var(--brand-mono, monospace); text-transform: none; }
+.store p { margin: 0; font-size: 14.5px; max-width: 92ch; }
 /* narrower: one under another, the drawing beside the words; a phone: the drawing above them */
 @media (max-width: 59.99rem) {
   .parts { grid-template-columns: minmax(0, 1fr); }
@@ -429,6 +431,12 @@ turns an FM-1 into an effects box for a computer's sound. Which have you got?</p
 <div class="parts">
 __PARTS__
 </div>
+<section class="pane store" aria-labelledby="storeh">
+<h2 class="bh" id="storeh">Store <span class="state">coming soon</span></h2>
+<p>Vinyl skins for the FM-1, printed and cut by hand, for any case colour and any firmware, with the gear that goes
+with it. The test prints come first; until checkout opens you can
+<a href="https://store.stephen8n.com/">look around the store</a> and see the skins on an FM-1.</p>
+</section>
 <div class="pane">
 <p class="small">AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>), a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, by way of

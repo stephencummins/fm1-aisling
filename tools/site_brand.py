@@ -20,6 +20,7 @@ PRODUCTS = [["fm1", "FM-1", "fm1/", "AISLING on the M-VAVE FM-1: the instrument,
             ["fx1", "FX-1", "fx1/", "AISLING FX-1: an FM-1 as a USB effects box for a computer's sound"],
             ["smk37", "SMK-37", "smk37/", "AISLING on the M-VAVE SMK-37 Elite: 37 keys, pads and faders"]]
 # (the page's key, its label, where it goes: relative to the site's root unless it's a whole URL, what it is)
+STORE = ("store", "store", "https://store.stephen8n.com/", "Skins for the FM-1, printed and cut by hand, and the gear that goes with it: coming soon")
 STEPHEN8N = ("stephen8n", "stephen8n", "https://www.stephen8n.com", "Stephen Cummins's other things")
 NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM-1 runs"),
        ("editor", "editor", "editor/", "Every setting of a piece on one panel, and your FM-1 over USB"),
@@ -30,12 +31,14 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
        ("visualiser", "visualiser", "visualiser/", "An FM-1 running AISLING paints an Irish landscape from its MIDI"),
        ("screen", "screen", "screen/", "A touch screen beside the FM-1: the landscape, the FM-1's own screen, and its knobs"),
        ("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),
+       STORE,
        ("video", "video", "https://youtu.be/3aUARUvwT_Y", "A short film of AISLING and its visualiser, on YouTube"),
        ("source", "source", REPO, "The code, on GitHub"),
        STEPHEN8N)
 FX1_NAV = (("install", "install", "fx1/install/", "Put AISLING FX-1 on your FM-1 from Chrome or Edge"),
            ("controls", "controls", "fx1/controls/", "Every knob, button and key of the FM-1 running FX-1 and what it does, drawn"),
            ("manual", "manual", "fx1/manual/", "Setting it up with a computer, the effects, the screen, and going back"),
+           STORE,
            ("source", "source", "https://github.com/stephencummins/fx1-aisling", "FX-1's code, on GitHub"),
            STEPHEN8N)
 SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, fader and button of the Elite and what it does"],
@@ -43,6 +46,7 @@ SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, 
              ["source", "source", "https://github.com/stephencummins/smk37-aisling", "The SMK-37 Elite's code, on GitHub"],
              STEPHEN8N]
 COMMON = (("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),
+          STORE,
           ("video", "video", "https://youtu.be/3aUARUvwT_Y", "A short film of AISLING and its visualiser, on YouTube"),
           ("source", "source", REPO, "The code, on GitHub"),
           STEPHEN8N)
