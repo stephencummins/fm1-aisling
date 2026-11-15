@@ -1043,19 +1043,22 @@ def controls_page(kind, svg_path):
 # AISLING's words on FX-1's page. Its "Back to the stock firmware" becomes "Going back", pointing at AISLING's page
 FX1_INSTALL_EDITS = (
     ("<title>Install · AISLING</title>", "<title>Install · AISLING FX-1</title>"),
-    ("put AISLING on your FM-1</h1>", "put AISLING FX-1 on your FM-1</h1>"),
+    ("put AISLING on your FM-1</p>", "put AISLING FX-1 on your FM-1</p>"),
+    ("<h1>Install <span>AISLING</span></h1>", "<h1>Install <span>FX-1</span></h1>"),
     ('href="../manual/#recovering', 'href="../../manual/#recovering'),
     ("AISLING is by CÚ_STE", "AISLING FX-1 is by CÚ_STE"),
     ('"https://github.com/stephencummins/fm1-aisling" target="_blank" rel="noopener">github.com/stephencummins/fm1-aisling<',
      f'"{FX1_REPO}" target="_blank" rel="noopener">{FX1_REPO.removeprefix("https://")}<'),
 )
-FX1_INSTALL_BACK = """<section class="pane" id="back">
-  <h2 class="bh" data-t="backh"></h2>
+FX1_INSTALL_BACK = """<details id="back">
+  <summary data-t="backh"></summary>
+  <div class="mg-in">
   <p data-t="back1"></p>
   <p data-t="back2"></p>
   <p class="btns"><a class="btn" href="../../install/" data-t="backgo1"></a>
   <a class="btn" href="../../install/#stock" data-t="backgo2"></a></p>
-  </section>"""
+  </div>
+  </details>"""
 FX1_INSTALL_TEXT = {
     "en": {"ready": "Ready to install AISLING FX-1 ", "manual": "Back to AISLING FX-1",
            "chipother": "not one AISLING FX-1 knows", "backh": "Going back",
@@ -1080,7 +1083,7 @@ def fx1_installer(page):
         if page.count(old) != 1:
             raise SystemExit(f"web/amb_installer.html: {old!r} is not there once, for FX-1's installer")
         page = page.replace(old, new)
-    page, n = re.subn(r'<section class="pane" id="stock">.*?</section>', FX1_INSTALL_BACK, page, flags=re.S)
+    page, n = re.subn(r'<details id="stock">.*?</details>', FX1_INSTALL_BACK, page, flags=re.S)
     if n != 1:
         raise SystemExit("web/amb_installer.html: no one stock section, for FX-1's installer")
     words = "".join(f"Object.assign(TEXT.{lang}, {json.dumps(t, ensure_ascii=False)});\n" for lang, t in FX1_INSTALL_TEXT.items())
