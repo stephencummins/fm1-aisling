@@ -980,7 +980,7 @@ def flows():
     return page
 
 
-SMK37_AWAY = "https://stephencummins.github.io/smk37-aisling/"   # where its pages are published on their own
+SMK37_AWAY = "https://aisling.stephen8n.com/smk37/"   # where its pages are, for a build made without them (github.io's copy is retired)
 
 
 def drawing(path, alt=None):
