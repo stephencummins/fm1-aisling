@@ -1,23 +1,20 @@
 # The Flash Seer
 
-A fortune booth for FM-1 owners. The Bean Feasa asks seven strange questions, deals three cards and tells you which
-firmware from The Firmware Hub to flash. Two decks: the Celtic Mythology deck of [Sídhe](https://sidhe.stephen8n.com)
-and the Voltage Arcana, a synth Major Arcana drawn in `src/voltage.js`.
+A coin-op fortune cabinet for FM-1 owners. Put a coin in, answer seven strange questions, and the Flash Seer prints a
+fortune ticket: three omens, your lucky MIDI channel, tempo, CC and waveform, and the firmware from The Firmware Hub
+that you must flash.
 
 - **Tilt:** the Tilt switch at the foot of the page (or `#tilt` on the address) rigs the machine: it always prescribes
-  AISLING, leans the cards to the ambient ones, and lights a TILT lamp on the case.
-- **The full reading:** on seer.stephen8n.com it comes from Sídhe's engine through `functions/api/reading.js`
-  (the engine sends no CORS headers, so the page can't call it directly). In the claude.ai artifact it comes from Claude.
-- **Speak it aloud:** the browser's own voice on the site, Claude's voice in the artifact.
+  AISLING, leans the omens to the ambient ones, tilts the cabinet and lights a TILT lamp.
+- **Hear her say it:** the browser's own voice on the site, Claude's voice in the claude.ai artifact.
 
 ## Build
 
 ```
-python3 build.py        # dist/index.html (the site), dist/artifact.html (the claude.ai page), dist/cards, dist/img
+python3 build.py        # dist/index.html (the site) and dist/artifact.html (the claude.ai page)
 ```
 
 `src/data/firmwares.json` is a trimmed copy of The Firmware Hub's `catalog.json` (CC BY 4.0), dated in `build.py`.
-`src/data/sidhe-majors.json` and `assets/cards/` come from Sídhe's Celtic Mythology deck (its `/api/decks/.../cards`).
 
 ## Deploy to seer.stephen8n.com (Cloudflare Pages)
 

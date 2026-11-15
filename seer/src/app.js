@@ -1,14 +1,13 @@
 (() => {
   const FW = JSON.parse(document.getElementById("fw-data").textContent);
-  const SIDHE = JSON.parse(document.getElementById("sidhe-data").textContent);
   const $ = (id) => document.getElementById(id);
   $("asof").textContent = "__ASOF__";
-  $("count").textContent = `Seven questions, three cards, ${FW.length} firmwares. Some of the questions are strange. Answer them anyway.`;
+  $("count").textContent = `Seven questions, ${FW.length} firmwares. Some of the questions are strange. Answer them anyway.`;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const rnd = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const firstSentence = (s) => (String(s).match(/^.*?[.!?](\s|$)/) || [s])[0].trim();
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   const inViewer = !!(window.claude && window.claude.use);
 
@@ -60,51 +59,29 @@
       ["Cables are a cry for help", { tracker: 1, play: 1 }], ["Ask me after the gig", { groove: 2 }]]],
   ];
   const N = 7;
-  const POSITIONS = ["What hums in you", "What you seek", "What you must flash"];
-  const KIND_NAME = { synth: "synth", groove: "groovebox", drums: "drums", tracker: "tracker", chords: "chords", other: "other" };
+  const KIND_NAME = { synth: "synth", groove: "groovebox", drums: "drums", tracker: "tracker", chords: "chords", other: "something else" };
 
-  /* ---------- the two decks, in one shape ---------- */
-  const SIDHE_TRAITS = {
-    "fool": ["other", "obscure"], "magician": ["synth", "play"], "high-priestess": ["synth", "ambient"],
-    "empress": ["popular", "chords"], "emperor": ["tracker", "popular"], "hierophant": ["vintage"],
-    "lovers": ["chords"], "chariot": ["drums", "groove"], "strength": ["drums"], "hermit": ["tracker", "ambient"],
-    "wheel-of-fortune": ["groove", "play"], "justice": ["tracker"], "hanged-man": ["other", "obscure"],
-    "death": ["vintage"], "temperance": ["chords", "ambient"], "devil": ["groove", "drums"], "tower": ["drums"],
-    "star": ["ambient"], "moon": ["ambient", "other"], "sun": ["groove", "popular"], "judgement": ["vintage", "obscure"],
-    "world": ["popular"],
+  /* ---------- what the ticket says ---------- */
+  const OMENS = {
+    ambient: ["A long note is coming your way. Do not interrupt it.", "You will spend an evening watching a drone and call it work.", "Fog is on your side this week."],
+    groove: ["Your foot is already tapping. The neighbours have noticed.", "A bassline will follow you home. Let it in.", "Somewhere, a crowd is waiting for the drop. It is you."],
+    drums: ["Something will be hit, repeatedly, and it will be your decision.", "A hi-hat will change your life. Possibly an open one.", "Thunder recognises you as one of its own."],
+    tracker: ["You will find peace in hexadecimal. Tell no one.", "A column of numbers will make you weep, in a good way.", "Your future is in pattern 0F, row 3C."],
+    chords: ["A minor seventh will change your week.", "Someone will ask what that chord was. You won't know.", "Harmony is in your stars, and it is slightly jazzy."],
+    synth: ["An oscillator is thinking about you right now.", "You will turn a knob and something will happen.", "Electricity has chosen you. Do not resist."],
+    vintage: ["An old cassette holds the answer. You taped over it in 1991.", "Something beige from the eighties will speak to you.", "Dust off the past. It still has batteries in it."],
+    other: ["The cat has a plan. Go along with it.", "You are not like the others. Neither is your firmware.", "A strange noise will become your favourite noise."],
+    obscure: ["You will love something nobody else has heard of. Keep it that way.", "Twelve people will understand you. That is plenty.", "The road less flashed is calling."],
+    popular: ["Ten thousand people cannot be wrong. Probably.", "You will join a crowd and enjoy it, against your better judgement.", "Fortune favours the well-reviewed."],
+    play: ["Try before you flash and you will never flash in vain.", "Your browser knows more than it lets on.", "Caution is a kind of courage. A small kind."],
   };
-  const SIDHE_NUM = { "fool": "0", "magician": "I", "high-priestess": "II", "empress": "III", "emperor": "IV", "hierophant": "V",
-    "lovers": "VI", "chariot": "VII", "strength": "VIII", "hermit": "IX", "wheel-of-fortune": "X", "justice": "XI",
-    "hanged-man": "XII", "death": "XIII", "temperance": "XIV", "devil": "XV", "tower": "XVI", "star": "XVII", "moon": "XVIII",
-    "sun": "XIX", "judgement": "XX", "world": "XXI" };
-  const VBACK = `<svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="300" rx="10" fill="#1d1c1a"/>
-    <rect x="10" y="10" width="180" height="280" rx="6" fill="none" stroke="#ff5a1f" stroke-width="1.5"/>
-    ${Array.from({ length: 30 }, (_, i) => `<circle cx="${40 + (i % 5) * 30}" cy="${60 + Math.floor(i / 5) * 36}" r="7" fill="#bfb9ac"/><circle cx="${40 + (i % 5) * 30}" cy="${60 + Math.floor(i / 5) * 36}" r="3.4" fill="#1d1c1a"/>`).join("")}
-    <path d="M40 60 C40 120 130 100 130 168 M160 96 C160 160 70 170 70 240" fill="none" stroke="#ff5a1f" stroke-width="4" stroke-linecap="round"/>
-    <path d="M100 132 C100 190 40 200 40 276" fill="none" stroke="#f2c500" stroke-width="4" stroke-linecap="round"/></svg>`;
-  const DECKS = {
-    sidhe: {
-      title: "the Sídhe Celtic Mythology deck", storyWord: "story", meaningType: "celtic",
-      cards: SIDHE.map((c) => ({ slug: c.slug, name: c.name, trad: c.name, num: SIDHE_NUM[c.slug], traits: SIDHE_TRAITS[c.slug] || ["other"],
-        kw: c.kw, up: c.up, rev: c.rev, story: c.myth })),
-      front: (c) => `<img class="front" src="cards/${c.slug}${reduce ? "-still" : ""}.webp" alt="${esc(c.name)}${c.rev_ ? ", reversed" : ""}, from the Sídhe Celtic deck" width="240" height="360">`,
-      back: () => `<img class="back" src="img/back.webp" alt="" width="240" height="430">`,
-    },
-    voltage: {
-      title: "the Voltage Arcana, a Major Arcana for synthesists", storyWord: "lore", meaningType: "traditional",
-      cards: VOLTAGE.map((c) => ({ slug: c.slug, name: c.name, trad: c.trad, num: c.num, traits: c.traits, kw: c.kw, up: c.up, rev: c.rev, story: c.lore, svg: c.svg })),
-      front: (c) => `<div class="vfront" role="img" aria-label="${esc(c.name)}${c.rev_ ? ", reversed" : ""}, from the Voltage Arcana">${c.svg}</div>`,
-      back: () => `<div class="vback" aria-hidden="true">${VBACK}</div>`,
-    },
-  };
-  let deckKey = DECKS[store.get("seer-deck")] ? store.get("seer-deck") : "sidhe";
-  const deckBtns = [...document.querySelectorAll(".decks button")];
-  function setDeck(k) {
-    deckKey = k; store.set("seer-deck", k);
-    deckBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.deck === k)));
-  }
-  deckBtns.forEach((b) => b.addEventListener("click", () => { setDeck(b.dataset.deck); tick(); }));
-  setDeck(deckKey);
+  const ECHOES = [
+    (a) => `You said "${a}". The machine has made a note.`,
+    (a) => `"${a}", you said. The machine believes you.`,
+    (a) => `When you said "${a}", a bulb flickered. That is significant.`,
+    (a) => `The machine heard "${a}" and will not forget it.`,
+  ];
+  const WAVES = ["sine", "saw", "square", "triangle", "noise", "a wave nobody has named yet"];
 
   /* ---------- tilt: the machine always says AISLING ---------- */
   const AISLING = FW.find((f) => f.n === "AISLING") || FW.find((f) => /aisling/i.test(f.n));
@@ -112,7 +89,7 @@
   const tiltBtn = $("tilt");
   function setTilt(on) {
     tilted = on && !!AISLING; store.set("seer-tilt", tilted ? "1" : "0");
-    $("case").classList.toggle("tilted", tilted);
+    $("cabinet").classList.toggle("tilted", tilted);
     tiltBtn.setAttribute("aria-pressed", String(tilted));
     tiltBtn.textContent = tilted ? "Tilted" : "Tilt";
   }
@@ -208,47 +185,56 @@
       car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
     } catch (e) {}
   }
-  const coinSound = () => { bell(1320, 0, 0.25, 1.41, 6, 0.11); bell(990, 0.09, 0.35, 1.41, 5, 0.09); };
+  const coinSound = () => { bell(1320, 0, 0.25, 1.41, 6, 0.11); bell(990, 0.09, 0.35, 1.41, 5, 0.09); bell(140, 0.3, 0.3, 1, 2, 0.12); };
   const tick = () => bell(587 + Math.random() * 196, 0, 0.3, 2, 1.5, 0.06);
-  const flipSound = (i) => bell([392, 493.88, 587.33][i] || 440, 0, 1.8, 3.5, 2.2, 0.11);
+  const printSound = () => { for (let i = 0; i < 18; i++) bell(2400 + Math.random() * 600, i * 0.1, 0.05, 1.7, 8, 0.03); bell(784, 2.0, 1.4, 3.5, 2, 0.1); bell(1046.5, 2.15, 1.6, 3.5, 2, 0.1); };
 
-  /* ---------- the full reading and the voice: claude.ai's runtime inside a viewer, Sídhe's engine and the browser's voice on the site ---------- */
-  let sample = null, tts = null;
+  /* ---------- the machine's voice: claude.ai's inside a viewer, the browser's on the site ---------- */
+  let tts = null;
   const webVoice = !inViewer && "speechSynthesis" in window;
-  if (inViewer) {
-    claude.use("sample").then((s) => { sample = s; refreshActions(); }).catch(() => {});
-    claude.use("tts").then((t) => { tts = t; refreshActions(); t?.onState?.(({ state }) => { speaking = state === "speaking" ? 1 : 0; }); }).catch(() => {});
-  }
-  const canAsk = () => inViewer ? !!sample : true;
+  if (inViewer) claude.use("tts").then((t) => { tts = t; refreshSay(); t?.onState?.(({ state }) => { speaking = state === "speaking" ? 1 : 0; }); }).catch(() => {});
   const canSay = () => inViewer ? !!tts : webVoice;
-  let current = null;
-  function refreshActions() {
-    if (!current) return;
-    const ask = $("ask"), say = $("say");
-    if (ask) ask.hidden = !canAsk();
-    if (say) say.hidden = !canSay();
-  }
+  function refreshSay() { const b = $("say"); if (b) b.hidden = !canSay(); }
   function stopVoice() { try { tts?.stop?.(); } catch (e) {} try { if (webVoice) speechSynthesis.cancel(); } catch (e) {} speaking = 0; }
+  async function say(text) {
+    stopVoice();
+    if (muted) return;
+    if (inViewer && tts) {
+      try { speaking = 1; await tts.speak(text, { voice: "airy", rate: 0.92 }); }
+      catch (e) { if (e?.code === "not_granted") { tts = null; refreshSay(); } }
+      finally { speaking = 0; }
+    } else if (webVoice) {
+      const u = new SpeechSynthesisUtterance(text);
+      const vs = speechSynthesis.getVoices();
+      const v = vs.find((v) => /en-IE/i.test(v.lang)) || vs.find((v) => /en-GB/i.test(v.lang));
+      if (v) u.voice = v;
+      u.rate = 0.92; u.pitch = 0.85;
+      u.onstart = () => { speaking = 1; }; u.onend = u.onerror = () => { speaking = 0; };
+      speechSynthesis.speak(u);
+    }
+  }
 
   /* ---------- the game ---------- */
-  const stage = $("stage"), result = $("result"), voice = $("voice");
-  let asked = [], traits = {}, heard = [];
-  const MURMURS = ["Hm.", "I see.", "The cards stir.", "Go on.", "As I thought.", "The orb warms.", "Interesting."];
+  const stage = $("stage"), result = $("result"), voice = $("voice"), coinBtn = $("coin");
+  let asked = [], traits = {}, heard = [], current = null;
+  const MURMURS = ["Hm.", "I see.", "The bulbs flicker.", "Go on.", "As I suspected.", "The orb warms.", "Interesting.", "Noted."];
+  const intro = stage.innerHTML;
 
   function start() {
     coinSound(); stir(); stopVoice();
+    coinBtn.disabled = true;
     asked = shuffle(Q).slice(0, N); traits = {}; heard = []; current = null;
     result.hidden = true; result.innerHTML = "";
     ask(0);
+    $("stage").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   }
   function ask(i) {
     const [q, answers] = asked[i];
     voice.textContent = q;
-    stage.hidden = false;
     const order = shuffle(answers);
     stage.innerHTML = `
       <div class="progress"><span>Question ${i + 1} of ${N}</span><span class="pips" aria-hidden="true">${Array.from({ length: N }, (_, k) => `<b class="${k <= i ? "on" : ""}"></b>`).join("")}</span></div>
-      <ul class="answers">${order.map((a, k) => `<li><button type="button" data-k="${k}"><kbd>${"ABCD"[k]}</kbd><span>${esc(a[0])}</span></button></li>`).join("")}</ul>`;
+      <ul class="answers">${order.map((a, k) => `<li><button type="button"><kbd>${"ABCD"[k]}</kbd><span>${esc(a[0])}</span></button></li>`).join("")}</ul>`;
     stage.querySelectorAll("button").forEach((b, k) => b.addEventListener("click", () => answer(i, order[k])));
     stage.querySelector("button").focus({ preventScroll: true });
   }
@@ -277,165 +263,72 @@
     }).sort((a, b) => b[0] - a[0]).slice(0, 5);
     return weighted(top.map(([, f], k) => [f, 5 - k]));
   }
-  function chooseCards(deck) {
-    const lean = tilted ? { ...traits, ambient: (traits.ambient || 0) + 8, synth: (traits.synth || 0) + 4 } : traits;
-    const out = [];
-    while (out.length < 3) {
-      const left = deck.cards.filter((c) => !out.includes(c));
-      out.push(weighted(left.map((c) => [c, 1 + c.traits.reduce((t, k) => t + (lean[k] || 0), 0) ** 1.4])));
-    }
-    return out.map((c) => ({ ...c, rev_: Math.random() < (tilted ? 0.12 : 0.3) }));
+  function writeFortune(fw) {
+    const lean = tilted ? { ...traits, ambient: (traits.ambient || 0) + 6 } : traits;
+    const ranked = Object.entries(lean).sort((a, b) => b[1] - a[1] || Math.random() - 0.5).map(([k]) => k);
+    const first = ranked[0] || "other", second = ranked.find((k) => k !== first) || "synth";
+    return {
+      omens: [pick(OMENS[first]), pick(ECHOES)(pick(heard)), pick(OMENS[second])],
+      lucky: { "MIDI channel": rnd(1, 16), "Tempo": `${rnd(62, 174)} BPM`, "CC number": rnd(1, 119), "Waveform": pick(WAVES) },
+    };
   }
 
   function divine() {
-    stage.hidden = true;
-    voice.textContent = "Let me shuffle…";
+    stage.innerHTML = `<p class="note">The machine is thinking…</p>`;
+    voice.textContent = "The spirits of the flash chip are consulted…";
     excite = 1.8;
-    const deck = DECKS[deckKey];
-    const fw = chooseFirmware(), cards = chooseCards(deck);
-    setTimeout(() => show(deck, fw, cards), reduce ? 0 : 900);
+    const fw = chooseFirmware(), f = writeFortune(fw);
+    current = { fw, f };
+    setTimeout(() => {
+      voice.textContent = "Your fortune is printed. Take it from the slot.";
+      printTicket(fw, f);
+    }, reduce ? 0 : 1300);
   }
 
-  const fallbackReading = (fw, cards) =>
-    cards.map((c, i) => `${POSITIONS[i]}: ${c.name}${c.rev_ ? ", reversed" : ""}. ${firstSentence(c.rev_ ? c.rev : c.up)}`).join("\n")
-    + `\n\nThe cards point one way: flash ${fw.n}.`;
-
-  function show(deck, fw, cards) {
-    current = { deck, fw, cards };
-    voice.textContent = "Your cards.";
+  function printTicket(fw, f) {
+    printSound(); stir();
+    const no = String(rnd(1, 9999)).padStart(4, "0");
     const links = [
-      fw.r && `<a href="https://github.com/${esc(fw.r)}" target="_blank" rel="noopener">Source on GitHub</a>`,
+      fw.r && `<a href="https://github.com/${esc(fw.r)}" target="_blank" rel="noopener">Source</a>`,
       fw.p && `<a href="${esc(fw.p)}" target="_blank" rel="noopener">Try it in the browser</a>`,
-      `<a href="https://thefirmwarehub.com" target="_blank" rel="noopener">Install from the hub</a>`,
+      `<a href="https://thefirmwarehub.com" target="_blank" rel="noopener">The Firmware Hub</a>`,
     ].filter(Boolean).join("");
+    const what = fw.w && fw.w.length > 220 ? fw.w.slice(0, 217).replace(/\s+\S*$/, "") + "…" : fw.w;
     result.innerHTML = `
-      <div class="spread">${cards.map((c, i) => `
-        <div class="pos">
-          <span class="pos-label">${POSITIONS[i]}</span>
-          <div class="card${c.rev_ ? " rev" : ""}" id="card${i}"><div class="card-inner">${deck.front(c)}${deck.back()}</div></div>
-          <p class="card-name">${esc(c.name)}</p>
-          <span class="card-state">${c.num} · ${c.rev_ ? "reversed" : "upright"}</span>
-          <p class="card-kw">${esc(c.kw.slice(0, 2).join(", "))}</p>
-        </div>`).join("")}
+      <div class="ticket-run">
+        <article class="ticket" aria-label="Your fortune">
+          <header class="t-head"><b>Your Fortune</b><span>No. ${no} · read by the Flash Seer</span></header>
+          ${f.omens.map((o) => `<p class="fortune">${esc(o)}</p>`).join("")}
+          <dl class="lucky">${Object.entries(f.lucky).map(([k, v]) => `<div><dt>Lucky ${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+          <div class="prescribe">
+            <small>The machine prescribes</small>
+            <h2 class="fw-name">${esc(fw.n)}</h2>
+            <p class="fw-by">by ${esc(fw.a)}</p>
+          </div>
+          ${what ? `<p class="fw-what">${esc(what)}</p>` : ""}
+          <p class="fw-meta">${esc(KIND_NAME[fw.k] || fw.k)}${fw.v ? ` · ${esc(fw.v)}${fw.b ? " beta" : ""}` : ""}${fw.id ? ` · ${esc(fw.id)}` : ""} · ${fw.i.toLocaleString("en-GB")} installs</p>
+          <div class="links">${links}</div>
+          <p class="t-foot">Keep this ticket. Show it to your FM-1.</p>
+        </article>
       </div>
-      <section class="reading" aria-live="polite">
-        <h2>The reading</h2>
-        <p class="reading-text" id="reading">${esc(fallbackReading(fw, cards))}</p>
-        <div class="reading-actions">
-          <button class="ghost" id="ask" type="button" hidden>Hear her full reading</button>
-          <button class="ghost" id="say" type="button" hidden>Speak it aloud</button>
-        </div>
-        <p class="fine" id="ask-note" hidden></p>
-      </section>
-      <article class="ticket" aria-label="Your firmware">
-        <span class="eyebrow">Flash this</span>
-        <h2 class="fw-name">${esc(fw.n)}</h2>
-        <p class="fw-by">by ${esc(fw.a)}</p>
-        ${fw.w ? `<p class="fw-what">${esc(fw.w)}</p>` : ""}
-        <dl class="specs">
-          <div><dt>Kind</dt><dd>${esc(KIND_NAME[fw.k] || fw.k)}${fw.am ? " · ambient" : ""}${fw.vi ? " · vintage" : ""}</dd></div>
-          ${fw.v ? `<div><dt>Version</dt><dd>${esc(fw.v)}${fw.b ? " beta" : ""}</dd></div>` : ""}
-          ${fw.id ? `<div><dt>Identity</dt><dd>${esc(fw.id)}</dd></div>` : ""}
-          <div><dt>Installs</dt><dd>${fw.i.toLocaleString("en-GB")}</dd></div>
-        </dl>
-        <div class="links">${links}</div>
-      </article>
-      <section class="myths" aria-label="The stories behind the cards">
-        ${cards.map((c) => `<details><summary>The ${deck.storyWord} of ${esc(c.name)}</summary><p>${esc(c.story)}</p></details>`).join("")}
-      </section>
-      <p class="heard">She heard: ${heard.map((h) => `<em>${esc(h)}</em>`).join(", ")}.</p>
-      <button class="coin" id="again" type="button">Another coin</button>`;
+      <div class="after">
+        <button class="btn line" id="say" type="button" hidden>Hear her say it</button>
+        <button class="btn gold" id="again" type="button">Another coin</button>
+      </div>`;
     result.hidden = false;
-    cards.forEach((c, i) => setTimeout(() => { $("card" + i).classList.add("open"); flipSound(i); stir(); }, reduce ? 0 : 500 + i * 900));
-    setTimeout(() => { voice.textContent = `${fw.n}. That is what you must flash.`; }, reduce ? 0 : 3200);
-    $("again").addEventListener("click", start);
-    $("ask").addEventListener("click", askSeer);
-    $("say").addEventListener("click", sayIt);
-    refreshActions();
-    result.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    stage.innerHTML = intro;
+    $("count").textContent = `She heard: ${heard.join(" · ")}.`;
+    coinBtn.disabled = false;
+    $("again").addEventListener("click", () => { $("cabinet").scrollIntoView({ behavior: reduce ? "auto" : "smooth" }); start(); });
+    $("say").addEventListener("click", () => say(`${f.omens.join(" ")} The machine prescribes ${fw.n}, by ${fw.a}.`));
+    refreshSay();
+    setTimeout(() => result.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), reduce ? 0 : 400);
   }
 
-  /* Claude, inside a viewer */
-  function seerPrompt({ deck, fw, cards }) {
-    const lines = cards.map((c, i) => `${i + 1}. ${POSITIONS[i]}: ${c.name}${c.trad !== c.name ? ` (it stands for ${c.trad})` : ""}, ${c.rev_ ? "reversed" : "upright"}.
-   Meaning: ${c.rev_ ? c.rev : c.up}
-   Its ${deck.storyWord}: ${c.story}`).join("\n");
-    return `You are An Bhean Feasa, the wise woman inside a fortune-telling booth. Tonight you read ${deck.title}. A visitor asked you which firmware to flash on their M-VAVE FM-1, a small FM synthesizer. Give their reading.
-
-Their answers to your seven odd questions: ${heard.map((h) => `"${h}"`).join("; ")}.
-
-The three-card spread:
-${lines}
-
-The firmware the cards chose: ${fw.n} by ${fw.a}. Its maker describes it: "${fw.w}"
-
-Write the reading in 130 to 170 words, in plain text with no markdown, headings or lists. Speak to the visitor as "you", warm and a little uncanny, with a light Irish turn of phrase. Walk through the three cards in order, naming each card and what its ${deck.storyWord} tells, and tie at least two of their answers into it. Read a reversed card by its reversed meaning. Finish with one sentence that tells them to flash ${fw.n} and why, using only what the maker's description says about it.`;
-  }
-  /* Sídhe's engine, on the site (through /api/reading, which forwards to it) */
-  function engineRequest({ deck, fw, cards }) {
-    const deckNote = deck === DECKS.voltage
-      ? ` The cards are from the Voltage Arcana, a synth deck: ${cards.map((c) => `${c.name} stands for ${c.trad}`).join("; ")}. Read them in that spirit.` : "";
-    return {
-      cards: cards.map((c, i) => ({ name: c.trad, position: POSITIONS[i], isReversed: c.rev_ })),
-      question: `Which firmware should I flash on my M-VAVE FM-1 synthesizer? The cards chose ${fw.n} by ${fw.a}: ${fw.w} My answers to the seer's questions were: ${heard.join("; ")}.${deckNote} Please keep the reading short.`.slice(0, 1500),
-      spreadName: "Three Card Spread",
-      meaningType: deck.meaningType,
-    };
-  }
-  const renderText = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*(.+?)\*/g, "<em>$1</em>");
-
-  let ctl = null;
-  async function askSeer() {
-    if (!current) return;
-    const btn = $("ask"), out = $("reading"), note = $("ask-note");
-    btn.disabled = true; note.hidden = true;
-    const before = out.innerHTML;
-    out.textContent = "She gazes into the orb…";
-    speaking = 1; excite = 1.5;
-    try {
-      if (inViewer) {
-        if (!sample) throw { code: "unavailable" };
-        ctl = new AbortController();
-        const { text } = await sample(seerPrompt(current), { modelTier: "quick", signal: ctl.signal, onText: ({ text }) => { out.textContent = text; excite = 0.8; } });
-        out.textContent = text;
-      } else {
-        const r = await fetch("api/reading", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(engineRequest(current)) });
-        if (!r.ok) throw { code: r.status === 429 ? "rate_limited" : "engine" };
-        const { interpretation } = await r.json();
-        if (!interpretation) throw { code: "engine" };
-        out.innerHTML = renderText(interpretation);
-      }
-      btn.textContent = "Ask again";
-    } catch (e) {
-      out.innerHTML = e?.text ? esc(e.text) : before;
-      note.hidden = false;
-      note.textContent = e?.code === "not_granted" ? "She can only give the full reading if you allow this page to ask Claude." :
-        e?.code === "rate_limited" ? "She is tired. Try again in a minute." : "The orb clouded over. The short reading above still stands.";
-      if (e?.code === "not_granted") btn.hidden = true;
-    } finally { btn.disabled = false; speaking = 0; }
-  }
-  async function sayIt() {
-    if (!current) return;
-    stopVoice();
-    const text = $("reading").textContent.slice(0, 2000);
-    if (inViewer && tts) {
-      try { speaking = 1; await tts.speak(text, { voice: "airy", rate: 0.92 }); }
-      catch (e) { if (e?.code === "not_granted") $("say").hidden = true; }
-      finally { speaking = 0; }
-    } else if (webVoice) {
-      const u = new SpeechSynthesisUtterance(text);
-      const v = speechSynthesis.getVoices().find((v) => /en-IE/i.test(v.lang)) || speechSynthesis.getVoices().find((v) => /en-GB/i.test(v.lang));
-      if (v) u.voice = v;
-      u.rate = 0.92; u.pitch = 0.9;
-      u.onstart = () => { speaking = 1; }; u.onend = u.onerror = () => { speaking = 0; };
-      speechSynthesis.speak(u);
-    }
-  }
-
-  $("coin").addEventListener("click", start);
+  coinBtn.addEventListener("click", start);
   setTilt(tilted);
   document.addEventListener("keydown", (e) => {
-    if (stage.hidden || e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.("input, textarea")) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
     const k = "abcd".indexOf(e.key.toLowerCase());
     const btns = stage.querySelectorAll(".answers button");
     if (k >= 0 && btns[k]) btns[k].click();
