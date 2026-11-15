@@ -179,7 +179,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 </section>
 <section id="cheat" aria-labelledby="cheath">
 <div class="mg-num" aria-hidden="true">06</div>
-<a class="mg-tile type" href="cheat/" tabindex="-1" aria-hidden="true">One<br>sheet</a>
+<a class="mg-tile type" href="cheat/" tabindex="-1" aria-hidden="true"><span><small>more what you'd call</small>Guidelines<small>than actual rules</small></span></a>
 <h2 id="cheath">Cheat sheet</h2>
 <p>The steps drawn as flows, then every control and the eight pieces, to print on one sheet.</p>
 <p class="mg-go"><a class="btn go" href="cheat/">Open the cheat sheet</a></p>
