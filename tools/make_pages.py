@@ -399,6 +399,16 @@ CHOOSER = """<!doctype html>
 p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 .store .bh { margin: 0 0 8px; } .store .state { display: inline; margin-left: 8px; font: 400 12px/1 var(--brand-mono, monospace); text-transform: none; }
 .store p { margin: 0; font-size: 14.5px; max-width: 92ch; }
+/* the store's skins, each on the case it suits best: the store's own pictures, in web/brand/skins/ */
+.skins { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 14px 0 0; padding: 0; }
+.skins a { display: block; text-decoration: none; color: inherit; }
+.skins img { display: block; width: 100%; height: auto; aspect-ratio: 640 / 382; border-radius: 6px; background: var(--brand-line, #ddd);
+  transition: transform .15s ease; }
+.skins a:hover img, .skins a:focus-visible img { transform: translateY(-3px) rotate(-1deg); }
+.skins span { display: block; margin-top: 6px; font: 400 12px/1.2 var(--brand-mono, monospace); color: var(--brand-muted); }
+@media (max-width: 59.99rem) { .skins { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 29.99rem) { .skins { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .skins img { transition: none; } .skins a:hover img, .skins a:focus-visible img { transform: none; } }
 /* narrower: one under another, the drawing beside the words; a phone: the drawing above them */
 @media (max-width: 59.99rem) {
   .parts { grid-template-columns: minmax(0, 1fr); }
@@ -436,6 +446,15 @@ __PARTS__
 <p>Vinyl skins for the FM-1, printed and cut by hand, for any case colour and any firmware, with the gear that goes
 with it. The test prints come first; until checkout opens you can
 <a href="https://store.stephen8n.com/">look around the store</a> and see the skins on an FM-1.</p>
+<ul class="skins">
+<li><a href="https://store.stephen8n.com/#p-swatch"><img src="skins/swatch.webp" width="640" height="382" loading="lazy" alt="The Swatch skin on a cool grey FM-1"><span>Swatch</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-flightdeck"><img src="skins/flightdeck.webp" width="640" height="382" loading="lazy" alt="The Flight Deck skin on a cool grey FM-1"><span>Flight Deck</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-kinetic"><img src="skins/kinetic.webp" width="640" height="382" loading="lazy" alt="The Kinetic skin on a cool grey FM-1"><span>Kinetic</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-map"><img src="skins/map.webp" width="640" height="382" loading="lazy" alt="The Map skin on a white-blue FM-1"><span>Map</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-neonrain"><img src="skins/neonrain.webp" width="640" height="382" loading="lazy" alt="The Neon Rain skin on a black FM-1"><span>Neon Rain</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-synthwave"><img src="skins/synthwave.webp" width="640" height="382" loading="lazy" alt="The Synthwave skin on a black FM-1"><span>Synthwave</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-ticker"><img src="skins/ticker.webp" width="640" height="382" loading="lazy" alt="The Ticker skin on a black FM-1"><span>Ticker</span></a></li>
+</ul>
 </section>
 <div class="pane">
 <p class="small">AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>), a fork of
