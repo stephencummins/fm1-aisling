@@ -97,6 +97,33 @@
   tiltBtn.addEventListener("click", () => { setTilt(!tilted); sfx.bell(tilted ? 220 : 330, 0, 0.5, 1.5, 4, 0.12); rig.jolt(); });
   addEventListener("hashchange", () => { if (location.hash === "#tilt") setTilt(true); });
 
+  /* ---------- two ways to answer: the machine's one synth card, or the seer's reading of three Celtic cards ---------- */
+  const SIDHE_TRAITS = {
+    "fool": ["other", "obscure"], "magician": ["synth", "play"], "high-priestess": ["synth", "ambient"],
+    "empress": ["popular", "chords"], "emperor": ["tracker", "popular"], "hierophant": ["vintage"],
+    "lovers": ["chords"], "chariot": ["drums", "groove"], "strength": ["drums"], "hermit": ["tracker", "ambient"],
+    "wheel-of-fortune": ["groove", "play"], "justice": ["tracker"], "hanged-man": ["other", "obscure"],
+    "death": ["vintage"], "temperance": ["chords", "ambient"], "devil": ["groove", "drums"], "tower": ["drums"],
+    "star": ["ambient"], "moon": ["ambient", "other"], "sun": ["groove", "popular"], "judgement": ["vintage", "obscure"],
+    "world": ["popular"],
+  };
+  const SIDHE_NUM = { "fool": "0", "magician": "I", "high-priestess": "II", "empress": "III", "emperor": "IV", "hierophant": "V",
+    "lovers": "VI", "chariot": "VII", "strength": "VIII", "hermit": "IX", "wheel-of-fortune": "X", "justice": "XI",
+    "hanged-man": "XII", "death": "XIII", "temperance": "XIV", "devil": "XV", "tower": "XVI", "star": "XVII", "moon": "XVIII",
+    "sun": "XIX", "judgement": "XX", "world": "XXI" };
+  const CELTIC = JSON.parse(document.getElementById("sidhe-data").textContent)
+    .map((c) => ({ ...c, num: SIDHE_NUM[c.slug] || "", traits: SIDHE_TRAITS[c.slug] || ["other"] }));
+  const POSITIONS = ["What hums in you", "What you seek", "What you must flash"];
+  let mode = store.get("seer-mode") === "reading" ? "reading" : "machine";
+  const modeBtns = [...document.querySelectorAll(".modes button")];
+  function setMode(m) {
+    mode = m; store.set("seer-mode", m);
+    modeBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    $("slot-label").textContent = m === "reading" ? "Your cards" : "Your card";
+  }
+  modeBtns.forEach((b) => b.addEventListener("click", () => { setMode(b.dataset.mode); tick(); }));
+  const lockModes = (on) => modeBtns.forEach((b) => { b.disabled = on; });
+
   /* ---------- the animatronic: a porcelain-masked seer in a hood, on wires and cams ---------- */
   const rig = (() => {
     const cv = $("seer"), g = cv.getContext("2d"), W = cv.width, H = cv.height;
@@ -353,7 +380,7 @@
 
   function start() {
     coinSound(); sfx.startMusic(); stopVoice(); rig.jolt();
-    coinBtn.disabled = true;
+    coinBtn.disabled = true; lockModes(true);
     asked = shuffle(Q).slice(0, N); traits = {}; heard = [];
     result.hidden = true; result.innerHTML = ""; dispense.innerHTML = "";
     rig.mode("asking");
@@ -401,12 +428,74 @@
     return weighted(VOLTAGE.cards.map((c) => [c, 1 + c.traits.reduce((t, k) => t + (lean[k] || 0), 0) ** 1.4]));
   }
 
+  function chooseCeltic() {
+    const lean = tilted ? { ...traits, ambient: (traits.ambient || 0) + 8, synth: (traits.synth || 0) + 4 } : traits;
+    const out = [];
+    while (out.length < 3) {
+      const left = CELTIC.filter((c) => !out.includes(c));
+      out.push(weighted(left.map((c) => [c, 1 + c.traits.reduce((t, k) => t + (lean[k] || 0), 0) ** 1.4])));
+    }
+    return out.map((c) => ({ ...c, rev_: Math.random() < (tilted ? 0.1 : 0.25) }));
+  }
+
   function divine() {
+    const fw = chooseFirmware();
+    if (mode === "reading") {
+      stage.innerHTML = `<p class="note">She shuffles the Celtic cards…</p>`;
+      rig.mode("reveal"); frenzy(true); sfx.swell(); whirr();
+      speak("Let me shuffle the old cards… three of them want to speak to you.", true);
+      const cards = chooseCeltic();
+      setTimeout(() => dealReading(fw, cards), reduce ? 0 : 2600);
+      return;
+    }
     stage.innerHTML = `<p class="note">The machine is consulting the spirits of the flash chip…</p>`;
     rig.mode("reveal"); frenzy(true); sfx.swell(); whirr();
     speak("The spirits are stirring… the card is coming…", true);
-    const fw = chooseFirmware(), card = chooseCard();
+    const card = chooseCard();
     setTimeout(() => deal(fw, card), reduce ? 0 : 2400);
+  }
+
+  function dealReading(fw, cards) {
+    dispense.innerHTML = `<div class="spread">${cards.map((c, i) => `
+      <div class="pos">
+        <span class="pos-label">${POSITIONS[i]}</span>
+        <div class="tcard${c.rev_ ? " rev" : ""}" id="tcard${i}" hidden><div class="tcard-inner">
+          <img class="front" src="cards/${c.slug}${reduce ? "-still" : ""}.webp" alt="${esc(c.name)}${c.rev_ ? ", reversed" : ""}, from the Sídhe Celtic deck" width="240" height="360">
+          <img class="back" src="img/back.webp" alt="" width="240" height="430">
+        </div></div>
+      </div>`).join("")}</div>`;
+    dispense.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    const gap = reduce ? 0 : 1100;
+    cards.forEach((c, i) => setTimeout(() => { const el = $("tcard" + i); el.hidden = false; el.classList.add("out"); sfx.bell(220, 0, 0.4, 1.5, 3, 0.08); }, i * gap * 0.5));
+    cards.forEach((c, i) => setTimeout(() => {
+      $("tcard" + i).classList.add("open"); sfx.bell([392, 493.88, 587.33][i], 0, 1.8, 3.5, 2.2, 0.11, 0.5); rig.jolt();
+      speak(`${POSITIONS[i]}… ${c.name}${c.rev_ ? ", reversed" : ""}.`, true);
+    }, 1800 + i * (reduce ? 0 : 2200)));
+    setTimeout(() => {
+      fanfare(); frenzy(false); rig.mode("idle"); sfx.stopMusic(8);
+      speak(`The cards have spoken. Flash ${fw.n}.`, true);
+      showSpread(fw, cards);
+    }, reduce ? 0 : 1800 + 3 * 2200);
+  }
+
+  function showSpread(fw, cards) {
+    result.innerHTML = `
+      <div class="reading">
+        <h2>Your reading<small>three cards of the Sídhe Celtic deck</small></h2>
+        <div class="positions">${cards.map((c, i) => `
+          <article class="position">
+            <span class="pl">${POSITIONS[i]}</span>
+            <h3>${esc(c.name)}<small>${c.num} · ${c.rev_ ? "reversed" : "upright"}</small></h3>
+            <p class="kw">${esc(c.kw.slice(0, 3).join(" · "))}</p>
+            <p class="cm">${esc(c.rev_ ? c.rev : c.up)}</p>
+            <details><summary>The story of ${esc(c.name)}</summary><p>${esc(c.myth)}</p></details>
+          </article>`).join("")}
+        </div>
+        <p class="echo">${esc(pick(ECHOES)(pick(heard)))}</p>
+        ${fwPanel(fw, "The cards say flash")}
+        <div class="after"><button class="btn gold" id="again" type="button">Another coin</button></div>
+      </div>`;
+    finish();
   }
 
   function deal(fw, card) {
@@ -420,37 +509,46 @@
     dispense.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   }
 
-  function showReading(fw, card) {
+  function fwPanel(fw, eyebrow) {
     const links = [
       fw.r && `<a href="https://github.com/${esc(fw.r)}" target="_blank" rel="noopener">Source on GitHub</a>`,
       fw.p && `<a href="${esc(fw.p)}" target="_blank" rel="noopener">Try it in the browser</a>`,
       `<a href="https://thefirmwarehub.com" target="_blank" rel="noopener">Install from the hub</a>`,
     ].filter(Boolean).join("");
-    result.innerHTML = `
-      <div class="reading">
-        <h2>${esc(card.name)}<small>${card.num} · the Voltage Arcana · stands for ${esc(card.trad)}</small></h2>
-        <p class="meaning">${esc(card.up)}</p>
-        <p class="echo">${esc(pick(ECHOES)(pick(heard)))} Lucky MIDI channel ${rnd(1, 16)}, lucky tempo ${rnd(62, 174)} BPM.</p>
+    return `
         <article class="fw" aria-label="Your firmware">
-          <span class="eyebrow">The machine says flash</span>
+          <span class="eyebrow">${eyebrow}</span>
           <h3 class="fw-name">${esc(fw.n)}</h3>
           <p class="fw-by">by ${esc(fw.a)}</p>
           ${fw.w ? `<p class="fw-what">${esc(fw.w)}</p>` : ""}
           <p class="fw-meta">${esc(KIND_NAME[fw.k] || fw.k)}${fw.v ? ` · ${esc(fw.v)}${fw.b ? " beta" : ""}` : ""}${fw.id ? ` · ${esc(fw.id)}` : ""} · ${fw.i.toLocaleString("en-GB")} installs</p>
           <div class="links">${links}</div>
-        </article>
-        <details class="lore"><summary>The lore of ${esc(card.name)}</summary><p>${esc(card.lore)}</p></details>
-        <div class="after"><button class="btn gold" id="again" type="button">Another coin</button></div>
-      </div>`;
+        </article>`;
+  }
+  function finish() {
     result.hidden = false;
     stage.innerHTML = intro;
     $("count").textContent = `She heard: ${heard.join(" · ")}.`;
-    coinBtn.disabled = false;
+    coinBtn.disabled = false; lockModes(false);
     $("again").addEventListener("click", () => { cabinet.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }); start(); });
+  }
+
+  function showReading(fw, card) {
+    result.innerHTML = `
+      <div class="reading">
+        <h2>${esc(card.name)}<small>${card.num} · the Voltage Arcana · stands for ${esc(card.trad)}</small></h2>
+        <p class="meaning">${esc(card.up)}</p>
+        <p class="echo">${esc(pick(ECHOES)(pick(heard)))} Lucky MIDI channel ${rnd(1, 16)}, lucky tempo ${rnd(62, 174)} BPM.</p>
+        ${fwPanel(fw, "The machine says flash")}
+        <details class="lore"><summary>The lore of ${esc(card.name)}</summary><p>${esc(card.lore)}</p></details>
+        <div class="after"><button class="btn gold" id="again" type="button">Another coin</button></div>
+      </div>`;
+    finish();
   }
 
   coinBtn.addEventListener("click", start);
   setTilt(tilted);
+  setMode(mode);
   document.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const k = "abcd".indexOf(e.key.toLowerCase());

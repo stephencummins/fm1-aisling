@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build the Flash Seer into dist/: index.html (the site, a whole document) and artifact.html (the claude.ai page),
-each with its data and scripts inlined, and the knotwork images in dist/img."""
+each with its data and scripts inlined, the Celtic cards in dist/cards
+and the knotwork in dist/img."""
 import json, shutil
 from pathlib import Path
 
@@ -33,6 +34,7 @@ def main():
     page = (SRC / "page.html").read_text()
     page = (page.replace("__FW__", inline_json("firmwares.json"))
                 .replace("${BULBS}", "")
+                .replace("__SIDHE__", inline_json("sidhe-majors.json"))
                 .replace("__VOLTAGE__", (SRC / "voltage.js").read_text())
                 .replace("__APP__", (SRC / "app.js").read_text())
                 .replace("__ASOF__", ASOF))

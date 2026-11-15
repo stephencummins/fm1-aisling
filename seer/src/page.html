@@ -136,6 +136,37 @@ h1 { margin: 0; font: 400 clamp(38px, 9.5vw, 58px)/1 var(--display); color: var(
 @keyframes needle { from { transform: rotate(-8deg) } to { transform: rotate(26deg) } }
 @keyframes sway { from { transform: rotate(-3deg) } to { transform: rotate(4deg) } }
 
+/* the choice of answer */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; border: 1px solid var(--gold-dim); border-radius: 14px; padding: 5px; margin: 0 0 18px; }
+.modes button { cursor: pointer; border: 0; border-radius: 10px; background: transparent; color: var(--text-dim); padding: 10px 8px; display: grid; gap: 3px; text-align: center; }
+.modes b { font: 400 19px/1.1 var(--display); color: inherit; }
+.modes span { font: italic 500 15px/1.2 var(--body); }
+.modes button[aria-pressed="true"] { background: linear-gradient(180deg, var(--lacquer-3), var(--lacquer)); color: var(--gilt); box-shadow: inset 0 0 0 1px var(--gold-dim); }
+.modes button:hover { color: var(--gilt); }
+.modes button:disabled { cursor: default; }
+
+/* the reading: three Celtic cards out of the slot, turned one by one */
+.spread { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(8px, 3vw, 18px); max-width: 520px; }
+.pos { display: grid; gap: 6px; justify-items: center; text-align: center; min-width: 0; }
+.pos-label { font: 500 10px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); min-height: 2.6em; order: 2; }
+.tcard { width: 100%; max-width: 170px; aspect-ratio: 2 / 3; perspective: 900px; }
+.tcard.out { animation: emerge 1.6s cubic-bezier(.2,.75,.25,1) both; }
+.tcard-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s cubic-bezier(.3,.7,.2,1); transform: rotateY(180deg); }
+.tcard.open .tcard-inner { transform: none; }
+.tcard img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; backface-visibility: hidden;
+  box-shadow: 0 12px 26px rgba(0,0,0,.55), 0 0 0 1px var(--gold-dim); }
+.tcard .back { transform: rotateY(180deg); }
+.tcard.rev .front { transform: rotate(180deg); }
+.positions { display: grid; gap: 16px; }
+.position { display: grid; gap: 6px; border-top: 1px solid rgba(214,171,76,.25); padding-top: 12px; }
+.position .pl { font: 500 11px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+.position h3 { margin: 0; font: 400 24px/1.1 var(--display); color: var(--gilt); }
+.position h3 small { font: 12px/1 var(--mono); letter-spacing: .12em; color: var(--text-dim); margin-left: 8px; }
+.position .kw { margin: 0; font: italic 500 16px/1.3 var(--body); color: var(--text-dim); }
+.position .cm { margin: 0; font: 500 19px/1.5 var(--body); color: var(--parch); }
+.position details summary { cursor: pointer; font: 400 16px/1.3 var(--display); color: var(--gold); }
+.position details p { margin: 6px 0 0; color: var(--text); }
+
 .reading { margin-top: 22px; display: grid; gap: 14px; }
 .reading h2 { margin: 0; font: 400 26px/1.1 var(--display); color: var(--gilt); text-align: center; text-wrap: balance; }
 .reading h2 small { display: block; font: 12px/1.6 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-dim); }
@@ -174,7 +205,8 @@ h1 { margin: 0; font: 400 clamp(38px, 9.5vw, 58px)/1 var(--display); color: var(
 }
 @media (prefers-reduced-motion: reduce) {
   .bulb, .card *, .tilted .tilt-lamp { animation: none !important; }
-  .card.out { animation: none; }
+  .card.out, .tcard.out { animation: none; }
+  .tcard-inner { transition: none; }
   .cabinet { transition: none; }
 }
 </style>
@@ -183,8 +215,13 @@ h1 { margin: 0; font: 400 clamp(38px, 9.5vw, 58px)/1 var(--display); color: var(
   <header class="crown">
     <img class="knot" src="img/knot.webp" alt="" width="480" height="210">
     <h1>The Flash Seer</h1>
-    <p class="tagline">Seven questions. One card. The firmware you were born to flash.</p>
+    <p class="tagline">Seven questions, then the firmware you were born to flash.</p>
   </header>
+
+  <div class="modes" role="group" aria-label="How she answers">
+    <button type="button" data-mode="machine" aria-pressed="true"><b>The machine</b><span>one synth card from the slot</span></button>
+    <button type="button" data-mode="reading" aria-pressed="false"><b>The reading</b><span>three cards of the Celtic tarot</span></button>
+  </div>
 
   <div class="cabinet" id="cabinet">
     <div class="body">
@@ -203,7 +240,7 @@ h1 { margin: 0; font: 400 clamp(38px, 9.5vw, 58px)/1 var(--display); color: var(
       </section>
       <div class="door">
         <button class="coin" id="coin" type="button">Insert coin</button>
-        <div class="slot-wrap"><div class="slot" aria-hidden="true"></div><span class="slot-label">Your card</span></div>
+        <div class="slot-wrap"><div class="slot" aria-hidden="true"></div><span class="slot-label" id="slot-label">Your card</span></div>
         <div class="grille" aria-hidden="true"></div>
       </div>
     </div>
@@ -222,6 +259,7 @@ h1 { margin: 0; font: 400 clamp(38px, 9.5vw, 58px)/1 var(--display); color: var(
 </main>
 
 <script type="application/json" id="fw-data">__FW__</script>
+<script type="application/json" id="sidhe-data">__SIDHE__</script>
 <script>
 __VOLTAGE__
 </script>
