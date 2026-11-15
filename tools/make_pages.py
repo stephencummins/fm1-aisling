@@ -62,7 +62,7 @@ REPO = "https://github.com/stephencummins/fm1-aisling"
 FX1_REPO, FX1_VERSION = "https://github.com/stephencummins/fx1-aisling", "1.0"           # its release
 FX1_SHA256 = "9412ae355356aec34878597786cba0d63cc0a55608db6c1794ed42bc82682815"           # aislingfx-1.0.fwsc, its asset
 SMK37_REPO, SMK37_VERSION = "https://github.com/stephencummins/smk37-aisling", "1.3.1"  # the Elite's
-BY = 'by CU_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
+BY = 'by CÚ_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
 
 LANDING = """<!doctype html>
 <html lang="en">
@@ -200,7 +200,7 @@ relative to the knob you set.</p>
 </section>
 </div>
 <div class="pane">
-<p class="small">AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>). It is a fork of
+<p class="small">AISLING is by CÚ_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>). It is a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, based on
 <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> by sbegueria, itself based on
 <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a> by Charles Vestal; its granular cloud follows JIANT's;
@@ -399,6 +399,16 @@ CHOOSER = """<!doctype html>
 p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 .store .bh { margin: 0 0 8px; } .store .state { display: inline; margin-left: 8px; font: 400 12px/1 var(--brand-mono, monospace); text-transform: none; }
 .store p { margin: 0; font-size: 14.5px; max-width: 92ch; }
+/* the store's skins, each on the case it suits best: the store's own pictures, in web/brand/skins/ */
+.skins { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 14px 0 0; padding: 0; }
+.skins a { display: block; text-decoration: none; color: inherit; }
+.skins img { display: block; width: 100%; height: auto; aspect-ratio: 640 / 382; border-radius: 6px; background: var(--brand-line, #ddd);
+  transition: transform .15s ease; }
+.skins a:hover img, .skins a:focus-visible img { transform: translateY(-3px) rotate(-1deg); }
+.skins span { display: block; margin-top: 6px; font: 400 12px/1.2 var(--brand-mono, monospace); color: var(--brand-muted); }
+@media (max-width: 59.99rem) { .skins { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 29.99rem) { .skins { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .skins img { transition: none; } .skins a:hover img, .skins a:focus-visible img { transform: none; } }
 /* narrower: one under another, the drawing beside the words; a phone: the drawing above them */
 @media (max-width: 59.99rem) {
   .parts { grid-template-columns: minmax(0, 1fr); }
@@ -436,9 +446,18 @@ __PARTS__
 <p>Vinyl skins for the FM-1, printed and cut by hand, for any case colour and any firmware, with the gear that goes
 with it. The test prints come first; until checkout opens you can
 <a href="https://store.stephen8n.com/">look around the store</a> and see the skins on an FM-1.</p>
+<ul class="skins">
+<li><a href="https://store.stephen8n.com/#p-swatch"><img src="skins/swatch.webp" width="640" height="382" loading="lazy" alt="The Swatch skin on a cool grey FM-1"><span>Swatch</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-flightdeck"><img src="skins/flightdeck.webp" width="640" height="382" loading="lazy" alt="The Flight Deck skin on a cool grey FM-1"><span>Flight Deck</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-kinetic"><img src="skins/kinetic.webp" width="640" height="382" loading="lazy" alt="The Kinetic skin on a cool grey FM-1"><span>Kinetic</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-map"><img src="skins/map.webp" width="640" height="382" loading="lazy" alt="The Map skin on a white-blue FM-1"><span>Map</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-neonrain"><img src="skins/neonrain.webp" width="640" height="382" loading="lazy" alt="The Neon Rain skin on a black FM-1"><span>Neon Rain</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-synthwave"><img src="skins/synthwave.webp" width="640" height="382" loading="lazy" alt="The Synthwave skin on a black FM-1"><span>Synthwave</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-ticker"><img src="skins/ticker.webp" width="640" height="382" loading="lazy" alt="The Ticker skin on a black FM-1"><span>Ticker</span></a></li>
+</ul>
 </section>
 <div class="pane">
-<p class="small">AISLING is by CU_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>), a fork of
+<p class="small">AISLING is by CÚ_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>), a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, by way of
 <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> and <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a>;
 GPL-3.0. Each part's page has the rest. M-VAVE, FM-1 and SMK-37 are trademarks of their owners; AISLING is not
@@ -938,7 +957,7 @@ FX1_INSTALL_EDITS = (
     ("<title>Install · AISLING</title>", "<title>Install · AISLING FX-1</title>"),
     ("put AISLING on your FM-1</h1>", "put AISLING FX-1 on your FM-1</h1>"),
     ('href="../manual/#recovering', 'href="../../manual/#recovering'),
-    ("AISLING is by CU_STE", "AISLING FX-1 is by CU_STE"),
+    ("AISLING is by CÚ_STE", "AISLING FX-1 is by CÚ_STE"),
     ('"https://github.com/stephencummins/fm1-aisling" target="_blank" rel="noopener">github.com/stephencummins/fm1-aisling<',
      f'"{FX1_REPO}" target="_blank" rel="noopener">{FX1_REPO.removeprefix("https://")}<'),
 )
@@ -1090,7 +1109,7 @@ def main(pkg, version, out, smk37=None, fx1=None):
     shutil.copy(SRC / "web" / "visualiser" / "share.jpg", out / "img" / "visualiser.jpg")
     # the root: the three parts, each drawn
     pics = {"fm1": drawing(SRC / "docs" / "img" / "fm1-controls.svg"),
-            "fx1": '<img src="img/fx1-photo.webp" width="984" height="590" alt="">',     # docs/img: CU_STE's FM-1, skinned
+            "fx1": '<img src="img/fx1-photo.webp" width="984" height="590" alt="">',     # docs/img: CÚ_STE's FM-1, skinned
             "smk37": drawing(smk37 / "img" / "smk37-panel.svg").replace('<svg ', '<svg data-skin="grey" ', 1) if smk37
             else f'<img src="{SMK37_AWAY}img/smk37-panel.svg" alt="">'}
     (out / "index.html").write_text(stamp(CHOOSER.replace("__PARTS__", part_cards(version, pics)).replace("__SITE__", SITE)

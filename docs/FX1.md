@@ -13,7 +13,7 @@ measured in AISLING's simulator (see [What has been tried](#8-what-has-been-trie
 [the 1.0 release](https://github.com/stephencummins/fx1-aisling/releases/tag/v1.0), and it installs from Chrome or Edge
 on [its install page](https://aisling.stephen8n.com/fx1/install/) (new: FX-1 has so far gone on from the command line).
 
-AISLING FX-1 is by CU_STE ([www.stephen8n.com](https://www.stephen8n.com)), from AISLING's own source, in a repository
+AISLING FX-1 is by CÚ_STE ([www.stephen8n.com](https://www.stephen8n.com)), from AISLING's own source, in a repository
 of its own: [github.com/stephencummins/fx1-aisling](https://github.com/stephencummins/fx1-aisling). GPL-3.0. It is
 not affiliated with M-VAVE.
 
