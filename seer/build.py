@@ -16,7 +16,7 @@ SKELETON = """<!doctype html>
 <meta charset="utf-8">
 <link rel="icon" href="img/corner.webp">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A fortune booth: the Bean Feasa asks seven strange questions, deals three tarot cards and tells you which FM-1 firmware to flash.">
+<meta name="description" content="A fortune cabinet for the FM-1: the seer asks a few strange questions, then deals a synth tarot card or a three-card Celtic reading naming the firmware you should flash.">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
