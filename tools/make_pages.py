@@ -456,6 +456,9 @@ with it. The test prints come first; until checkout opens you can
 <li><a href="https://store.stephen8n.com/#p-ticker"><img src="skins/ticker.webp" width="640" height="382" loading="lazy" alt="The Ticker skin on a black FM-1"><span>Ticker</span></a></li>
 </ul>
 </section>
+<div class="pane tip">
+<p>Love my firmware? Support its development by <a href="https://ko-fi.com/stejcu">tipping me on Ko-fi</a>. :)</p>
+</div>
 <div class="pane">
 <p class="small">AISLING is by CÚ_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>), a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, by way of
