@@ -589,6 +589,12 @@ CONTROLS = """<!doctype html>
    its colours, and the table. The rest is the site's (web/brand/site.css) */
 .wrap { overflow-x: auto; }
 svg.fmp { display: block; width: 100%; min-width: 900px; height: auto; }
+/* the headline over the drawing */
+.ct-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 6px 26px; }
+.ct-head h1 { margin: 0; font: 700 clamp(40px, 7.4vw, 84px)/.86 var(--brand-display); letter-spacing: .01em; text-transform: uppercase; color: var(--brand-ink); }
+.ct-head h1 span { color: var(--brand-rust); }
+.pane.ct-head p { margin: 0 0 3px; max-width: 36ch; font: 600 clamp(16px, 1.8vw, 20px)/1.3 var(--brand-display); letter-spacing: .01em; }
+@media (max-width: 47.99rem) { .ct-head { grid-template-columns: minmax(0, 1fr); } }
 .skins { margin: 0 0 10px; }
 .skins button { font: inherit; margin-left: 6px; padding: 2px 10px; border: 1px solid var(--brand-rule); border-radius: 0;
                 background: transparent; color: inherit; cursor: pointer; }
@@ -618,8 +624,12 @@ thead:has(th:empty) { display: none; }
 <!--AISLING-BAR-->
 <main class="bench">
 <div class="strip">
-<h1 class="lab"><b>controls</b> · __STRIP__</h1>
+<p class="lab"><b>controls</b> · __STRIP__</p>
 <a class="btn" href="__BUTTON_HREF__">__BUTTON__</a>
+</div>
+<div class="pane ct-head">
+<h1>The <span>controls</span></h1>
+<p>Every knob, button and key, drawn. The table under the drawing says the same in words.</p>
 </div>
 __NOTICE__<div class="pane wrap">
 <p class="skins" id="skins" hidden>Your FM-1's colours: __SKINS__</p>
