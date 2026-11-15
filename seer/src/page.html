@@ -2,212 +2,218 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rye&family=Special+Elite&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one coin-op fortune cabinet standing in the middle of the page: lit marquee, the glass case with the seer,
-   the question panel, then the coin door with its slot, grille and ticket mouth, from which the fortune slides out.
-   One committed look (oxblood lacquer, brass studs, a dark arcade around it) on both host themes. */
+/* Layout: a coin-op fortune cabinet in the middle of a dark room: knotwork crown, the bulb-lit glass case with the
+   seer, her plaque, the question buttons, then the coin door whose slot pushes out the card. Celtic night look
+   (purple lacquer, gilt, Kells knots); one committed dark palette on both host themes. */
 :root {
-  --floor: #0b0709;
-  --floor-2: #1a0f13;
-  --lacquer: #5a1420;
-  --lacquer-2: #3c0b14;
-  --lacquer-3: #7a1d2b;
-  --brass: #d9a943;
-  --brass-dim: #8e6a24;
-  --bulb: #ffe3a1;
-  --card: #f4ead2;
-  --card-2: #e4d5b2;
-  --ink: #221812;
-  --ink-red: #a3231f;
-  --ink-soft: #64503b;
-  --text: #f4e9d8;
-  --text-dim: #c4ab8e;
-  --marquee: "Rye", "Rockwell", Georgia, serif;
+  --night: #07050c;
+  --night-2: #140b20;
+  --lacquer: #2b123f;
+  --lacquer-2: #1a0b28;
+  --lacquer-3: #43205f;
+  --gold: #d6ab4c;
+  --gold-dim: #8f6d2a;
+  --gilt: #f6d98a;
+  --bulb: #ffe7a8;
+  --ember: #ff7a45;
+  --parch: #efe3c8;
+  --ink: #23180d;
+  --text: #efe6d6;
+  --text-dim: #b9a98f;
+  --display: "Uncial Antiqua", "Iowan Old Style", Georgia, serif;
   --body: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
-  --type: "Special Elite", "Courier New", ui-monospace, monospace;
   --mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --chase: 1.4s;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { background: var(--floor); }
+html { background: var(--night); }
 body {
-  background: radial-gradient(ellipse at 50% 8%, #2a1218 0%, var(--floor) 65%);
+  background: radial-gradient(ellipse at 50% 0%, var(--night-2) 0%, var(--night) 65%);
   color: var(--text); font: 500 19px/1.5 var(--body); min-height: 100%;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 24px 40px;
+  padding-block: 20px 40px;
 }
-a { color: var(--bulb); text-underline-offset: 3px; }
-:focus-visible { outline: 2px solid var(--bulb); outline-offset: 3px; }
+a { color: var(--gilt); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
+main { max-width: 580px; margin: 0 auto; display: grid; gap: 0; overflow-x: clip; padding-inline: 4px; }
+
+/* title */
+.crown { display: grid; justify-items: center; gap: 2px; text-align: center; margin-bottom: 14px; }
+.knot { width: min(200px, 52vw); height: auto; mix-blend-mode: screen; }
+h1 { margin: 0; font: 400 clamp(38px, 9.5vw, 58px)/1 var(--display); color: var(--gilt);
+  text-shadow: 0 0 22px rgba(246,217,138,.3), 0 2px 0 var(--gold-dim); text-wrap: balance; }
+.tagline { margin: 0; font: italic 500 19px/1.3 var(--body); color: var(--text-dim); }
 
 /* the cabinet */
-.cabinet { max-width: 560px; margin: 0 auto; display: grid; transition: transform .5s cubic-bezier(.3,1.6,.5,1); }
-.cabinet.tilted { transform: rotate(-1.6deg); }
-.section {
-  position: relative; background: linear-gradient(90deg, var(--lacquer-2), var(--lacquer) 18%, var(--lacquer-3) 50%, var(--lacquer) 82%, var(--lacquer-2));
-  border-left: 10px solid var(--lacquer-2); border-right: 10px solid var(--lacquer-2);
-  padding: 18px clamp(14px, 4vw, 26px);
+.cabinet { display: grid; transition: transform .5s cubic-bezier(.3,1.6,.5,1); }
+.cabinet.tilted { transform: rotate(-1.8deg); }
+.body {
+  background: linear-gradient(90deg, var(--lacquer-2), var(--lacquer) 16%, var(--lacquer-3) 50%, var(--lacquer) 84%, var(--lacquer-2));
+  border: 2px solid var(--gold-dim); box-shadow: 0 0 0 4px var(--night), 0 0 0 5px var(--gold-dim), 0 30px 80px rgba(0,0,0,.6);
+  border-radius: 120px 120px 10px 10px; padding: 26px clamp(12px, 4vw, 24px) 0; position: relative;
 }
-.trim { height: 14px; background:
-  radial-gradient(circle, var(--brass) 0 3px, transparent 3.5px) 0 50% / 18px 14px repeat-x,
-  linear-gradient(var(--lacquer-2), var(--lacquer-2)); border-block: 2px solid var(--brass-dim); }
-.stud { position: absolute; width: 14px; height: 14px; background: linear-gradient(135deg, var(--bulb), var(--brass) 45%, var(--brass-dim)); transform: rotate(45deg); border-radius: 2px; }
-.stud.tl { top: 8px; left: 8px } .stud.tr { top: 8px; right: 8px } .stud.bl { bottom: 8px; left: 8px } .stud.br { bottom: 8px; right: 8px }
+.marquee-bulbs { display: flex; justify-content: center; gap: clamp(6px, 2.2vw, 12px); margin: 0 auto 14px; max-width: 80%; }
+.bulb { width: 9px; height: 9px; border-radius: 50%; background: var(--gold-dim); animation: chase var(--chase) infinite; }
+.bulb:nth-child(3n+2) { animation-delay: calc(var(--chase) / 3) } .bulb:nth-child(3n) { animation-delay: calc(var(--chase) * 2 / 3) }
+@keyframes chase { 0%, 66%, 100% { background: var(--gold-dim); box-shadow: none } 33% { background: var(--bulb); box-shadow: 0 0 10px var(--bulb), 0 0 22px rgba(255,231,168,.5) } }
+.frenzy { --chase: .32s; }
+.frenzy .bulb:nth-child(odd) { animation-name: chase-hot; }
+@keyframes chase-hot { 0%, 66%, 100% { background: #6b2a14; box-shadow: none } 33% { background: var(--ember); box-shadow: 0 0 12px var(--ember) } }
 
-/* marquee */
-.marquee { border-radius: 26px 26px 0 0; padding-block: 18px 14px; text-align: center; display: grid; gap: 8px; justify-items: center; }
-.bulbs { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.bulbs i { width: 9px; height: 9px; border-radius: 50%; background: var(--brass-dim); animation: chase 1.4s infinite; }
-.bulbs i:nth-child(3n+1) { animation-delay: 0s } .bulbs i:nth-child(3n+2) { animation-delay: .47s } .bulbs i:nth-child(3n) { animation-delay: .93s }
-@keyframes chase { 0%, 66%, 100% { background: var(--brass-dim); box-shadow: none } 33% { background: var(--bulb); box-shadow: 0 0 10px var(--bulb) } }
-h1 { margin: 0; font: 400 clamp(36px, 9vw, 54px)/1 var(--marquee); color: var(--bulb); letter-spacing: .02em;
-  text-shadow: 0 0 16px rgba(255,214,120,.45), 0 3px 0 var(--lacquer-2), 0 4px 0 var(--brass-dim); text-wrap: balance; }
-.tagline { margin: 0; font: 400 13px/1.2 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--brass); }
-
-/* the glass case */
-.case { border: 3px solid var(--brass-dim); border-radius: 10px; overflow: hidden; position: relative; box-shadow: inset 0 0 30px #000; }
+.frame { position: relative; padding: 14px; border-radius: 14px; background: #0c0612; border: 2px solid var(--gold-dim); }
+.frame .bulb { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; }
+.case { position: relative; border-radius: 8px; overflow: hidden; border: 2px solid var(--gold-dim); }
 #seer { display: block; width: 100%; height: auto; aspect-ratio: 600 / 540; }
-.tilt-lamp { position: absolute; top: 12px; right: 12px; font: 500 12px/1 var(--mono); letter-spacing: .2em; padding: 6px 8px;
-  border: 1px solid var(--brass-dim); border-radius: 4px; color: rgba(255,227,161,.22); background: rgba(0,0,0,.4); }
-.tilted .tilt-lamp { color: #ff6b4a; border-color: #ff6b4a; text-shadow: 0 0 10px #ff3b1f; animation: lamp 1s steps(2) infinite; }
-@keyframes lamp { 50% { opacity: .5 } }
-.voice { margin: 12px 0 0; padding: 12px 16px; text-align: center; background: #120609; border: 1px solid var(--brass-dim); border-radius: 6px;
-  font: italic 500 22px/1.35 var(--body); color: var(--card); text-wrap: balance; min-height: 3.3em; display: grid; place-items: center; }
+.corner { position: absolute; width: 24%; max-width: 130px; mix-blend-mode: screen; pointer-events: none; }
+.corner.tl { left: 0; top: 0; } .corner.tr { right: 0; top: 0; transform: scaleX(-1); }
+.tilt-lamp { position: absolute; bottom: 10px; right: 10px; font: 500 11px/1 var(--mono); letter-spacing: .2em; padding: 5px 7px;
+  border: 1px solid var(--gold-dim); border-radius: 4px; color: rgba(246,217,138,.2); background: rgba(0,0,0,.45); }
+.tilted .tilt-lamp { color: var(--ember); border-color: var(--ember); text-shadow: 0 0 10px var(--ember); animation: lamp 1s steps(2) infinite; }
+@keyframes lamp { 50% { opacity: .45 } }
+
+.plaque { margin: 14px auto 0; width: 100%; text-align: center; background: linear-gradient(180deg, #1a1024, #0d0814);
+  border: 1px solid var(--gold-dim); border-radius: 8px; padding: 12px 16px; box-shadow: inset 0 0 0 3px rgba(214,171,76,.1); }
+.voice { margin: 0; font: italic 500 22px/1.35 var(--body); color: var(--parch); text-wrap: balance; min-height: 2.7em; display: grid; place-items: center; }
 
 /* questions */
-.stage { display: grid; gap: 12px; }
+.stage { display: grid; gap: 12px; padding: 18px 0 6px; }
 .progress { display: flex; justify-content: space-between; align-items: center; gap: 12px;
   font: 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text-dim); }
 .pips { display: flex; gap: 6px; }
-.pips b { width: 10px; height: 10px; border-radius: 50%; background: #2a0a10; box-shadow: inset 0 1px 2px #000; }
+.pips b { width: 10px; height: 10px; border-radius: 50%; background: #1a0b28; box-shadow: inset 0 1px 2px #000; }
 .pips b.on { background: var(--bulb); box-shadow: 0 0 6px var(--bulb); }
 .answers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .answers button {
   width: 100%; text-align: left; cursor: pointer; display: flex; gap: 14px; align-items: center;
-  font: 600 19px/1.25 var(--body); color: var(--ink);
-  background: linear-gradient(180deg, #f6e7bf, #dcc187); border: 1px solid var(--brass-dim); border-radius: 8px; padding: 11px 14px;
-  box-shadow: 0 3px 0 var(--brass-dim); transition: transform .08s, box-shadow .08s, filter .15s;
+  font: 600 19px/1.25 var(--body); color: var(--text);
+  background: rgba(74,26,107,.35); border: 1px solid rgba(214,171,76,.5); border-radius: 8px; padding: 11px 14px;
+  transition: background .15s, transform .08s;
 }
-.answers button:hover { filter: brightness(1.05); }
-.answers button:active { transform: translateY(3px); box-shadow: 0 0 0 var(--brass-dim); }
-.answers kbd { font: 500 13px/1 var(--mono); color: var(--card); background: var(--lacquer); border-radius: 50%; width: 24px; height: 24px; display: grid; place-items: center; flex: none; }
+.answers button:hover { background: rgba(107,47,160,.45); }
+.answers button:active { transform: translateY(2px); }
+.answers kbd { font: 500 12px/1 var(--mono); color: var(--ink); background: var(--gold); border-radius: 50%; width: 24px; height: 24px; display: grid; place-items: center; flex: none; }
 .note { margin: 0; text-align: center; color: var(--text-dim); font-size: 17px; }
 
 /* the coin door */
-.door { display: grid; grid-template-columns: 1fr auto; gap: 14px 18px; align-items: center; padding-block: 22px; }
-.slot-plate { grid-column: 2; grid-row: 1 / span 2; display: grid; gap: 10px; justify-items: center; }
+.door { margin: 14px -2px 0; padding: 18px 16px 20px; border-top: 2px solid var(--gold-dim); display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; }
 .coin {
-  cursor: pointer; border: 2px solid var(--brass-dim); border-radius: 8px; padding: 12px 12px 10px; width: 112px;
-  background: linear-gradient(180deg, #e9c46a, var(--brass) 40%, var(--brass-dim)); color: var(--ink);
-  display: grid; gap: 8px; justify-items: center; font: 400 14px/1.1 var(--marquee); box-shadow: 0 3px 0 #4a3510;
+  cursor: pointer; border: 2px solid var(--gold-dim); border-radius: 8px; padding: 10px 10px 8px; width: 96px;
+  background: linear-gradient(180deg, #edc96c, var(--gold) 40%, var(--gold-dim)); color: var(--ink);
+  display: grid; gap: 6px; justify-items: center; font: 400 13px/1.1 var(--display); box-shadow: 0 3px 0 #4a3510;
 }
-.coin::before { content: ""; width: 10px; height: 40px; border-radius: 5px; background: #170b05; box-shadow: inset 0 2px 4px #000, 0 1px 0 #f3d78a; }
+.coin::before { content: ""; width: 9px; height: 34px; border-radius: 5px; background: #170b05; box-shadow: inset 0 2px 4px #000, 0 1px 0 #f3d78a; }
 .coin:hover { filter: brightness(1.07); }
 .coin:active { transform: translateY(2px); box-shadow: 0 1px 0 #4a3510; }
-.coin:disabled { cursor: default; filter: saturate(.6) brightness(.85); }
-.grille { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle, #0c0507 0 2.2px, transparent 2.6px) 0 0 / 9px 9px, #2a0a10;
-  border: 3px solid var(--brass-dim); }
-.mouth-wrap { grid-column: 1; display: grid; gap: 6px; justify-items: center; }
-.mouth { width: min(100%, 300px); height: 16px; border-radius: 8px; background: #0a0405; box-shadow: inset 0 3px 5px #000, 0 2px 0 var(--brass-dim); }
-.mouth-label { font: 400 12px/1 var(--marquee); letter-spacing: .12em; color: var(--brass); }
-.door-text { grid-column: 1; margin: 0; font: 400 15px/1.35 var(--body); color: var(--text-dim); text-align: center; }
-.base { border-radius: 0 0 8px 8px; height: 30px; padding: 0; }
+.coin:disabled { cursor: default; filter: saturate(.5) brightness(.75); }
+.slot-wrap { display: grid; gap: 6px; justify-items: center; }
+.slot { width: 100%; max-width: 230px; height: 14px; border-radius: 7px; background: #050208; box-shadow: inset 0 3px 5px #000, 0 2px 0 var(--gold-dim); }
+.slot-label { font: 400 12px/1 var(--display); letter-spacing: .08em; color: var(--gold); }
+.grille { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--gold-dim);
+  background: radial-gradient(circle, #050208 0 2.2px, transparent 2.6px) 0 0 / 9px 9px, #1a0b28; }
 
-/* the fortune ticket */
-.ticket-run { max-width: 340px; margin: -2px auto 0; width: 92%; overflow: hidden; }
-.ticket {
-  position: relative; background: var(--card); color: var(--ink); padding: 22px 20px 18px; display: grid; gap: 12px;
-  border-radius: 0 0 4px 4px; box-shadow: 0 14px 30px rgba(0,0,0,.6);
-  background-image: linear-gradient(transparent 0 calc(100% - 1px), rgba(0,0,0,.03) 0) ; background-size: 100% 22px;
-  animation: print 2.2s cubic-bezier(.25,.8,.3,1) both;
-}
-.ticket::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px;
-  background: radial-gradient(circle at 6px 0, var(--card) 6px, transparent 6.5px) 0 0 / 12px 8px repeat-x; }
-@keyframes print { from { transform: translateY(-100%) } to { transform: none } }
-.t-head { text-align: center; display: grid; gap: 4px; border-bottom: 2px solid var(--ink); padding-bottom: 10px; }
-.t-head b { font: 400 24px/1 var(--marquee); color: var(--ink-red); letter-spacing: .04em; }
-.t-head span { font: 12px/1 var(--type); letter-spacing: .14em; color: var(--ink-soft); }
-.fortune { margin: 0; font: 17px/1.5 var(--type); color: var(--ink); }
-.fortune + .fortune { margin-top: -4px; }
-.lucky { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; margin: 0; padding: 10px 0; border-block: 1px dashed var(--ink-soft); }
-.lucky div { display: grid; gap: 2px; min-width: 0; }
-.lucky dt { font: 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); }
-.lucky dd { margin: 0; font: 16px/1.2 var(--type); color: var(--ink); font-variant-numeric: tabular-nums; }
-.prescribe { display: grid; gap: 6px; text-align: center; }
-.prescribe small { font: 11px/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-red); }
-.fw-name { margin: 0; font: 400 32px/1.05 var(--marquee); color: var(--ink); text-wrap: balance; overflow-wrap: anywhere; }
-.fw-by { margin: 0; font: 15px/1.3 var(--type); color: var(--ink-soft); }
-.fw-what { margin: 0; font: 600 16px/1.4 var(--body); color: var(--ink); }
-.fw-meta { margin: 0; font: 12px/1.5 var(--mono); color: var(--ink-soft); text-align: center; overflow-wrap: anywhere; }
-.links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.links a { font: 500 12px/1 var(--mono); text-decoration: none; color: var(--card); background: var(--lacquer); border-radius: 999px; padding: 9px 12px; }
-.links a:hover { background: var(--lacquer-3); color: var(--bulb); }
-.t-foot { text-align: center; font: 11px/1.3 var(--type); color: var(--ink-soft); letter-spacing: .08em; }
+/* the card, pushed out of the slot */
+.dispense { display: grid; justify-items: center; margin-top: -6px; overflow: hidden; padding: 0 24px 28px; }
+.card { width: min(270px, 74vw); max-width: 100%; aspect-ratio: 200 / 372; filter: drop-shadow(0 18px 26px rgba(0,0,0,.6)); }
+.card svg { width: 100%; height: 100%; display: block; border-radius: 10px; }
+.card.out { animation: emerge 2.4s cubic-bezier(.2,.75,.25,1) both, pop .6s 2.4s ease-out both; }
+@keyframes emerge { 0% { transform: translateY(-104%) } 100% { transform: translateY(0) } }
+@keyframes pop { 0% { transform: scale(1) } 45% { transform: scale(1.07) rotate(-1.5deg); filter: drop-shadow(0 0 26px rgba(246,217,138,.7)) } 100% { transform: scale(1) } }
+.card .blink { animation: blink 1s steps(2) infinite; } .card .blink-slow { animation: blink 2.4s ease-in-out infinite; } .card .blink-fast { animation: blink .35s steps(2) infinite; }
+.card .step { animation: step 2s steps(1) infinite; opacity: .25; } .card .spin { animation: spin 6s linear infinite; }
+.card .pulse { animation: pulse .5s ease-out infinite; } .card .ripple circle { animation: ripple 3s ease-out infinite; transform-origin: 100px 132px; }
+.card .progress { animation: progress 3s ease-in-out infinite; transform-origin: 44px 168px; }
+.card .needle { animation: needle 1.2s ease-in-out infinite alternate; transform-origin: 100px 138px; }
+.card .sway { animation: sway 3s ease-in-out infinite alternate; transform-origin: 100px 74px; }
+@keyframes blink { 50% { opacity: .2 } } @keyframes step { 0%, 6% { opacity: 1 } 7%, 100% { opacity: .25 } }
+@keyframes spin { to { transform: rotate(360deg) } } @keyframes pulse { 0% { transform: scale(1.06) } 100% { transform: scale(1) } }
+@keyframes ripple { 0% { transform: scale(.6); opacity: 1 } 100% { transform: scale(1.15); opacity: 0 } }
+@keyframes progress { 0% { transform: scaleX(.05) } 80%, 100% { transform: scaleX(1) } }
+@keyframes needle { from { transform: rotate(-8deg) } to { transform: rotate(26deg) } }
+@keyframes sway { from { transform: rotate(-3deg) } to { transform: rotate(4deg) } }
 
-.after { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
+.reading { margin-top: 22px; display: grid; gap: 14px; }
+.reading h2 { margin: 0; font: 400 26px/1.1 var(--display); color: var(--gilt); text-align: center; text-wrap: balance; }
+.reading h2 small { display: block; font: 12px/1.6 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-dim); }
+.meaning { margin: 0; font: italic 500 21px/1.45 var(--body); color: var(--parch); text-align: center; text-wrap: balance; }
+.echo { margin: 0; text-align: center; color: var(--text-dim); font-size: 17px; }
+.fw { background: var(--parch); color: var(--ink); border-radius: 8px; padding: 18px 20px; display: grid; gap: 8px; }
+.fw .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dim); }
+.fw-name { margin: 0; font: 400 30px/1.05 var(--display); color: var(--ink); overflow-wrap: anywhere; }
+.fw-by { margin: 0; color: #5e4a31; font-size: 17px; }
+.fw-what { margin: 0; font-size: 18px; line-height: 1.45; }
+.fw-meta { margin: 0; font: 12px/1.5 var(--mono); color: #5e4a31; overflow-wrap: anywhere; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links a { font: 500 12px/1 var(--mono); text-decoration: none; color: var(--parch); background: var(--lacquer); border-radius: 999px; padding: 9px 12px; }
+.links a:hover { background: var(--lacquer-3); color: var(--gilt); }
+.lore { border-top: 1px solid rgba(214,171,76,.25); padding-top: 8px; }
+.lore summary { cursor: pointer; font: 400 18px/1.3 var(--display); color: var(--gilt); }
+.lore p { margin: 8px 0 0; }
+.after { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .btn { cursor: pointer; font: 500 13px/1 var(--mono); letter-spacing: .05em; border-radius: 999px; padding: 11px 16px; }
-.btn.gold { color: var(--ink); background: linear-gradient(180deg, #f2d27c, var(--brass)); border: 0; box-shadow: 0 2px 0 var(--brass-dim); }
-.btn.line { color: var(--bulb); background: transparent; border: 1px solid var(--brass); }
+.btn.gold { color: var(--ink); background: linear-gradient(180deg, var(--gilt), var(--gold)); border: 0; box-shadow: 0 2px 0 var(--gold-dim); }
+.btn.line { color: var(--gilt); background: transparent; border: 1px solid var(--gold); }
 .btn:hover { filter: brightness(1.08); }
 
-.foot { max-width: 560px; margin: 30px auto 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 16px;
-  border-top: 1px solid rgba(217,169,67,.25); padding-top: 14px; font-size: 15px; color: var(--text-dim); }
+.foot { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 16px;
+  border-top: 1px solid rgba(214,171,76,.25); padding-top: 14px; font-size: 15px; color: var(--text-dim); }
 .foot p { margin: 0; max-width: 48ch; }
 .foot-actions { display: flex; gap: 8px; }
-.mini { cursor: pointer; background: none; border: 1px solid rgba(217,169,67,.4); color: var(--text-dim); border-radius: 999px; padding: 6px 12px; font: 12px/1 var(--mono); }
-.mini:hover, .mini[aria-pressed="true"] { color: var(--bulb); border-color: var(--brass); }
+.mini { cursor: pointer; background: none; border: 1px solid rgba(214,171,76,.4); color: var(--text-dim); border-radius: 999px; padding: 6px 12px; font: 12px/1 var(--mono); }
+.mini:hover, .mini[aria-pressed="true"] { color: var(--gilt); border-color: var(--gold); }
 
 @media (max-width: 460px) {
-  .section { border-left-width: 6px; border-right-width: 6px; }
-  .door { grid-template-columns: 1fr; justify-items: center; }
-  .slot-plate { grid-column: 1; grid-row: auto; grid-auto-flow: column; align-items: center; }
-  .mouth-wrap, .door-text { grid-column: 1; }
+  .body { border-radius: 80px 80px 10px 10px; }
+  .door { grid-template-columns: auto 1fr; }
+  .grille { display: none; }
   .voice { font-size: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .bulbs i, .ticket, .tilted .tilt-lamp { animation: none; }
+  .bulb, .card *, .tilted .tilt-lamp { animation: none !important; }
+  .card.out { animation: none; }
   .cabinet { transition: none; }
 }
 </style>
 
 <main>
+  <header class="crown">
+    <img class="knot" src="img/knot.webp" alt="" width="480" height="210">
+    <h1>The Flash Seer</h1>
+    <p class="tagline">Seven questions. One card. The firmware you were born to flash.</p>
+  </header>
+
   <div class="cabinet" id="cabinet">
-    <header class="section marquee">
-      <div class="bulbs" aria-hidden="true">${BULBS}</div>
-      <h1>The Flash Seer</h1>
-      <p class="tagline">She knows what to flash</p>
-      <div class="bulbs" aria-hidden="true">${BULBS}</div>
-    </header>
-    <div class="trim"></div>
-    <section class="section" aria-label="The glass case">
-      <div class="case">
-        <canvas id="seer" width="600" height="540" aria-hidden="true"></canvas>
-        <span class="tilt-lamp" aria-hidden="true">TILT</span>
+    <div class="body">
+      <div class="marquee-bulbs" aria-hidden="true">${BULBS}</div>
+      <div class="frame" id="frame">
+        <div class="case">
+          <canvas id="seer" width="600" height="540" aria-hidden="true"></canvas>
+          <img class="corner tl" src="img/corner.webp" alt="">
+          <img class="corner tr" src="img/corner.webp" alt="">
+          <span class="tilt-lamp" aria-hidden="true">TILT</span>
+        </div>
       </div>
-      <p class="voice" id="voice" aria-live="polite">Put a coin in the slot. I will ask you seven questions, and print you a fortune and a firmware.</p>
-    </section>
-    <section class="section stage" id="stage" aria-label="Questions">
-      <p class="note" id="count">Seven questions. Some of them are strange. Answer them anyway.</p>
-    </section>
-    <div class="trim"></div>
-    <section class="section door" aria-label="Coin door">
-      <span class="stud tl"></span><span class="stud tr"></span><span class="stud bl"></span><span class="stud br"></span>
-      <div class="slot-plate">
-        <button class="coin" id="coin" type="button">Insert<br>coin</button>
+      <div class="plaque"><p class="voice" id="voice" aria-live="polite">A coin, if you please. Seven questions, and the machine will give you your card.</p></div>
+      <section class="stage" id="stage" aria-label="Questions">
+        <p class="note" id="count">Some of the questions are strange. Answer them anyway.</p>
+      </section>
+      <div class="door">
+        <button class="coin" id="coin" type="button">Insert coin</button>
+        <div class="slot-wrap"><div class="slot" aria-hidden="true"></div><span class="slot-label">Your card</span></div>
         <div class="grille" aria-hidden="true"></div>
       </div>
-      <div class="mouth-wrap"><div class="mouth" aria-hidden="true"></div><span class="mouth-label">Your fortune</span></div>
-      <p class="door-text" id="door-text">One play per coin. Fortunes for entertainment, firmwares for real.</p>
-    </section>
-    <div class="section base"></div>
+    </div>
+    <div class="dispense" id="dispense"></div>
   </div>
 
-  <div id="result" hidden></div>
+  <section id="result" hidden></section>
 
   <footer class="foot">
-    <p>Firmware list: The Firmware Hub, <a href="https://thefirmwarehub.com" target="_blank" rel="noopener">thefirmwarehub.com</a> (CC BY 4.0), as of <span id="asof"></span>; each description is its maker's. The fortunes are nonsense.</p>
+    <p>Firmware list: The Firmware Hub, <a href="https://thefirmwarehub.com" target="_blank" rel="noopener">thefirmwarehub.com</a> (CC BY 4.0), as of <span id="asof"></span>; each description is its maker's. Knotwork from <a href="https://sidhe.stephen8n.com" target="_blank" rel="noopener">Sídhe</a>. The fortunes are nonsense.</p>
     <div class="foot-actions">
       <button class="mini" id="tilt" type="button" aria-pressed="false">Tilt</button>
       <button class="mini" id="mute" type="button" aria-pressed="false">Sound on</button>
@@ -216,6 +222,9 @@ h1 { margin: 0; font: 400 clamp(36px, 9vw, 54px)/1 var(--marquee); color: var(--
 </main>
 
 <script type="application/json" id="fw-data">__FW__</script>
+<script>
+__VOLTAGE__
+</script>
 <script>
 __APP__
 </script>

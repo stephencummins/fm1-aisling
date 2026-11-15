@@ -10,6 +10,7 @@
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   const inViewer = !!(window.claude && window.claude.use);
+  const now = () => performance.now();
 
   /* ---------- questions: each answer leans toward some traits ---------- */
   const Q = [
@@ -60,28 +61,28 @@
   ];
   const N = 7;
   const KIND_NAME = { synth: "synth", groove: "groovebox", drums: "drums", tracker: "tracker", chords: "chords", other: "something else" };
-
-  /* ---------- what the ticket says ---------- */
-  const OMENS = {
-    ambient: ["A long note is coming your way. Do not interrupt it.", "You will spend an evening watching a drone and call it work.", "Fog is on your side this week."],
-    groove: ["Your foot is already tapping. The neighbours have noticed.", "A bassline will follow you home. Let it in.", "Somewhere, a crowd is waiting for the drop. It is you."],
-    drums: ["Something will be hit, repeatedly, and it will be your decision.", "A hi-hat will change your life. Possibly an open one.", "Thunder recognises you as one of its own."],
-    tracker: ["You will find peace in hexadecimal. Tell no one.", "A column of numbers will make you weep, in a good way.", "Your future is in pattern 0F, row 3C."],
-    chords: ["A minor seventh will change your week.", "Someone will ask what that chord was. You won't know.", "Harmony is in your stars, and it is slightly jazzy."],
-    synth: ["An oscillator is thinking about you right now.", "You will turn a knob and something will happen.", "Electricity has chosen you. Do not resist."],
-    vintage: ["An old cassette holds the answer. You taped over it in 1991.", "Something beige from the eighties will speak to you.", "Dust off the past. It still has batteries in it."],
-    other: ["The cat has a plan. Go along with it.", "You are not like the others. Neither is your firmware.", "A strange noise will become your favourite noise."],
-    obscure: ["You will love something nobody else has heard of. Keep it that way.", "Twelve people will understand you. That is plenty.", "The road less flashed is calling."],
-    popular: ["Ten thousand people cannot be wrong. Probably.", "You will join a crowd and enjoy it, against your better judgement.", "Fortune favours the well-reviewed."],
-    play: ["Try before you flash and you will never flash in vain.", "Your browser knows more than it lets on.", "Caution is a kind of courage. A small kind."],
-  };
   const ECHOES = [
     (a) => `You said "${a}". The machine has made a note.`,
     (a) => `"${a}", you said. The machine believes you.`,
     (a) => `When you said "${a}", a bulb flickered. That is significant.`,
     (a) => `The machine heard "${a}" and will not forget it.`,
   ];
-  const WAVES = ["sine", "saw", "square", "triangle", "noise", "a wave nobody has named yet"];
+  const MURMURS = ["Hm.", "I see.", "The bulbs flicker.", "Go on.", "As I suspected.", "The orb warms.", "Interesting.", "Noted.", "Oh, my."];
+  const GREETINGS = ["Ah. A visitor. Sit, sit.", "Your coin is warm. You have been holding it.", "Welcome, seeker of firmware."];
+
+  /* ---------- bulbs round the glass ---------- */
+  const marquee = document.querySelector(".marquee-bulbs");
+  marquee.innerHTML = '<i class="bulb"></i>'.repeat(13);
+  const frame = $("frame");
+  const PER = 13;
+  const ring = [];
+  for (let i = 0; i < PER; i++) ring.push([i / (PER - 1) * 100, 0]);
+  for (let i = 1; i < PER - 1; i++) ring.push([100, i / (PER - 1) * 100]);
+  for (let i = PER - 1; i >= 0; i--) ring.push([i / (PER - 1) * 100, 100]);
+  for (let i = PER - 2; i > 0; i--) ring.push([0, i / (PER - 1) * 100]);
+  frame.insertAdjacentHTML("afterbegin", ring.map(([x, y]) => `<i class="bulb" style="left:calc(7px + (100% - 14px) * ${x / 100});top:calc(7px + (100% - 14px) * ${y / 100})"></i>`).join(""));
+  const cabinet = $("cabinet");
+  const frenzy = (on) => cabinet.classList.toggle("frenzy", on);
 
   /* ---------- tilt: the machine always says AISLING ---------- */
   const AISLING = FW.find((f) => f.n === "AISLING") || FW.find((f) => /aisling/i.test(f.n));
@@ -89,148 +90,280 @@
   const tiltBtn = $("tilt");
   function setTilt(on) {
     tilted = on && !!AISLING; store.set("seer-tilt", tilted ? "1" : "0");
-    $("cabinet").classList.toggle("tilted", tilted);
+    cabinet.classList.toggle("tilted", tilted);
     tiltBtn.setAttribute("aria-pressed", String(tilted));
     tiltBtn.textContent = tilted ? "Tilted" : "Tilt";
   }
-  tiltBtn.addEventListener("click", () => { setTilt(!tilted); bell(tilted ? 220 : 330, 0, 0.5, 1.5, 4, 0.12); stir(); });
+  tiltBtn.addEventListener("click", () => { setTilt(!tilted); sfx.bell(tilted ? 220 : 330, 0, 0.5, 1.5, 4, 0.12); rig.jolt(); });
   addEventListener("hashchange", () => { if (location.hash === "#tilt") setTilt(true); });
 
-  /* ---------- the seer: a hooded automaton behind glass ---------- */
-  const cv = $("seer"), g = cv.getContext("2d");
-  const W = cv.width, H = cv.height;
-  const sparks = Array.from({ length: 60 }, () => ({ a: Math.random() * 6.283, r: Math.random() * 0.85, s: 0.003 + Math.random() * 0.007, z: Math.random() }));
-  let excite = 0, speaking = 0, blink = 0, nextBlink = 2000;
-  function drawSeer(t) {
-    const sway = reduce ? 0 : Math.sin(t / 1700) * 5, bob = reduce ? 0 : Math.sin(t / 1100) * 2.5;
-    const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1c0d2a"); bg.addColorStop(1, "#08050d");
-    g.fillStyle = bg; g.fillRect(0, 0, W, H);
-    for (let x = 0; x < W; x += 30) { g.fillStyle = `rgba(0,0,0,${0.14 + 0.1 * Math.sin(x / 19)})`; g.fillRect(x, 0, 14, H); }
-    const halo = g.createRadialGradient(300, 210, 20, 300, 230, 300);
-    halo.addColorStop(0, `rgba(242,210,124,${0.10 + excite * 0.12})`); halo.addColorStop(1, "rgba(242,210,124,0)");
-    g.fillStyle = halo; g.fillRect(0, 0, W, H);
-    g.save(); g.translate(sway, bob);
-    const robe = g.createLinearGradient(0, 200, 0, H); robe.addColorStop(0, "#5a2384"); robe.addColorStop(1, "#24103a");
-    g.fillStyle = robe;
-    g.beginPath(); g.moveTo(300, 52);
-    g.bezierCurveTo(392, 52, 428, 150, 418, 250); g.bezierCurveTo(470, 290, 520, 360, 540, 540);
-    g.lineTo(60, 540); g.bezierCurveTo(80, 360, 130, 290, 182, 250); g.bezierCurveTo(172, 150, 208, 52, 300, 52);
-    g.closePath(); g.fill();
-    g.strokeStyle = "#c99b3f"; g.lineWidth = 3;
-    g.beginPath(); g.moveTo(300, 300); g.lineTo(300, 540); g.stroke();
-    g.beginPath(); for (let y = 320; y < 540; y += 26) { g.moveTo(292, y); g.quadraticCurveTo(300, y - 10, 308, y); } g.stroke();
-    g.fillStyle = "#050308"; g.beginPath(); g.ellipse(300, 182, 62, 82, 0, 0, 6.283); g.fill();
-    g.strokeStyle = "#d6ab4c"; g.lineWidth = 4; g.beginPath(); g.ellipse(300, 182, 66, 86, 0, 0, 6.283); g.stroke();
-    g.strokeStyle = "rgba(214,171,76,.45)"; g.lineWidth = 1.5; g.setLineDash([3, 6]); g.beginPath(); g.ellipse(300, 182, 74, 94, 0, 0, 6.283); g.stroke(); g.setLineDash([]);
-    if (!reduce) { nextBlink -= 16; if (nextBlink < 0) { blink = 1; nextBlink = 2500 + Math.random() * 3500; } blink = Math.max(0, blink - 0.12); }
-    const open = 1 - Math.sin(Math.min(1, blink) * Math.PI) * 0.95;
-    const eye = 0.65 + excite * 0.3 + speaking * 0.25;
-    g.save(); g.shadowColor = "#ffd27a"; g.shadowBlur = 18 + 20 * eye;
-    g.fillStyle = `rgba(255,218,140,${Math.min(1, eye)})`;
-    for (const [i, ex] of [[0, 276], [1, 324]]) {
-      const wink = tilted && i === 1 && Math.sin(t / 2600) > 0.93 ? 0.1 : 1;   // tilted: now and then, she winks
-      g.beginPath(); g.ellipse(ex, 176, 10, (5.5 * open + 0.5) * wink, 0, 0, 6.283); g.fill();
-    }
-    g.restore();
-    const m = speaking ? 2 + Math.abs(Math.sin(t / 90)) * 5 : 1;
-    g.fillStyle = `rgba(242,210,124,${0.15 + speaking * 0.5})`; g.beginPath(); g.ellipse(300, 222, 13, m, 0, 0, 6.283); g.fill();
-    g.restore();
-    const ox = 300, oy = 420, R = 70;
-    const og = g.createRadialGradient(ox - 24, oy - 28, 8, ox, oy, R);
-    og.addColorStop(0, "rgba(255,240,215,.45)"); og.addColorStop(0.5, `rgba(107,47,160,${0.45 + excite * 0.2})`); og.addColorStop(1, "rgba(14,6,22,.95)");
-    g.fillStyle = og; g.beginPath(); g.arc(ox, oy, R, 0, 6.283); g.fill();
-    g.save(); g.beginPath(); g.arc(ox, oy, R - 2, 0, 6.283); g.clip();
-    for (const p of sparks) {
-      if (!reduce) { p.a += p.s * (1 + excite * 5); p.r += Math.sin(t / 800 + p.z * 9) * 0.002; }
-      const rr = Math.min(0.92, Math.abs(p.r)) * R;
-      g.fillStyle = `rgba(255,${200 + p.z * 40},${120 + p.z * 60},${0.3 + p.z * 0.6})`;
-      g.beginPath(); g.arc(ox + Math.cos(p.a) * rr, oy + Math.sin(p.a * 1.3) * rr * 0.8, 1 + p.z * 2.2, 0, 6.283); g.fill();
-    }
-    g.restore();
-    g.strokeStyle = "rgba(214,171,76,.8)"; g.lineWidth = 2.5; g.beginPath(); g.arc(ox, oy, R, 0, 6.283); g.stroke();
-    g.fillStyle = "rgba(255,255,255,.16)"; g.beginPath(); g.ellipse(ox - 26, oy - 32, 16, 8, -0.6, 0, 6.283); g.fill();
-    const hv = reduce ? 0 : Math.sin(t / 650) * 4 + excite * Math.sin(t / 70) * 3;
-    for (const [hx, dir] of [[214, 1], [386, -1]]) {
-      const hy = 380 + (dir > 0 ? hv : -hv);
-      g.fillStyle = "#3d1a5a"; g.beginPath(); g.moveTo(hx - 40 * dir, 300); g.quadraticCurveTo(hx - 50 * dir, hy - 10, hx - 8 * dir, hy - 14); g.lineTo(hx + 4 * dir, hy + 18); g.quadraticCurveTo(hx - 64 * dir, hy + 10, hx - 70 * dir, 320); g.closePath(); g.fill();
-      g.fillStyle = "#d9c3a0"; g.beginPath(); g.ellipse(hx + 6 * dir, hy, 15, 21, dir * 0.5, 0, 6.283); g.fill();
-      g.fillStyle = "#cdb48d"; for (let f = 0; f < 4; f++) { g.beginPath(); g.ellipse(hx + (16 + f * 3) * dir, hy - 14 + f * 9, 9, 4, dir * 0.3, 0, 6.283); g.fill(); }
-    }
-    g.fillStyle = "#120a1a"; g.fillRect(0, 498, W, 42);
-    g.fillStyle = "#d6ab4c"; g.fillRect(0, 496, W, 3);
-    g.fillStyle = "#8f6d2a"; g.beginPath(); g.moveTo(258, 498); g.lineTo(342, 498); g.lineTo(328, 484); g.lineTo(272, 484); g.closePath(); g.fill();
-    const glass = g.createLinearGradient(0, 0, W, H); glass.addColorStop(0.15, "rgba(255,255,255,0)"); glass.addColorStop(0.22, "rgba(255,255,255,.06)"); glass.addColorStop(0.3, "rgba(255,255,255,0)");
-    g.fillStyle = glass; g.fillRect(0, 0, W, H);
-    excite *= 0.97;
-    if (!reduce) requestAnimationFrame(drawSeer);
-  }
-  requestAnimationFrame(drawSeer);
-  const stir = () => { excite = 1; if (reduce) requestAnimationFrame(drawSeer); };
+  /* ---------- the animatronic: a porcelain-masked seer in a hood, on wires and cams ---------- */
+  const rig = (() => {
+    const cv = $("seer"), g = cv.getContext("2d"), W = cv.width, H = cv.height;
+    const s = { yaw: 0, yawT: 0, nod: 0, nodT: 0, tilt: 0, jaw: 0, talkUntil: 0, blink: 0, nextBlink: 1800, nextLook: 0,
+      phase: 0, speed: 0.012, up: 0, upT: 0, glow: 0, jolt: 0, mode: "idle", last: 0 };
+    const sparks = Array.from({ length: 60 }, () => ({ a: Math.random() * 6.283, r: Math.random() * 0.85, sp: 0.003 + Math.random() * 0.007, z: Math.random() }));
+    const ease = (v, t, k) => v + (t - v) * k;
 
-  /* ---------- sound: a small two-operator FM bell, after a click only ---------- */
-  let ac = null, muted = store.get("seer-muted") === "1";
+    function candle(x, y, t) {
+      g.fillStyle = "#e9dcc0"; g.fillRect(x - 9, y, 18, 70);
+      g.fillStyle = "#d6ab4c"; g.fillRect(x - 16, y + 66, 32, 8);
+      const f = reduce ? 0 : Math.sin(t / 90 + x) * 2 + Math.sin(t / 37 + x) * 1.2;
+      const fl = g.createRadialGradient(x, y - 16, 2, x, y - 14, 46); fl.addColorStop(0, "rgba(255,190,90,.35)"); fl.addColorStop(1, "rgba(255,190,90,0)");
+      g.fillStyle = fl; g.fillRect(x - 50, y - 64, 100, 100);
+      g.fillStyle = "#ffcf6b"; g.beginPath(); g.moveTo(x - 6, y); g.quadraticCurveTo(x - 7 + f, y - 18, x + f * 1.5, y - 30); g.quadraticCurveTo(x + 7 + f, y - 16, x + 6, y); g.closePath(); g.fill();
+      g.fillStyle = "#fff6d8"; g.beginPath(); g.ellipse(x + f * 0.5, y - 7, 2.5, 6, 0, 0, 6.283); g.fill();
+    }
+    function hand(x, y, dir) {
+      g.fillStyle = "#e6d8bf"; g.beginPath(); g.ellipse(x, y, 15, 19, dir * 0.4, 0, 6.283); g.fill();
+      g.strokeStyle = "#e6d8bf"; g.lineCap = "round"; g.lineWidth = 7;
+      for (let f = 0; f < 4; f++) { const a = -1.9 + f * 0.32 + (dir < 0 ? Math.PI * 0 : 0); g.beginPath(); g.moveTo(x + dir * 6, y - 8 + f * 5); g.lineTo(x + dir * (22 + f % 2 * 3), y - 20 + f * 9 + Math.sin(s.phase * 3 + f) * 3); g.stroke(); }
+      g.strokeStyle = "rgba(120,90,60,.35)"; g.lineWidth = 1; g.beginPath(); g.moveTo(x - 8, y + 6); g.lineTo(x + 8, y + 2); g.stroke();
+    }
+    function draw(t) {
+      const dt = Math.min(50, t - (s.last || t)); s.last = t;
+      // the cams: where the head looks, when the jaw drops, how the hands circle
+      if (!reduce) {
+        if (t > s.nextLook && s.mode !== "reveal") { s.yawT = s.mode === "asking" ? (Math.random() - 0.5) * 0.5 : (Math.random() - 0.5) * 1.3; s.nodT = s.mode === "asking" ? 0.5 : (Math.random() - 0.3) * 0.5; s.nextLook = t + 1400 + Math.random() * 2600; }
+        s.yaw = ease(s.yaw, s.yawT, 0.06); s.nod = ease(s.nod, s.nodT, 0.06);
+        s.tilt = Math.sin(t / 1900) * 0.05 + s.yaw * 0.05 + Math.sin(t / 60) * s.jolt * 0.08;
+        s.jaw = t < s.talkUntil ? 0.35 + 0.65 * Math.abs(Math.sin(t / 85)) * (0.6 + 0.4 * Math.sin(t / 230)) : ease(s.jaw, 0, 0.2);
+        s.nextBlink -= dt; if (s.nextBlink < 0) { s.blink = 1; s.nextBlink = 2200 + Math.random() * 3400; } s.blink = Math.max(0, s.blink - 0.12);
+        s.phase += s.speed * dt / 16; s.up = ease(s.up, s.upT, 0.05); s.glow = ease(s.glow, s.mode === "reveal" ? 1 : s.mode === "asking" ? 0.4 : 0.15, 0.04);
+        s.jolt = Math.max(0, s.jolt - 0.02);
+      }
+      // the booth
+      const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#1e0d2e"); bg.addColorStop(1, "#07040b");
+      g.fillStyle = bg; g.fillRect(0, 0, W, H);
+      for (let x = 0; x < W; x += 30) { g.fillStyle = `rgba(0,0,0,${0.16 + 0.1 * Math.sin(x / 19)})`; g.fillRect(x, 0, 14, H); }
+      const halo = g.createRadialGradient(300, 200, 20, 300, 230, 320);
+      halo.addColorStop(0, `rgba(246,217,138,${0.08 + s.glow * 0.18})`); halo.addColorStop(1, "rgba(246,217,138,0)");
+      g.fillStyle = halo; g.fillRect(0, 0, W, H);
+      candle(70, 400, t); candle(530, 400, t);
+
+      const jx = Math.sin(t / 30) * s.jolt * 6;
+      // robe and shoulders
+      g.save(); g.translate(jx, Math.sin(t / 1300) * 2);
+      const robe = g.createLinearGradient(0, 220, 0, H); robe.addColorStop(0, "#55207e"); robe.addColorStop(1, "#1f0c33");
+      g.fillStyle = robe; g.beginPath(); g.moveTo(170, 262); g.bezierCurveTo(110, 290, 80, 380, 70, 540); g.lineTo(530, 540); g.bezierCurveTo(520, 380, 490, 290, 430, 262); g.closePath(); g.fill();
+      // gilt torc and a spiral brooch
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 7; g.lineCap = "round"; g.beginPath(); g.arc(300, 238, 64, 0.35, Math.PI - 0.35); g.stroke();
+      g.fillStyle = "#f6d98a"; for (const sx of [244, 356]) { g.beginPath(); g.arc(sx, 268, 8, 0, 6.283); g.fill(); }
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 2.2; g.beginPath(); for (let a = 0; a < 14; a += 0.2) { const r = 2 + a * 1.4; g.lineTo(300 + Math.cos(a) * r, 330 + Math.sin(a) * r); } g.stroke();
+      g.restore();
+
+      // arms: shoulders to hands, the hands circling the orb (or raised for the card)
+      const ox = 300, oy = 430;
+      const hands = [-1, 1].map((d) => {
+        const ph = s.phase + (d < 0 ? 0 : Math.PI);
+        const cx = ox + d * 72 + Math.cos(ph) * 22, cy = oy - 34 + Math.sin(ph) * 12;
+        return [cx + d * s.up * 70, cy - s.up * 150, d];
+      });
+      for (const [hx, hy, d] of hands) {
+        g.strokeStyle = "#3f175f"; g.lineWidth = 44; g.lineCap = "round";
+        g.beginPath(); g.moveTo(300 + d * 118, 290); g.quadraticCurveTo(300 + d * 150, (290 + hy) / 2 + 40, hx - d * 18, hy + 10); g.stroke();
+        g.strokeStyle = "#d6ab4c"; g.lineWidth = 5; g.beginPath(); g.arc(hx - d * 18, hy + 10, 22, 0, 6.283); g.stroke();
+      }
+
+      // head: hood, porcelain mask, eyes, hinged jaw
+      g.save();
+      g.translate(300 + s.yaw * 16 + jx, 168 + s.nod * 10);
+      g.rotate(s.tilt);
+      g.fillStyle = "#3a1656"; g.beginPath(); g.moveTo(0, -112); g.bezierCurveTo(92, -112, 118, -10, 106, 88); g.lineTo(-106, 88); g.bezierCurveTo(-118, -10, -92, -112, 0, -112); g.fill();
+      g.fillStyle = "#07040b"; g.beginPath(); g.ellipse(s.yaw * 6, 0, 72, 90, 0, 0, 6.283); g.fill();
+      const fx = s.yaw * 14, sx = 1 - Math.abs(s.yaw) * 0.16;
+      g.save(); g.translate(fx, 0); g.scale(sx, 1);
+      const mask = g.createLinearGradient(-50 - s.yaw * 30, 0, 50 - s.yaw * 30, 0);
+      mask.addColorStop(0, "#f3ead9"); mask.addColorStop(0.6, "#e2d4bb"); mask.addColorStop(1, "#a9977a");
+      // the mask, whole; the chin is a separate piece on a hinge, like a ventriloquist's figure
+      g.fillStyle = mask; g.beginPath(); g.ellipse(0, -4, 52, 76, 0, 0, 6.283); g.fill();
+      // brows, sockets, eyes
+      g.strokeStyle = "#5b4630"; g.lineWidth = 3; g.beginPath(); g.moveTo(-36, -30); g.quadraticCurveTo(-20, -40, -6, -30); g.moveTo(6, -30); g.quadraticCurveTo(20, -40, 36, -30); g.stroke();
+      const open = 1 - Math.sin(Math.min(1, s.blink) * Math.PI) * 0.95;
+      for (const ex of [-20, 20]) {
+        g.fillStyle = "#1a0f0a"; g.beginPath(); g.ellipse(ex, -14, 13, 9, 0, 0, 6.283); g.fill();
+        const wink = tilted && ex > 0 && Math.sin(t / 2600) > 0.93 ? 0.1 : 1;
+        g.save(); g.shadowColor = "#ffcf6b"; g.shadowBlur = 14 + 18 * s.glow;
+        g.fillStyle = `rgba(255,214,120,${0.75 + s.glow * 0.25})`;
+        g.beginPath(); g.ellipse(ex + s.yaw * 5, -14 + s.nod * 2, 5.5, 5.5 * open * wink + 0.3, 0, 0, 6.283); g.fill(); g.restore();
+      }
+      g.strokeStyle = "rgba(91,70,48,.7)"; g.lineWidth = 2; g.beginPath(); g.moveTo(s.yaw * 4, -10); g.lineTo(s.yaw * 6 - 4, 10); g.lineTo(s.yaw * 6 + 4, 12); g.stroke();
+      // a hairline crack in the porcelain
+      g.strokeStyle = "rgba(60,40,30,.45)"; g.lineWidth = 1; g.beginPath(); g.moveTo(30, -60); g.lineTo(24, -44); g.lineTo(30, -36); g.lineTo(26, -22); g.stroke();
+      // the hinged chin, which drops when she speaks
+      const jd = s.jaw * 12;
+      g.fillStyle = "#120806"; g.beginPath(); g.moveTo(-22, 24); g.lineTo(22, 24); g.lineTo(21, 24 + jd); g.lineTo(-21, 24 + jd); g.closePath(); g.fill();
+      g.save(); g.translate(0, jd);
+      g.fillStyle = mask; g.beginPath(); g.moveTo(-22, 24); g.lineTo(22, 24); g.lineTo(21, 58); g.quadraticCurveTo(0, 80, -21, 58); g.closePath(); g.fill();
+      g.strokeStyle = "rgba(60,40,30,.55)"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(-22, 24); g.lineTo(-21, 58); g.moveTo(22, 24); g.lineTo(21, 58); g.stroke();
+      g.strokeStyle = "#7a2b2b"; g.lineWidth = 3; g.beginPath(); g.moveTo(-15, 27); g.quadraticCurveTo(0, 31, 15, 27); g.stroke();
+      g.restore();
+      g.strokeStyle = "#7a2b2b"; g.lineWidth = 3; g.beginPath(); g.moveTo(-18, 22); g.quadraticCurveTo(0, 18, 18, 22); g.stroke();
+      g.fillStyle = "#c98a7a"; g.globalAlpha = 0.35; for (const cx of [-32, 32]) { g.beginPath(); g.arc(cx, 12, 9, 0, 6.283); g.fill(); } g.globalAlpha = 1;
+      g.restore();
+      // hood rim with gilt edge
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 4; g.beginPath(); g.ellipse(s.yaw * 6, 0, 74, 92, 0, Math.PI * 1.02, Math.PI * 1.98); g.stroke();
+      g.strokeStyle = "rgba(214,171,76,.45)"; g.lineWidth = 1.5; g.setLineDash([3, 6]); g.beginPath(); g.ellipse(s.yaw * 6, 0, 84, 102, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke(); g.setLineDash([]);
+      g.restore();
+
+      // the orb
+      const R = 64;
+      const og = g.createRadialGradient(ox - 22, oy - 26, 8, ox, oy, R);
+      og.addColorStop(0, "rgba(255,240,215,.5)"); og.addColorStop(0.5, `rgba(107,47,160,${0.45 + s.glow * 0.35})`); og.addColorStop(1, "rgba(14,6,22,.95)");
+      const oh = g.createRadialGradient(ox, oy, R * 0.5, ox, oy, R * 2); oh.addColorStop(0, `rgba(200,140,255,${0.12 + s.glow * 0.3})`); oh.addColorStop(1, "rgba(200,140,255,0)");
+      g.fillStyle = oh; g.fillRect(ox - R * 2, oy - R * 2, R * 4, R * 4);
+      g.fillStyle = og; g.beginPath(); g.arc(ox, oy, R, 0, 6.283); g.fill();
+      g.save(); g.beginPath(); g.arc(ox, oy, R - 2, 0, 6.283); g.clip();
+      for (const p of sparks) {
+        if (!reduce) { p.a += p.sp * (1 + s.glow * 6); p.r += Math.sin(t / 800 + p.z * 9) * 0.002; }
+        const rr = Math.min(0.92, Math.abs(p.r)) * R;
+        g.fillStyle = `rgba(255,${200 + p.z * 40},${120 + p.z * 60},${0.3 + p.z * 0.6})`;
+        g.beginPath(); g.arc(ox + Math.cos(p.a) * rr, oy + Math.sin(p.a * 1.3) * rr * 0.8, 1 + p.z * 2.2, 0, 6.283); g.fill();
+      }
+      g.restore();
+      g.strokeStyle = "rgba(214,171,76,.8)"; g.lineWidth = 2.5; g.beginPath(); g.arc(ox, oy, R, 0, 6.283); g.stroke();
+      g.fillStyle = "rgba(255,255,255,.16)"; g.beginPath(); g.ellipse(ox - 24, oy - 30, 15, 7, -0.6, 0, 6.283); g.fill();
+      for (const [hx, hy, d] of hands) hand(hx, hy, d);
+
+      // table, a fan of face-down cards, the glass
+      g.fillStyle = "#120a1a"; g.fillRect(0, 498, W, 42);
+      g.fillStyle = "#d6ab4c"; g.fillRect(0, 496, W, 3);
+      g.fillStyle = "#8f6d2a"; g.beginPath(); g.moveTo(262, 498); g.lineTo(338, 498); g.lineTo(326, 486); g.lineTo(274, 486); g.closePath(); g.fill();
+      for (let i = 0; i < 5; i++) { g.save(); g.translate(470 + i * 9, 492); g.rotate(-0.5 + i * 0.18); g.fillStyle = "#2b123f"; g.fillRect(-9, -26, 18, 28); g.strokeStyle = "#d6ab4c"; g.lineWidth = 1; g.strokeRect(-7, -24, 14, 24); g.restore(); }
+      const glass = g.createLinearGradient(0, 0, W, H); glass.addColorStop(0.15, "rgba(255,255,255,0)"); glass.addColorStop(0.22, "rgba(255,255,255,.06)"); glass.addColorStop(0.3, "rgba(255,255,255,0)");
+      g.fillStyle = glass; g.fillRect(0, 0, W, H);
+      if (!reduce) requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+    return {
+      talk(ms) { s.talkUntil = now() + ms; if (reduce) requestAnimationFrame(draw); },
+      mode(m) { s.mode = m; s.upT = m === "reveal" ? 1 : 0; s.speed = m === "reveal" ? 0.05 : m === "asking" ? 0.02 : 0.012; s.nextLook = 0;
+        if (m === "reveal") { s.yawT = 0; s.nodT = -0.4; } if (reduce) requestAnimationFrame(draw); },
+      jolt() { s.jolt = 1; },
+    };
+  })();
+
+  /* ---------- sound: FM bells, and spooky music while the machine is awake ---------- */
+  let muted = store.get("seer-muted") === "1";
+  const sfx = (() => {
+    let ac = null, master = null, wet = null, music = null;
+    function ctx() {
+      if (!ac) {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+        master = ac.createGain(); master.gain.value = muted ? 0 : 1; master.connect(ac.destination);
+        // a dark echo for everything spooky
+        const d = ac.createDelay(1), fb = ac.createGain(), lp = ac.createBiquadFilter();
+        d.delayTime.value = 0.43; fb.gain.value = 0.42; lp.type = "lowpass"; lp.frequency.value = 2200;
+        wet = ac.createGain(); wet.connect(d); d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(master);
+      }
+      if (ac.state === "suspended") ac.resume();
+      return ac;
+    }
+    function bell(freq, when = 0, dur = 1.6, ratio = 3.5, index = 3, vol = 0.16, echo = 0) {
+      try {
+        const a = ctx(), t = a.currentTime + when, car = a.createOscillator(), mod = a.createOscillator(), mg = a.createGain(), out = a.createGain();
+        car.frequency.value = freq; mod.frequency.value = freq * ratio;
+        mg.gain.setValueAtTime(freq * index, t); mg.gain.exponentialRampToValueAtTime(1, t + dur);
+        out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(vol, t + 0.01); out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        mod.connect(mg).connect(car.frequency); car.connect(out); out.connect(master); if (echo) { const e = a.createGain(); e.gain.value = echo; out.connect(e).connect(wet); }
+        car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
+      } catch (e) {}
+    }
+    // the music: a drone on D and A, a music box wandering in D Dorian, and now and then a theremin's moan
+    const SCALE = [587.33, 659.25, 698.46, 783.99, 880, 987.77, 1046.5, 1174.66];
+    function startMusic() {
+      if (music) return;
+      const a = ctx(), bus = a.createGain(); bus.gain.setValueAtTime(0.0001, a.currentTime); bus.gain.exponentialRampToValueAtTime(0.5, a.currentTime + 3); bus.connect(master);
+      const drones = [73.42, 110, 146.83].map((f, i) => {
+        const car = a.createOscillator(), mod = a.createOscillator(), mg = a.createGain(), lfo = a.createOscillator(), lg = a.createGain(), out = a.createGain();
+        car.frequency.value = f; mod.frequency.value = f * 2.003; mg.gain.value = f * 0.8;
+        lfo.frequency.value = 0.07 + i * 0.03; lg.gain.value = f * 0.7; lfo.connect(lg).connect(mg.gain);
+        out.gain.value = [0.07, 0.045, 0.025][i];
+        mod.connect(mg).connect(car.frequency); car.connect(out).connect(bus);
+        car.start(); mod.start(); lfo.start();
+        return [car, mod, lfo];
+      });
+      let step = 3, beat = 0;
+      const timer = setInterval(() => {
+        beat++;
+        if (Math.random() < 0.72) { step = Math.max(0, Math.min(SCALE.length - 1, step + pick([-2, -1, -1, 1, 1, 2]))); bell(SCALE[step], 0, 2.4, 3.5, 2.2, 0.05, 0.6); }
+        if (beat % 16 === 0) bell(SCALE[0] / 2, 0, 3.5, 1.5, 1.5, 0.05, 0.5);
+        if (beat % 22 === 11) theremin();
+      }, 620);
+      function theremin() {
+        try {
+          const t = a.currentTime, o = a.createOscillator(), v = a.createOscillator(), vg = a.createGain(), out = a.createGain();
+          const f0 = pick([440, 523.25, 587.33]);
+          o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * pick([0.75, 1.335, 0.667]), t + 2.6);
+          v.frequency.value = 5.5; vg.gain.value = 7; v.connect(vg).connect(o.frequency);
+          out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(0.035, t + 0.8); out.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
+          o.connect(out); out.connect(bus); const e = a.createGain(); e.gain.value = 0.5; out.connect(e).connect(wet);
+          o.start(t); v.start(t); o.stop(t + 3.3); v.stop(t + 3.3);
+        } catch (e) {}
+      }
+      music = { bus, drones, timer };
+    }
+    function stopMusic(fade = 4) {
+      if (!music) return;
+      const m = music; music = null;
+      clearInterval(m.timer);
+      const t = ac.currentTime; m.bus.gain.cancelScheduledValues(t); m.bus.gain.setValueAtTime(m.bus.gain.value, t); m.bus.gain.exponentialRampToValueAtTime(0.0001, t + fade);
+      m.drones.forEach((os) => os.forEach((o) => o.stop(t + fade + 0.1)));
+    }
+    function swell() { if (music) { const t = ac.currentTime; music.bus.gain.setValueAtTime(music.bus.gain.value, t); music.bus.gain.linearRampToValueAtTime(0.9, t + 1.5); music.bus.gain.linearRampToValueAtTime(0.5, t + 5); } }
+    function setMuted(m) { if (master) master.gain.setTargetAtTime(m ? 0 : 1, ac.currentTime, 0.05); }
+    return { bell, startMusic, stopMusic, swell, setMuted };
+  })();
+  const coinSound = () => { sfx.bell(1320, 0, 0.25, 1.41, 6, 0.11); sfx.bell(990, 0.09, 0.35, 1.41, 5, 0.09); sfx.bell(110, 0.32, 0.4, 1, 3, 0.14); };
+  const tick = () => sfx.bell(587 + Math.random() * 196, 0, 0.3, 2, 1.5, 0.06, 0.3);
+  const whirr = () => { for (let i = 0; i < 22; i++) sfx.bell(180 + (i % 3) * 30, i * 0.1, 0.08, 1.02, 6, 0.04); };
+  const fanfare = () => [587.33, 698.46, 880, 1174.66].forEach((f, i) => sfx.bell(f, i * 0.14, 2.4, 3.5, 2.5, 0.12, 0.5));
+
   const muteBtn = $("mute");
   const setMute = () => { muteBtn.textContent = muted ? "Sound off" : "Sound on"; muteBtn.setAttribute("aria-pressed", String(muted)); };
   setMute();
-  muteBtn.addEventListener("click", () => { muted = !muted; setMute(); store.set("seer-muted", muted ? "1" : "0"); if (muted) stopVoice(); });
-  function bell(freq, when = 0, dur = 1.6, ratio = 3.5, index = 3, vol = 0.16) {
-    if (muted) return;
-    try {
-      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-      const t = ac.currentTime + when, car = ac.createOscillator(), mod = ac.createOscillator(), mg = ac.createGain(), out = ac.createGain();
-      car.frequency.value = freq; mod.frequency.value = freq * ratio;
-      mg.gain.setValueAtTime(freq * index, t); mg.gain.exponentialRampToValueAtTime(1, t + dur);
-      out.gain.setValueAtTime(0.0001, t); out.gain.exponentialRampToValueAtTime(vol, t + 0.01); out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      mod.connect(mg).connect(car.frequency); car.connect(out).connect(ac.destination);
-      car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
-    } catch (e) {}
-  }
-  const coinSound = () => { bell(1320, 0, 0.25, 1.41, 6, 0.11); bell(990, 0.09, 0.35, 1.41, 5, 0.09); bell(140, 0.3, 0.3, 1, 2, 0.12); };
-  const tick = () => bell(587 + Math.random() * 196, 0, 0.3, 2, 1.5, 0.06);
-  const printSound = () => { for (let i = 0; i < 18; i++) bell(2400 + Math.random() * 600, i * 0.1, 0.05, 1.7, 8, 0.03); bell(784, 2.0, 1.4, 3.5, 2, 0.1); bell(1046.5, 2.15, 1.6, 3.5, 2, 0.1); };
+  muteBtn.addEventListener("click", () => { muted = !muted; setMute(); store.set("seer-muted", muted ? "1" : "0"); sfx.setMuted(muted); if (muted) stopVoice(); });
 
-  /* ---------- the machine's voice: claude.ai's inside a viewer, the browser's on the site ---------- */
+  /* ---------- her voice: claude.ai's inside a viewer, the browser's on the site ---------- */
   let tts = null;
   const webVoice = !inViewer && "speechSynthesis" in window;
-  if (inViewer) claude.use("tts").then((t) => { tts = t; refreshSay(); t?.onState?.(({ state }) => { speaking = state === "speaking" ? 1 : 0; }); }).catch(() => {});
-  const canSay = () => inViewer ? !!tts : webVoice;
-  function refreshSay() { const b = $("say"); if (b) b.hidden = !canSay(); }
-  function stopVoice() { try { tts?.stop?.(); } catch (e) {} try { if (webVoice) speechSynthesis.cancel(); } catch (e) {} speaking = 0; }
-  async function say(text) {
+  if (inViewer) claude.use("tts").then((t) => { tts = t; }).catch(() => {});
+  function stopVoice() { try { tts?.stop?.(); } catch (e) {} try { if (webVoice) speechSynthesis.cancel(); } catch (e) {} }
+  const voiceEl = $("voice");
+  function speak(line, aloud = false) {
+    voiceEl.textContent = line;
+    rig.talk(Math.min(6000, 400 + line.length * 55));
+    if (!aloud || muted) return;
     stopVoice();
-    if (muted) return;
-    if (inViewer && tts) {
-      try { speaking = 1; await tts.speak(text, { voice: "airy", rate: 0.92 }); }
-      catch (e) { if (e?.code === "not_granted") { tts = null; refreshSay(); } }
-      finally { speaking = 0; }
-    } else if (webVoice) {
-      const u = new SpeechSynthesisUtterance(text);
+    if (inViewer && tts) { tts.speak(line, { voice: "airy", rate: 0.9 }).catch(() => {}); }
+    else if (webVoice) {
+      const u = new SpeechSynthesisUtterance(line);
       const vs = speechSynthesis.getVoices();
       const v = vs.find((v) => /en-IE/i.test(v.lang)) || vs.find((v) => /en-GB/i.test(v.lang));
       if (v) u.voice = v;
-      u.rate = 0.92; u.pitch = 0.85;
-      u.onstart = () => { speaking = 1; }; u.onend = u.onerror = () => { speaking = 0; };
+      u.rate = 0.88; u.pitch = 0.8;
       speechSynthesis.speak(u);
     }
   }
 
   /* ---------- the game ---------- */
-  const stage = $("stage"), result = $("result"), voice = $("voice"), coinBtn = $("coin");
-  let asked = [], traits = {}, heard = [], current = null;
-  const MURMURS = ["Hm.", "I see.", "The bulbs flicker.", "Go on.", "As I suspected.", "The orb warms.", "Interesting.", "Noted."];
+  const stage = $("stage"), result = $("result"), dispense = $("dispense"), coinBtn = $("coin");
   const intro = stage.innerHTML;
+  let asked = [], traits = {}, heard = [];
 
   function start() {
-    coinSound(); stir(); stopVoice();
+    coinSound(); sfx.startMusic(); stopVoice(); rig.jolt();
     coinBtn.disabled = true;
-    asked = shuffle(Q).slice(0, N); traits = {}; heard = []; current = null;
-    result.hidden = true; result.innerHTML = "";
-    ask(0);
-    $("stage").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    asked = shuffle(Q).slice(0, N); traits = {}; heard = [];
+    result.hidden = true; result.innerHTML = ""; dispense.innerHTML = "";
+    rig.mode("asking");
+    speak(pick(GREETINGS), true);
+    setTimeout(() => ask(0), reduce ? 0 : 1600);
+    stage.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
   }
   function ask(i) {
     const [q, answers] = asked[i];
-    voice.textContent = q;
+    speak(q);
     const order = shuffle(answers);
     stage.innerHTML = `
       <div class="progress"><span>Question ${i + 1} of ${N}</span><span class="pips" aria-hidden="true">${Array.from({ length: N }, (_, k) => `<b class="${k <= i ? "on" : ""}"></b>`).join("")}</span></div>
@@ -239,10 +372,10 @@
     stage.querySelector("button").focus({ preventScroll: true });
   }
   function answer(i, a) {
-    tick(); stir();
+    tick();
     heard.push(a[0]);
     for (const [k, v] of Object.entries(a[1])) traits[k] = (traits[k] || 0) + v;
-    if (i + 1 < N) { voice.textContent = pick(MURMURS); setTimeout(() => ask(i + 1), reduce ? 0 : 380); }
+    if (i + 1 < N) { speak(pick(MURMURS)); setTimeout(() => ask(i + 1), reduce ? 0 : 520); }
     else divine();
   }
 
@@ -263,66 +396,57 @@
     }).sort((a, b) => b[0] - a[0]).slice(0, 5);
     return weighted(top.map(([, f], k) => [f, 5 - k]));
   }
-  function writeFortune(fw) {
-    const lean = tilted ? { ...traits, ambient: (traits.ambient || 0) + 6 } : traits;
-    const ranked = Object.entries(lean).sort((a, b) => b[1] - a[1] || Math.random() - 0.5).map(([k]) => k);
-    const first = ranked[0] || "other", second = ranked.find((k) => k !== first) || "synth";
-    return {
-      omens: [pick(OMENS[first]), pick(ECHOES)(pick(heard)), pick(OMENS[second])],
-      lucky: { "MIDI channel": rnd(1, 16), "Tempo": `${rnd(62, 174)} BPM`, "CC number": rnd(1, 119), "Waveform": pick(WAVES) },
-    };
+  function chooseCard() {
+    const lean = tilted ? { ...traits, ambient: (traits.ambient || 0) + 8, synth: (traits.synth || 0) + 4 } : traits;
+    return weighted(VOLTAGE.cards.map((c) => [c, 1 + c.traits.reduce((t, k) => t + (lean[k] || 0), 0) ** 1.4]));
   }
 
   function divine() {
-    stage.innerHTML = `<p class="note">The machine is thinking…</p>`;
-    voice.textContent = "The spirits of the flash chip are consulted…";
-    excite = 1.8;
-    const fw = chooseFirmware(), f = writeFortune(fw);
-    current = { fw, f };
-    setTimeout(() => {
-      voice.textContent = "Your fortune is printed. Take it from the slot.";
-      printTicket(fw, f);
-    }, reduce ? 0 : 1300);
+    stage.innerHTML = `<p class="note">The machine is consulting the spirits of the flash chip…</p>`;
+    rig.mode("reveal"); frenzy(true); sfx.swell(); whirr();
+    speak("The spirits are stirring… the card is coming…", true);
+    const fw = chooseFirmware(), card = chooseCard();
+    setTimeout(() => deal(fw, card), reduce ? 0 : 2400);
   }
 
-  function printTicket(fw, f) {
-    printSound(); stir();
-    const no = String(rnd(1, 9999)).padStart(4, "0");
+  function deal(fw, card) {
+    fanfare();
+    dispense.innerHTML = `<div class="card out" role="img" aria-label="${esc(card.name)}: the machine says flash ${esc(fw.n)} by ${esc(fw.a)}">${VOLTAGE.render(card, fw)}</div>`;
+    speak(`${card.name}. The machine says: flash ${fw.n}.`, true);
+    setTimeout(() => {
+      frenzy(false); rig.mode("idle"); sfx.stopMusic(8);
+      showReading(fw, card);
+    }, reduce ? 0 : 3000);
+    dispense.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  }
+
+  function showReading(fw, card) {
     const links = [
-      fw.r && `<a href="https://github.com/${esc(fw.r)}" target="_blank" rel="noopener">Source</a>`,
+      fw.r && `<a href="https://github.com/${esc(fw.r)}" target="_blank" rel="noopener">Source on GitHub</a>`,
       fw.p && `<a href="${esc(fw.p)}" target="_blank" rel="noopener">Try it in the browser</a>`,
-      `<a href="https://thefirmwarehub.com" target="_blank" rel="noopener">The Firmware Hub</a>`,
+      `<a href="https://thefirmwarehub.com" target="_blank" rel="noopener">Install from the hub</a>`,
     ].filter(Boolean).join("");
-    const what = fw.w && fw.w.length > 220 ? fw.w.slice(0, 217).replace(/\s+\S*$/, "") + "…" : fw.w;
     result.innerHTML = `
-      <div class="ticket-run">
-        <article class="ticket" aria-label="Your fortune">
-          <header class="t-head"><b>Your Fortune</b><span>No. ${no} · read by the Flash Seer</span></header>
-          ${f.omens.map((o) => `<p class="fortune">${esc(o)}</p>`).join("")}
-          <dl class="lucky">${Object.entries(f.lucky).map(([k, v]) => `<div><dt>Lucky ${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
-          <div class="prescribe">
-            <small>The machine prescribes</small>
-            <h2 class="fw-name">${esc(fw.n)}</h2>
-            <p class="fw-by">by ${esc(fw.a)}</p>
-          </div>
-          ${what ? `<p class="fw-what">${esc(what)}</p>` : ""}
+      <div class="reading">
+        <h2>${esc(card.name)}<small>${card.num} · the Voltage Arcana · stands for ${esc(card.trad)}</small></h2>
+        <p class="meaning">${esc(card.up)}</p>
+        <p class="echo">${esc(pick(ECHOES)(pick(heard)))} Lucky MIDI channel ${rnd(1, 16)}, lucky tempo ${rnd(62, 174)} BPM.</p>
+        <article class="fw" aria-label="Your firmware">
+          <span class="eyebrow">The machine says flash</span>
+          <h3 class="fw-name">${esc(fw.n)}</h3>
+          <p class="fw-by">by ${esc(fw.a)}</p>
+          ${fw.w ? `<p class="fw-what">${esc(fw.w)}</p>` : ""}
           <p class="fw-meta">${esc(KIND_NAME[fw.k] || fw.k)}${fw.v ? ` · ${esc(fw.v)}${fw.b ? " beta" : ""}` : ""}${fw.id ? ` · ${esc(fw.id)}` : ""} · ${fw.i.toLocaleString("en-GB")} installs</p>
           <div class="links">${links}</div>
-          <p class="t-foot">Keep this ticket. Show it to your FM-1.</p>
         </article>
-      </div>
-      <div class="after">
-        <button class="btn line" id="say" type="button" hidden>Hear her say it</button>
-        <button class="btn gold" id="again" type="button">Another coin</button>
+        <details class="lore"><summary>The lore of ${esc(card.name)}</summary><p>${esc(card.lore)}</p></details>
+        <div class="after"><button class="btn gold" id="again" type="button">Another coin</button></div>
       </div>`;
     result.hidden = false;
     stage.innerHTML = intro;
     $("count").textContent = `She heard: ${heard.join(" · ")}.`;
     coinBtn.disabled = false;
-    $("again").addEventListener("click", () => { $("cabinet").scrollIntoView({ behavior: reduce ? "auto" : "smooth" }); start(); });
-    $("say").addEventListener("click", () => say(`${f.omens.join(" ")} The machine prescribes ${fw.n}, by ${fw.a}.`));
-    refreshSay();
-    setTimeout(() => result.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), reduce ? 0 : 400);
+    $("again").addEventListener("click", () => { cabinet.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }); start(); });
   }
 
   coinBtn.addEventListener("click", start);
