@@ -79,31 +79,13 @@ LANDING = """<!doctype html>
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-/* The FM-1's page's own: what it is beside the screens, the ways in as a hairline grid, the layers' colours on the list
-   (3:1 or more on the vellum). The rest is the site's (web/brand/site.css) */
+/* The FM-1's page's own: the layers' colours on the list (3:1 or more on the vellum), what's new in two columns.
+   The rest is the site's (web/brand/site.css): its magazine parts, mg-* */
 :root { --drone: #6a44b3; --seq: #b02f7c; --lead: #9a6400; --seq2: #1d6a94; --atmos: #7a6a54; }
-.what { display: flex; gap: 16px; align-items: flex-start; }
-.card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
-.lede { margin: 0; font-size: 14.5px; }
-.what .buy { margin: 10px 0 0; }
-.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-content: start; }
-.shots img { display: block; box-sizing: border-box; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
-.ways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
-.ways a { display: block; padding: 12px 16px 14px; background: var(--brand-ground); color: var(--brand-ink); text-decoration: none; }
-.ways a:hover { background: var(--brand-strip); color: var(--brand-ink); }
-.ways a:focus-visible { outline-offset: -3px; }
-.ways strong { display: block; margin-bottom: 4px; font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; }
-.ways span { display: block; font-size: 12.5px; color: var(--brand-muted); }
-.ways em.v { font-style: normal; }
-.ways a.go, .ways a.go span { background: var(--brand-green); color: var(--brand-ground); }
-.ways a.go:hover, .ways a.go:hover span { background: #0f5332; }
-.ways a.go:focus-visible { outline-color: var(--brand-ground); }
-/* the visualiser's way in shows a strip of its painting */
-.ways a.pic img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; margin: 2px 0 10px; }
-.block .bh { padding: 12px 16px 0; margin: 0 0 10px; }
-.block .ways { border-top: 1px solid var(--brand-rule); }
-.pane p { margin: 0 0 10px; }
-.pane p:last-child { margin-bottom: 0; }
+.mg-pic.px { align-items: center; justify-content: center; background: #146c41; }
+.mg-pic.px img { width: min(100%, 384px); height: auto; aspect-ratio: 1; }
+.pane p, .mg-in p { margin: 0 0 10px; }
+.pane p:last-child, .mg-in p:last-child { margin-bottom: 0; }
 ul.new { list-style: square; padding-left: 1.2rem; margin: 0; columns: 2; column-gap: 32px; }
 ul.new li { margin: 0 0 6px; break-inside: avoid; }
 ul.new li::marker { color: var(--brand-green); }
@@ -114,17 +96,8 @@ ul.layers li.d::marker { color: var(--drone); } ul.layers li.s::marker { color: 
 ul.layers li.l::marker { color: var(--lead); } ul.layers li.t::marker { color: var(--seq2); }
 ul.layers li.a::marker { color: var(--atmos); }
 p.small { color: var(--brand-muted); font-size: 12.5px; }
-.pane p b { font-weight: 400; color: var(--brand-green); }
-@media (max-width: 59.99rem) {
-  .two.hero { grid-template-columns: minmax(0, 1fr); }
-  .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
-}
-@media (max-width: 47.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } ul.new { columns: 1; } }
-@media (min-width: 30rem) and (max-width: 47.99rem) {
-  .ways.help { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ways.help::after { content: ""; background: var(--brand-ground); }   /* nine in twos: the last cell blank, not ruled */
-}
-@media (max-width: 26rem) { .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; } }
+.mg-in p b { font-weight: 400; color: var(--brand-green); }
+@media (max-width: 47.99rem) { ul.new { columns: 1; } }
 </style>
 <!--AISLING-HEAD-->
 </head>
@@ -132,61 +105,104 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <!--AISLING-BAR-->
 <main class="bench">
 <div class="strip">
-<h1 class="lab"><b>aisling</b> · Irish ambient for the M-VAVE FM-1</h1>
+<p class="lab"><b>aisling</b> · Irish ambient for the M-VAVE FM-1</p>
 <p class="lab">v__VERSION__ · __BY__</p>
 </div>
-<div class="two hero">
-<div class="pane what">
-<img class="card" src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
-<div><p class="lede">AISLING (said ASH-ling: Irish for a dream or a vision, and a pun on <i>AI Synth Link</i>) is a
-generative instrument after the harpers and the west of Ireland. A harp's ostinato runs over a held
-drone, often in a jig's threes; a second harp drifts against it, an octave down; a flute plays long phrases far back in
-the reverb, with surf, wind or rain behind. Let it play for hours, or play with it: the white keys give you the flute,
-always in the piece's scale, and it answers you.</p>
-<p class="small buy">No FM-1 yet? <a href="https://store.stephen8n.com/#g-fm1">Where to buy one</a>.</p></div>
+
+<div class="mg-cover">
+<div class="mg-words">
+<div>
+<h1>Aisling</h1>
+<p class="mg-gloss">Said ASH-ling: Irish for a dream or a vision, and a pun on <i>AI Synth Link</i>.</p>
 </div>
-<div class="pane shots">
+<p class="mg-deck">Irish ambient for the FM-1. Harps and a flute over a held drone. Let it play for hours, or play the flute with it.</p>
+</div>
+<div class="mg-pic px"><img src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green"></div>
+</div>
+
+<nav class="mg-jump" aria-label="On this page">
+<a href="#try"><i>01</i>Try it</a><a href="#controls"><i>02</i>Controls</a><a href="#install"><i>03</i>Install</a><a href="#visualiser"><i>04</i>Visualiser</a><a href="#mor"><i>05</i>Aisling Mór</a><a href="#cheat"><i>06</i>Cheat sheet</a>
+</nav>
+
+<section class="mg-feat" id="try" aria-labelledby="tryh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">01</div>
+<div><p class="mg-kick">The emulator</p><h2 id="tryh">Try it in your browser</h2></div></div>
+<div class="mg-split">
+<div>
+<p class="mg-stand">The same code the FM-1 runs, <em>with sound</em>. No FM-1 needed.</p>
+<p class="mg-go"><a class="btn go big" href="emu/">Open the emulator</a></p>
+<p class="mg-small">Mouse, touch or keyboard. Slide the visualiser up beneath it to watch what it plays painted.</p>
+</div>
+<div class="mg-shots">
   <img src="img/screen-launch.png" width="240" height="240" alt="The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com">
   <img src="img/screen-main.png" width="240" height="240" alt="The main screen: the chord's name among orbiting dots, the five layers' meters, the two harps' lanes">
   <img src="img/screen-perform.png" width="240" height="240" alt="PERFORM at rest: a map of the 27 effects, a green triskele, and Filter, Wet, Energy and Chorus on the knobs">
 </div>
-<nav class="ways" aria-label="Get AISLING">
-  <a class="go" href="install/"><strong>Install <em class="v">v__VERSION__</em></strong><span>From Chrome or Edge on a computer, with the FM-1 connected by a USB data cable. Nothing to install.</span></a>
-  <a href="emu/"><strong>Try it in the browser</strong><span>The same code the FM-1 runs, with sound. Mouse, touch or keyboard; no FM-1 needed. Slide the visualiser up beneath it to watch what it plays painted.</span></a>
-  <a class="pic" href="visualiser/"><img src="img/visualiser.jpg" width="1200" height="630" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"><strong>Visualiser</strong><span>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills and fields, the drone the bog. Drop a sound file on it to mix it in. Chrome or Edge; Demo paints without an FM-1. Nothing leaves your computer.</span></a>
+</div>
+</section>
+
+<section class="mg-feat" id="controls" aria-labelledby="controlsh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">02</div>
+<div><p class="mg-kick">The controls</p><h2 id="controlsh">Every knob, button and key</h2></div></div>
+<a class="mg-draw" href="fm1/controls/" title="The controls page">__PANEL__</a>
+<p class="mg-stand" style="margin-top:18px">The FM-1 drawn, each control labelled with what it does, <em>in your FM-1's colours</em>.</p>
+<p class="mg-go" style="margin:0"><a class="btn go big" href="fm1/controls/">See the controls</a></p>
+</section>
+
+<section class="mg-feat" id="install" aria-labelledby="installh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
+<div><p class="mg-kick">Install</p><h2 id="installh">Put it on your FM-1</h2></div></div>
+<ol class="mg-steps">
+<li><b>Chrome or Edge,</b> on a computer.</li>
+<li><b>The FM-1,</b> connected by a USB data cable.</li>
+<li><b>Nothing to install:</b> the page does it from the browser.</li>
+</ol>
+<p class="mg-go"><a class="btn go big" href="install/">Install v__VERSION__</a></p>
+<p class="mg-small"><a href="manual/#s13">If it goes wrong</a> · <a href="install/#stock">Back to stock</a> ·
+<a href="firmware/__PKG__">Download __PKG__</a> · No FM-1 yet? <a href="https://store.stephen8n.com/#g-fm1">Where to buy one</a></p>
+</section>
+
+<div class="mg-three">
+<section id="visualiser" aria-labelledby="vish">
+<div class="mg-num" aria-hidden="true">04</div>
+<a class="mg-tile" href="visualiser/" tabindex="-1"><img src="img/visualiser.jpg" width="1200" height="630" loading="lazy" alt="The visualiser: the FM-1's layers painted in heather and peat colours on vellum"></a>
+<h2 id="vish">Visualiser</h2>
+<p>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills, the drone the bog. Demo paints without an FM-1.</p>
+<p class="mg-go"><a class="btn go" href="visualiser/">Open the visualiser</a></p>
+</section>
+<section id="mor" aria-labelledby="morh">
+<div class="mg-num" aria-hidden="true">05</div>
+<a class="mg-tile" href="screen/" tabindex="-1"><img src="screen/img/over-fm1.jpg" width="1280" height="720" loading="lazy" alt="A small touch screen on a stand above the FM-1, showing the landscape in mauve, pink and gold"></a>
+<h2 id="morh">Aisling Mór</h2>
+<p>A touch screen beside the FM-1: the landscape, the FM-1's own screen bigger, its knobs under your finger. A kit you put together.</p>
+<p class="mg-go"><a class="btn go" href="screen/">See the screen</a></p>
+</section>
+<section id="cheat" aria-labelledby="cheath">
+<div class="mg-num" aria-hidden="true">06</div>
+<a class="mg-tile type" href="cheat/" tabindex="-1" aria-hidden="true"><span><small>more what you'd call</small>Guidelines<small>than actual rules</small></span></a>
+<h2 id="cheath">Cheat sheet</h2>
+<p>The steps drawn as flows, then every control and the eight pieces, to print on one sheet.</p>
+<p class="mg-go"><a class="btn go" href="cheat/">Open the cheat sheet</a></p>
+</section>
+</div>
+
+<nav class="mg-also" aria-label="More"><span>also</span>
+<a href="manual/">Manual</a><a href="editor/">Editor</a><a href="https://gear.stephen8n.com/">Gear</a><a href="__REPO__">Source</a>
 </nav>
 
-<section class="pane" aria-labelledby="newh">
-<h2 class="bh" id="newh">New in v__VERSION__</h2>
+<section class="mg-fold" aria-label="More about AISLING">
+<details><summary>New in v__VERSION__</summary><div class="mg-in" style="max-width:none">
 __NEW__
-</section>
-
-<section class="block" aria-labelledby="helph">
-<h2 class="bh" id="helph">Help, and the files</h2>
-<nav class="ways help" aria-label="Help and the files">
-  <a href="manual/"><strong>Manual</strong><span>Getting started in a few minutes, then everything else.</span></a>
-  <a href="fm1/controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does, in your FM-1's colours.</span></a>
-  <a href="cheat/"><strong>Cheat sheet</strong><span>The steps drawn as flows, then every control and the eight pieces, to print on one sheet.</span></a>
-  <a href="manual/#s13"><strong>If it goes wrong</strong><span>An FM-1 the browser can't see, installing over AISLING, download mode, calibration, safe mode, and bringing back one that won't start.</span></a>
-  <a href="install/#stock"><strong>Back to stock</strong><span>The official firmware, in the version whose bootloader your FM-1 has: V16 with M-VAVE's M-UPGRADE, V15 from The Firmware Hub.</span></a>
-  <a href="firmware/__PKG__"><strong>Download <em class="v">__PKG__</em></strong><span>The package itself, for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
-  <a href="__REPO__"><strong>Source</strong><span>GitHub, GPL-3.0. A fork of NACHTFAHRT, by way of DUB-1 and AMB-1.</span></a>
-  <a href="editor/"><strong>Editor</strong><span>Every setting of a piece on one panel, in the browser or on your FM-1 over USB.</span></a>
-  <a href="https://gear.stephen8n.com/"><strong>Gear</strong><span>What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases.</span></a>
-</nav>
-</section>
-<div class="two">
-<section class="pane">
-<h2 class="bh">Listen, and play</h2>
+</div></details>
+<details><summary>Listen, and play <small>the white keys, the black keys, PERFORM</small></summary><div class="mg-in">
 <p>AISLING plays itself from the moment it is switched on, and it never ends: each piece opens from the drone,
 flows, gives the flute its turn, crosses a bridge and starts its long rise again. You are invited in. The <b>white
 keys</b> play the flute in the piece's scale, so every note fits; play a phrase and it becomes the flute's theme. The
 <b>black keys</b> are effects while held: Ceo (KYOH, fog), Macalla (MOCK-al-a, an echo), Fras (FRASS, a burst of rain), Rise and Close sweep
 every filter, Transpose lifts the harps, and more. SELECT turns the level of the layer you are looking at; in PERFORM (SEL)
 every key is an effect on the whole music while held, 27 of them, and the knobs push Filter, Wet, Energy and Chorus.</p>
-</section>
-<section class="pane">
-<h2 class="bh">What it plays</h2>
+</div></details>
+<details><summary>What it plays <small>five layers, eight pieces</small></summary><div class="mg-in">
 <ul class="layers">
   <li class="d"><b class="lead">Drone.</b> Organ, strings, a reed drone, glass or a choir whose vowel moves, with the root an octave below; its chords swing slowly between two tonics, as the old tunes do.</li>
   <li class="s"><b class="lead">Sequence.</b> The harp: a wire-strung harp's ostinato, often twelve notes in a jig's threes, repeated by the echo, its filter wandering.</li>
@@ -197,8 +213,9 @@ every key is an effect on the whole music while held, 27 of them, and the knobs 
 <p>Eight pieces: Skellig, Burren, Aran, Carolan, Blasket, Samhain (SOW-in), Connemara and Tir na nOg (teer na NOHG), in
 the old modes and the pipes' keys, each remembering how you left it. Every layer has its sound pages and a Move page, where its filter wanders
 relative to the knob you set.</p>
+</div></details>
 </section>
-</div>
+
 <div class="pane">
 <p class="small">AISLING is by CÚ_STE (<a href="https://www.stephen8n.com">www.stephen8n.com</a>). It is a fork of
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, based on
@@ -628,42 +645,16 @@ FX1_LANDING = """<!doctype html>
 <meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. 1.0, released.">
 <meta property="og:url" content="__SITE__fx1/">
 <style>
-/* FX-1's page's own, as the FM-1's: what it is beside its screens, the ways in as a hairline grid */
-.what { display: flex; gap: 16px; align-items: flex-start; }
-.card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
-.lede { margin: 0; font-size: 14.5px; }
-.notice { border-left: 4px solid var(--brand-rust); background: var(--brand-strip); }
-.notice strong { font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; color: var(--brand-rust); }
-.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-content: start; }
-.shots img { display: block; box-sizing: border-box; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
-.shots p { grid-column: 1 / -1; margin: 0; }
-.ways { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
-.ways a { display: block; padding: 12px 16px 14px; background: var(--brand-ground); color: var(--brand-ink); text-decoration: none; }
-.ways a:hover { background: var(--brand-strip); color: var(--brand-ink); }
-.ways a:focus-visible { outline-offset: -3px; }
-.ways strong { display: block; margin-bottom: 4px; font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; }
-.ways span { display: block; font-size: 12.5px; color: var(--brand-muted); }
-.ways a.go, .ways a.go span { background: var(--brand-green); color: var(--brand-ground); }
-.ways a.go:hover, .ways a.go:hover span { background: #0f5332; }
-.ways a.go:focus-visible { outline-color: var(--brand-ground); }
-.pane p { margin: 0 0 10px; }
-.pane p:last-child { margin-bottom: 0; }
-.pane p b { font-weight: 400; color: var(--brand-green); }
-ol.path { list-style: none; counter-reset: step; padding: 0; margin: 0 0 10px; }
-ol.path li { counter-increment: step; position: relative; padding: 0 0 8px 28px; }
-ol.path li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 18px; text-align: right;
-                     font: 600 15px/1.45 var(--brand-display); color: var(--brand-green); }
+/* FX-1's page's own. The rest is the site's (web/brand/site.css): its magazine parts, mg-* */
+.pane p, .mg-in p { margin: 0 0 10px; }
+.pane p:last-child, .mg-in p:last-child { margin-bottom: 0; }
+.mg-in p b, .mg-steps li code { font-weight: 400; }
+.mg-in strong { font: 600 16px/1.3 var(--brand-display); letter-spacing: .02em; color: var(--brand-rust); }
+.mg-steps li code { overflow-wrap: anywhere; }
 ul.plain { list-style: square; padding-left: 1.2rem; margin: 0 0 10px; }
 ul.plain li { margin: 0 0 6px; }
 ul.plain li::marker { color: var(--brand-green); }
 p.small { color: var(--brand-muted); font-size: 12.5px; }
-@media (max-width: 59.99rem) {
-  .two.hero { grid-template-columns: minmax(0, 1fr); }
-  .two.hero > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
-  .ways { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 29.99rem) { .ways { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 26rem) { .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; } }
 </style>
 <!--AISLING-HEAD-->
 </head>
@@ -671,35 +662,37 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <!--AISLING-BAR-->
 <main class="bench">
 <div class="strip">
-<h1 class="lab"><b>aisling fx-1</b> · an M-VAVE FM-1 as a USB effects box</h1>
-<p class="lab">__BY__</p>
+<p class="lab"><b>aisling fx-1</b> · an M-VAVE FM-1 as a USB effects box</p>
+<p class="lab">v1.0 · __BY__</p>
 </div>
-<div class="pane notice" role="note">
-<p><strong>1.0, released.</strong> It installs from Chrome or Edge on its <a href="install/">install page</a>, and its
-package, <code>aislingfx-1.0.fwsc</code>, is on <a href="__FX1_REPO__/releases/tag/v1.0">the 1.0 release</a> for the
-command-line installer. It has run on one FM-1 so far, put on from the command line: the install page is new, and does
-the same as AISLING's. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+
+<div class="mg-cover">
+<div class="mg-words">
+<div>
+<h1>Aisling <span>FX-1</span></h1>
+<p class="mg-gloss">AISLING with its voices taken out and a computer's sound let in.</p>
 </div>
-<div class="two hero">
-<div class="pane what">
-<img class="card" src="../img/card-fx1.png" width="240" height="240" alt="A gold 8-bit harp on green, with FX beside it">
-<p class="lede">AISLING FX-1 is AISLING with its voices taken out and a computer's sound let in. Connect an M-VAVE FM-1
-to a computer by USB and choose <b>AISLING FX-1</b> as the sound output: whatever the computer plays comes in over the
-cable, goes through AISLING's filter, echo and plate reverb and the effects on its keys, and comes out of the FM-1's
-3.5&nbsp;mm socket. It goes back up the cable too, for the computer to record.</p>
+<p class="mg-deck">An FM-1 as a USB effects box: your computer's sound in over the cable, out through AISLING's filter, echo and reverb.</p>
 </div>
-__SHOTS__
+<div class="mg-pic"><img src="../img/fx1-photo.webp" width="984" height="590" alt="An FM-1 in a printed skin, running AISLING FX-1"></div>
 </div>
-<nav class="ways" aria-label="AISLING FX-1's pages">
-  <a class="go" href="install/"><strong>Install <em class="v">v1.0</em></strong><span>From Chrome or Edge on a computer, with the FM-1 connected by a USB data cable. Nothing to install.</span></a>
-  <a href="manual/"><strong>Manual</strong><span>Installing it, setting it up with a computer, the knobs, the screen, what has been tried and what hasn't, and going back.</span></a>
-  <a href="controls/"><strong>Controls</strong><span>The FM-1 drawn, every knob, button and key labelled with what it does in FX-1.</span></a>
-  <a href="__FX1_REPO__/releases/tag/v1.0"><strong>Download 1.0</strong><span>The package, on GitHub beside its source (GPL-3.0), for the command-line installer, <code>tools/fm1_install.py</code>.</span></a>
+
+<nav class="mg-jump" aria-label="On this page">
+<a href="#controls"><i>01</i>Controls</a><a href="#install"><i>02</i>Install</a><a href="#manual"><i>03</i>Manual</a>
 </nav>
-<div class="two">
-<section class="pane">
-<h2 class="bh">How it goes</h2>
-<ol class="path">
+
+<section class="mg-feat" id="controls" aria-labelledby="controlsh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">01</div>
+<div><p class="mg-kick">The controls</p><h2 id="controlsh">Every knob, button and key</h2></div></div>
+<a class="mg-draw" href="controls/" title="The controls page">__PANEL__</a>
+<p class="mg-stand" style="margin-top:18px">At HOME the knobs are <em>the Filter, the Echo, the Reverb and the Dry</em>. In PERFORM the keys are effects while held.</p>
+<p class="mg-go" style="margin:0"><a class="btn go big" href="controls/">See the controls</a></p>
+</section>
+
+<section class="mg-feat" id="install" aria-labelledby="installh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">02</div>
+<div><p class="mg-kick">Install</p><h2 id="installh">Put it on your FM-1</h2></div></div>
+<ol class="mg-steps">
   <li>Put FX-1 on the FM-1 from its <a href="install/">install page</a>, in Chrome or Edge, over AISLING, another
       firmware or the stock one (or download <code>aislingfx-1.0.fwsc</code> from the release and install it with
       <code>tools/fm1_install.py</code>).</li>
@@ -710,9 +703,30 @@ __SHOTS__
       the keys are effects while held.</li>
   <li>To record what comes out, choose the FM-1 as the computer's input as well.</li>
 </ol>
+<p class="mg-go"><a class="btn go big" href="install/">Install v1.0</a></p>
+<p class="mg-small"><a href="__FX1_REPO__/releases/tag/v1.0">Download 1.0</a> · Going back: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
 </section>
-<section class="pane">
-<h2 class="bh">Tried, and not yet</h2>
+
+<section class="mg-feat" id="manual" aria-labelledby="manualh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
+<div><p class="mg-kick">The manual</p><h2 id="manualh">Setting it up</h2></div></div>
+<div class="mg-split">
+<div>
+<p class="mg-stand">Choose <em>AISLING FX-1</em> as the computer's sound output. It comes out of the FM-1's 3.5&nbsp;mm socket, and goes back up the cable to record.</p>
+<p class="mg-go" style="margin:0"><a class="btn go big" href="manual/">Read the manual</a></p>
+</div>
+__SHOTS__
+</div>
+</section>
+
+<section class="mg-fold" aria-label="More about AISLING FX-1">
+<details><summary>1.0, released <small>where it has run</small></summary><div class="mg-in">
+<p><strong>1.0, released.</strong> It installs from Chrome or Edge on its <a href="install/">install page</a>, and its
+package, <code>aislingfx-1.0.fwsc</code>, is on <a href="__FX1_REPO__/releases/tag/v1.0">the 1.0 release</a> for the
+command-line installer. It has run on one FM-1 so far, put on from the command line: the install page is new, and does
+the same as AISLING's. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+</div></details>
+<details><summary>Tried, and not yet <small>what works, what's untested</small></summary><div class="mg-in">
 <ul class="plain">
   <li>On the FM-1: the sound plays with no gaps and no packets lost, it sounds right, the screen keeps up, and turning
       the Dry down leaves the effects' share as it was. It went on over AISLING and over the stock firmware, and
@@ -726,8 +740,9 @@ __SHOTS__
       Setup's sleep timer, if set, quiets the socket while the computer still plays.</li>
 </ul>
 <p class="small">The <a href="manual/">manual</a> keeps this list as it changes.</p>
+</div></details>
 </section>
-</div>
+
 <div class="pane">
 <p class="small">AISLING FX-1 is AISLING's own code with a second USB sound stream, the one coming in, and the voices
 left out; everything else is AISLING's, a fork of <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a>
@@ -1053,7 +1068,8 @@ def fx1_landing():
     """FX-1's page, with its screens if there are any in docs/img (fx1-*.png, from the simulator: tests/scenarios-fx)."""
     shots = [(f, a) for f, a in FX1_SHOTS if (SRC / "docs" / "img" / f).exists()]
     pics = "".join(f'  <img src="../img/{f}" width="240" height="240" alt="{html.escape(a)}">\n' for f, a in shots)
-    return (FX1_LANDING.replace("__SHOTS__", f'<div class="pane shots">\n{pics}</div>' if shots else "")
+    return (FX1_LANDING.replace("__SHOTS__", f'<div class="mg-shots">\n{pics}</div>' if shots else "")
+            .replace("__PANEL__", drawing(SRC / "docs" / "img" / "fx1-controls.svg"))
             .replace("__REPO__", REPO).replace("__SITE__", SITE).replace("__BY__", BY).replace("__FX1_REPO__", FX1_REPO))
 
 
@@ -1151,6 +1167,7 @@ def main(pkg, version, out, smk37=None, fx1=None):
     page = (LANDING.replace("__VERSION__", html.escape(version)).replace("__PKG__", name).replace("__REPO__", REPO)
             .replace("__SITE__", SITE).replace("__BY__", BY).replace("__NEW__", whats_new(version)))
     page = re.sub(r'\b(href|src)="(?!https?:|#|/|mailto:)', r'\1="../', page)
+    page = page.replace("__PANEL__", drawing(SRC / "docs" / "img" / "fm1-controls.svg"))
     (out / "fm1" / "index.html").write_text(stamp(page, "../", None, "fm1"), encoding="utf-8")
     # the controls pages, the FM-1's and FX-1's
     (out / "fm1" / "controls" / "index.html").write_text(
