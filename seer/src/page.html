@@ -1,0 +1,245 @@
+<title>The Flash Seer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,500&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single gilt fortune booth down the middle: title, the glass case with the seer, her plaque, the question panel, then the three-card spread, her reading and the firmware ticket. One committed night look (Sídhe's purple and gold) on both host themes. */
+:root {
+  --night: #07050c;
+  --night-2: #120a1c;
+  --purple: #4a1a6b;
+  --purple-2: #6b2fa0;
+  --gold: #d6ab4c;
+  --gold-dim: #8f6d2a;
+  --gilt: #f2d27c;
+  --parch: #efe3c8;
+  --parch-2: #dccba5;
+  --ink: #23180d;
+  --ink-soft: #5e4a31;
+  --text: #efe6d6;
+  --text-dim: #b9a98f;
+  --display: "Uncial Antiqua", "Iowan Old Style", Georgia, serif;
+  --body: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--night); }
+body {
+  background: radial-gradient(ellipse at 50% 0%, var(--night-2) 0%, var(--night) 70%);
+  color: var(--text); font: 500 19px/1.5 var(--body); min-height: 100%;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+}
+a { color: var(--gilt); text-underline-offset: 3px; }
+a:hover { color: var(--parch); }
+:focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
+
+.booth { max-width: 640px; margin: 0 auto; display: grid; gap: 22px; }
+
+/* title */
+.marquee { display: grid; justify-items: center; gap: 4px; text-align: center; }
+.knot { width: min(220px, 56vw); height: auto; mix-blend-mode: screen; opacity: .95; }
+h1 { margin: 0; font: 400 clamp(38px, 9.5vw, 60px)/1 var(--display); color: var(--gilt);
+  text-shadow: 0 0 22px rgba(242, 210, 124, .28), 0 2px 0 var(--gold-dim); text-wrap: balance; }
+.sub { margin: 0; font: italic 500 19px/1.35 var(--body); color: var(--text-dim); max-width: 34ch; text-wrap: balance; }
+
+/* the glass case */
+.case { position: relative; border: 2px solid var(--gold-dim); border-radius: 160px 160px 10px 10px; overflow: hidden;
+  background: var(--night-2); box-shadow: 0 0 0 5px var(--night), 0 0 0 6px var(--gold-dim), 0 30px 80px rgba(0,0,0,.6); }
+#seer { display: block; width: 100%; height: auto; aspect-ratio: 600 / 540; }
+.corner { position: absolute; width: 26%; max-width: 150px; mix-blend-mode: screen; pointer-events: none; }
+.corner.bl { left: 0; bottom: 0; transform: scaleY(-1); }
+.corner.br { right: 0; bottom: 0; transform: scale(-1, -1); }
+.plaque { position: relative; margin: -8px auto 0; width: min(92%, 520px); text-align: center;
+  background: linear-gradient(180deg, #1a1024, #0d0814); border: 1px solid var(--gold-dim); border-radius: 8px; padding: 14px 18px;
+  box-shadow: inset 0 0 0 3px rgba(214,171,76,.12); }
+.voice { margin: 0; font: italic 500 22px/1.4 var(--body); color: var(--parch); text-wrap: balance; min-height: 2.8em; }
+.voice-by { display: block; margin-top: 6px; font: 500 10px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+
+/* questions */
+.stage { display: grid; gap: 14px; }
+.progress { display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  font: 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text-dim); }
+.pips { display: flex; gap: 6px; }
+.pips b { width: 18px; height: 3px; border-radius: 2px; background: rgba(214,171,76,.22); }
+.pips b.on { background: var(--gold); }
+.answers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.answers button {
+  width: 100%; text-align: left; cursor: pointer; display: flex; gap: 14px; align-items: baseline;
+  font: 500 20px/1.3 var(--body); color: var(--text);
+  background: rgba(74,26,107,.22); border: 1px solid rgba(214,171,76,.4); border-radius: 8px; padding: 12px 16px;
+  transition: background .15s, border-color .15s, transform .15s;
+}
+.answers button:hover { background: rgba(107,47,160,.32); border-color: var(--gold); transform: translateX(3px); }
+.answers kbd { font: 500 12px/1 var(--mono); color: var(--gold); min-width: 1.2em; }
+.coin {
+  justify-self: center; cursor: pointer; font: 400 21px/1 var(--display); color: var(--ink);
+  background: linear-gradient(180deg, var(--gilt), var(--gold)); border: 0; border-radius: 999px; padding: 16px 30px;
+  box-shadow: 0 3px 0 var(--gold-dim), 0 0 26px rgba(242,210,124,.22);
+}
+.coin:hover { filter: brightness(1.06); }
+.coin:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--gold-dim); }
+.note { margin: 0; text-align: center; color: var(--text-dim); font-size: 17px; }
+
+/* the spread */
+.result { display: grid; gap: 22px; }
+.spread { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(8px, 3vw, 18px); }
+.pos { display: grid; gap: 8px; justify-items: center; text-align: center; min-width: 0; }
+.pos-label { font: 500 10px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); min-height: 2.6em; }
+.card { width: 100%; max-width: 180px; aspect-ratio: 2 / 3; perspective: 900px; }
+.card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s cubic-bezier(.3,.7,.2,1); transform: rotateY(180deg); }
+.card.open .card-inner { transform: none; }
+.card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; backface-visibility: hidden;
+  box-shadow: 0 12px 26px rgba(0,0,0,.55), 0 0 0 1px var(--gold-dim); }
+.card .back { transform: rotateY(180deg); }
+.card.rev .front { transform: rotate(180deg); }
+.card-name { margin: 0; font: 400 clamp(14px, 3.6vw, 19px)/1.15 var(--display); color: var(--gilt); }
+.card-state { font: 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); }
+.card-kw { margin: 0; font: italic 500 15px/1.3 var(--body); color: var(--text-dim); }
+
+.reading { background: linear-gradient(180deg, rgba(74,26,107,.35), rgba(18,10,28,.6)); border: 1px solid rgba(214,171,76,.35);
+  border-radius: 10px; padding: 18px 20px; display: grid; gap: 12px; }
+.reading h2 { margin: 0; font: 400 22px/1.1 var(--display); color: var(--gilt); }
+.reading-text { margin: 0; font: italic 500 20px/1.5 var(--body); color: var(--parch); white-space: pre-wrap; }
+.reading-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ghost { cursor: pointer; font: 500 13px/1 var(--mono); letter-spacing: .05em; color: var(--gilt); background: transparent;
+  border: 1px solid var(--gold); border-radius: 999px; padding: 10px 14px; }
+.ghost:hover { background: rgba(214,171,76,.12); }
+.ghost:disabled { opacity: .5; cursor: default; }
+.fine { margin: 0; font: 13px/1.4 var(--mono); color: var(--text-dim); }
+
+.ticket { color: var(--ink); background: var(--parch); border-radius: 6px; padding: 20px 22px 18px; display: grid; gap: 10px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.45); position: relative; }
+.ticket::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--parch-2); border-radius: 3px; pointer-events: none; }
+.ticket .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dim); }
+.fw-name { margin: 0; font: 400 32px/1.05 var(--display); color: var(--ink); text-wrap: balance; }
+.fw-by { margin: 0; color: var(--ink-soft); font-size: 18px; }
+.fw-what { margin: 0; font-size: 18px; line-height: 1.45; color: var(--ink); max-width: 60ch; }
+.fw-what::before { content: "\201C"; } .fw-what::after { content: "\201D"; }
+.specs { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0; padding-top: 10px; border-top: 1px dashed var(--parch-2); }
+.specs div { display: grid; gap: 3px; min-width: 0; }
+.specs dt { font: 500 10px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); }
+.specs dd { margin: 0; font: 14px/1.3 var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; position: relative; }
+.links a { font: 500 13px/1 var(--mono); text-decoration: none; color: var(--parch); background: var(--purple); border-radius: 999px; padding: 9px 14px; }
+.links a:hover { background: var(--purple-2); color: var(--gilt); }
+
+.myths { display: grid; gap: 8px; }
+.myths details { border-top: 1px solid rgba(214,171,76,.25); padding-top: 8px; }
+.myths summary { cursor: pointer; font: 400 18px/1.3 var(--display); color: var(--gilt); }
+.myths p { margin: 8px 0 4px; color: var(--text); max-width: 62ch; }
+.heard { margin: 0; text-align: center; color: var(--text-dim); font-size: 17px; }
+.heard em { color: var(--text); }
+
+.foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 16px;
+  border-top: 1px solid rgba(214,171,76,.25); padding-top: 14px; font-size: 15px; color: var(--text-dim); }
+.foot p { margin: 0; max-width: 54ch; }
+.mute { cursor: pointer; background: none; border: 1px solid rgba(214,171,76,.4); color: var(--text-dim); border-radius: 999px; padding: 6px 12px; font: 12px/1 var(--mono); }
+.mute:hover { color: var(--gilt); border-color: var(--gold); }
+
+/* deck choice */
+.decks { display: flex; justify-content: center; gap: 0; border: 1px solid var(--gold-dim); border-radius: 999px; padding: 3px; width: fit-content; max-width: 100%; margin: 0 auto; }
+.decks button { cursor: pointer; border: 0; border-radius: 999px; background: transparent; color: var(--text-dim);
+  font: 500 13px/1 var(--mono); letter-spacing: .06em; padding: 9px 14px; }
+.decks button[aria-pressed="true"] { background: var(--purple); color: var(--gilt); }
+.decks button:hover { color: var(--gilt); }
+
+/* tilt */
+.case { transition: transform .5s cubic-bezier(.3,1.6,.5,1); }
+.case.tilted { transform: rotate(-2.2deg) translateX(-4px); }
+.tilt-lamp { position: absolute; top: 14%; right: 9%; font: 500 12px/1 var(--mono); letter-spacing: .2em; padding: 6px 8px;
+  border: 1px solid var(--gold-dim); border-radius: 4px; color: rgba(242,210,124,.25); background: rgba(0,0,0,.35); }
+.case.tilted .tilt-lamp { color: #ff6b4a; border-color: #ff6b4a; text-shadow: 0 0 10px #ff3b1f; animation: lamp 1s steps(2) infinite; }
+@keyframes lamp { 50% { opacity: .55 } }
+.foot-actions { display: flex; gap: 8px; }
+
+/* the Voltage Arcana's cards: inline panels with a few lights that move */
+.card .vfront, .card .vback { position: absolute; inset: 0; border-radius: 8px; overflow: hidden; backface-visibility: hidden;
+  box-shadow: 0 12px 26px rgba(0,0,0,.55), 0 0 0 1px var(--gold-dim); }
+.card .vfront svg, .card .vback svg { width: 100%; height: 100%; display: block; }
+.card .vback { transform: rotateY(180deg); }
+.card.rev .vfront { transform: rotate(180deg); }
+.vfront .blink { animation: blink 1s steps(2) infinite; }
+.vfront .blink-slow { animation: blink 2.4s ease-in-out infinite; }
+.vfront .blink-fast { animation: blink .35s steps(2) infinite; }
+.vfront .step { animation: step 2s steps(1) infinite; opacity: .25; }
+.vfront .spin { animation: spin 6s linear infinite; }
+.vfront .pulse { animation: pulse .5s ease-out infinite; }
+.vfront .ripple circle { animation: ripple 3s ease-out infinite; transform-origin: 100px 132px; }
+.vfront .progress { animation: progress 3s ease-in-out infinite; transform-origin: 44px 168px; }
+.vfront .needle { animation: needle 1.2s ease-in-out infinite alternate; transform-origin: 100px 138px; }
+.vfront .sway { animation: sway 3s ease-in-out infinite alternate; transform-origin: 100px 74px; }
+@keyframes blink { 50% { opacity: .2 } }
+@keyframes step { 0%, 6% { opacity: 1 } 7%, 100% { opacity: .25 } }
+@keyframes spin { to { transform: rotate(360deg) } }
+@keyframes pulse { 0% { transform: scale(1.06) } 100% { transform: scale(1) } }
+@keyframes ripple { 0% { transform: scale(.6); opacity: 1 } 100% { transform: scale(1.15); opacity: 0 } }
+@keyframes progress { 0% { transform: scaleX(.05) } 80%, 100% { transform: scaleX(1) } }
+@keyframes needle { from { transform: rotate(-8deg) } to { transform: rotate(26deg) } }
+@keyframes sway { from { transform: rotate(-3deg) } to { transform: rotate(4deg) } }
+
+@media (max-width: 460px) {
+  .case { border-radius: 110px 110px 10px 10px; }
+  .card-kw { display: none; }
+  .voice { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-inner, .case { transition: none; }
+  .answers button:hover { transform: none; }
+  .vfront *, .case.tilted .tilt-lamp { animation: none !important; }
+}
+</style>
+
+<main class="booth">
+  <header class="marquee">
+    <img class="knot" src="img/knot.webp" alt="" width="480" height="210">
+    <h1>The Flash Seer</h1>
+    <p class="sub">The Bean Feasa deals you three cards and tells you which FM-1 firmware to flash.</p>
+  </header>
+
+  <div class="decks" role="group" aria-label="Deck">
+    <button type="button" data-deck="sidhe" aria-pressed="true">Sídhe · Celtic</button>
+    <button type="button" data-deck="voltage" aria-pressed="false">Voltage · Synth</button>
+  </div>
+
+  <section aria-label="The fortune booth">
+    <div class="case" id="case">
+      <canvas id="seer" width="600" height="540" aria-hidden="true"></canvas>
+      <span class="tilt-lamp" aria-hidden="true">TILT</span>
+      <img class="corner bl" src="img/corner.webp" alt="">
+      <img class="corner br" src="img/corner.webp" alt="">
+    </div>
+    <div class="plaque" aria-live="polite">
+      <p class="voice" id="voice">Cross my palm with a coin, answer my seven questions, and I will deal you three cards and a firmware.</p>
+      <span class="voice-by">An Bhean Feasa · the wise woman</span>
+    </div>
+  </section>
+
+  <section class="stage" id="stage">
+    <button class="coin" id="coin" type="button">Insert a coin</button>
+    <p class="note" id="count">Seven questions. Some of them are strange. Answer them anyway.</p>
+  </section>
+
+  <section class="result" id="result" hidden></section>
+
+  <footer class="foot">
+    <p>Cards: the Celtic Mythology deck of <a href="https://sidhe.stephen8n.com" target="_blank" rel="noopener">Sídhe</a>, and the Voltage Arcana. Firmware list: The Firmware Hub, <a href="https://thefirmwarehub.com" target="_blank" rel="noopener">thefirmwarehub.com</a> (CC BY 4.0), as of <span id="asof"></span>; each description is its maker's. The prophecy is for fun.</p>
+    <div class="foot-actions">
+      <button class="mute" id="tilt" type="button" aria-pressed="false">Tilt</button>
+      <button class="mute" id="mute" type="button" aria-pressed="false">Sound on</button>
+    </div>
+  </footer>
+</main>
+
+<script type="application/json" id="fw-data">__FW__</script>
+<script type="application/json" id="sidhe-data">__SIDHE__</script>
+<script>
+__VOLTAGE__
+</script>
+<script>
+__APP__
+</script>
