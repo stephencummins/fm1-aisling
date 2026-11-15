@@ -381,6 +381,24 @@ CHOOSER = """<!doctype html>
 .what { display: flex; gap: 16px; align-items: flex-start; }
 .card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
 .lede { margin: 0; font-size: 14.5px; max-width: 92ch; }
+/* the tip cup, top right: our own drawing. Steam all the time; every 14 seconds a sugar lump goes in and it wiggles */
+.cup { flex: none; margin-left: auto; display: block; width: 64px; text-align: center; text-decoration: none; color: var(--brand-muted);
+       font: 400 11px/1.2 var(--brand-mono, monospace); }
+.cup svg { display: block; width: 64px; height: 64px; overflow: visible; }
+.cup:hover { color: var(--brand-green); }
+.cup .mug { transform-origin: 8px 14px; animation: cup-wiggle 14s ease-in-out infinite; }
+.cup:hover .mug { animation: cup-wiggle 1.4s ease-in-out infinite; }
+.cup .steam rect { animation: cup-steam 3.2s linear infinite; opacity: 0; }
+.cup .steam rect:nth-child(2) { animation-delay: 1.1s; } .cup .steam rect:nth-child(3) { animation-delay: 2.1s; }
+.cup .lump { animation: cup-lump 14s linear infinite; opacity: 0; }
+.cup .plop { animation: cup-plop 14s linear infinite; opacity: 0; }
+@keyframes cup-wiggle { 0%, 52%, 64%, 100% { transform: rotate(0); } 54% { transform: rotate(-7deg); } 57% { transform: rotate(6deg); }
+                        60% { transform: rotate(-4deg); } 62% { transform: rotate(2deg); } }
+@keyframes cup-steam { 0% { transform: translateY(1px); opacity: 0; } 25% { opacity: .75; } 100% { transform: translateY(-4px); opacity: 0; } }
+@keyframes cup-lump { 0%, 44% { transform: translateY(-7px); opacity: 0; } 45% { transform: translateY(-7px); opacity: 1; }
+                      51% { transform: translateY(0); opacity: 1; } 52%, 100% { transform: translateY(0); opacity: 0; } }
+@keyframes cup-plop { 0%, 51% { transform: translateY(0); opacity: 0; } 52% { opacity: 1; } 55% { transform: translateY(-2px); opacity: 0; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cup .mug, .cup .lump, .cup .plop, .cup .steam rect { animation: none; } .cup .steam rect { opacity: .6; } }
 .parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
 .part { display: flex; flex-direction: column; min-width: 0; background: var(--brand-ground); }
 .part > a { display: block; flex: 1; padding: 16px 16px 12px; color: var(--brand-ink); text-decoration: none; }
@@ -420,6 +438,7 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
   .part > a { display: block; }
   .pic { height: 130px; margin: 0 0 12px; }
   .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; }
+  .cup { float: right; margin: 0 0 4px 12px; width: 48px; } .cup svg { width: 48px; height: 48px; }
 }
 </style>
 <!--AISLING-HEAD-->
@@ -437,6 +456,17 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 west of Ireland: a harp's ostinato over a held drone, a second harp drifting against it, a flute far back in the reverb,
 with surf, wind or rain behind. It was written for the M-VAVE FM-1, and runs on M-VAVE's SMK-37 Elite too; AISLING FX-1
 turns an FM-1 into an effects box for a computer's sound. Which have you got?</p>
+<a class="cup" href="https://ko-fi.com/stejcu" title="Love my firmware? Tip me on Ko-fi">
+<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+<g class="steam" fill="#5b4a3a"><rect x="5" y="2" width="1" height="2"/><rect x="7" y="1" width="1" height="2"/><rect x="9" y="2" width="1" height="2"/></g>
+<rect class="lump" x="7" y="4" width="2" height="2" fill="#fff" stroke="#2b2219" stroke-width=".4"/>
+<g class="plop" fill="#8c3510"><rect x="5" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/></g>
+<g class="mug">
+<rect x="2" y="14" width="11" height="1" fill="#2b2219"/><rect x="3" y="13" width="9" height="1" fill="#d9ccb1"/>
+<rect x="3" y="6" width="9" height="7" fill="#2b2219"/><rect x="4" y="7" width="7" height="5" fill="#fff8ea"/>
+<rect x="4" y="7" width="7" height="1" fill="#8c3510"/><rect x="4" y="10" width="7" height="1" fill="#146c41"/>
+<rect x="12" y="7" width="2" height="1" fill="#2b2219"/><rect x="14" y="8" width="1" height="2" fill="#2b2219"/><rect x="12" y="10" width="2" height="1" fill="#2b2219"/>
+</g></svg>tip me</a>
 </div>
 <div class="parts">
 __PARTS__
