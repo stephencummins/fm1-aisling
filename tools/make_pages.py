@@ -121,7 +121,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 </div>
 
 <nav class="mg-jump" aria-label="On this page">
-<a href="#try"><i>01</i>Try it</a><a href="#controls"><i>02</i>Controls</a><a href="#install"><i>03</i>Install</a><a href="#visualiser"><i>04</i>Visualiser</a><a href="#mor"><i>05</i>Aisling Mór</a><a href="#cheat"><i>06</i>Cheat sheet</a>
+<a href="#try"><i>01</i>Try it</a><a href="#controls"><i>02</i>Controls</a><a href="#install"><i>03</i>Install</a><a href="#visualiser"><i>04</i>Visualiser</a><a href="#voxbox"><i>05</i>Voxbox</a><a href="#cheat"><i>06</i>Cheat sheet</a>
 </nav>
 
 <section class="mg-feat" id="try" aria-labelledby="tryh">
@@ -170,10 +170,10 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <p>The FM-1 paints an Irish landscape from its MIDI: the flute the sky, the harps the hills, the drone the bog. Demo paints without an FM-1.</p>
 <p class="mg-go"><a class="btn go" href="visualiser/">Open the visualiser</a></p>
 </section>
-<section id="mor" aria-labelledby="morh">
+<section id="voxbox" aria-labelledby="voxboxh">
 <div class="mg-num" aria-hidden="true">05</div>
 <a class="mg-tile" href="screen/" tabindex="-1"><img src="screen/img/over-fm1.jpg" width="1280" height="720" loading="lazy" alt="A small touch screen on a stand above the FM-1, showing the landscape in mauve, pink and gold"></a>
-<h2 id="morh">Aisling Mór</h2>
+<h2 id="voxboxh">Voxbox</h2>
 <p>A touch screen beside the FM-1: the landscape, the FM-1's own screen bigger, its knobs under your finger. A kit you put together.</p>
 <p class="mg-go"><a class="btn go" href="screen/">See the screen</a></p>
 </section>
@@ -515,9 +515,9 @@ __PARTS__
 </div>
 </section>
 
-<section class="mg-feat band" aria-labelledby="morh">
+<section class="mg-feat band" aria-labelledby="voxboxh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">05</div>
-<div><p class="mg-kick">The add-on screen</p><h2 id="morh">Aisling Mór</h2></div></div>
+<div><p class="mg-kick">The add-on screen</p><h2 id="voxboxh">Voxbox</h2></div></div>
 <div class="mg-split">
 <div>
 <p class="mg-stand">A touch screen for the FM-1 that <em>paints what it plays</em>. A kit you put together.</p>
@@ -1043,19 +1043,22 @@ def controls_page(kind, svg_path):
 # AISLING's words on FX-1's page. Its "Back to the stock firmware" becomes "Going back", pointing at AISLING's page
 FX1_INSTALL_EDITS = (
     ("<title>Install · AISLING</title>", "<title>Install · AISLING FX-1</title>"),
-    ("put AISLING on your FM-1</h1>", "put AISLING FX-1 on your FM-1</h1>"),
+    ("put AISLING on your FM-1</p>", "put AISLING FX-1 on your FM-1</p>"),
+    ("<h1>Install <span>AISLING</span></h1>", "<h1>Install <span>FX-1</span></h1>"),
     ('href="../manual/#recovering', 'href="../../manual/#recovering'),
     ("AISLING is by CÚ_STE", "AISLING FX-1 is by CÚ_STE"),
     ('"https://github.com/stephencummins/fm1-aisling" target="_blank" rel="noopener">github.com/stephencummins/fm1-aisling<',
      f'"{FX1_REPO}" target="_blank" rel="noopener">{FX1_REPO.removeprefix("https://")}<'),
 )
-FX1_INSTALL_BACK = """<section class="pane" id="back">
-  <h2 class="bh" data-t="backh"></h2>
+FX1_INSTALL_BACK = """<details id="back">
+  <summary data-t="backh"></summary>
+  <div class="mg-in">
   <p data-t="back1"></p>
   <p data-t="back2"></p>
   <p class="btns"><a class="btn" href="../../install/" data-t="backgo1"></a>
   <a class="btn" href="../../install/#stock" data-t="backgo2"></a></p>
-  </section>"""
+  </div>
+  </details>"""
 FX1_INSTALL_TEXT = {
     "en": {"ready": "Ready to install AISLING FX-1 ", "manual": "Back to AISLING FX-1",
            "chipother": "not one AISLING FX-1 knows", "backh": "Going back",
@@ -1080,7 +1083,7 @@ def fx1_installer(page):
         if page.count(old) != 1:
             raise SystemExit(f"web/amb_installer.html: {old!r} is not there once, for FX-1's installer")
         page = page.replace(old, new)
-    page, n = re.subn(r'<section class="pane" id="stock">.*?</section>', FX1_INSTALL_BACK, page, flags=re.S)
+    page, n = re.subn(r'<details id="stock">.*?</details>', FX1_INSTALL_BACK, page, flags=re.S)
     if n != 1:
         raise SystemExit("web/amb_installer.html: no one stock section, for FX-1's installer")
     words = "".join(f"Object.assign(TEXT.{lang}, {json.dumps(t, ensure_ascii=False)});\n" for lang, t in FX1_INSTALL_TEXT.items())
