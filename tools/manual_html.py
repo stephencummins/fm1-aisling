@@ -29,8 +29,11 @@ CSS = """
 .prose { font-size: 14px; line-height: 1.65; }
 .prose > :first-child { margin-top: 0; }
 .prose h2, .prose h3 { font-family: var(--brand-display); font-weight: 600; text-wrap: balance; line-height: 1.25; color: var(--brand-ink); }
-.prose h2 { font-size: 19px; letter-spacing: .02em; margin: 2.4rem 0 .7rem; padding-top: .8rem; border-top: 1px solid var(--brand-rule); }
-.prose h2 .num { color: var(--brand-green); margin-right: .25em; font-variant-numeric: tabular-nums; }
+.prose h2 { display: flex; align-items: baseline; gap: .45em; font-size: clamp(24px, 3vw, 34px); line-height: 1.05; letter-spacing: .03em;
+            text-transform: uppercase; margin: 3.2rem 0 1.1rem; padding-top: 1rem; border-top: 2px solid var(--brand-ink); }
+.prose h2 .num { flex: none; font-size: 1.7em; line-height: .8; color: transparent; -webkit-text-stroke: 1.5px var(--brand-rust);
+                 font-variant-numeric: tabular-nums; }
+@supports not (-webkit-text-stroke: 2px red) { .prose h2 .num { color: var(--brand-rust); } }
 .prose h3 { font-size: 16px; letter-spacing: .01em; margin: 1.7rem 0 .4rem; }
 .prose p, .prose li { max-width: 78ch; }
 .prose p { margin: 0 0 .9rem; }
@@ -50,7 +53,17 @@ CSS = """
 .prose th, .prose td { text-align: left; vertical-align: top; padding: .4rem .7rem .4rem 0; border-bottom: 1px solid var(--brand-rule); }
 .prose th { font-weight: 400; font-size: 12.5px; color: var(--brand-muted); border-bottom-color: var(--brand-muted); }
 .prose td:first-child { white-space: nowrap; }
-.prose .lede { font-size: 14.5px; margin-bottom: 1.2rem; }
+.prose .lede { font: 600 clamp(17px, 1.7vw, 20px)/1.4 var(--brand-display); letter-spacing: .01em; max-width: 64ch; margin-bottom: 1.4rem; }
+.prose .lede a { color: inherit; }
+/* the cover: what the page is, and the firmware's own screen; the sections as numbered tiles under it */
+.mg-pic.px { align-items: center; justify-content: center; padding: 22px; background: #146c41; }
+.mg-pic.px img { width: min(100%, 300px); height: auto; aspect-ratio: 1; box-shadow: 0 0 0 6px #1c1610; }
+nav.mg-jump { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); border-bottom: 1px solid var(--brand-rule); }
+nav.mg-jump a { font-size: 17px; overflow-wrap: anywhere; }
+nav.mg-jump a i { flex: none; overflow-wrap: normal; }
+@media (max-width: 47.99rem) { nav.mg-jump { grid-template-columns: 1fr 1fr; } }
+details.status { max-width: 78ch; }
+details.status > summary b { font: 600 15px/1.3 var(--brand-display); letter-spacing: .06em; text-transform: uppercase; color: var(--brand-rust); }
 .status, .callout { background: var(--brand-strip); border: 1px solid var(--brand-rule); padding: 10px 14px; margin: 0 0 1.1rem; max-width: 78ch; }
 .callout { border-left: 3px solid var(--brand-green); }
 .status p, .callout p { margin: 0; }
@@ -74,7 +87,7 @@ nav.contents li { margin: 0; }
 nav.contents a { display: block; padding: 3px 0; color: var(--brand-ink); text-decoration: none; }
 nav.contents a:hover { color: var(--brand-green); text-decoration: underline; }
 @media (min-width: 48rem) { nav.contents { position: sticky; top: calc(var(--brand-bar) + .45rem); max-height: calc(100vh - var(--brand-bar) - 1rem); overflow-y: auto; box-sizing: border-box; } }
-@media (max-width: 47.99rem) { nav.contents ol { columns: 2 12rem; column-gap: 1.2rem; } nav.contents li { break-inside: avoid; } }
+@media (max-width: 47.99rem) { aside.side { display: none; } }   /* a phone has the tiles under the cover */
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 """
 # --fragment: no site.css, so the page brings the little of it the text above stands on
@@ -102,10 +115,22 @@ def on_the_bench(body):
         contents = contents.replace("<hr>\n", "")
         side = f'<aside class="side">\n{contents}</aside>\n'
     part = PARTS[PART]
-    strip = (f'<div class="strip">\n<h1 class="lab"><b>{title.lower()}</b> · {part["name"]}, {part["what"]}</h1>\n'
+    cover, tag = "", "h1"
+    if h1 and title == "Manual" and nav:              # the firmware's own manual: a cover, and its sections as tiles
+        tag = "p"
+        tiles = re.findall(r'<a href="#s(\d+)">(.*?)</a>', nav.group(0))
+        count = COUNTS[len(tiles)] if len(tiles) < len(COUNTS) else str(len(tiles))
+        w, h = size(IMG_BASE / part["shot"][0])
+        cover = (f'<div class="mg-cover">\n<div class="mg-words">\n<div><h1>{part["cover"]}</h1>\n'
+                 f'<p class="mg-gloss">{part["name"]}, {part["what"]}.</p></div>\n'
+                 f'<p class="mg-deck">{part["deck"].replace("__N__", count)}</p>\n</div>\n'
+                 f'<div class="mg-pic px"><img src="{part["shot"][0]}" width="{w}" height="{h}" alt="{part["shot"][1]}"></div>\n</div>\n'
+                 '<nav class="mg-jump" aria-label="Sections">' +
+                 "".join(f'<a href="#s{n}"><i>{int(n):02d}</i>{t}</a>' for n, t in tiles) + "</nav>\n")
+    strip = (f'<div class="strip">\n<{tag} class="lab"><b>{title.lower()}</b> · {part["name"]}, {part["what"]}</{tag}>\n'
              f'<a class="btn" href="{part["button"][0]}">{part["button"][1]}</a>\n</div>\n')
     text = f'<article class="pane prose">\n{body}\n</article>\n'
-    return strip + (f'<div class="cols">\n{side}{text}</div>\n' if side else text)
+    return strip + cover + (f'<div class="cols">\n{side}{text}</div>\n' if side else text)
 
 
 def inline(t):
@@ -136,10 +161,16 @@ NAME = "AISLING"
 IMG_BASE = SRC / "docs"
 # whose manual: its name (a "# NAME" title is the manual's own), what it is, where it sits below the site's root, and
 # the strip's button
+# and its cover: the title, the line under it (__N__: how many sections), and the screen beside them
+COUNTS = "no one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen".split()
 PARTS = {"fm1": dict(name=NAME, what="Irish ambient for the M-VAVE FM-1", root="../", button=("../cheat/", "cheat sheet"),
-                     desc="a generative Irish ambient instrument for the M-VAVE FM-1"),
+                     desc="a generative Irish ambient instrument for the M-VAVE FM-1",
+                     cover="The <span>Manual</span>", deck="Every control, page and piece, in __N__ sections.",
+                     shot=("img/screen-main.png", "AISLING's main screen")),
          "fx1": dict(name=NAME + " FX-1", what="an FM-1 as a USB effects box", root="../../", button=("../controls/", "controls"),
-                     desc="an M-VAVE FM-1 running AISLING's effects on a computer's sound, over USB")}
+                     desc="an M-VAVE FM-1 running AISLING's effects on a computer's sound, over USB",
+                     cover="FX-1 <span>Manual</span>", deck="Setting it up, the controls and the effects, in __N__ sections.",
+                     shot=("img/fx1-screen.png", "AISLING FX-1's screen while the computer's sound plays"))}
 PART = "fm1"
 EMBED = False                                         # --fragment: images as data URIs
 
@@ -271,9 +302,13 @@ def convert(md):
                 para.append(lines[i])
             text = inline(" ".join(p.strip() for p in para))
             if text.startswith("<strong>Status.</strong>"):
-                out.append(f'<div class="status"><p>{text}</p></div>')
+                # folded: its first sentence is what shows
+                first, _, rest = text.removeprefix("<strong>Status.</strong>").strip().partition(". ")
+                out.append(f'<details class="status"><summary><b>Status</b> · {first}.</summary><p>{rest}</p></details>'
+                           if rest else f'<div class="status"><p>{text}</p></div>')
             elif out and out[-1].startswith("<h1>"):
-                out.append(f'<p class="lede">{text}</p>')
+                first, dot, rest = text.partition(". ")   # its first sentence is the standfirst
+                out.append(f'<p class="lede">{first}{dot.strip()}</p>' + (f"\n<p>{rest}</p>" if rest else ""))
             else:
                 out.append(f"<p>{lead(text)}</p>")
         i += 1
