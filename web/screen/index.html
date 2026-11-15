@@ -27,7 +27,7 @@
 .cover .gloss { margin: 10px 0 0; font-size: 12px; letter-spacing: .04em; color: #c9b99a; }
 .cover .deck { margin: 0; font: 600 clamp(19px, 2.1vw, 25px)/1.2 var(--brand-display); letter-spacing: .01em; max-width: 22ch; }
 .cover video { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16 / 9; }
-.jump { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.jump { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .jump a { display: flex; align-items: baseline; gap: 12px; padding: 12px 16px 11px; text-decoration: none;
           font: 600 clamp(17px, 2vw, 22px)/1.1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
 .jump a + a { border-left: 1px solid var(--brand-rule); }
@@ -89,6 +89,22 @@ a.btn.big { min-height: 48px; padding: 10px 20px; font: 600 19px/1 var(--brand-d
 .steps li b { font-weight: 400; color: var(--brand-green); }
 .never { margin: 12px 0 0; font: 600 17px/1.3 var(--brand-display); letter-spacing: .01em; color: var(--brand-rust); }
 .sub { margin: 0 0 12px; font: 600 22px/1.1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
+/* 04: the Lego tray */
+.facts { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 16px 0 0; padding: 0; background: var(--brand-rule); border: 1px solid var(--brand-rule); }
+.facts li { padding: 10px 12px 11px; background: var(--brand-ground); font-size: 12px; color: var(--brand-muted); }
+.facts b { display: block; font: 600 clamp(24px, 2.6vw, 32px)/1.05 var(--brand-display); color: var(--brand-green); }
+.steps.bricks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.steps.bricks li { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-content: start; }
+.steps.bricks li:last-child { grid-column: span 2; }
+.steps.bricks li::before { grid-row: 2; margin: 0; }
+.steps.bricks img { grid-column: 1 / -1; width: 100%; height: 150px; object-fit: contain; margin: 0 0 8px; }
+.steps.bricks b { grid-column: 2; align-self: end; font: 600 17px/1.15 var(--brand-display); letter-spacing: .02em; text-transform: uppercase; color: var(--brand-ink); }
+.steps.bricks span { grid-column: 1 / -1; margin-top: 6px; font-size: 12px; color: var(--brand-muted); }
+.parts { width: auto; min-width: min(100%, 26rem); border-collapse: collapse; margin: 0 0 12px; font-size: 13px; }
+.parts th, .parts td { padding: 4px 18px 4px 0; text-align: left; border-bottom: 1px solid var(--brand-rule); }
+.parts th { font-weight: 400; color: var(--brand-muted); }
+ol.plain { margin: 0 0 12px; padding-left: 1.4em; font-size: 13px; }
+ol.plain li { margin: 0 0 4px; }
 /* the small print: folded away until asked for */
 .fold { padding: 0; }
 .fold details { border-top: 1px solid var(--brand-rule); }
@@ -117,9 +133,12 @@ p.small code { overflow-wrap: anywhere; }
   .cover, .fwgrid, .buy { grid-template-columns: minmax(0, 1fr); }
   .films { grid-template-columns: repeat(2, minmax(0, 1fr)); } .films .film:first-child { grid-column: 1 / -1; }
   .mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps, .steps.bricks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 47.99rem) {
+  .jump { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jump a:nth-child(3) { border-left: 0; }
+  .jump a:nth-child(n+3) { border-top: 1px solid var(--brand-rule); }
   .feat { padding: 20px 16px 22px; } .fold summary { padding-left: 16px; padding-right: 16px; } .fold .in { padding: 2px 16px 18px; }
   .feat-head { grid-template-columns: minmax(0, 1fr); row-gap: 14px; }
   .faq { grid-template-columns: minmax(0, 1fr); }
@@ -133,6 +152,7 @@ p.small code { overflow-wrap: anywhere; }
 @media (max-width: 30rem) {
   .jump a { flex-direction: column; gap: 4px; padding: 10px 12px; }
   .kit, .steps, .films { grid-template-columns: minmax(0, 1fr); }
+  .jump a { font-size: 15px; }
   .tiers li { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) { .film img { transition: none; } .film:hover img { transform: none; } }
@@ -161,7 +181,7 @@ p.small code { overflow-wrap: anywhere; }
 </div>
 
 <nav class="jump" aria-label="On this page">
-<a href="#see"><i>01</i>See it</a><a href="#others"><i>02</i>Other firmware</a><a href="#get"><i>03</i>Get one</a>
+<a href="#see"><i>01</i>See it</a><a href="#others"><i>02</i>Other firmware</a><a href="#get"><i>03</i>Get one</a><a href="#tray"><i>04</i>Lego tray</a>
 </nav>
 
 <section class="feat" id="see" aria-labelledby="seeh">
@@ -239,6 +259,43 @@ p.small code { overflow-wrap: anywhere; }
 <li><b>Play.</b> Tap the landscape for the FM-1's page, and tap that for the effects. LAND goes back. Hold a finger down for two seconds for the calibration screen.</li>
 </ol>
 <p class="never">Never power both of the board's sockets from two sources at once: they share one power line, which also feeds the FM-1.</p>
+</section>
+
+<section class="feat" id="tray" aria-labelledby="trayh">
+<div class="feat-head"><div class="num d" aria-hidden="true">04</div>
+<div><p class="kick">A stand from bricks</p><h2 id="trayh">Build it a Lego tray</h2></div></div>
+<div class="buy">
+<div>
+<p class="stand">A tray of ordinary Lego bricks that holds the VOXBOX <em>at a tilt</em>: 49 parts, seven steps.</p>
+<p class="caveat"><b>An untested design.</b> Nobody has built it from real bricks yet; I plan to. Its sizes are read from photos of the real box, not taken with a ruler, and the tightest gap is 1.2 mm, so try the fit with the real boards at step 4.</p>
+<p class="caveat"><b>The picture needs turning.</b> The boards sit in the tray with their cables out of the back, and with today's download the picture then reads upside down. A build that turns it half a turn is being made; it is not out yet.</p>
+<p class="vids"><a class="btn go big" href="voxbox-lego-tray.ldr" download>Download the model</a></p>
+<p class="small" style="margin-top:14px">voxbox-lego-tray.ldr, an LDraw file, 2,670 bytes. It opens in BrickLink's free Studio; how is in the small print below.</p>
+<ul class="facts">
+<li><b>13 × 10</b>studs across, 104 × 80 mm</li>
+<li><b>11 × 7</b>studs of pocket, 88 × 56 mm</li>
+<li><b>49</b>parts, 13 kinds</li>
+</ul>
+</div>
+<div>
+<figure><img src="img/lego/fitted.webp" width="874" height="554" loading="lazy" alt="The tray drawn with the screen in it: a low black box of bricks around the screen, which shows bands of mauve, orange and pink"><figcaption>The tray with the screen in it, drawn. The screen and board are not in the file.</figcaption></figure>
+<div class="pair" style="margin-top:12px;align-items:start">
+<figure><img src="img/lego/empty.webp" width="874" height="554" loading="lazy" alt="The tray drawn empty: a walled pocket with pillars inside"><figcaption>Empty.</figcaption></figure>
+<figure><img src="img/lego/back.webp" width="860" height="467" loading="lazy" alt="The tray drawn from behind, the foot of bricks under its back edge"><figcaption>From behind: the foot that tilts it.</figcaption></figure>
+</div>
+</div>
+</div>
+<h3 class="sub">Seven steps</h3>
+<ol class="steps bricks">
+<li><img src="img/lego/step1.webp" width="906" height="660" loading="lazy" alt="Step 1, drawn: the floor, the new parts in orange"><b>The floor</b><span>2 × Plate 6 × 10, 1 × Plate 1 × 10.</span></li>
+<li><img src="img/lego/step2.webp" width="984" height="749" loading="lazy" alt="Step 2, drawn: the first course of the wall, the new parts in orange"><b>The first course of the wall</b><span>3 × Brick 2 × 4, 3 × Brick 1 × 2, 2 × Brick 1 × 8.</span></li>
+<li><img src="img/lego/step3.webp" width="948" height="754" loading="lazy" alt="Step 3, drawn: the second course, the new parts in orange"><b>The second course</b><span>4 × Brick 1 × 3, 2 × Brick 2 × 4, 1 × Brick 2 × 3, 2 × Brick 1 × 6.</span></li>
+<li><img src="img/lego/step4.webp" width="936" height="745" loading="lazy" alt="Step 4, drawn: three pillars and the stop, the new parts in orange, the front wall drawn see-through"><b>Three pillars and the stop</b><span>6 × Brick 2 × 2, 4 × Tile 2 × 2. Try the two boards in the pocket here, before the wall's plates go on. If the pins touch the floor, add one Plate 2 × 2 under each pillar's tile.</span></li>
+<li><img src="img/lego/step5.webp" width="929" height="750" loading="lazy" alt="Step 5, drawn: the first layer of plates on the wall, the new parts in orange"><b>The first layer of plates on the wall</b><span>2 × Plate 2 × 6, 1 × Plate 1 × 10, 2 × Plate 1 × 8, 1 × Plate 1 × 3.</span></li>
+<li><img src="img/lego/step6.webp" width="910" height="746" loading="lazy" alt="Step 6, drawn: the second layer of plates, the new parts in orange"><b>The second layer of plates</b><span>1 × Plate 1 × 10, 2 × Plate 2 × 6, 2 × Plate 1 × 8, 1 × Plate 1 × 3.</span></li>
+<li><img src="img/lego/step7.webp" width="836" height="597" loading="lazy" alt="Step 7, drawn: the foot under the back edge, the new parts in orange"><b>The foot under the back edge</b><span>5 × Brick 2 × 4, 2 × Brick 2 × 2.</span></li>
+</ol>
+<p class="small" style="margin-top:12px">LEGO is a trademark of the LEGO Group, which does not sponsor or endorse this.</p>
 </section>
 
 <section class="fold" aria-label="The small print">
@@ -358,6 +415,21 @@ to be made for a Pi's header.</p>
 or Edge still paints the full landscape from an FM-1 plugged into the computer.</p>
 </div>
 </div>
+</div></details>
+<details id="tray-parts"><summary>The tray's parts <small>49 bricks, plates and tiles</small></summary><div class="in">
+<table class="parts"><thead><tr><th>How many</th><th>Part</th><th>LDraw number</th></tr></thead><tbody><tr><td>10</td><td>Brick 2 × 4</td><td>3001</td></tr><tr><td>2</td><td>Brick 1 × 8</td><td>3008</td></tr><tr><td>1</td><td>Brick 2 × 3</td><td>3002</td></tr><tr><td>2</td><td>Brick 1 × 6</td><td>3009</td></tr><tr><td>8</td><td>Brick 2 × 2</td><td>3003</td></tr><tr><td>4</td><td>Brick 1 × 3</td><td>3622</td></tr><tr><td>3</td><td>Brick 1 × 2</td><td>3004</td></tr><tr><td>2</td><td>Plate 6 × 10</td><td>3033</td></tr><tr><td>4</td><td>Plate 2 × 6</td><td>3795</td></tr><tr><td>3</td><td>Plate 1 × 10</td><td>4477</td></tr><tr><td>4</td><td>Plate 1 × 8</td><td>3460</td></tr><tr><td>4</td><td>Tile 2 × 2</td><td>3068b</td></tr><tr><td>2</td><td>Plate 1 × 3</td><td>3623</td></tr></tbody></table>
+<p>The tray is drawn around sizes read from photos of the real box, scaled by its 2.54 mm pin spacing and good to about 0.7 mm; none has been checked with a ruler. The screen's board is 85.5 × 56 mm, its nominal size. Under it, the small board's face is 17.9 mm down and the tips of its soldered pins 19.5 mm; above it, the glass is 4.6 mm up.</p>
+<p>On pillars of 22.4 mm the pin tips clear the floor's studs by 1.2 mm, which is about the size of the measuring error. If they touch, one Plate 2 × 2 under each pillar's tile lifts the boards 3.2 mm. The glass stands about 1.3 mm above the wall's studs. The tile on the floor carries nothing: it sits 1.3 mm under the small board and stops that corner dipping when the screen is pressed.</p>
+</div></details>
+<details id="tray-studio"><summary>Opening the tray in Studio <small>the file, its steps, its parts</small></summary><div class="in">
+<ol class="plain">
+<li>Install Studio 2.0 from BrickLink. It is free.</li>
+<li>File, Import, Import LDraw File, and choose voxbox-lego-tray.ldr. Plain File, Open lists only Studio's own .io files.</li>
+<li>The Step List panel shows the seven steps; clicking one shows the model built up to there.</li>
+<li>To turn the view, hold the right mouse button and drag. Scroll to zoom. To turn a part, select it and press the arrow keys.</li>
+<li>Model Info lists the parts, and can send them to a BrickLink wanted list.</li>
+</ol>
+<p>The file opened in Studio this way on 15 November 2026; the menu and panel names are as remembered, not checked. Studio shows only the Lego, and its collision and stability checks have not been run on this model.</p>
 </div></details>
 <details><summary>The files <small>sizes, checksums, older builds</small></summary><div class="in">
 <p>The screen covers the board's BOOT button, which is why the program goes on first. After that, a new build loads
