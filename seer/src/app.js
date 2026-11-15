@@ -131,6 +131,34 @@
       phase: 0, speed: 0.012, up: 0, upT: 0, glow: 0, jolt: 0, mode: "idle", last: 0 };
     const sparks = Array.from({ length: 60 }, () => ({ a: Math.random() * 6.283, r: Math.random() * 0.85, sp: 0.003 + Math.random() * 0.007, z: Math.random() }));
     const ease = (v, t, k) => v + (t - v) * k;
+    // a damask for the robe: faint gold triskeles and dots, tiled
+    const damask = (() => {
+      const c = document.createElement("canvas"); c.width = c.height = 44; const x = c.getContext("2d");
+      x.strokeStyle = "rgba(246,217,138,.16)"; x.lineWidth = 1.2;
+      for (let k = 0; k < 3; k++) { x.beginPath(); for (let a = 0; a < 4.2; a += 0.15) { const r = 1 + a * 1.6; const ang = a + k * 2.094; x.lineTo(22 + Math.cos(ang) * r, 22 + Math.sin(ang) * r); } x.stroke(); }
+      x.fillStyle = "rgba(246,217,138,.14)"; for (const [px, py] of [[0, 0], [44, 0], [0, 44], [44, 44]]) { x.beginPath(); x.arc(px, py, 2, 0, 6.283); x.fill(); }
+      return g.createPattern(c, "repeat");
+    })();
+    // a gilt rope of two twisted strands from (x1,y1) to (x2,y2)
+    function rope(x1, y1, x2, y2, w = 5, col = "#d6ab4c") {
+      const len = Math.hypot(x2 - x1, y2 - y1), nx = -(y2 - y1) / len, ny = (x2 - x1) / len, n = Math.max(8, Math.round(len / 3));
+      g.lineWidth = 1.6; g.strokeStyle = col;
+      for (const ph of [0, Math.PI]) {
+        g.beginPath();
+        for (let i = 0; i <= n; i++) { const u = i / n, o = Math.sin(u * len / 7 + ph) * w / 2; g.lineTo(x1 + (x2 - x1) * u + nx * o, y1 + (y2 - y1) * u + ny * o); }
+        g.stroke();
+      }
+    }
+    function spiral(x, y, r, col = "#f6d98a", lw = 1.4) {
+      g.strokeStyle = col; g.lineWidth = lw; g.beginPath();
+      for (let a = 0; a < 9; a += 0.25) { const rr = r * a / 9; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+      g.stroke();
+    }
+    function gem(x, y, r, col) {
+      g.fillStyle = "#8f6d2a"; g.beginPath(); g.arc(x, y, r + 2.5, 0, 6.283); g.fill();
+      const gg = g.createRadialGradient(x - r * 0.3, y - r * 0.3, 0.5, x, y, r); gg.addColorStop(0, "#fff"); gg.addColorStop(0.3, col); gg.addColorStop(1, "#200");
+      g.fillStyle = gg; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+    }
 
     function candle(x, y, t) {
       g.fillStyle = "#e9dcc0"; g.fillRect(x - 9, y, 18, 70);
@@ -172,11 +200,40 @@
       // robe and shoulders
       g.save(); g.translate(jx, Math.sin(t / 1300) * 2);
       const robe = g.createLinearGradient(0, 220, 0, H); robe.addColorStop(0, "#55207e"); robe.addColorStop(1, "#1f0c33");
-      g.fillStyle = robe; g.beginPath(); g.moveTo(170, 262); g.bezierCurveTo(110, 290, 80, 380, 70, 540); g.lineTo(530, 540); g.bezierCurveTo(520, 380, 490, 290, 430, 262); g.closePath(); g.fill();
-      // gilt torc and a spiral brooch
+      const robePath = () => { g.beginPath(); g.moveTo(170, 262); g.bezierCurveTo(110, 290, 80, 380, 70, 540); g.lineTo(530, 540); g.bezierCurveTo(520, 380, 490, 290, 430, 262); g.closePath(); };
+      g.fillStyle = robe; robePath(); g.fill();
+      g.fillStyle = damask; robePath(); g.fill();
+      // the embroidered front panel, wine-red between two gilt ropes, with triskeles down it
+      g.fillStyle = "#5e1230"; g.beginPath(); g.moveTo(268, 268); g.lineTo(332, 268); g.lineTo(350, 540); g.lineTo(250, 540); g.closePath(); g.fill();
+      rope(268, 268, 250, 540); rope(332, 268, 350, 540);
+      for (let y = 360; y < 500; y += 38) { for (let k = 0; k < 3; k++) { g.save(); g.translate(300, y); g.rotate(k * 2.094); spiral(0, -6, 7, "#d6ab4c", 1.3); g.restore(); } }
+      // the mantle: a short cape over the shoulders, its hem scalloped and edged in gold, with tassels
+      const sc = 9, mx0 = 150, mx1 = 450, my = 318;
+      g.fillStyle = "#2c0f45"; g.beginPath(); g.moveTo(178, 256); g.bezierCurveTo(150, 268, 140, 290, mx0, my);
+      for (let i = 0; i < sc; i++) { const x0 = mx0 + (mx1 - mx0) * i / sc, x1 = mx0 + (mx1 - mx0) * (i + 1) / sc; g.quadraticCurveTo((x0 + x1) / 2, my + 26, x1, my); }
+      g.bezierCurveTo(460, 290, 450, 268, 422, 256); g.closePath(); g.fill();
+      g.fillStyle = damask; g.fill();
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 3; g.beginPath(); g.moveTo(mx0, my);
+      for (let i = 0; i < sc; i++) { const x0 = mx0 + (mx1 - mx0) * i / sc, x1 = mx0 + (mx1 - mx0) * (i + 1) / sc; g.quadraticCurveTo((x0 + x1) / 2, my + 26, x1, my); }
+      g.stroke();
+      const swing = reduce ? 0 : Math.sin(t / 700) * 2;
+      for (let i = 1; i < sc; i++) {
+        const x = mx0 + (mx1 - mx0) * i / sc;
+        g.strokeStyle = "#d6ab4c"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, my); g.lineTo(x + swing, my + 14); g.stroke();
+        g.fillStyle = "#f6d98a"; g.beginPath(); g.moveTo(x + swing - 3, my + 13); g.lineTo(x + swing + 3, my + 13); g.lineTo(x + swing + 4, my + 24); g.lineTo(x + swing - 4, my + 24); g.closePath(); g.fill();
+      }
+      for (let i = 0; i < sc; i++) { const x = mx0 + (mx1 - mx0) * (i + 0.5) / sc; spiral(x, my + 6, 5, "#d6ab4c", 1.1); }
+      // gilt torc, its two ends
       g.strokeStyle = "#d6ab4c"; g.lineWidth = 7; g.lineCap = "round"; g.beginPath(); g.arc(300, 238, 64, 0.35, Math.PI - 0.35); g.stroke();
-      g.fillStyle = "#f6d98a"; for (const sx of [244, 356]) { g.beginPath(); g.arc(sx, 268, 8, 0, 6.283); g.fill(); }
-      g.strokeStyle = "#d6ab4c"; g.lineWidth = 2.2; g.beginPath(); for (let a = 0; a < 14; a += 0.2) { const r = 2 + a * 1.4; g.lineTo(300 + Math.cos(a) * r, 330 + Math.sin(a) * r); } g.stroke();
+      g.strokeStyle = "#8f6d2a"; g.lineWidth = 1; for (let a = 0.45; a < Math.PI - 0.4; a += 0.14) { g.beginPath(); g.moveTo(300 + Math.cos(a) * 60, 238 + Math.sin(a) * 60); g.lineTo(300 + Math.cos(a + 0.08) * 68, 238 + Math.sin(a + 0.08) * 68); g.stroke(); }
+      g.fillStyle = "#f6d98a"; for (const sx of [244, 356]) { g.beginPath(); g.arc(sx, 268, 8, 0, 6.283); g.fill(); spiral(sx, 268, 6, "#8f6d2a", 1.1); }
+      // a ring brooch on the mantle, a garnet at its head, a chain across to the other shoulder
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 1.5;
+      g.beginPath(); for (let i = 0; i <= 24; i++) { const u = i / 24; g.lineTo(212 + (388 - 212) * u, 292 + Math.sin(u * Math.PI) * 18 + (i % 2) * 2); } g.stroke();
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 6; g.beginPath(); g.arc(212, 292, 17, 0, 6.283); g.stroke();
+      g.strokeStyle = "#f6d98a"; g.lineWidth = 1.2; g.setLineDash([2, 3]); g.beginPath(); g.arc(212, 292, 17, 0, 6.283); g.stroke(); g.setLineDash([]);
+      g.strokeStyle = "#e9c46a"; g.lineWidth = 3; g.beginPath(); g.moveTo(196, 270); g.lineTo(232, 318); g.stroke();
+      gem(212, 275, 5.5, "#b0172f"); gem(388, 292, 4, "#1d6b8f");
       g.restore();
 
       // arms: shoulders to hands, the hands circling the orb (or raised for the card)
@@ -189,7 +246,12 @@
       for (const [hx, hy, d] of hands) {
         g.strokeStyle = "#3f175f"; g.lineWidth = 44; g.lineCap = "round";
         g.beginPath(); g.moveTo(300 + d * 118, 290); g.quadraticCurveTo(300 + d * 150, (290 + hy) / 2 + 40, hx - d * 18, hy + 10); g.stroke();
-        g.strokeStyle = "#d6ab4c"; g.lineWidth = 5; g.beginPath(); g.arc(hx - d * 18, hy + 10, 22, 0, 6.283); g.stroke();
+        g.strokeStyle = "rgba(214,171,76,.75)"; g.lineWidth = 3; g.setLineDash([2, 5]);
+        g.beginPath(); g.moveTo(300 + d * 118, 290); g.quadraticCurveTo(300 + d * 150, (290 + hy) / 2 + 40, hx - d * 18, hy + 10); g.stroke(); g.setLineDash([]);
+        const cx = hx - d * 18, cy = hy + 10;
+        g.fillStyle = "#5e1230"; g.beginPath(); g.arc(cx, cy, 25, 0, 6.283); g.fill();
+        g.strokeStyle = "#d6ab4c"; g.lineWidth = 3; g.beginPath(); g.arc(cx, cy, 25, 0, 6.283); g.stroke(); g.beginPath(); g.arc(cx, cy, 18, 0, 6.283); g.stroke();
+        g.fillStyle = "#f6d98a"; for (let k = 0; k < 8; k++) { const a = k * 0.785 + s.phase * 0.2; g.beginPath(); g.arc(cx + Math.cos(a) * 21.5, cy + Math.sin(a) * 21.5, 1.6, 0, 6.283); g.fill(); }
       }
 
       // head: hood, porcelain mask, eyes, hinged jaw
@@ -197,6 +259,7 @@
       g.translate(300 + s.yaw * 16 + jx, 168 + s.nod * 10);
       g.rotate(s.tilt);
       g.fillStyle = "#3a1656"; g.beginPath(); g.moveTo(0, -112); g.bezierCurveTo(92, -112, 118, -10, 106, 88); g.lineTo(-106, 88); g.bezierCurveTo(-118, -10, -92, -112, 0, -112); g.fill();
+      g.fillStyle = damask; g.fill();
       g.fillStyle = "#07040b"; g.beginPath(); g.ellipse(s.yaw * 6, 0, 72, 90, 0, 0, 6.283); g.fill();
       const fx = s.yaw * 14, sx = 1 - Math.abs(s.yaw) * 0.16;
       g.save(); g.translate(fx, 0); g.scale(sx, 1);
@@ -204,6 +267,10 @@
       mask.addColorStop(0, "#f3ead9"); mask.addColorStop(0.6, "#e2d4bb"); mask.addColorStop(1, "#a9977a");
       // the mask, whole; the chin is a separate piece on a hinge, like a ventriloquist's figure
       g.fillStyle = mask; g.beginPath(); g.ellipse(0, -4, 52, 76, 0, 0, 6.283); g.fill();
+      // a gilt circlet across her brow, a blue stone at its centre
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 4; g.beginPath(); g.moveTo(-50, -44); g.quadraticCurveTo(0, -60, 50, -44); g.stroke();
+      g.strokeStyle = "#8f6d2a"; g.lineWidth = 1; for (let x = -42; x <= 42; x += 7) { g.beginPath(); g.moveTo(x, -48 - (1 - (x / 50) ** 2) * 6); g.lineTo(x + 3, -45 - (1 - (x / 50) ** 2) * 6); g.stroke(); }
+      gem(0, -53, 4.5, "#2a7fb5");
       // brows, sockets, eyes
       g.strokeStyle = "#5b4630"; g.lineWidth = 3; g.beginPath(); g.moveTo(-36, -30); g.quadraticCurveTo(-20, -40, -6, -30); g.moveTo(6, -30); g.quadraticCurveTo(20, -40, 36, -30); g.stroke();
       const open = 1 - Math.sin(Math.min(1, s.blink) * Math.PI) * 0.95;
@@ -230,7 +297,9 @@
       g.restore();
       // hood rim with gilt edge
       g.strokeStyle = "#d6ab4c"; g.lineWidth = 4; g.beginPath(); g.ellipse(s.yaw * 6, 0, 74, 92, 0, Math.PI * 1.02, Math.PI * 1.98); g.stroke();
-      g.strokeStyle = "rgba(214,171,76,.45)"; g.lineWidth = 1.5; g.setLineDash([3, 6]); g.beginPath(); g.ellipse(s.yaw * 6, 0, 84, 102, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke(); g.setLineDash([]);
+      g.strokeStyle = "#d6ab4c"; g.lineWidth = 2; g.beginPath(); g.ellipse(s.yaw * 6, 0, 88, 106, 0, Math.PI * 1.04, Math.PI * 1.96); g.stroke();
+      for (let k = 0; k <= 10; k++) { const a = Math.PI * (1.08 + 0.84 * k / 10); spiral(s.yaw * 6 + Math.cos(a) * 81, Math.sin(a) * 99, 4.5, "#e9c46a", 1.1); }
+      gem(s.yaw * 6, -103, 5, "#b0172f");
       g.restore();
 
       // the orb
