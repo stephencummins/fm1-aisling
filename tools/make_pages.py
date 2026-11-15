@@ -392,17 +392,22 @@ CHOOSER = """<!doctype html>
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-/* The root's own: what AISLING is, then the three things it runs on side by side, each pictured (the drawings without
-   their words: here they only tell them apart; FX-1's is a photo of an FM-1 running it), with how far it has got and
-   its pages. The rest is the site's (web/brand/site.css) */
-.what { display: flex; gap: 16px; align-items: flex-start; }
-.card { flex: none; width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
-.lede { margin: 0; font-size: 14.5px; max-width: 92ch; }
-/* the tip cup, top right: our own drawing. Steam all the time; every 14 seconds a sugar lump goes in and it wiggles */
-.cup { flex: none; margin-left: auto; display: block; width: 64px; text-align: center; text-decoration: none; color: var(--brand-muted);
+/* The root's own: a cover, then the three things it runs on side by side, numbered and pictured (the drawings without
+   their words: here they only tell them apart; FX-1's is a photo of an FM-1 running it), with how far each has got and
+   its pages; then the emulator, the screen, the store. The rest is the site's (web/brand/site.css), its mg-* parts */
+.mg-pic.px { position: relative; align-items: center; justify-content: center; background: #146c41; }
+.mg-pic.px > img { width: min(100%, 384px); height: auto; aspect-ratio: 1; }
+.ask { margin: 0; padding: 22px 22px 18px; font: 600 clamp(30px, 5vw, 58px)/.98 var(--brand-display); text-transform: uppercase; }
+.ask small { display: block; margin: 0 0 6px; font: 400 12px/1.3 var(--brand-mono); letter-spacing: .12em; color: var(--brand-rust); }
+.band { border-top: 1px solid var(--brand-rule); }
+.band .mg-head { margin-bottom: 18px; }
+.band .shot { display: block; border: 1px solid var(--brand-rule); }
+.band .shot img { display: block; width: 100%; height: auto; max-height: 340px; object-fit: cover; }
+/* the tip cup, in the cover's corner: our own drawing. Steam all the time; every 14 seconds a sugar lump goes in and it wiggles */
+.cup { position: absolute; top: 14px; right: 16px; display: block; width: 64px; text-align: center; text-decoration: none; color: #f3ead7;
        font: 400 11px/1.2 var(--brand-mono, monospace); }
 .cup svg { display: block; width: 64px; height: 64px; overflow: visible; }
-.cup:hover { color: var(--brand-green); }
+.cup:hover { color: #e9a23b; }
 .cup .mug { transform-origin: 8px 14px; animation: cup-wiggle 14s ease-in-out infinite; }
 .cup:hover .mug { animation: cup-wiggle 1.4s ease-in-out infinite; }
 .cup .steam rect { animation: cup-steam 3.2s linear infinite; opacity: 0; }
@@ -425,15 +430,14 @@ CHOOSER = """<!doctype html>
 .pic svg { display: block; width: 100%; height: 100%; }
 .pic svg text { display: none; }
 .pic img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.part h2 { margin: 0 0 6px; font: 600 26px/1.1 var(--brand-display); letter-spacing: .08em; }
+.part .mg-num { margin: 0 0 14px; font-size: clamp(60px, 7vw, 92px); -webkit-text-stroke-width: 1.5px; }
+.part h2 { margin: 0 0 6px; font: 600 clamp(30px, 3.4vw, 42px)/1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
 .part > a:hover h2 { color: var(--brand-green); }
 .state { margin: 0 0 8px; font-size: 12px; letter-spacing: .03em; color: var(--brand-rust); }
 .state.out { color: var(--brand-green); }
-.does { margin: 0; font-size: 12.5px; color: var(--brand-muted); }
+.does { margin: 0; font-size: 13px; }
 .part ul { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0 16px 16px; }
 p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
-.store .bh { margin: 0 0 8px; } .store .state { display: inline; margin-left: 8px; font: 400 12px/1 var(--brand-mono, monospace); text-transform: none; }
-.store p { margin: 0; font-size: 14.5px; max-width: 92ch; }
 /* the store's skins, each on the case it suits best: the store's own pictures, in web/brand/skins/ */
 .skins { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 14px 0 0; padding: 0; }
 .skins a { display: block; text-decoration: none; color: inherit; }
@@ -449,13 +453,12 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
   .parts { grid-template-columns: minmax(0, 1fr); }
   .part > a { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); column-gap: 20px; align-content: start; }
   .part > a > * { grid-column: 2; }
-  .pic { grid-column: 1; grid-row: 1 / span 3; height: 150px; margin: 0; }
+  .part > a > .pic { grid-column: 1; grid-row: 1 / span 4; height: 150px; margin: 0; align-self: center; }
 }
 @media (max-width: 29.99rem) {
   .part > a { display: block; }
-  .pic { height: 130px; margin: 0 0 12px; }
-  .what { display: block; } .card { float: left; margin: 0 12px 4px 0; width: 72px; height: 72px; }
-  .cup { float: right; margin: 0 0 4px 12px; width: 48px; } .cup svg { width: 48px; height: 48px; }
+  .part > a > .pic { height: 130px; margin: 0 0 12px; }
+  .cup { width: 48px; top: 10px; right: 10px; } .cup svg { width: 48px; height: 48px; }
 }
 </style>
 <!--AISLING-HEAD-->
@@ -464,15 +467,19 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 <!--AISLING-BAR-->
 <main class="bench">
 <div class="strip">
-<h1 class="lab"><b>aisling</b> · generative Irish ambient for M-VAVE's FM-1 and SMK-37 Elite</h1>
+<p class="lab"><b>aisling</b> · generative Irish ambient for M-VAVE's FM-1 and SMK-37 Elite</p>
 <p class="lab">__BY__</p>
 </div>
-<div class="pane what">
-<img class="card" src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
-<p class="lede">AISLING (said ASH-ling: Irish for a dream or a vision) is a generative instrument after the harpers and the
-west of Ireland: a harp's ostinato over a held drone, a second harp drifting against it, a flute far back in the reverb,
-with surf, wind or rain behind. It was written for the M-VAVE FM-1, and runs on M-VAVE's SMK-37 Elite too; AISLING FX-1
-turns an FM-1 into an effects box for a computer's sound. Which have you got?</p>
+
+<div class="mg-cover">
+<div class="mg-words">
+<div>
+<h1>Aisling</h1>
+<p class="mg-gloss">Said ASH-ling: Irish for a dream or a vision.</p>
+</div>
+<p class="mg-deck">Harps and a flute over a held drone, playing themselves, after the harpers and the west of Ireland.</p>
+</div>
+<div class="mg-pic px"><img src="img/card.png" width="240" height="240" alt="A gold 8-bit harp on green">
 <a class="cup" href="https://ko-fi.com/stejcu" title="Love my firmware? Tip me on Ko-fi">
 <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
 <g class="steam" fill="#5b4a3a"><rect x="5" y="2" width="1" height="2"/><rect x="7" y="1" width="1" height="2"/><rect x="9" y="2" width="1" height="2"/></g>
@@ -485,14 +492,45 @@ turns an FM-1 into an effects box for a computer's sound. Which have you got?</p
 <rect x="12" y="7" width="2" height="1" fill="#2b2219"/><rect x="14" y="8" width="1" height="2" fill="#2b2219"/><rect x="12" y="10" width="2" height="1" fill="#2b2219"/>
 </g></svg>tip me</a>
 </div>
+</div>
+
+<h2 class="ask"><small>three firmwares</small>Which have you got?</h2>
 <div class="parts">
 __PARTS__
 </div>
-<section class="pane store" aria-labelledby="storeh">
-<h2 class="bh" id="storeh">Store <span class="state">coming soon</span></h2>
-<p>Vinyl skins for the FM-1, printed and cut by hand, for any case colour and any firmware, with the gear that goes
-with it. The test prints come first; until checkout opens you can
-<a href="https://store.stephen8n.com/">look around the store</a> and see the skins on an FM-1.</p>
+
+<section class="mg-feat band" aria-labelledby="tryh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">04</div>
+<div><p class="mg-kick">None of them?</p><h2 id="tryh">Try it in your browser</h2></div></div>
+<div class="mg-split">
+<div>
+<p class="mg-stand">The same code the FM-1 runs, <em>with sound</em>. No FM-1 needed.</p>
+<p class="mg-go" style="margin:0"><a class="btn go big" href="emu/">Open the emulator</a></p>
+</div>
+<div class="mg-shots">
+  <img src="img/screen-launch.png" width="240" height="240" loading="lazy" alt="The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com">
+  <img src="img/screen-main.png" width="240" height="240" loading="lazy" alt="The main screen: the chord's name among orbiting dots, the five layers' meters, the two harps' lanes">
+  <img src="img/screen-perform.png" width="240" height="240" loading="lazy" alt="PERFORM at rest: a map of the 27 effects, a green triskele, and Filter, Wet, Energy and Chorus on the knobs">
+</div>
+</div>
+</section>
+
+<section class="mg-feat band" aria-labelledby="morh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">05</div>
+<div><p class="mg-kick">The add-on screen</p><h2 id="morh">Aisling Mór</h2></div></div>
+<div class="mg-split">
+<div>
+<p class="mg-stand">A touch screen for the FM-1 that <em>paints what it plays</em>. A kit you put together.</p>
+<p class="mg-go" style="margin:0"><a class="btn go big" href="screen/">See the screen</a></p>
+</div>
+<a class="shot" href="screen/" tabindex="-1"><img src="screen/img/over-fm1.jpg" width="1280" height="720" loading="lazy" alt="A small touch screen on a stand above the FM-1, showing the landscape in mauve, pink and gold"></a>
+</div>
+</section>
+
+<section class="mg-feat band store" aria-labelledby="storeh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">06</div>
+<div><p class="mg-kick">The store · coming soon</p><h2 id="storeh">Skins for the FM-1</h2></div></div>
+<p class="mg-stand">Vinyl skins, printed and cut by hand, <em>for any case colour and any firmware</em>, with the gear that goes with it.</p>
 <ul class="skins">
 <li><a href="https://store.stephen8n.com/#p-swatch"><img src="skins/swatch.webp" width="640" height="382" loading="lazy" alt="The Swatch skin on a cool grey FM-1"><span>Swatch</span></a></li>
 <li><a href="https://store.stephen8n.com/#p-flightdeck"><img src="skins/flightdeck.webp" width="640" height="382" loading="lazy" alt="The Flight Deck skin on a cool grey FM-1"><span>Flight Deck</span></a></li>
@@ -502,6 +540,8 @@ with it. The test prints come first; until checkout opens you can
 <li><a href="https://store.stephen8n.com/#p-synthwave"><img src="skins/synthwave.webp" width="640" height="382" loading="lazy" alt="The Synthwave skin on a black FM-1"><span>Synthwave</span></a></li>
 <li><a href="https://store.stephen8n.com/#p-ticker"><img src="skins/ticker.webp" width="640" height="382" loading="lazy" alt="The Ticker skin on a black FM-1"><span>Ticker</span></a></li>
 </ul>
+<p class="mg-go" style="margin:18px 0 8px"><a class="btn go big" href="https://store.stephen8n.com/">Look around the store</a></p>
+<p class="mg-small">The test prints come first; checkout isn't open yet.</p>
 </section>
 <div class="pane tip">
 <p>Love my firmware? Support its development by <a href="https://ko-fi.com/stejcu">tipping me on Ko-fi</a>. :)</p>
@@ -972,13 +1012,13 @@ def vers(s, version):
 
 def part_cards(version, pics):
     cards = []
-    for key, state, out, does, links in PART_CARDS:
+    for n, (key, state, out, does, links) in enumerate(PART_CARDS, 1):
         label, start, what = next((label, start, what) for k, label, start, what in PRODUCTS if k == key)
         state = vers(state, version)
         btns = "".join(f'<li><a class="btn{" go" if go else ""}" href="{where(vers(h, version))}">{t}</a></li>'
                        for t, h, go in links)
         cards.append(f'<section class="part" aria-labelledby="p-{key}">\n'
-                     f'<a href="{start}" title="{html.escape(what)}"><div class="pic">{pics[key]}</div>'
+                     f'<a href="{start}" title="{html.escape(what)}"><div class="mg-num" aria-hidden="true">0{n}</div><div class="pic">{pics[key]}</div>'
                      f'<h2 id="p-{key}">{label}</h2><p class="state{" out" if out else ""}">{state}</p>'
                      f'<p class="does">{does}</p></a>\n<ul>{btns}</ul>\n</section>')
     return "\n".join(cards)
