@@ -12,7 +12,7 @@ switch between the three (the page's own filled), then the page's part's nav: NA
 them and has the nav every part shares, COMMON. The FM-1's pages are where they always were (emu/, install/, manual/ ...)
 so the links already out there still work; only its landing page moved, to fm1/."""
 
-NAME, BY = "AISLING", "by CU_STE"
+NAME, BY = "AISLING", "by CÚ_STE"
 SITE = "https://aisling.stephen8n.com/"
 REPO = "https://github.com/stephencummins/fm1-aisling"
 # the three parts: (key, label, where it starts, relative to the site's root unless a whole URL, what it is)

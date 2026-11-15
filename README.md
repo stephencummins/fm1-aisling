@@ -9,7 +9,7 @@ Android and Chromebooks not tried yet) · **[Try it in the browser](https://aisl
 **[Visualiser](https://aisling.stephen8n.com/visualiser/)** ·
 **[Website](https://aisling.stephen8n.com/)**
 
-By CU_STE · [www.stephen8n.com](https://www.stephen8n.com)
+By CÚ_STE · [www.stephen8n.com](https://www.stephen8n.com)
 
 ## What?
 
@@ -194,7 +194,7 @@ site's icons from it.
 
 ## Credits
 
-AISLING is by CU_STE ([www.stephen8n.com](https://www.stephen8n.com)). It is a fork of
+AISLING is by CÚ_STE ([www.stephen8n.com](https://www.stephen8n.com)). It is a fork of
 [NACHTFAHRT](https://github.com/FartyPants/fm1-nachtfahrt) by FartyPants (GPL-3.0-only): the engine, the layers,
 the arc, the filter motion, the remembering lead, the pages, the effects grid, the emulator and the site come from
 there. NACHTFAHRT is a fork of [DUB-1](https://github.com/sbegueria/fm1-dub), a fork of

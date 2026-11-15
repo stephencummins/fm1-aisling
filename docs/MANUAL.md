@@ -12,7 +12,7 @@ theme and grows new ideas out of it; pick a piece and a key, thin or fill the ha
 echo, or tap SEL and play the effects on the whole music.
 
 Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling)
-and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CU_STE
+and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CÚ_STE
 ([www.stephen8n.com](https://www.stephen8n.com)).
 
 AISLING is said ASH-ling. It's Irish for a dream or a vision (an *aisling* is also an old kind of Irish poem, a
@@ -923,7 +923,7 @@ an earlier AISLING, go through the chip's own download mode, once:
 ## 14. Credits
 
 Source, releases and the web installer: [github.com/stephencummins/fm1-aisling](https://github.com/stephencummins/fm1-aisling)
-and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CU_STE:
+and [aisling.stephen8n.com](https://aisling.stephen8n.com/). AISLING is by CÚ_STE:
 [www.stephen8n.com](https://www.stephen8n.com).
 
 AISLING is free software under the GNU General Public License, version 3. If you share the firmware, you
