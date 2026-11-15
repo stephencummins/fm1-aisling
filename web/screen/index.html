@@ -256,10 +256,16 @@ second.</td><td data-l="Other firmware">Never shows.</td></tr>
 <p>Yes, for many of them. AISLING Mór already asks the FM-1 who it is every two seconds, using Charles Vestal's
 screen-reader protocol. About 47 firmwares in the store carry that reader and would answer with their name: 41 with
 their own words (X0X, FoMni-1, AMB-1, Polly, MOSS-1 and so on) and 6 with the common words only.</p>
-<p>A build that uses the answer is written and checked on a computer, but not yet tried on the box, so it isn't the
-download above. With a firmware that names itself something other than AISLING, it places the notes on the landscape
-by pitch (low notes the bog, high notes the sky) instead of by channel, shows what that firmware's screen says as a
-page of text, and sends it none of AISLING's controls. A firmware that doesn't answer gets the landscape only.</p>
+<p>A build that uses the answer is written, and was tried on the box on 15 November 2026 with AMB-1 1.3.2 and with
+the stock firmware. It isn't the download above yet. With a firmware that names itself something other than AISLING,
+it places the notes on the landscape by pitch (low notes the bog, high notes the sky) instead of by channel, shows
+what that firmware's screen says as a page of text, and sends it none of AISLING's controls. A firmware that doesn't
+answer gets the landscape only.</p>
+<div class="pics two-up">
+<figure><img src="img/guest-landscape.jpg" width="900" height="1200" loading="lazy" alt="The FM-1 running AMB-1, its screen showing the piece Departures, and below it the box painting a landscape in orange, white and green; two lines of text along the box's bottom edge"><figcaption>Charles Vestal's AMB-1 playing Departures, and the box painting its notes by pitch. The two lines at the bottom say whose firmware it is, and that nothing is sent to it.</figcaption></figure>
+<figure><img src="img/guest-words.jpg" width="900" height="1200" loading="lazy" alt="The box's page for AMB-1: its name and version at the top, then in large letters the chord, how far the next chord is, and the notes of the scale, with earlier lines in small letters underneath"><figcaption>AMB-1's page: its name, the newest thing its screen said, and the ones before underneath. A few letters come out lower case, which is a fault still to fix.</figcaption></figure>
+</div>
+<p class="vids"><a class="btn" href="https://youtube.com/shorts/NtA-R_5Em_0">Watch it with AMB-1</a></p>
 </div></div>
 <div class="faq">
 <div>
@@ -268,8 +274,9 @@ page of text, and sends it none of AISLING's controls. A firmware that doesn't a
 build under the steps above: with this one, PERFORM's fourth knob would be wrong. The knobs need 1.2 or later, the
 first AISLING to take them over MIDI (CC 16 to 19); the strip of pieces needs 1.1 or later, for program change.</p>
 <h3>What about the FM-1's stock firmware?</h3>
-<p>Untried. If it sends its notes over USB MIDI, the landscape should paint from them. The FM-1's page and the knobs
-won't work, and what it does with the strip's program change is up to it.</p>
+<p>With the download above, untried. With the newer build (see the box above), tried on 15 November 2026: stock V16
+sends the notes you play over USB MIDI and the landscape paints from them by pitch. It doesn't answer when asked who
+it is, so the box says it isn't AISLING and sends it nothing more.</p>
 <h3>What if the FM-1 doesn't take a turn?</h3>
 <p>While you drag, the box shows the value it's sending in orange, until the FM-1 says the knob back. If nothing comes
 back within a second and a half (on an older AISLING, say, or with the grid up), it puts the FM-1's own value back
