@@ -202,8 +202,8 @@ The screen is black, with a few dim stars drifting slowly left while the music p
   while they're on, and under it the eight bars of the phrase.
 - **Top right:** "CU_STE", small, and under it the page's name in an uncial hand (with SOLO beside it while a solo
   is on); on the Aisling page, a small green triskele before it.
-- **Left:** five **meters**, one for each layer in its own colour: the Drone (violet), the Sequence (pink), the
-  Lead (gold), Sequence 2 (cyan), the Atmosphere (grey). Each rises with what its layer is playing. Across each
+- **Left:** five **meters**, one for each layer in its own colour, with its letter under it: the Drone (violet,
+  D), the Sequence (pink, 1), the Lead (gold, L), Sequence 2 (cyan, 2), the Atmosphere (grey, A). Each rises with what its layer is playing. Across each
   one, a white **tick** shows where that layer's filter has moved to: above the middle, brighter; below,
   darker; six pixels for each octave.
 - **Middle:** the chord the Drone plays, its name in white with nothing behind it. Each note of the
@@ -219,7 +219,7 @@ The screen is black, with a few dim stars drifting slowly left while the music p
   on lit. When a button brings a new page, its name shows large over the chord for a moment, in the same uncial hand, with the same dots.
 - **A ring in the middle:** while you turn SELECT on a layer's page, its level as a big knob in its colour, the
   number inside and the layer's name under it (grey and MUTED if it's muted); it fades a moment after.
-- **Below:** two **lanes**, the Sequence (pink) and Sequence 2 (cyan), each as long as its sequence: a big dot
+- **Below:** two **lanes**, the Sequence (pink, 1) and Sequence 2 (cyan, 2), each as long as its sequence: a big dot
   for each step that plays, a speck for a rest, and a white cursor on the step playing now. Two sequences of
   different lengths drift apart and meet again, and you can see them do it. On a layer's page, the other
   lane is greyed.
