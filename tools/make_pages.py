@@ -34,7 +34,7 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
                               "In short" (each control drawn as it looks) and pieces table; to print, those on one
                               sheet, then a page for each flow
   firmware/aisling-VERSION.fwsc   the package the installer writes; also the download
-  firmware/aislingfx-1.0.fwsc     FX-1's, for fx1/install/: the release's asset, byte for byte (FX1_SHA256), from
+  firmware/aislingfx-1.1.fwsc     FX-1's, for fx1/install/: the release's asset, byte for byte (FX1_SHA256), from
                                   build/ or given with --fx1 FILE (or FX1_PKG=FILE)
 
   tools/make_pages.py build/aisling-0.1.fwsc 0.1 OUT_DIR [--smk37 DIR] [--fx1 FILE]
@@ -59,8 +59,8 @@ from site_brand import NAV, PRODUCTS, SITE, stamp  # noqa: E402
 from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the package format)
 
 REPO = "https://github.com/stephencummins/fm1-aisling"
-FX1_REPO, FX1_VERSION = "https://github.com/stephencummins/fx1-aisling", "1.0"           # its release
-FX1_SHA256 = "9412ae355356aec34878597786cba0d63cc0a55608db6c1794ed42bc82682815"           # aislingfx-1.0.fwsc, its asset
+FX1_REPO, FX1_VERSION = "https://github.com/stephencummins/fx1-aisling", "1.1"           # its release
+FX1_SHA256 = "41ae37d3d478737c73df32b87de1661d3cb7efd8883319f5b26c2baa011e0d1c"           # aislingfx-1.1.fwsc, its asset
 SMK37_REPO, SMK37_VERSION = "https://github.com/stephencummins/smk37-aisling", "1.3.1"  # the Elite's
 BY = 'by CÚ_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
 
@@ -677,7 +677,7 @@ FX1_CONTROLS = dict(
     title="AISLING FX-1 · the controls",
     desc="An M-VAVE FM-1 running AISLING FX-1, the USB effects box, drawn: what each knob, button and key does to a computer's sound.",
     strip="AISLING FX-1, an FM-1 as a USB effects box", button=("../manual/", "manual"),
-    notice='<div class="pane notice" role="note">\n<p><strong>1.0.</strong> What is drawn here is what the firmware '
+    notice='<div class="pane notice" role="note">\n<p><strong>1.1.</strong> What is drawn here is what the firmware '
            'does, measured in AISLING\'s simulator; the <a href="../manual/">manual</a> says which of it has been tried on '
            'the FM-1 itself.</p>\n</div>\n',
     svg="fx1-controls.svg", table_head="The controls", table=("docs/FX1.md", "The controls"), manual="../manual/",
@@ -690,9 +690,9 @@ FX1_LANDING = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AISLING FX-1 · an FM-1 as a USB effects box</title>
-<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. 1.0, released.">
+<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. 1.1, released.">
 <meta property="og:title" content="AISLING FX-1 · an FM-1 as a USB effects box">
-<meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. 1.0, released.">
+<meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. 1.1, released.">
 <meta property="og:url" content="__SITE__fx1/">
 <style>
 /* FX-1's page's own. The rest is the site's (web/brand/site.css): its magazine parts, mg-* */
@@ -713,7 +713,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <main class="bench">
 <div class="strip">
 <p class="lab"><b>aisling fx-1</b> · an M-VAVE FM-1 as a USB effects box</p>
-<p class="lab">v1.0 · __BY__</p>
+<p class="lab">v1.1 · __BY__</p>
 </div>
 
 <div class="mg-cover">
@@ -744,7 +744,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <div><p class="mg-kick">Install</p><h2 id="installh">Put it on your FM-1</h2></div></div>
 <ol class="mg-steps">
   <li>Put FX-1 on the FM-1 from its <a href="install/">install page</a>, in Chrome or Edge, over AISLING, another
-      firmware or the stock one (or download <code>aislingfx-1.0.fwsc</code> from the release and install it with
+      firmware or the stock one (or download <code>aislingfx-1.1.fwsc</code> from the release and install it with
       <code>tools/fm1_install.py</code>).</li>
   <li>Connect the FM-1 to the computer with a USB data cable. It shows up as a sound device, <b>AISLING FX-1</b>.</li>
   <li>Make it the computer's sound output, or a track's in your music software, and play something. The screen says
@@ -753,8 +753,8 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
       the keys are effects while held.</li>
   <li>To record what comes out, choose the FM-1 as the computer's input as well.</li>
 </ol>
-<p class="mg-go"><a class="btn go big" href="install/">Install v1.0</a></p>
-<p class="mg-small"><a href="__FX1_REPO__/releases/tag/v1.0">Download 1.0</a> · Going back: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+<p class="mg-go"><a class="btn go big" href="install/">Install v1.1</a></p>
+<p class="mg-small"><a href="__FX1_REPO__/releases/tag/v1.1">Download 1.1</a> · Going back: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
 </section>
 
 <section class="mg-feat" id="manual" aria-labelledby="manualh">
@@ -770,11 +770,12 @@ __SHOTS__
 </section>
 
 <section class="mg-fold" aria-label="More about AISLING FX-1">
-<details><summary>1.0, released <small>where it has run</small></summary><div class="mg-in">
-<p><strong>1.0, released.</strong> It installs from Chrome or Edge on its <a href="install/">install page</a>, and its
-package, <code>aislingfx-1.0.fwsc</code>, is on <a href="__FX1_REPO__/releases/tag/v1.0">the 1.0 release</a> for the
-command-line installer. It has run on one FM-1 so far, put on from the command line: the install page is new, and does
-the same as AISLING's. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+<details><summary>1.1, released <small>where it has run</small></summary><div class="mg-in">
+<p><strong>1.1, released.</strong> It is 1.0 with a light screen to choose (the Journey page's Screen) and the knob
+strip tidied; the sound is 1.0's. It installs from Chrome or Edge on its <a href="install/">install page</a>, and its
+package, <code>aislingfx-1.1.fwsc</code>, is on <a href="__FX1_REPO__/releases/tag/v1.1">the 1.1 release</a> for the
+command-line installer. 1.0 has run on one FM-1, put on from the command line; 1.1's own package has not been on one
+yet, and nor has the install page been used with FX-1: it does the same as AISLING's. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
 </div></details>
 <details><summary>Tried, and not yet <small>what works, what's untested</small></summary><div class="mg-in">
 <ul class="plain">
