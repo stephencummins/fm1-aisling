@@ -38,7 +38,7 @@ remembers and answers) and changes what it plays:
   **Fras** (FRASS, a burst of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 1.4** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 1.4.1** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -69,6 +69,12 @@ tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
+## What's new in 1.4.1
+
+- **The screen, dark or light.** KNOB 3 on the Journey page (GLO, three times), **Screen**, sets the whole screen: Dark, the colours on black, as it was; or Light, the same colours deeper, on white, for a bright room or daylight. It's saved with the pieces, and changes nothing in the sound.
+- **The main page says more.** The five meters have their layers' letters under them (D 1 L 2 A), the two sequences' lanes are numbered, the chord's count sits clear of the orbits, and the dividers between the knobs start under their names.
+- Nothing else changed: the sound, the pieces and what you saved are 1.4's.
 
 ## What's new in 1.4
 
@@ -166,7 +172,7 @@ The eight are listed in the manual's [The pieces](docs/MANUAL.md#7-the-pieces).
 | SEQ | Sequence 2 (Chance, Octave, Length, Level); again, its sound; again, the Pattern page (write the steps on the keys); again, its Move page |
 | SAVE | The Atmosphere (Density, Width, Drift, Air); again, its sound (Colour, Ring, Reverb, Echo); again, its Move page. Held: save |
 | FX | Space (Echo, Echo time, Feedback, Reverb); again, the Echo page (Blur, Tone, Width, Size) |
-| GLO | Setup (Tune, MIDI out, Lights, Save; ALGORITHM, the sleep timer); again, the Arc (Lead in, Bridge, Arc, Memory); again, the Journey (Piece, In set, Day; SELECT, the stay on each piece). Held: save; held on: the piece back to its recipe |
+| GLO | Setup (Tune, MIDI out, Lights, Save; ALGORITHM, the sleep timer); again, the Arc (Lead in, Bridge, Arc, Memory); again, the Journey (Piece, In set, Screen, Day; SELECT, the stay on each piece). Held: save; held on: the piece back to its recipe |
 | ALGORITHM | On a layer's page, its voice (the Atmosphere: its character); on the Aisling page, Evolve's timing; on the Setup page, the sleep timer |
 | PRESETS | The piece |
 | SELECT | On a layer's pages, its level; on the Aisling page, Energy (elsewhere nothing) |
