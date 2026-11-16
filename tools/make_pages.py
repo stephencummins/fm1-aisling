@@ -774,8 +774,8 @@ __SHOTS__
 <p><strong>1.1, released.</strong> It is 1.0 with a light screen to choose (the Journey page's Screen) and the knob
 strip tidied; the sound is 1.0's. It installs from Chrome or Edge on its <a href="install/">install page</a>, and its
 package, <code>aislingfx-1.1.fwsc</code>, is on <a href="__FX1_REPO__/releases/tag/v1.1">the 1.1 release</a> for the
-command-line installer. 1.0 has run on one FM-1, put on from the command line; 1.1's own package has not been on one
-yet, and nor has the install page been used with FX-1: it does the same as AISLING's. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
+command-line installer. 1.0 and 1.1 have each gone on one FM-1 from the command line (1.1's screen looked right; sound has not been played
+through 1.1 yet). The install page has not been used with FX-1: it does the same as AISLING's. The way back is the usual one: <a href="../install/">install AISLING</a>, or the stock firmware.</p>
 </div></details>
 <details><summary>Tried, and not yet <small>what works, what's untested</small></summary><div class="mg-in">
 <ul class="plain">

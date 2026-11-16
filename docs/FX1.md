@@ -10,8 +10,8 @@ sends.
 **Status.** 1.1. It is 1.0 with a light screen to choose (Journey's Screen) and the knob strip's dividers moved
 clear of the names, as in AISLING 1.4.1; the sound is 1.0's. FX-1 1.0 has run on one FM-1 and played a computer's
 sound cleanly through its effects; it has gone on over AISLING and over the stock firmware, and AISLING back over it;
-what each control does was measured in AISLING's simulator. 1.1's own package has not been on an FM-1 yet: its screen
-changes have, in AISLING 1.4.1 (see [What has been tried](#8-what-has-been-tried)). Its package is on
+what each control does was measured in AISLING's simulator. 1.1 has gone on one FM-1 over AISLING 1.4.1, and its
+screen looked right; sound has not been played through 1.1 yet (see [What has been tried](#8-what-has-been-tried)). Its package is on
 [the 1.1 release](https://github.com/stephencummins/fx1-aisling/releases/tag/v1.1), and it installs from Chrome or
 Edge on [its install page](https://aisling.stephen8n.com/fx1/install/) (FX-1 has so far gone on from the command line).
 
@@ -203,8 +203,9 @@ settings.
 **In the simulator** (the whole app run on a computer, fed a tone, bursts and noise, each change measured against
 the same run without it): every control and key above, the saving, and the sleep timer.
 
-**1.1** is 1.0 with the Screen setting and the knob strip's dividers. Its package has not been on an FM-1. The same
-screen code has, in AISLING 1.4.1 on one FM-1: both screens looked right, and turning Screen while a full piece
+**1.1** is 1.0 with the Screen setting and the knob strip's dividers. Its package has gone on one FM-1 over AISLING 1.4.1 from the
+command line (16 Nov 2026): the Mac listed it as a sound output and input, and the screen looked right. Sound has
+not been played through 1.1 yet. The same screen code ran in AISLING 1.4.1 on that FM-1: both screens looked right, and turning Screen while a full piece
 played took the processor to its limit for a moment, with no dropout. In the simulator, FX-1's own tests and
 AISLING's pass on 1.1.
 
