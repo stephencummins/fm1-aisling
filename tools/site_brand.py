@@ -45,7 +45,7 @@ FX1_NAV = (("install", "install", "fx1/install/", "Put AISLING FX-1 on your FM-1
            ("source", "source", "https://github.com/stephencummins/fx1-aisling", "FX-1's code, on GitHub"),
            STEPHEN8N)
 SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, fader and button of the Elite and what it does"],
-             ["docs", "docs", "smk37/docs/", "How the port works: the flash, the pins, building, testing, and what's still open"],
+             ["manual", "manual", "smk37/manual/", "How the port works: the flash, the pins, building, testing, and what's still open"],
              ["source", "source", "https://github.com/stephencummins/smk37-aisling", "The SMK-37 Elite's code, on GitHub"],
              STEPHEN8N]
 COMMON = (("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),

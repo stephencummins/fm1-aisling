@@ -573,7 +573,7 @@ PART_CARDS = (
      "The same AISLING on M-VAVE's 37-key keyboard: the FM-1's 27 keys in the middle, its pads playing the effects, its "
      "faders the mix.",
      (("download", SMK37_REPO + "/releases/tag/v__SMK37__", True), ("controls", "smk37/controls/", False),
-      ("docs", "smk37/docs/", False))),
+      ("manual", "smk37/manual/", False))),
 )
 
 # the controls pages: an FM-1 drawn, in its colours, then a table of the controls
@@ -1168,7 +1168,7 @@ def main(pkg, version, out, smk37=None, fx1=None):
     fx1_name = f"aislingfx-{FX1_VERSION}.fwsc"
     if smk37:
         smk37 = Path(smk37)
-        for f in ("index.html", "controls/index.html", "docs/index.html", "img/smk37-panel.svg"):
+        for f in ("index.html", "controls/index.html", "manual/index.html", "img/smk37-panel.svg"):
             if not (smk37 / f).exists():
                 raise SystemExit(f"{smk37}: no {f}: make the SMK-37 Elite's pages with tools/make_pages_smk37.py --marks DIR")
     else:
@@ -1236,7 +1236,7 @@ def main(pkg, version, out, smk37=None, fx1=None):
     if smk37:
         shutil.copytree(smk37, out / "smk37")
         for f, root, key in (("index.html", "../", None), ("controls/index.html", "../../", "controls"),
-                             ("docs/index.html", "../../", "docs")):
+                             ("manual/index.html", "../../", "manual")):
             page = stamp((out / "smk37" / f).read_text(encoding="utf-8"), root, key, "smk37")
             # its docs name its pages where they're published on their own: here, a link to one of them goes to its
             # copy beside it, but for the one that shows that address as its text
