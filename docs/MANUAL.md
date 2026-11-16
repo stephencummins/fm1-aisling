@@ -175,7 +175,13 @@ The **Journey page** is its set list: KNOB 1 picks a piece, KNOB 2 puts it in or
 out), and the journey passes over the ones that are out. The journey changes nothing in the pieces and saves
 nothing; the stay and the list aren't saved either, so it's off, with all eight in, every time the FM-1 starts.
 
-![The Journey page: JOURNEY 20 MIN A PIECE over the eight pieces in two columns, Carolan picked, and the knobs Piece, In set and Day](img/screen-journey.png "The Journey page: a stay of 20 minutes, all eight in, the day at 1 hour")
+**The screen, dark or light.** KNOB 3 on the Journey page, **Screen**, sets the whole screen: Dark, the colours on
+black, as it comes; or Light, the same colours deeper, on white, for a bright room or daylight. It changes nothing
+in the sound. It's saved with the pieces, as Lights is, and a CC never turns it.
+
+![The main screen, light: the same screen on white, the colours deeper](img/screen-light.png "The main screen with Screen at Light")
+
+![The Journey page: JOURNEY 20 MIN A PIECE over the eight pieces in two columns, Carolan picked, and the knobs Piece, In set, Screen and Day](img/screen-journey.png "The Journey page: a stay of 20 minutes, all eight in, the day at 1 hour")
 
 **The day and the weather.** KNOB 4 on the Journey page, **Day**, lays a slow day over whatever plays: Off, or a
 whole day in 20 minutes, 1 hour or 3 hours. It begins at dawn. By day the sequences' filter and the pings' tone
@@ -558,7 +564,7 @@ Reverb, Echo. **Its Move page:** Width, Time, Rate, Intro.
 **GLO: Setup:** Tune (±50 cents), MIDI out, Lights, Save; ALGORITHM the sleep timer (see
 [Sleep](#3-controls)); SELECT the journey's stay. **GLO again: Arc:** Lead in, Bridge, Arc,
 Memory (see [The arc and the filter motion](#6-the-arc-and-the-filter-motion)). **GLO a third time: Journey:** Piece,
-In set, and Day; SELECT the stay (see [The journey](#3-controls)).
+In set, Screen (Dark or Light) and Day; SELECT the stay (see [The journey](#3-controls)).
 
 **EDIT: Chords:** eight slots. In **Endless** the walk writes them and slot 1 plays; on each change they move
 up a slot. A key writes a slot's root, KNOB 2 its kind, KNOB 3 its type, KNOB 4 Play: Endless or **Loop**
@@ -714,7 +720,7 @@ clock from a Korg nanoKEY Fold, over a plain stereo cable. Type B hasn't been tr
 - **In, CCs:** on any channel, a CC turns a knob (see the table below). It sets the value outright: 0 to 127 spans
   the knob's range, and on the centred knobs (Filter, Wet, Energy, the sound pages' ±50) 64 is the middle. A CC counts
   as a touch for the sleep timer, as a note does. CCs never save, and never turn Setup's Tune, MIDI out, Lights or
-  Save; while the effects grid is up, 16 to 19 rest, as the knobs do. A change is saved by itself later, as a turn's
+  Save, or the Journey page's Screen; while the effects grid is up, 16 to 19 rest, as the knobs do. A change is saved by itself later, as a turn's
   is (Filter, Wet, Energy and Chorus aren't saved at all). Other CCs are ignored.
 - **In, effects:** each of PERFORM's 27 effects has a CC, on any channel (the second table below). 64 or more holds
   the effect, less lets it go, as its key does. From 64 to 127 the value is also how much of the effect there is:
@@ -808,7 +814,7 @@ jack ignores it.
 
 ## 12. Saving
 
-AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with Tune, MIDI out, Lights and Evolve's
+AISLING keeps all eight pieces in the FM-1's memory, each as you left it, with Tune, MIDI out, Lights, Screen and Evolve's
 timing.
 
 - **By itself:** a few seconds after a change, while resting (writing to the memory interrupts the sound

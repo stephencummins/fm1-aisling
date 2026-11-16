@@ -108,7 +108,8 @@ enum { K_LEDS = 200, K_CPU, K_NONE, K_SLOT, K_CQ, K_CX,    /* (the Chords page: 
        K_PLAY,                                               /* (the Chords page: Endless or Loop, P_PMODE's bit 2) */
        K_SAVE,                                               /* (Setup: a turn saves; it shows whether it's saved) */
        K_CHORUS,
-       K_JRP, K_JRIN, K_DAY };
+       K_JRP, K_JRIN, K_DAY,
+       K_SCR };                                              /* (1.4.1) the screen, dark or light: saved, as Lights */
 #define NDAY 4                                   /* (1.4) the day: off, or a whole day in 20 minutes, 1 hour, 3 hours */
 static const char *const DAY_NAME[NDAY] = {"Off", "20 min", "1 hour", "3 hours"};
 static void dy_set(int v);
@@ -148,7 +149,7 @@ static const uint16_t VIEW_KNOB[NVIEWS][4] = {
     {P_MW4, P_MT4, P_MR4, P_MI4},                /* the Atmosphere's Move (SAVE, a third time) */
     {P_ORN, P_GLIDE, P_VIB, P_LMEM},             /* (AISLING) Lead style (LFO, a third time): how it plays; Memory
                                                   * as on the Arc page */
-    {K_JRP, K_JRIN, K_NONE, K_DAY},              /* (1.4) the Journey (GLO, a third time): its pieces; the day */
+    {K_JRP, K_JRIN, K_SCR, K_DAY},              /* (1.4) the Journey (GLO, a third time): its pieces; the day */
 };
 static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Filter", "Evolve", "Motion", "Drift"},
@@ -178,7 +179,7 @@ static const char *const KNOB_LABEL[NVIEWS][4] = {
     {"Width", "Time", "Rate", "Intro"},
     {"Width", "Time", "Rate", "Intro"},
     {"Ornament", "Glide", "Vibrato", "Memory"},
-    {"Piece", "In set", "", "Day"},
+    {"Piece", "In set", "Screen", "Day"},
 };
 /* what each knob does, a line: on the rule above the knobs while it's being turned (in capitals; each fits the
  * rule's 228 px, and every view has its row: the host's expect helpfit) */
@@ -211,36 +212,45 @@ static const char *const KNOB_HELP[NVIEWS][4] = {   /* (BERLIN's, a row a view, 
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"How far its filter wanders", "How long one move takes", "How often a new move starts", "Bars its filter takes to open"},
     {"Cuts, rolls, slides: how often", "How long it slides, note to note", "How deep the late vibrato", "How much the Lead keeps its ideas"},
-    {"Which piece: the journey's list", "The journey plays it, or passes", "", "Dawn to night: light and weather"},
+    {"Which piece: the journey's list", "The journey plays it, or passes", "Dark, on black; or light, on white", "Dawn to night: light and weather"},
 };
 
 /* (BERLIN) the screen's colours: Cosmic, on black (spec 15): lavender text, a cyan accent; the layers in their own
  * colours, the Drone violet, the Sequence pink, the Lead gold, Sequence 2 cyan, the Atmosphere dim lavender; each with a
  * dark tint for the shapes at rest. (The names stay DUB-1's: K_PAD the Drone, K_BELL the Sequence, K_BASS the Lead,
  * K_PULSE Sequence 2, K_NOISE the Atmosphere.) */
-#define K_BG RGB(0, 0, 0)
-#define K_PANEL RGB(26, 23, 38)
-#define K_LINE RGB(46, 41, 66)
-#define K_DIM RGB(141, 127, 184)
-#define K_TEXT RGB(239, 231, 255)
-#define K_ACC RGB(127, 216, 255)         /* the accent: the page, the knob being turned, a message's word */
-#define K_BELL RGB(255, 106, 213)
-#define K_BELL_T RGB(96, 36, 82)
-#define K_PAD RGB(180, 140, 255)
-#define K_PAD_T RGB(58, 44, 96)
-#define K_PULSE RGB(127, 216, 255)
-#define K_PULSE_T RGB(36, 66, 84)
-#define K_BASS RGB(255, 210, 127)
-#define K_BASS_T RGB(98, 80, 44)
-#define K_FROST RGB(232, 92, 84)         /* dub hold */
-#define K_FROST_T RGB(128, 56, 52)
-#define K_RIM RGB(214, 124, 176)         /* the rim */
-#define K_RIM_T RGB(108, 58, 86)
-#define K_CLAP RGB(232, 206, 98)         /* the clap */
-#define K_CLAP_T RGB(108, 98, 48)
-#define K_EIRE RGB(52, 196, 116)         /* (AISLING) the triskele's green */
-#define K_EIRE_O RGB(255, 146, 72)       /* (AISLING) and the flag's orange: the launch screen's "by" */
-#define K_NOISE RGB(186, 174, 156)       /* the noise (its level ring) */
+/* (1.4.1) the colours by night (as they were, on black) and by day (on bainin white: the same hues, darker, so
+ * each reads on it; a tint is pale, not dark). the Journey page's Screen sets which; proj.light keeps it. */
+enum { KC_BG, KC_PANEL, KC_LINE, KC_DIM, KC_TEXT, KC_ACC, KC_BELL, KC_BELL_T, KC_PAD, KC_PAD_T, KC_PULSE, KC_PULSE_T, KC_BASS, KC_BASS_T, KC_FROST, KC_FROST_T, KC_RIM, KC_RIM_T, KC_CLAP, KC_CLAP_T, KC_EIRE, KC_EIRE_O, KC_NOISE, KC_SEA, KC_HEATHER, KC_GORSE, KC_BAININ, KC_N };
+static const uint16_t KPAL[2][KC_N] = {
+    {RGB(0, 0, 0), RGB(26, 23, 38), RGB(46, 41, 66), RGB(141, 127, 184), RGB(239, 231, 255), RGB(127, 216, 255), RGB(255, 106, 213), RGB(96, 36, 82), RGB(180, 140, 255), RGB(58, 44, 96), RGB(127, 216, 255), RGB(36, 66, 84), RGB(255, 210, 127), RGB(98, 80, 44), RGB(232, 92, 84), RGB(128, 56, 52), RGB(214, 124, 176), RGB(108, 58, 86), RGB(232, 206, 98), RGB(108, 98, 48), RGB(52, 196, 116), RGB(255, 146, 72), RGB(186, 174, 156), RGB(72, 188, 176), RGB(198, 150, 210), RGB(244, 200, 56), RGB(246, 238, 214)},
+    {RGB(250, 247, 240), RGB(232, 226, 240), RGB(206, 198, 224), RGB(108, 94, 150), RGB(24, 18, 40), RGB(0, 118, 170), RGB(204, 40, 150), RGB(242, 204, 230), RGB(120, 80, 210), RGB(222, 210, 246), RGB(0, 128, 180), RGB(198, 228, 240), RGB(176, 118, 0), RGB(240, 224, 190), RGB(200, 50, 44), RGB(246, 208, 204), RGB(170, 70, 130), RGB(240, 208, 226), RGB(150, 124, 0), RGB(238, 230, 190), RGB(20, 140, 80), RGB(200, 90, 10), RGB(120, 110, 96), RGB(0, 128, 118), RGB(140, 80, 160), RGB(166, 118, 0), RGB(40, 34, 30)},
+};
+static const uint16_t *kpal = KPAL[0];
+static void pal_sync(void);                      /* kpal as proj.light says, and all drawn again when it changed */
+#define K_BG kpal[KC_BG]
+#define K_PANEL kpal[KC_PANEL]
+#define K_LINE kpal[KC_LINE]
+#define K_DIM kpal[KC_DIM]
+#define K_TEXT kpal[KC_TEXT]
+#define K_ACC kpal[KC_ACC]         /* the accent: the page, the knob being turned, a message's word */
+#define K_BELL kpal[KC_BELL]
+#define K_BELL_T kpal[KC_BELL_T]
+#define K_PAD kpal[KC_PAD]
+#define K_PAD_T kpal[KC_PAD_T]
+#define K_PULSE kpal[KC_PULSE]
+#define K_PULSE_T kpal[KC_PULSE_T]
+#define K_BASS kpal[KC_BASS]
+#define K_BASS_T kpal[KC_BASS_T]
+#define K_FROST kpal[KC_FROST]         /* dub hold */
+#define K_FROST_T kpal[KC_FROST_T]
+#define K_RIM kpal[KC_RIM]         /* the rim */
+#define K_RIM_T kpal[KC_RIM_T]
+#define K_CLAP kpal[KC_CLAP]         /* the clap */
+#define K_CLAP_T kpal[KC_CLAP_T]
+#define K_EIRE kpal[KC_EIRE]         /* (AISLING) the triskele's green */
+#define K_EIRE_O kpal[KC_EIRE_O]       /* (AISLING) and the flag's orange: the launch screen's "by" */
+#define K_NOISE kpal[KC_NOISE]       /* the noise (its level ring) */
 
 static struct {
     uint8_t view;
@@ -527,6 +537,8 @@ static int knob_get(int k)
         return proj.par[k] + (k == P_SEQ2OCT ? s2_shift() : 0);
     if (k == K_LEDS)
         return proj.leds;
+    if (k == K_SCR)
+        return proj.light != 0;
     if (k == K_CPU)
         return (int)plat_cpu_pct();
     if (k == K_SLOT)
@@ -571,7 +583,7 @@ static void knob_range(int k, int *lo, int *hi)
         *hi = 50;
     } else {
         *lo = 0;
-        *hi = k == K_DAY ? NDAY - 1 : k == K_JRP ? NPIECES - 1 : k == K_JRIN ? 1 : k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
+        *hi = k == K_SCR ? 1 : k == K_DAY ? NDAY - 1 : k == K_JRP ? NPIECES - 1 : k == K_JRIN ? 1 : k == K_CHORUS ? 100 : k == K_PLAY ? 1 : k == K_MODE ? EN_NMODES - 1 : k == K_LEDS ? 2 : k == K_CPU ? 100 : k == K_SLOT ? EN_NPROG - 1 : k == K_CQ ? EN_NCQ - 1 : k == K_CX ? EN_NCX - 1
             : k == K_LANE ? EN_NDRUM - 1 : k == K_LCH ? 100 : 0;
     }
 }
@@ -581,7 +593,7 @@ static const char *knob_name(int k)
         return en_param_info(k)->name;
     return k == K_LEDS ? "Lights" : k == K_CPU ? "CPU" : k == K_SLOT ? "Slot" : k == K_CQ ? "Chord" : k == K_CX ? "Type"
          : k == K_LANE ? "Lane" : k == K_LCH ? "Chance" : k == K_FILTER ? "Filter" : k == K_DUB ? "Wet"
-         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : k == K_CHORUS ? "Chorus" : k == K_DAY ? "Day" : k == K_JRP ? "Piece" : k == K_JRIN ? "In set" : "";
+         : k == K_ENERGY ? "Energy" : k == K_SPACE ? "Duck" : k == K_MODE ? "Mode" : k == K_PLAY ? "Play" : k == K_SAVE ? "Save" : k == K_CHORUS ? "Chorus" : k == K_DAY ? "Day" : k == K_SCR ? "Screen" : k == K_JRP ? "Piece" : k == K_JRIN ? "In set" : "";
 }
 static void knob_text(int k, char *b)
 {
@@ -598,8 +610,8 @@ static void knob_text(int k, char *b)
             b++;
         *b++ = '%';
         *b = 0;
-    } else if (k == K_JRP || k == K_JRIN || k == K_DAY) {
-        const char *n = k == K_DAY ? DAY_NAME[v] : k == K_JRP ? piece_name(v) : v ? "In" : "Out";
+    } else if (k == K_JRP || k == K_JRIN || k == K_DAY || k == K_SCR) {
+        const char *n = k == K_SCR ? (v ? "Light" : "Dark") : k == K_DAY ? DAY_NAME[v] : k == K_JRP ? piece_name(v) : v ? "In" : "Out";
         while ((*b++ = *n++))
             ;
     } else if (k == K_SLOT) {
@@ -683,6 +695,8 @@ static void knob_set(int k, int v)
             en_prog_rotate();                    /* (from Loop, by hand: the slot playing up to slot 1) */
     } else if (k == K_LEDS) {
         proj.leds = (uint8_t)v;
+    } else if (k == K_SCR) {                     /* (kpal follows it at the next frame: pal_sync) */
+        proj.light = (uint8_t)(v != 0);
     } else if (k == K_SLOT) {
         ui.slot = (uint8_t)v;
         return;                                  /* (only where the page looks: nothing saved) */
@@ -1590,7 +1604,7 @@ static void cc_in(int n, int v)
     } else if (n >= CC_FIXED && n < CC_FIXED + 7) {
         k = CC_FIXED_K[n - CC_FIXED];
     }
-    if (k == K_NONE || k == K_CPU || k == K_SAVE || k == K_LEDS || k == P_TUNE || k == P_MIDI)
+    if (k == K_NONE || k == K_CPU || k == K_SAVE || k == K_LEDS || k == K_SCR || k == P_TUNE || k == P_MIDI)
         return;
     knob_range(k, &lo, &hi);
     knob_set(k, lo + (v * (hi - lo) + 63) / 127);
@@ -2763,7 +2777,7 @@ static void line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t c)   /
 
 static void draw_meters(void)                    /* (BERLIN) left: the five layers, each its own activity at its level */
 {
-    static const uint16_t C[5] = {K_PAD, K_BELL, K_BASS, K_PULSE, K_NOISE},
+    const uint16_t C[5] = {K_PAD, K_BELL, K_BASS, K_PULSE, K_NOISE},
                           T[5] = {K_PAD_T, K_BELL_T, K_BASS_T, K_PULSE_T, K_PANEL};
     static const char *const NAME[5] = {"D", "1", "L", "2", "A"};
     int i;
@@ -2799,7 +2813,7 @@ static void draw_duck(void)                      /* (BERLIN) right: the echo's l
  * play in its colour, the rests a dot; on a layer's page the other lane greyed */
 static void draw_lanes(void)
 {
-    static const uint16_t C[2] = {K_BELL, K_PULSE}, T[2] = {K_BELL_T, K_PULSE_T};
+    const uint16_t C[2] = {K_BELL, K_PULSE}, T[2] = {K_BELL_T, K_PULSE_T};
     const int lay = oct_layer(ui.view);
     int l, i;
     for (l = 0; l < 2; l++) {
@@ -2825,17 +2839,17 @@ static const char *const GRID_CELL[EN_NFX] = {"Repeat", "Time", "Stop", "Shimmer
                                               "Reverb", "Ceo", "Freeze", "Wash", "Octave", "Return", "Fras",
                                               "Macalla"};
 /* (the user, 2026-11-10: "more Irish") the flag's orange, the sea, heather, gorse, shamrock; shaded towards bainin */
-#define K_SEA RGB(72, 188, 176)
-#define K_HEATHER RGB(198, 150, 210)
-#define K_GORSE RGB(244, 200, 56)
-#define K_BAININ RGB(246, 238, 214)
+#define K_SEA kpal[KC_SEA]
+#define K_HEATHER kpal[KC_HEATHER]
+#define K_GORSE kpal[KC_GORSE]
+#define K_BAININ kpal[KC_BAININ]
 /* (1.3.1; the user, 2026-11-11: "more of how it is shown now") the grid in PERFORM's look: its name in the uncial hand,
  * a colour a group (Echo the sea and Space heather, as PERFORM's; Filter gorse, Moves the flag's orange), a shade a
  * cell, a plaited rule after each group's name; a held cell its colour full, the lettering black, as the flash */
 static void grid_band(int32_t oy)                 /* the whole screen, in two bands of 240 x 120 */
 {
     static const char *const GROUP[4] = {"ECHO", "FILTER", "SPACE", "MOVES"};   /* (BERLIN's) */
-    static const uint16_t GCOL[4] = {K_SEA, K_GORSE, K_HEATHER, K_EIRE_O};
+    const uint16_t GCOL[4] = {K_SEA, K_GORSE, K_HEATHER, K_EIRE_O};
     int r, c;
     cv_begin(240, 120, K_BG);
     text_c(120, 0 - oy, &FONT_US, "EFFECTS", K_ACC);
@@ -2926,7 +2940,8 @@ static void draw_pmap(void)
  * go: their keys blink, REC is lit. */
 #define PF_H (HDR_H + MAIN_H)
 #define PF_MAX 8
-static const uint16_t PG_COL[PG_N] = {K_EIRE_O, K_SEA, K_HEATHER, K_GORSE, K_EIRE};
+static const uint8_t PG_COL_I[PG_N] = {KC_EIRE_O, KC_SEA, KC_HEATHER, KC_GORSE, KC_EIRE};
+#define PG_COL(g) kpal[PG_COL_I[g]]
 static const char *const PLINE[PERF_N] = {
     "a slice, over and over", "fog rolling into the echo", "half the speed", "a burst of rain",
     "chopped to the beat", "the Sequence's filter swept", "a beat rolled faster", "the Sequence into the echo",
@@ -2940,8 +2955,11 @@ static uint16_t pkey_col(int k)
     int i, n = 0;
     for (i = 0; i < k; i++)
         n += PKEY[i].g == PKEY[k].g;
-    return mix(PG_COL[PKEY[k].g], K_BAININ, PKEY[k].g == PG_BLACK ? n : n * 3);
+    return mix(PG_COL(PKEY[k].g), K_BAININ, PKEY[k].g == PG_BLACK ? n : n * 3);
 }
+/* (1.4.1) the held effect's band: the key's colour; on the light screen a shade deeper, so the white lettering on
+ * it reads (4.5:1, the host's expect pfcontrast) */
+static uint16_t pflash_col(int k) { return proj.light ? mix(pkey_col(k), K_BAININ, 4) : pkey_col(k); }
 static int pflash_up(void) { return ui.perf && (ui.pheld | ui.pcc); }
 /* (1.4) a key's amount under full, in 63rds (1..63), or 0: full, or not sounding. Only a CC makes less than full */
 static int pk_under(int k)
@@ -2977,7 +2995,7 @@ static void pflash_band(uint32_t m, int32_t oy, int32_t hh, int fade)
             text_c(120, y0 + (bh - 19) / 2 - oy, &FONT_US, more < 10 ? (t[1] = t[2], t[2] = 0, t) : t, ink);
             break;
         }
-        col = mix(pkey_col(k), K_BG, fade);
+        col = mix(pflash_col(k), K_BG, fade);
         cv_rect(0, y0 - oy, 240, bh, col);
         if (pk_under(k)) {                       /* (1.4) under full: a bar up the band's left edge, as tall as its
                                                   * amount, clear of the lettering (at full there is none, and the
@@ -3038,7 +3056,7 @@ static int pflash_showing(void) { return ui.sig[0] == 0x50464C41u; }
  * playing a column */
 static void draw_pattern(void)
 {
-    static const uint16_t C[EN_NDRUM] = {K_PULSE, K_TEXT, K_DIM, K_RIM, K_CLAP};
+    const uint16_t C[EN_NDRUM] = {K_PULSE, K_TEXT, K_DIM, K_RIM, K_CLAP};
     static const char *const SH[EN_NDRUM] = {"SEQ", "SEQ2", "OCT", "OCT2", "SKIP"};   /* (BERLIN's lanes, LANE_NAME) */
     int l, i, pos = en_loop_pos[0];              /* (the Sequence's step, not the bar's sixteenth) */
     text_c(120, -1, &FONT_XS, proj.par[P_SMODE] ? "PLAY: THE PATTERN" : "PLAY: AUTO (A KEY TAKES IT OVER)",
@@ -3135,7 +3153,7 @@ static void draw_setlist(void)
  * OCT_SHOW after the last turn */
 static void draw_oct(uint32_t now)
 {
-    static const uint16_t C[NLAYER] = {K_PAD, K_BELL, K_BASS, K_PULSE, K_NOISE};
+    const uint16_t C[NLAYER] = {K_PAD, K_BELL, K_BASS, K_PULSE, K_NOISE};
     const int32_t r = 30, cy = 66;
     int l = oct_ring_on(now) - 1, f;
     int32_t f2;
@@ -3529,7 +3547,7 @@ static void draw_knobs(void)
         int k = VIEW_KNOB[ui.view][i], lo, hi, v, hot = now_touch && ui.touched == (int)i;
         int32_t x = (int32_t)i * 60, cx = x + 30;
         char t[16];
-        static const uint16_t MIXC[4] = {K_PAD, K_BELL, K_BASS, K_PULSE};   /* (the Mix page: the layers' colours) */
+        const uint16_t MIXC[4] = {K_PAD, K_BELL, K_BASS, K_PULSE};   /* (the Mix page: the layers' colours) */
         uint16_t bg = hot ? K_PANEL : K_BG, fill = moff ? K_LINE : ui.view == V_MIX ? MIXC[i] : hot ? K_ACC : K_PAD;
         if (k == K_NONE)
             continue;
@@ -4000,6 +4018,8 @@ static void speak_dump(void)
                     proj.par[k] = (int16_t)x;
                 else if (k == K_SLOT)
                     ui.slot = (uint8_t)x;
+                else if (k == K_SCR)
+                    proj.light = (uint8_t)x;
                 else if (k == K_DAY)
                     ui.day = (uint8_t)(x == hi ? 0 : x);   /* (left off) */
                 else if (k == K_JRP)
@@ -4235,8 +4255,17 @@ static int sleep_input(void)
     return 1;
 }
 
+static void pal_sync(void)
+{
+    const uint16_t *want = KPAL[proj.light != 0];
+    if (kpal != want) {
+        kpal = want;
+        memset(ui.sig, 0, sizeof ui.sig);        /* every band drawn again */
+    }
+}
 void ui_frame(void)
 {
+    pal_sync();
     if (sleep_tick()) {                          /* (1.1) asleep: only waking, saving, the reader and the link */
         sleep_input();
         autosave();
@@ -4316,6 +4345,7 @@ static void splash_band(int f, int32_t oy)
 
 void ui_splash(int f)
 {
+    pal_sync();                                  /* (the first frame comes before the project is read: dark) */
     splash_band(f, 0);
     splash_band(f, 120);
 }
