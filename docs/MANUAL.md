@@ -177,7 +177,8 @@ nothing; the stay and the list aren't saved either, so it's off, with all eight 
 
 **The screen, dark or light.** KNOB 3 on the Journey page, **Screen**, sets the whole screen: Dark, the colours on
 black, as it comes; or Light, the same colours deeper, on white, for a bright room or daylight. It changes nothing
-in the sound. It's saved with the pieces, as Lights is, and a CC never turns it.
+in the sound. It's saved with the pieces, as Lights is, and a CC never turns it. The turn itself redraws the whole
+screen at once, the busiest moment the FM-1 has: set it between pieces rather than in the middle of one.
 
 ![The main screen, light: the same screen on white, the colours deeper](img/screen-light.png "The main screen with Screen at Light")
 
