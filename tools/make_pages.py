@@ -61,7 +61,7 @@ from make_site import product_of, strip_module  # noqa: E402  (Felucca's: the pa
 REPO = "https://github.com/stephencummins/fm1-aisling"
 FX1_REPO, FX1_VERSION = "https://github.com/stephencummins/fx1-aisling", "1.1"           # its release
 FX1_SHA256 = "41ae37d3d478737c73df32b87de1661d3cb7efd8883319f5b26c2baa011e0d1c"           # aislingfx-1.1.fwsc, its asset
-SMK37_REPO, SMK37_VERSION = "https://github.com/stephencummins/smk37-aisling", "1.3.1"  # the Elite's
+SMK37_REPO, SMK37_VERSION = "https://github.com/stephencummins/smk37-aisling", "1.4.1"  # the Elite's
 BY = 'by CÚ_STE · <a href="https://www.stephen8n.com">www.stephen8n.com</a>'
 
 LANDING = """<!doctype html>
