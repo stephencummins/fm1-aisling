@@ -23,6 +23,7 @@ emcc -O2 -ffp-contract=off -std=gnu99 -Wall -Wno-unused-function -Wno-unused-par
     --no-entry -sSTANDALONE_WASM -sSTACK_SIZE=1048576 -sINITIAL_MEMORY=33554432 -sFILESYSTEM=0 \
     -o build/emu/amb.wasm web/emu/amb_web.c firmware/src/dsp/amb.c
 cp web/emu/index.html web/emu/worklet.js web/emu/manifest.webmanifest web/emu/sw.js build/emu/
+mkdir -p build/emu/decals && cp web/emu/decals/*.webp build/emu/decals/    # the skins' art, for the Decal menu
 python3 tools/make_app_icons.py build/emu/icons    # the home-screen icons: the site's harp
 cp docs/card.png build/emu/card.png    # make_artifact.py's harp; on the site, the bar has it (tools/site_brand.py)
 cp web/visualiser/index.html build/emu/visualiser.html
