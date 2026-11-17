@@ -2,7 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- AISLING as an app: from the home screen (or with ?app) the FM-1 fills the screen and nothing else shows -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/touch-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AISLING">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if (matchMedia("(display-mode: standalone)").matches || navigator.standalone || new URLSearchParams(location.search).has("app"))
+  document.documentElement.classList.add("app");
+</script>
 <title>Emulator · AISLING</title>
 <meta name="description" content="AISLING, a generative Irish ambient firmware for the M-VAVE FM-1, in your browser: the same code the FM-1 runs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,6 +138,31 @@ main { transition: max-width .35s ease; }
 .vis-bar a { margin-left: auto; cursor: pointer; }
 .vis-bar button { font: 400 12.5px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: lowercase; color: var(--ink); background: var(--ground); border: 1px solid var(--rule); border-radius: 0; min-height: 32px; cursor: pointer; padding: .2em .8em; }
 .vis iframe { flex: 1; min-height: 0; width: 100%; border: 0; border-top: 1px solid var(--rule); display: block; }
+/* ---- the app: the FM-1 alone, as large as the screen takes, on black. fitApp() sets --app-w, and turns the FM-1 a
+   quarter round on a phone held upright (html.app-turned), so it is played sideways without the phone's own rotation */
+.app-only, .install { display: none; }
+@media (pointer: coarse) { html:not(.app) .install { display: block; margin: 0 0 .8rem; color: var(--muted); font-size: 12.5px; } }
+html.app, html.app body { height: 100%; margin: 0; padding: 0; overflow: hidden; overscroll-behavior: none; background: #0e0d0c; }
+html.app .sitebar, html.app .wall, html.app .vis, html.app main > header, html.app .emu-head, html.app .turn, html.app .reader,
+html.app .help, html.app .zoom, html.app .cpu, html.app #shortcuts-l, html.app #zoom-btn, html.app .zoom-more, html.app #vis-open { display: none !important; }
+html.app main { max-width: none; margin: 0; padding: 0; transition: none; }
+html.app .stage { position: fixed; inset: 0; display: grid; place-items: center; overflow: hidden; box-sizing: border-box;
+                  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+html.app .frame { position: absolute; left: 50%; top: 50%; width: var(--app-w, 100%); margin: 0; overflow: visible; transform: translate(-50%, -50%); }
+html.app .device { min-width: 0; }
+html.app-turned .frame { transform: translate(-50%, -50%) rotate(90deg); }
+html.app #screen { cursor: default; }
+html.app .app-only { display: block; }
+html.app #app-menu { position: fixed; z-index: 40; top: calc(env(safe-area-inset-top) + 6px); right: calc(env(safe-area-inset-right) + 6px);
+                     width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255, 244, 220, .12); color: #fbf0e4;
+                     font: 600 20px/1 var(--brand-mono, monospace); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+html.app #app-menu[aria-expanded="true"] { background: #fbf0e4; color: #24110a; }
+html.app .bar { position: fixed; z-index: 39; top: calc(env(safe-area-inset-top) + 56px); right: calc(env(safe-area-inset-right) + 6px);
+                max-width: min(300px, 80vw); margin: 0; padding: 12px 14px; flex-direction: column; align-items: stretch; gap: .6rem;
+                background: #f3ead7; color: #2b2219; border: 1px solid #2b2219; font-size: 14px; }
+html.app:not(.app-menu) .bar { display: none; }
+html.app .bar button, html.app .bar a.app-only { min-height: 44px; font-size: 14px; }
+html.app .bar a.app-only { display: grid; place-items: center; color: #2b2219; }
 </style>
 <!--AISLING-HEAD-->
 </head>
@@ -144,6 +180,7 @@ main { transition: max-width .35s ease; }
 
 <h2 class="sr" id="h-device">The FM-1</h2>
 <p class="turn">Turn your phone sideways for bigger controls.</p>
+<p class="install">As an app: in your browser's Share or menu, choose <b>Add to Home Screen</b>. Opened from there AISLING fills the screen and works with no connection.</p>
 <div class="stage" id="stage">
 <div class="frame">
 <div class="device" id="device" role="group" aria-labelledby="h-device" aria-describedby="device-help" tabindex="-1">
@@ -157,12 +194,13 @@ main { transition: max-width .35s ease; }
 </div>
 <p class="sr" id="device-help">Knobs: turn with the arrow keys, Page Up and Page Down turn faster. Buttons and keys: Space or Enter presses, held as long as you hold it; Shift with Space keeps a button held until you press it again. Keys: Left and Right arrows move between them.</p>
 
-<div class="bar">
+<button id="app-menu" class="app-only" type="button" aria-expanded="false" aria-controls="bar" aria-label="Menu">≡</button>
+<div class="bar" id="bar">
   <span id="status" role="status">Off. Sound starts when you switch it on.</span>
   <span class="cpu" id="cpu"></span>
   <button id="mute" type="button" aria-pressed="false" disabled>Mute</button>
   <button id="reset" type="button" title="Forget your scale and sound, and start again from the factory settings">Factory reset</button>
-  <label><input type="checkbox" id="shortcuts" checked> Keyboard shortcuts</label>
+  <label id="shortcuts-l"><input type="checkbox" id="shortcuts" checked> Keyboard shortcuts</label>
   <button id="zoom-btn" type="button" aria-pressed="false" aria-controls="zoom" title="The FM-1's screen, large, beside the panel, so the knobs stay in reach">Zoom screen</button>
   <span class="zoom-more" id="zoom-more" hidden>
     <button id="zoom-full" type="button" title="The panel and the big screen, the whole monitor. Esc to leave">Full screen</button>
@@ -175,6 +213,7 @@ main { transition: max-width .35s ease; }
     </select></label>
   </span>
   <button id="vis-open" type="button" aria-expanded="false" aria-controls="vis" title="AISLING's visualiser, painting what the emulator plays">Visualiser</button>
+  <a class="app-only" href="./">The emulator's page, with how to play it</a>
 </div>
 
 <section class="reader" aria-labelledby="h-reader">
@@ -357,6 +396,8 @@ const STORE_KEY = "aisling-emu-store", PREFS_KEY = "aisling-emu-prefs";
 // the keys' notes: key i is the pitch class (5 + i) % 12 (ui.c leds()), the firmware's spelling, said in words
 const NOTE = ["C", "C sharp", "D", "E flat", "E", "F", "F sharp", "G", "A flat", "A", "B flat", "B"];
 const $ = (id) => document.getElementById(id);
+const APP = document.documentElement.classList.contains("app");
+let turned = false;       // the app, on a phone held upright: the FM-1 a quarter turn clockwise, its top at the screen's right
 const prefs = (() => { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; } })();
 const savePrefs = () => { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch { /* private window */ } };
 
@@ -601,18 +642,20 @@ function turn(k, n) {
   }
   drawKnob(k);
 }
+// how far up the FM-1 a pointer is: up the screen, or (the app, turned) towards the screen's right
+const upOf = (e) => turned ? e.clientX : -e.clientY;
 for (const k of Object.values(knobs)) {
   if (k.role === "master") { k.angle = -135 + 270 * master / 4096; drawKnob(k); showMaster(k); }
   let drag = null, wheel = 0;
   k.hit.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     k.hit.setPointerCapture(e.pointerId);
-    drag = { y: e.clientY, acc: 0 };
+    drag = { y: upOf(e), acc: 0 };
   });
   k.hit.addEventListener("pointermove", (e) => {
     if (!drag) return;
-    drag.acc += drag.y - e.clientY;
-    drag.y = e.clientY;
+    drag.acc += upOf(e) - drag.y;
+    drag.y = upOf(e);
     const step = k.role === "master" ? 3 : 7;
     const n = Math.trunc(drag.acc / step);
     if (n) { drag.acc -= n * step; turn(k, n); }
@@ -845,6 +888,7 @@ async function switchOn() {
     if (visShown()) send({ type: "midi", on: true });
     // the button pressed is gone: the focus goes to the FM-1 it switched on, not back to the top of the page
     device.focus({ preventScroll: true });
+    if (APP) keepAwake();
   } catch (err) {
     node = null;
     go.disabled = false;
@@ -1010,14 +1054,45 @@ $("zoom-full").addEventListener("click", async () => {
 });
 document.addEventListener("fullscreenchange", fitZoom);
 $("zoom-btn").addEventListener("click", () => setZoom(!zoomOn));
-$("screen").addEventListener("click", () => setZoom(!zoomOn));
+$("screen").addEventListener("click", () => { if (!APP) setZoom(!zoomOn); });
 $("screen-zoom").addEventListener("click", () => { setZoom(false); if (node) device.focus({ preventScroll: true }); });
 addEventListener("resize", fitZoom);
 
 setVisH(+prefs.visH || 45);
-if (prefs.vis) showVis(true);
 setLook(prefs.look || "colour");
-if (prefs.zoom) setZoom(true);
+if (!APP) {
+  if (prefs.vis) showVis(true);
+  if (prefs.zoom) setZoom(true);
+}
+
+// ---------------------------------------------------------------- the app
+// Kept for the next visit and for no connection at all (sw.js: the network first, what it last had otherwise).
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(() => {});
+// the screen stays on while AISLING plays (where the browser lets it); asked again each time the app comes back
+let wake = null;
+async function keepAwake() {
+  try { if (navigator.wakeLock && document.visibilityState === "visible") wake = await navigator.wakeLock.request("screen"); } catch { /* not allowed: the phone sleeps as usual */ }
+}
+// the FM-1 (1000 x 640) as large as the screen takes inside its safe area, turned when that makes it larger on a
+// screen taller than it is wide
+function fitApp() {
+  const st = $("stage"), cs = getComputedStyle(st);
+  const w = st.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight),
+        h = st.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  turned = h > w;
+  document.documentElement.classList.toggle("app-turned", turned);
+  document.documentElement.style.setProperty("--app-w", Math.floor(turned ? Math.min(h, w / .64) : Math.min(w, h / .64)) + "px");
+}
+if (APP) {
+  fitApp();
+  addEventListener("resize", fitApp);
+  addEventListener("orientationchange", fitApp);
+  document.addEventListener("visibilitychange", () => { if (node && document.visibilityState === "visible") keepAwake(); });
+  const menu = $("app-menu"), open = (on) => { document.documentElement.classList.toggle("app-menu", on); menu.setAttribute("aria-expanded", on ? "true" : "false"); };
+  menu.addEventListener("click", () => open(menu.getAttribute("aria-expanded") !== "true"));
+  device.addEventListener("pointerdown", () => open(false), true);
+  addEventListener("keydown", (e) => { if (e.key === "Escape") open(false); });
+}
 </script>
 </body>
 </html>
