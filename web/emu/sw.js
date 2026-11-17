@@ -2,7 +2,7 @@
 // The emulator, kept for no connection: the network first, so a visit with one always gets the site as it is now,
 // and whatever was last fetched otherwise. Everything the page asks for is kept as it goes by (the site's stylesheet
 // and fonts too); the files below are fetched at once, so the first visit is enough to play offline.
-const CACHE = "aisling-emu-1";
+const CACHE = "aisling-emu-2";
 const CORE = ["./", "worklet.js", "amb.wasm", "manifest.webmanifest", "icons/touch-180.png", "icons/icon-192.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.all(CORE.map((u) => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));

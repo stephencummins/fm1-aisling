@@ -855,7 +855,13 @@ async function switchOn() {
   go.textContent = "Starting...";
   status.textContent = "Starting.";
   try {
+    // an iPhone plays a page's sound through its ringer, silent with the switch at the side: as "playback" it sounds anyway
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch { /* an older Safari */ }
     const ac = new AudioContext({ sampleRate: 44100, latencyHint: "interactive" });
+    // Safari starts the sound only inside the tap itself: now, before the files are waited for (and again at any
+    // later touch, should it have stopped: a call, another app)
+    ac.resume().catch(() => {});
+    for (const ev of ["pointerdown", "keydown"]) addEventListener(ev, () => { if (ac.state !== "running") ac.resume().catch(() => {}); }, true);
     const [wasm] = await Promise.all([fetch("amb.wasm").then((r) => { if (!r.ok) throw new Error(`amb.wasm: ${r.status}`); return r.arrayBuffer(); }),
                                       ac.audioWorklet.addModule("worklet.js")]);
     node = new AudioWorkletNode(ac, "amb", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
@@ -882,7 +888,8 @@ async function switchOn() {
     $("start").hidden = true;
     controls.inert = false;
     $("mute").disabled = false;
-    status.textContent = ac.sampleRate === 44100 ? "On." : `On (the browser runs audio at ${ac.sampleRate} Hz).`;
+    status.textContent = ac.state !== "running" ? "On, but the browser has not started the sound: touch the FM-1."
+      : ac.sampleRate === 44100 ? "On." : `On (the browser runs audio at ${ac.sampleRate} Hz).`;
     syncButtons(); syncKeys();
     readerMode();
     if (visShown()) send({ type: "midi", on: true });
