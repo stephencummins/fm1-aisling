@@ -1104,8 +1104,9 @@ function setDecal(name) {
   if (ok) decalImg.setAttribute("href", `decals/${ok}.webp`);
   prefs.decal = ok; savePrefs();
 }
-$("decal").addEventListener("change", (e) => setDecal(e.target.value));
-setDecal(prefs.decal || "");
+$("decal").addEventListener("change", (e) => { prefs.decalSet = true; setDecal(e.target.value); });
+// Flight Deck until a choice is made (None included: an empty choice from before there was a default doesn't count)
+setDecal(prefs.decal || (prefs.decalSet ? "" : "flightdeck"));
 
 setVisH(+prefs.visH || 45);
 setLook(prefs.look || "colour");
