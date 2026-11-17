@@ -132,6 +132,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <p class="mg-stand">The same code the FM-1 runs, <em>with sound</em>. No FM-1 needed.</p>
 <p class="mg-go"><a class="btn go big" href="emu/">Open the emulator</a></p>
 <p class="mg-small">Mouse, touch or keyboard. Slide the visualiser up beneath it to watch what it plays painted.</p>
+<p class="mg-small">New: on a phone it is <a href="emu/?app">an app</a>, full screen from the home screen. <a href="./#new">How</a>. Tested only on an iPhone, in Safari.</p>
 </div>
 <div class="mg-shots">
   <img src="img/screen-launch.png" width="240" height="240" alt="The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com">
@@ -401,6 +402,9 @@ CHOOSER = """<!doctype html>
 .ask small { display: block; margin: 0 0 6px; font: 400 12px/1.3 var(--brand-mono); letter-spacing: .12em; color: var(--brand-rust); }
 .band { border-top: 1px solid var(--brand-rule); }
 .band .mg-head { margin-bottom: 18px; }
+#new .mg-num { font-size: clamp(56px, 8vw, 104px); text-transform: uppercase; }
+#new .how { margin: 22px 0 10px; font: 600 22px/1.1 var(--brand-display); text-transform: uppercase; }
+#new .mg-split { align-items: center; }
 .band .shot { display: block; border: 1px solid var(--brand-rule); }
 .band .shot img { display: block; width: 100%; height: auto; max-height: 340px; object-fit: cover; }
 /* the tip cup, in the cover's corner: our own drawing. Steam all the time; every 14 seconds a sugar lump goes in and it wiggles */
@@ -494,7 +498,28 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 </div>
 </div>
 
-<h2 class="ask"><small>three firmwares</small>Which have you got?</h2>
+<section class="mg-feat band" id="new" aria-labelledby="newh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">New</div>
+<div><p class="mg-kick">What's new · November 2026</p><h2 id="newh">Aisling, as an app on your phone</h2></div></div>
+<div class="mg-split">
+<div>
+<p class="mg-stand">The whole instrument, full screen, <em>from your home screen</em>. It plays with no connection, and it can wear any of the store's skins.</p>
+<p class="mg-go"><a class="btn go big" href="emu/?app">Open the app</a></p>
+<p class="mg-small"><b>Tested only on an iPhone, in Safari.</b> It may well work on an iPad or an Android phone; nobody has tried it there yet.</p>
+</div>
+<a class="shot" href="emu/?app" tabindex="-1"><img src="img/app-phone.webp" width="1688" height="780" loading="lazy" alt="AISLING filling a phone's screen, turned on its side: the FM-1 drawn with a map skin on it, its screen playing"></a>
+</div>
+<h3 class="how">An icon on your home screen</h3>
+<ol class="mg-steps">
+<li><b>Open the app in Safari</b> on your iPhone, with the button above.</li>
+<li><b>Tap Share,</b> the square with an arrow pointing up. On a newer iPhone it may be under the three dots.</li>
+<li><b>Choose Add to Home Screen,</b> then Add. You may need to scroll down the list to find it.</li>
+<li><b>Open AISLING from its icon.</b> It fills the screen. Tap the FM-1 once to start the sound.</li>
+</ol>
+<p class="mg-small">It sounds even with the phone's silent switch on. For a skin, tap the menu button in the corner and choose one under Decal. Once it has been opened from its icon, it works with no connection.</p>
+</section>
+
+<h2 class="ask band"><small>three firmwares</small>Which have you got?</h2>
 <div class="parts">
 __PARTS__
 </div>

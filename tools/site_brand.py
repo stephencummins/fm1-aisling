@@ -23,8 +23,10 @@ PRODUCTS = [["fm1", "FM-1", "fm1/", "AISLING on the M-VAVE FM-1: the instrument,
 STORE = ("store", "store", "https://store.stephen8n.com/", "Skins for the FM-1, printed and cut by hand, and the gear that goes with it: coming soon")
 DIY = ("diy", "make a skin", "https://store.stephen8n.com/diy/", "How to make your own skin for the FM-1 at home: what to buy, and how to print and cut it")
 SEER = ("seer", "seer", "https://seer.stephen8n.com/", "The Flash Seer: a fortune cabinet that asks strange questions and deals the FM-1 firmware you should flash")
+APP = ("app", "app", "emu/?app", "AISLING as an app on a phone: full screen, from the home screen, with no connection")
 STEPHEN8N = ("stephen8n", "stephen8n", "https://www.stephen8n.com", "Stephen Cummins's other things")
 NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM-1 runs"),
+       APP,
        ("editor", "editor", "editor/", "Every setting of a piece on one panel, and your FM-1 over USB"),
        ("install", "install", "install/", "Put AISLING on your FM-1 from Chrome or Edge"),
        ("manual", "manual", "manual/", "Getting started in a few minutes, then everything else"),
@@ -51,7 +53,8 @@ SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, 
              ["manual", "manual", "smk37/manual/", "How the port works: the flash, the pins, building, testing, and what's still open"],
              ["source", "source", "https://github.com/stephencummins/smk37-aisling", "The SMK-37 Elite's code, on GitHub"],
              STEPHEN8N]
-COMMON = (("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),
+COMMON = (APP,
+          ("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),
           SEER,
           STORE,
           DIY,
