@@ -618,6 +618,15 @@ keys.forEach((k, i) => {
     keyHeldBy.set("p" + e.pointerId, i);
     syncKeys();
   });
+  // slide to the next key: the finger that went down on a key plays whichever key it is over
+  k.hit.addEventListener("pointermove", (e) => {
+    const id = "p" + e.pointerId, was = keyHeldBy.get(id);
+    if (was === undefined) return;
+    const over = keys.findIndex((x) => { const r = x.hit.getBoundingClientRect(); return e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom; });
+    if (over < 0 || over === was) return;
+    keyHeldBy.set(id, over);
+    syncKeys();
+  });
   keyHold(k.hit, keyHeldBy, i, syncKeys, false);
   // the keys are one stop: the arrows move along them (a roving tabindex)
   k.hit.addEventListener("keydown", (e) => {
