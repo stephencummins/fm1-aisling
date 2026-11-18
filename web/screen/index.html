@@ -340,8 +340,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 <h3 class="sub">3. Out come the files</h3>
 <p>The script writes the LDraw file with its seven steps, the BrickLink wanted list and the parts table on this page, then runs its checks and ends "checks: all passed" or lists what failed. It also writes the scenes for the drawings above, which were drawn with OpenSCAD from the same list of parts: they are not Studio's pictures.</p>
 <h3 class="sub">4. Into Studio</h3>
-<p>BrickLink's Studio imports the LDraw file (File, Import, Import LDraw File). Studio 2.26 knew all 14 kinds of part, gave no list of errors, and showed the seven steps. Studio was used to look at the model, turn it and step through it. Nothing in the tray was built or moved in it, and its collision and stability checks have not been run.</p>
-<p>One brick was added there by hand: a 51st part, a Brick 1 × 1. It is optional. The model, the parts table and the shopping list here are the 50-part tray without it.</p>
+<p>BrickLink's Studio imports the LDraw file (File, Import, Import LDraw File). Studio 2.26 knew all 14 kinds of part, gave no list of errors, and showed the seven steps. Studio was used to look at the model, turn it and step through it. Nothing was built or moved in it, and its collision and stability checks have not been run.</p>
 </div>
 <div>
 <figure><img src="img/lego/studio.webp" width="1400" height="1104" loading="lazy" alt="Studio's window with the tray in it, seen from above and behind: a black rim of plates on dark grey walls, the light grey floor inside, three orange pillars and the orange stop, the cable gap open at the near side"><figcaption>The same file open in Studio 2.26: the black rim, the three pillars and the stop in orange, the cable gap nearest.</figcaption></figure>
@@ -363,14 +362,14 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 </ul>
 <p class="small">What it does not know: how hard real bricks grip, or whether the tilt is steady under a pressing finger. One built tray says yes to both.</p>
 <h3 class="sub" style="margin-top:22px" id="tray-change">Take it and change it</h3>
-<p class="vids" style="margin-bottom:14px"><a class="btn go big" href="voxbox_lego.py" download>The script</a><a class="btn big" href="voxbox-lego-tray.ldr" download>The model</a><a class="btn big" href="voxbox_lego_render.sh" download>The drawings' script</a></p>
+<p class="vids" style="margin-bottom:14px"><a class="btn go big" href="voxbox_lego.py" download>The script</a><a class="btn big" href="voxbox-lego-tray.ldr" download>The model</a><a class="btn big" href="voxbox-lego-tray.io" download>The Studio file</a><a class="btn big" href="voxbox_lego_render.sh" download>The drawings' script</a></p>
 <ol class="plain">
 <li>The script needs Python 3 and nothing else. <code>python3 voxbox_lego.py out</code> writes the model, the wanted list and the parts table into a folder <code>out</code>, and ends "checks: all passed".</li>
 <li>For another board, change the sizes at <code>SIZES</code> and the pillars' height and places. For another shape, change the <code>put</code> lines.</li>
 <li>Run it again. If a brick floats, overlaps or leaves the boards no room, it ends "FAILED" and says which part and where. The files are written all the same, so do not build from them until it passes.</li>
 <li>Import the new <code>.ldr</code> into Studio to see it, and to send its parts to a wanted list.</li>
 </ol>
-<p class="small" style="margin-top:12px">voxbox_lego.py, 17,353 bytes; voxbox_lego_render.sh, 1,915 bytes, which also needs OpenSCAD, Pillow and numpy and is only for the drawings. Both are under the GPL, version 3, like the rest of AISLING. Run as it is here, the script writes the very model on this page, byte for byte.</p>
+<p class="small" style="margin-top:12px">voxbox-lego-tray.io, 161,692 bytes, is the same 50 parts saved from Studio 2.26, for opening there without an import. voxbox_lego.py, 17,353 bytes; voxbox_lego_render.sh, 1,915 bytes, which also needs OpenSCAD, Pillow and numpy and is only for the drawings. Both are under the GPL, version 3, like the rest of AISLING. Run as it is here, the script writes the very model on this page, byte for byte.</p>
 </section>
 
 <section class="fold" aria-label="The small print">
