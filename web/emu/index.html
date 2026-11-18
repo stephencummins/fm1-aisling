@@ -35,6 +35,12 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
    apart (WCAG target size); on a narrower phone its frame scrolls sideways (the page does not) */
 @media (max-width: 440px) { .frame { margin-inline: -16px; overflow-x: auto; } .device { min-width: 388px; } }
 .device { position: relative; width: 100%; aspect-ratio: 1615 / 965; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+/* Turn, on the page: the FM-1 a quarter round, as tall as the window takes. The frame keeps the turned panel's
+   footprint so the page flows round it; the app has its own rule (html.app-turned) */
+html.turned:not(.app) { --turn-w: min(100vh - 24px, (100vw - 32px) / .5975, 1040px); }
+html.turned:not(.app) .frame { flex: none; position: relative; width: calc(var(--turn-w) * .5975); height: var(--turn-w); max-width: none; margin-inline: auto; overflow: visible; }
+html.turned:not(.app) .device { position: absolute; left: 50%; top: 50%; width: var(--turn-w); min-width: 0; transform: translate(-50%, -50%) rotate(90deg); }
+html.turned:not(.app) .turn { display: none; }
 .device:focus { outline: none; }
 .device:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 5.9% / 9.8%; }
 .device svg { pointer-events: none; }
@@ -202,6 +208,7 @@ html.app .bar a.app-only { display: grid; place-items: center; color: #2b2219; }
   <span class="cpu" id="cpu"></span>
   <button id="mute" type="button" aria-pressed="false" disabled>Mute</button>
   <button id="reset" type="button" title="Forget your scale and sound, and start again from the factory settings">Factory reset</button>
+  <button id="turn-btn" type="button" aria-pressed="false" title="The FM-1 a quarter turn round, its keys down the right-hand side">Turn</button>
   <label id="shortcuts-l"><input type="checkbox" id="shortcuts" checked> Keyboard shortcuts</label>
   <button id="zoom-btn" type="button" aria-pressed="false" aria-controls="zoom" title="The FM-1's screen, large, beside the panel, so the knobs stay in reach">Zoom screen</button>
   <span class="zoom-more" id="zoom-more" hidden>
@@ -404,7 +411,7 @@ const STORE_KEY = "aisling-emu-store", PREFS_KEY = "aisling-emu-prefs";
 const NOTE = ["C", "C sharp", "D", "E flat", "E", "F", "F sharp", "G", "A flat", "A", "B flat", "B"];
 const $ = (id) => document.getElementById(id);
 const APP = document.documentElement.classList.contains("app");
-let turned = false;       // the app, on a phone held upright: the FM-1 a quarter turn clockwise, its top at the screen's right
+let turned = false;       // the FM-1 a quarter turn clockwise, its top at the screen's right: the Turn button, or the app on a screen held upright
 const prefs = (() => { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); } catch { return {}; } })();
 const savePrefs = () => { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch { /* private window */ } };
 
@@ -671,7 +678,7 @@ function turn(k, n) {
   }
   drawKnob(k);
 }
-// how far up the FM-1 a pointer is: up the screen, or (the app, turned) towards the screen's right
+// how far up the FM-1 a pointer is: up the screen, or (turned) towards the screen's right
 const upOf = (e) => turned ? e.clientX : -e.clientY;
 for (const k of Object.values(knobs)) {
   if (k.role === "master") { k.angle = -135 + 270 * master / 4096; drawKnob(k); showMaster(k); }
@@ -1129,14 +1136,31 @@ function fitApp() {
   const st = $("stage"), cs = getComputedStyle(st);
   const w = st.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight),
         h = st.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-  turned = h > w;
+  turned = typeof prefs.turn === "boolean" ? prefs.turn : h > w;
   document.documentElement.classList.toggle("app-turned", turned);
+  $("turn-btn").setAttribute("aria-pressed", String(turned));
   document.documentElement.style.setProperty("--app-w", Math.floor(turned ? Math.min(h, w / .5975) : Math.min(w, h / .5975)) + "px");
 }
+// Turn: on the page it is off until asked for; in the app it overrides what the screen's shape chose, until the
+// phone itself is turned
+function setTurn(on) {
+  if (APP || on) prefs.turn = on; else delete prefs.turn;   // the page keeps only "turned": off there must not hold the app flat
+  savePrefs();
+  if (APP) return fitApp();
+  turned = on;
+  document.documentElement.classList.toggle("turned", on);
+  $("turn-btn").setAttribute("aria-pressed", String(on));
+  fitZoom();
+}
+$("turn-btn").addEventListener("click", () => {
+  setTurn(!turned);
+  if (!APP && turned) device.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+});
+if (!APP && prefs.turn === true) setTurn(true);
 if (APP) {
   fitApp();
   addEventListener("resize", fitApp);
-  addEventListener("orientationchange", fitApp);
+  addEventListener("orientationchange", () => { delete prefs.turn; savePrefs(); fitApp(); });
   document.addEventListener("visibilitychange", () => { if (node && document.visibilityState === "visible") keepAwake(); });
   const menu = $("app-menu"), open = (on) => { document.documentElement.classList.toggle("app-menu", on); menu.setAttribute("aria-expanded", on ? "true" : "false"); };
   menu.addEventListener("click", () => open(menu.getAttribute("aria-expanded") !== "true"));
