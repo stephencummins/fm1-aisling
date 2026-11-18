@@ -1295,6 +1295,10 @@ def main(pkg, version, out, smk37=None, fx1=None):
     shutil.copytree(SRC / "web" / "screen", out / "screen")
     (out / "screen" / "index.html").write_text(stamp((SRC / "web" / "screen" / "index.html").read_text(encoding="utf-8"), "../", "screen"),
                                                encoding="utf-8")
+    # the support page: M-Flasher and m-bootloader
+    (out / "support").mkdir()
+    (out / "support" / "index.html").write_text(stamp((SRC / "web" / "support" / "index.html").read_text(encoding="utf-8"), "../", "support"),
+                                                encoding="utf-8")
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")

@@ -24,6 +24,7 @@ STORE = ("store", "store", "https://store.stephen8n.com/", "Skins for the FM-1, 
 DIY = ("diy", "make a skin", "https://store.stephen8n.com/diy/", "How to make your own skin for the FM-1 at home: what to buy, and how to print and cut it")
 SEER = ("seer", "seer", "https://seer.stephen8n.com/", "The Flash Seer: a fortune cabinet that asks strange questions and deals the FM-1 firmware you should flash")
 APP = ("app", "app", "emu/?app", "AISLING as an app on a phone: full screen, from the home screen, with no connection")
+SUPPORT = ("support", "support", "support/", "Back an FM-1 up, switch its firmware, and bring one back that won't start: M-Flasher and m-bootloader")
 STEPHEN8N = ("stephen8n", "stephen8n", "https://www.stephen8n.com", "Stephen Cummins's other things")
 NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM-1 runs"),
        APP,
@@ -34,6 +35,7 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
        ("cheat", "cheat sheet", "cheat/", "Every control and the eight pieces on one page, to print, and the steps drawn as flows"),
        ("visualiser", "visualiser", "visualiser/", "An FM-1 running AISLING paints an Irish landscape from its MIDI"),
        ("screen", "screen", "screen/", "A touch screen beside the FM-1: the landscape, the FM-1's own screen, and its knobs"),
+       SUPPORT,
        ("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),
        SEER,
        STORE,
@@ -44,6 +46,7 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
 FX1_NAV = (("install", "install", "fx1/install/", "Put AISLING FX-1 on your FM-1 from Chrome or Edge"),
            ("controls", "controls", "fx1/controls/", "Every knob, button and key of the FM-1 running FX-1 and what it does, drawn"),
            ("manual", "manual", "fx1/manual/", "Setting it up with a computer, the effects, the screen, and going back"),
+           SUPPORT,
            SEER,
            STORE,
            DIY,
@@ -54,6 +57,7 @@ SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, 
              ["source", "source", "https://github.com/stephencummins/smk37-aisling", "The SMK-37 Elite's code, on GitHub"],
              STEPHEN8N]
 COMMON = (APP,
+          SUPPORT,
           ("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases"),
           SEER,
           STORE,
