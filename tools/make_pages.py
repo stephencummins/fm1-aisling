@@ -7,6 +7,7 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
   favicon.svg, favicon-32.png, apple-touch-icon.png, mark.png, site.css, wall.js, fonts/
                               the harp, the bar, the look and the fonts every page shares (web/brand, tools/site_brand.py)
   _headers, _redirects        Cloudflare's (web/brand); GitHub Pages serves them as two stray files
+  404.html                    the page for an address the site does not have (web/brand); both hosts use it
   visualiser/                 the visualiser (web/visualiser)
   index.html                  the root: what AISLING is, then the three things it runs on (site_brand.PRODUCTS), each
                               drawn, with how far it has got and its pages; the bar's switch goes between them too
