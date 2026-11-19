@@ -72,7 +72,7 @@ static const en_param_t PARAMS[P_NPARAMS] = {
     {"Noise width", 0, 100, 50}, {"Noise plate", 0, 100, 50}, {"Noise echo", 0, 100, 50}, {"Atmos width", 0, 100, 20},
     {"Noise LFO", 0, 100, 0}, {"Arc", 0, 100, 0},
     {"Atmos rate", 0, 100, 30}, {"Atmos intro", 0, 64, 0}, {"Bridge", 0, 100, 40}, {"Memory", 0, 100, 50},
-    {"Ornament", 0, 100, 30}, {"Lead air", 0, EN_NAIRS, 0},
+    {"Ornament", 0, 100, 30}, {"Lead air", 0, EN_NAIRS + 1, 0},
 };
 const en_param_t *en_param_info(int i) { return (i >= 0 && i < P_NPARAMS) ? &PARAMS[i] : &PARAMS[0]; }
 
@@ -213,77 +213,40 @@ static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the you
     P_NCHAR, 8, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 35, P_MR3, 20,
     P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
-/* (Saints & Sinners) the second bank, its first two: a Saint and a Sinner, from the voices the eight have (the
- * pack's own, the Slide, the mouth organ, the bell, to come). A first pass, to tune by ear */
-static const int16_t PC_GLENDALOUGH[] = {     /* Glendalough, Wicklow, Kevin's monastery between two lakes: a choir
-                                                * held on D, a cantor low and plain over it (little vibrato, few graces),
-                                                * a glass bell now and then, a stone church's long room, the wind
-                                                * outside; Dm and C in turn, thirty-two bars each; the Dies irae's
-                                                * first line its air. A Saint: the white screen */
-    P_TEMPO, 60, P_ROOT, 2, P_MODE, MODE_DORIAN,
-    P_SEQ, 45, P_SVOICE, 4, P_SEQLEN, 16, P_DENSITY, 20, P_DECAY, 95, P_CUTOFF, 45,
-    P_SEQ2, 0,
-    P_CHORD, 80, P_CVOICE, 5, P_PEDAL, 95, P_DRIFT, 4,
-    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
-    P_LEAD, 76, P_LVOICE, 7, P_LOCT, -1, P_LTONE, 45, P_VIB, 5, P_GLIDE, 35, P_LDENS, 85, P_LDIN, 4, P_ORN, 10,
-    P_AIR, 9,
-    P_REVERB, 70, P_SIZE, 95,
-    P_NCHAR, 1, P_CRACKLE, 5,
-    P_MW0, 30, P_MT0, 60, P_MR0, 20, P_BRIDGE, 30,
-    P_MI1, 12, P_ARC, 15, P_MOTION, 30, P_LMEM, 70, -1};
-static const int16_t PC_ROCKYROAD[] = {       /* The Rocky Road to Dublin: a slip jig, 9/8: a bouzouki's nine eighths,
-                                                * three threes, over a bodhran's stomp on each three, the pipes' drone
-                                                * on A, a fiddle with the tune, graced; a wooden room, close, a fire;
-                                                * Am and G in turn, eight bars each. A Sinner: the black screen */
-    P_TEMPO, 120, P_ROOT, 9, P_MODE, MODE_DORIAN,
-    P_SVOICE, 6, P_SEQLEN, 9, P_DENSITY, 75, P_SACC0, 0x49, P_CUTOFF, 60, P_DECAY, 60,
-    P_SEQ, 50, P_SEQ2, 34, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 65, P_MI3, 4,
-    P_CHORD, 36, P_CVOICE, 2, P_CCOL, -15, P_PEDAL, 90, P_DRIFT, 2,
-    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
-    P_LEAD, 72, P_LVOICE, 6, P_LTONE, 55, P_VIB, 15, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4, P_ORN, 55, P_AIR, 10,
-    P_REVERB, 25, P_SIZE, 40,
-    P_NCHAR, 7, P_CRACKLE, 7,
-    P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 35, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
-    P_ARC, 30, P_MOTION, 60, P_LMEM, 75, -1};
-static const int16_t PC_CROSSROADS[] = {      /* Crossroads: the Delta's, where the bargain is struck, and Ireland's,
-                                                * where they danced until the priest came: a slow blues on E, the blue
-                                                * note in it, a guitar's twelve eighths in threes (12/8, a shuffle with
-                                                * the jig's bones), a foot on each beat, a reed organ low, a slide
-                                                * leading, no air (its own lines, made up as it goes), a small room, a
-                                                * slap of echo, an old record's crackle; one chord, E, all the way, as the
-                                                * Delta's own (the scale's A would take the blue note into its chord).
-                                                * A Sinner: the black screen */
-    P_TEMPO, 92, P_ROOT, 4, P_MODE, MODE_BLUES,
-    P_SVOICE, 7, P_SEQOCT, -1, P_SEQLEN, 12, P_DENSITY, 50, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
-    P_SEQ, 52, P_SEQ2, 30, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 6, P_SACC1, 0x09, P_S2DEC, 55, P_MI3, 4,
-    P_CHORD, 30, P_CVOICE, 3, P_CCOL, -20, P_PEDAL, 95, P_DRIFT, 3,
-    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 1,
-    P_LEAD, 76, P_LVOICE, 8, P_LTONE, 55, P_VIB, 30, P_GLIDE, 55, P_LDENS, 85, P_LDIN, 4, P_ORN, 55, P_AIR, 0,
-    P_REVERB, 20, P_SIZE, 35, P_ECHO, 30, P_ETIME, 0, P_FEEDBACK, 25,
-    P_NCHAR, 5, P_CRACKLE, 7,
-    P_MW0, 20, P_MR0, 20, P_MW3, 20, P_MR3, 30, P_BRIDGE, 30,
-    P_ARC, 30, P_MOTION, 45, P_LMEM, 80, -1};
 static const struct {
     const char *name;
     const int16_t *set;
-} PIECES[EN_NPIECES + EN_NPIECES2] = {
+} PIECES[EN_NPIECES] = {
     {"Skellig", PC_SKELLIG}, {"Burren", PC_BURREN},     {"Aran", PC_ARAN},         {"Carolan", PC_CAROLAN},
     {"Blasket", PC_BLASKET}, {"Samhain", PC_SAMHAIN}, {"Connemara", PC_CONNEMARA}, {"Tir na nOg", PC_TIRNANOG},
-    {"Glendalough", PC_GLENDALOUGH}, {"Rocky Road", PC_ROCKYROAD}, {"Crossroads", PC_CROSSROADS},
 };
-#define NPIECES_ALL (EN_NPIECES + EN_NPIECES2)
 
-const char *en_piece_name(int i) { return PIECES[(unsigned)i < NPIECES_ALL ? i : 0].name; }
-int en_piece_light(int i) { return i == EN_NPIECES; }   /* (Glendalough; the bank's Saints, as they come) */
+const char *en_piece_name(int i) { return PIECES[(unsigned)i < EN_NPIECES ? i : 0].name; }
 void en_piece(int i, int16_t *par, uint16_t *pool)
 {
     const int16_t *s;
     int p;
-    i = (unsigned)i < NPIECES_ALL ? i : 0;
+    i = (unsigned)i < EN_NPIECES ? i : 0;
     for (p = 0; p < P_NPARAMS; p++)
         par[p] = PARAMS[p].def;
     for (s = PIECES[i].set; s[0] >= 0; s += 2)
         par[s[0]] = s[1];
+    *pool = EN_MODE_POOL[par[P_MODE]];
+}
+/* (packs) a recipe that is data, not this file's: n pairs of three bytes (the parameter, its value's low and high
+ * byte) over the defaults, as en_piece's; a parameter this engine has not is passed over, a value out of range
+ * clamped (a pack is checked before it is kept, pack.h; this trusts nothing all the same) */
+void en_recipe_apply(const uint8_t *pairs, int n, int16_t *par, uint16_t *pool)
+{
+    int p, k;
+    for (p = 0; p < P_NPARAMS; p++)
+        par[p] = PARAMS[p].def;
+    for (k = 0; k < n; k++, pairs += 3) {
+        const int v = (int16_t)(uint16_t)(pairs[1] | pairs[2] << 8);
+        p = pairs[0];
+        if (p < P_NPARAMS)
+            par[p] = (int16_t)(v < PARAMS[p].lo ? PARAMS[p].lo : v > PARAMS[p].hi ? PARAMS[p].hi : v);
+    }
     *pool = EN_MODE_POOL[par[P_MODE]];
 }
 
@@ -2271,10 +2234,10 @@ static uint32_t ld_cmask(void);
  * frame, not the chord's (over the bVII as over the I), its notes never varied (a return in a quiet stretch may come
  * at half speed, ld_aug, as any theme's may; never its first), its call's last note its own; its answer closes on the
  * chord as any answer does. A figure on the keys takes its place (ld_take) */
-static const struct {
+static struct {
     int8_t s[16];
     uint8_t d[16], n;
-} AIRS[EN_NAIRS] = {
+} AIRS[EN_NAIRS + 1] = {
     {{3, 5, 7, 7, 8, 7, 5, 7, 12, 3, 5, 7}, {2, 2, 4, 3, 1, 2, 2, 4, 4, 3, 1, 8}, 12},   /* Skellig: O'Carolan's
                                                   * Lament (69, D minor): its pickup, two bars, the third's first A held
                                                   * (its F sharp after) */
@@ -2300,17 +2263,18 @@ static const struct {
     {{0, 2, 4, 2, 4, 2, 0, 2, 0, 0, 2, 4}, {3, 1, 6, 2, 2, 1, 1, 4, 4, 3, 1, 8}, 12},   /* Tir na nOg: Ossian's
                                                   * Lament (132, G, here in D: Oisin back from Tir na nOg): its pickup,
                                                   * two bars, the third's B held */
-    {{3, 2, 3, 0, 2, -2, 0, 0}, {4, 4, 4, 4, 4, 4, 4, 8}, 8},   /* Glendalough: the Dies irae (the sequence of
-                                                  * the Requiem, 13th century, on D: Dorian), its first line, a note a
-                                                  * syllable, even, the last held. FROM MEMORY: to check against the
-                                                  * Liber Usualis */
-    {{7, 0, 0, -2, 0, 2, 0, 7, 0, 0, -2, 0, 2, -2, -5}, {4, 2, 2, 2, 2, 4, 2, 4, 2, 2, 2, 2, 2, 2, 8}, 15},
-                                                 /* Rocky Road: The Rocky Road to Dublin (traditional, a slip jig,
-                                                  * A Dorian, 9/8: an eighth two sixteenths, a bar eighteen): its first
-                                                  * two bars, the last E held. FROM MEMORY, the setting commonly
-                                                  * played: to check against a printed one (O'Neill's has it in A
-                                                  * Mixolydian) */
 };
+/* (packs) the air after the eight (P_AIR EN_NAIRS + 1): a pack's piece's, set as the piece is taken, before its
+ * parameters (the app's thread: the Lead reads it only as a piece begins, ld_air) */
+void en_air_set(const int8_t *semi, const uint8_t *dur, int n)
+{
+    int i;
+    n = n < 0 ? 0 : n > 16 ? 16 : n;
+    AIRS[EN_NAIRS].n = 0;
+    for (i = 0; i < n; i++)
+        AIRS[EN_NAIRS].s[i] = semi[i], AIRS[EN_NAIRS].d[i] = (uint8_t)(dur[i] ? dur[i] : 1);
+    AIRS[EN_NAIRS].n = (uint8_t)n;
+}
 static uint8_t ld_airq;                          /* (the air due: at power-on the piece's parameters are set after
                                                   * en_init, with no regrow, so the Lead's first draw takes it, unless
                                                   * the keys or FORGET come first) */
@@ -2321,7 +2285,7 @@ static void ld_air(void)                         /* the piece's air (P_AIR) into
     ld_motif_t *m = &ld_bank[0];
     int i, n;
     ld_airq = 0;
-    if ((unsigned)a >= EN_NAIRS)
+    if ((unsigned)a > EN_NAIRS || !AIRS[a].n)
         return;
     n = AIRS[a].n < LD_MOTN ? AIRS[a].n : LD_MOTN;
     for (i = 0; i < n; i++) {
@@ -2368,7 +2332,7 @@ int en_lead_air(void) { return (ld_bank[0].cm & LD_AIR) != 0; }
 int en_air(int a, int8_t *semi, uint8_t *dur)
 {
     int i;
-    a = (unsigned)a < EN_NAIRS ? a : 0;
+    a = (unsigned)a <= EN_NAIRS ? a : 0;
     for (i = 0; i < AIRS[a].n; i++)
         semi[i] = AIRS[a].s[i], dur[i] = AIRS[a].d[i];
     return AIRS[a].n;
@@ -2469,7 +2433,21 @@ static const uint8_t LD_RHY[][7] = {
     {8, 4, 4, 8, 8}, {6, 2, 8, 8, 8}, {4, 2, 2, 8, 16}, {12, LD_RST | 2, 2, 4, 4, 8},
     {8, 2, 2, 2, 2, 16}, {12, 1, 1, 1, 1, 16}, {4, 4, 2, 2, 4, 16},
 };
+/* (packs: Rocky Road) a slip jig's (both sequences in nine): the same in threes, an eighth two sixteenths, a bar
+ * eighteen: ta-TUM (2 4), ONE two three four five (4 2 4 2 6), runs of eighths to a held note */
+static const uint8_t LD_RHY3[][7] = {
+    {18, 18}, {12, 6}, {6, 12},
+    {6, 6, 6}, {4, 2, 12}, {2, 4, 12}, {6, LD_RST | 2, 4, 6},
+    {4, 2, 4, 8}, {2, 4, 2, 10}, {6, 2, 4, 6},
+    {4, 2, 4, 2, 6}, {2, 4, 2, 4, 6}, {2, 2, 2, 6, 6}, {4, 2, 4, 2, 6},
+    {2, 4, 2, 4, 2, 4}, {4, 2, 4, 2, 2, 4}, {2, 2, 2, 2, 2, 8},
+};
 #define LD_NRHY ((int)(sizeof LD_RHY / sizeof LD_RHY[0]))
+typedef char ld_rhy3_rows[sizeof LD_RHY3 == sizeof LD_RHY ? 1 : -1];   /* (a template for a template) */
+static const uint8_t *ld_rhy(int j)
+{
+    return par[P_SEQLEN] == 9 && par[P_SEQ2LEN] == 9 && !par[P_SEQGRID] ? LD_RHY3[j] : LD_RHY[j];
+}
 static const uint8_t LD_R[7] = {16, 15, 12, 8, 5, 2, 1};   /* range: by degrees from the centre */
 static const uint8_t LD_P[8] = {4, 16, 6, 2, 1, 1, 1, 1};   /* proximity: by degrees from the note before (the
                                                               * report's 4 16 8 4 2 1 1 2, steeper: held notes are
@@ -2478,8 +2456,9 @@ static const uint8_t LD_P[8] = {4, 16, 6, 2, 1, 1, 1, 1};   /* proximity: by deg
 static int ld_rhy_n(int j)                       /* a template's notes (its rests not counted) */
 {
     int i, n = 0;
-    for (i = 0; i < 7 && LD_RHY[j][i]; i++)
-        n += !(LD_RHY[j][i] & LD_RST);
+    const uint8_t *t = ld_rhy(j);
+    for (i = 0; i < 7 && t[i]; i++)
+        n += !(t[i] & LD_RST);
     return n;
 }
 
@@ -2536,7 +2515,7 @@ static void ld_gen(ld_motif_t *m, float intensity, int role, const int8_t *g)
     intensity = intensity < 0.0f ? 0.0f : intensity > 1.0f ? 1.0f : intensity;
     if (!g) {                                    /* the rhythm */
         j = ld_rhy_pick((int)(2.0f + 4.0f * intensity + 0.5f));
-        t = LD_RHY[j];
+        t = ld_rhy(j);
         nn = ld_rhy_n(j);
         for (n = 0; n < 7 && t[n]; n++) {
             m->dur[n] = (uint8_t)(t[n] & ~LD_RST);
@@ -2753,7 +2732,7 @@ static int ld_offspring(ld_motif_t *m, float in, int kin)
         }
     if (kind == LK_HEAD || kind == LK_TAIL) {    /* continued: a template's rhythm after it, for the notes left */
         const int tg = (int)(2.0f + 4.0f * in + 0.5f) - h;
-        const uint8_t *r = LD_RHY[ld_rhy_pick(tg < 2 ? 2 : tg)];
+        const uint8_t *r = ld_rhy(ld_rhy_pick(tg < 2 ? 2 : tg));
         for (i = 0; i < 7 && r[i] && n < cap; i++, n++) {
             m->dur[n] = (uint8_t)(r[i] & ~LD_RST);
             m->off[n] = r[i] & LD_RST ? (int8_t)LD_REST : 0;
@@ -6844,7 +6823,7 @@ static void render_lead(uint32_t n)
                 svf_coefs(lead.c1, fc, 0.9f);
                 svf_coefs(lead.c2, fc, 0.7f);
             } else if (lv == 8) {                /* the Slide: a steel string picked, bright and then mellow */
-                const float fc = f * (2.5f + 7.0f * lead.fenv) * tb;
+                const float fc = f * (2.2f + 4.0f * lead.fenv) * tb;
                 svf_coefs(lead.c1, fc, 0.9f);
                 svf_coefs(lead.c2, fc, 0.7f);
             }

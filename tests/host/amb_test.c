@@ -3480,15 +3480,13 @@ int main(void)
     {
         static const int FG[4] = {4, 2, 0, 1}, FD[4] = {4, 4, 4, 8};
         int k, m, i, p;
-        for (k = 0; k < EN_NPIECES + EN_NPIECES2;   /* (the second bank's too) */ k++) {
+        for (k = 0; k < EN_NPIECES; k++) {
             int16_t pp[P_NPARAMS];
             uint16_t pl;
             int8_t s[16], off[32], dg[16];
             uint8_t d[16], dur[32];
             int n, nt, st[12], ns, in = 1, same, h[2];
             en_piece(k, pp, &pl);
-            if (k >= EN_NPIECES && !pp[P_AIR])   /* (Crossroads: no air, its lines its own) */
-                continue;
             n = en_air(pp[P_AIR] - 1, s, d);
             ns = en_scale(pl, st);
             for (i = 0; i < n; i++) {             /* (i) */
