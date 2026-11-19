@@ -6812,7 +6812,7 @@ static void render_lead(uint32_t n)
         float x, bp, a, nose = 0.0f;
         if (!(j & 15u)) {                        /* the glide, the vibrato, the filter: every 16 */
             const float vd = vib * fm_clampf((lead.vt - 0.4f) * 2.5f, 0.0f, 1.0f),
-                        f = mtof(lead.cur + vd * sine(lead.vph) - (lv == 8 ? 1.6f * lead.fenv * lead.fenv : 0.0f));
+                        f = mtof(lead.cur + vd * sine(lead.vph) - (lv == 8 ? 2.0f * lead.fenv * lead.fenv : 0.0f));
                                                  /* (the Slide: the bottleneck up into each note, from a tone and a
                                                   * half under it, ~0.2 s) */
             dt = f * (1.0f / EN_SR);
