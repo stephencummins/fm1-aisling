@@ -96,7 +96,9 @@
     "ARC": 15, "MOTION": 35, "LMEM": 60}},
 
   {"name": "The Braes", "icon": "M2 19l6-9 4 5 3-4 7 8M15 6a2 2 0 1 0 4 0a2 2 0 1 0-4 0", "side": "saint",
-   "about": "The Braes of Balquhither, the old song behind Wild Mountain Thyme: a harp in threes, a fiddle, the hill air. (Its tune still to be set.)",
+   "about": "The Braes of Balquhither, the old song behind Wild Mountain Thyme: a harp in threes, a fiddle, the hill air.",
+   "air": {"_note": "a hill air, nobody's: NOT the old tune (still to be set from a printed setting) and not McPeake's Wild Mountain Thyme. G pentatonic in threes: up from the D below to the E, down again, the low E, and home",
+           "notes": [-5, 0, 2, 4, 7, 9, 7, 4, 2, 4, 2, 0, -3, 0], "lengths": [3, 6, 3, 3, 6, 3, 6, 3, 3, 3, 3, 6, 3, 12]},
    "recipe": {"TEMPO": 76, "ROOT": "G", "MODE": "Pent maj",
     "SEQ": 48, "SVOICE": 5, "SEQLEN": 12, "DENSITY": 45, "SACC0": "0x249", "DECAY": 85,
     "SEQ2": 0,
