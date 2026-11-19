@@ -5,7 +5,7 @@ and build/packs/NAME.json (what the Packs page shows and sends: the source's wor
 
     tools/make_pack.py packs/saints-sinners.json [-o build/packs]
 
-A recipe's keys are the engine's parameters as amb.h names them, less the P_ (TEMPO, LVOICE); a value a number, a
+A piece may have an "icon" for the page: an SVG path (its d) on a 24 by 24 grid, drawn as a line. A recipe's keys are the engine's parameters as amb.h names them, less the P_ (TEMPO, LVOICE); a value a number, a
 hex string ("0x49": a pattern's steps), or the name the screen shows for it ("Dorian", "Bodhran"). The ranges and
 names come from the engine itself (host/en_params.c, built here), so a pack cannot ask for what it has not.
 """
@@ -99,7 +99,10 @@ def build(src):
             sys.exit("%s: too many parameters" % where)
         body += name_bytes(pc["name"], PK_PNAME, where) + bytes([1 if light else 0, len(notes), len(pairs) // 3, 0])
         body += struct.pack("%db" % len(notes), *notes) + bytes(lens) + pairs
-        shown.append({"name": pc["name"], "side": "saint" if light else "sinner", "about": pc.get("about", ""),
+        icon = pc.get("icon", "")              # (the page's: an SVG path on a 24 by 24 grid, drawn as a line)
+        if not re.fullmatch(r"[MmLlHhVvCcSsQqTtAaZz0-9 .,\-]{0,400}", icon):
+            sys.exit("%s: its icon is an SVG path's d, up to 400 characters" % where)
+        shown.append({"name": pc["name"], "icon": icon, "side": "saint" if light else "sinner", "about": pc.get("about", ""),
                       "tempo": full[idx["TEMPO"]], "key": table[idx["ROOT"]][4][full[idx["ROOT"]]],
                       "mode": table[idx["MODE"]][4][full[idx["MODE"]]]})
     total = 32 + len(body)

@@ -23,13 +23,19 @@
 .pk-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 6px; }
 .pk-note { min-height: 1.5em; margin: 0 0 14px; }
 .pk-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
-.pk-piece { display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; gap: 4px 12px; padding: 12px 14px; border: 1px solid var(--brand-rule); }
+.pk-piece { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-content: start; gap: 4px 12px; padding: 12px 14px; border: 1px solid var(--brand-rule); }
 .pk-piece.saint { background: #fffdf7; color: #2b2219; }
 .pk-piece.sinner { background: #1c1610; color: #f3ead7; border-color: #1c1610; }
 .pk-piece h3 { margin: 0; font: 600 22px/1.1 var(--brand-display); text-transform: uppercase; letter-spacing: .02em; }
 .pk-piece .pk-meta { margin: 0; font: 400 12px/1.4 var(--brand-mono); letter-spacing: .04em; opacity: .8; }
 .pk-piece .pk-what { grid-column: 1 / -1; margin: 4px 0 0; font-size: 14px; line-height: 1.45; }
-.pk-play { grid-row: span 2; align-self: center; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid currentColor; background: none;
+.pk-ico { grid-column: 3; grid-row: 1 / span 2; align-self: center; width: 40px; height: 40px; fill: none; stroke: currentColor;
+          stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+.pk-piece.sinner .pk-ico { stroke: #e9a23b; }
+.pk-piece.saint .pk-ico { stroke: var(--brand-green); }
+.pk-piece h3 { grid-column: 2; }
+.pk-piece .pk-meta { grid-column: 2; }
+.pk-play { grid-column: 1; grid-row: 1 / span 2; align-self: center; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid currentColor; background: none;
            color: inherit; font: 400 16px/1 var(--brand-mono); cursor: pointer; }
 .pk-play[aria-pressed="true"] { background: var(--brand-rust); border-color: var(--brand-rust); color: #fff; }
 .pk-play:focus-visible, .pk-acts button:focus-visible { outline: 2px solid var(--brand-rust); outline-offset: 2px; }

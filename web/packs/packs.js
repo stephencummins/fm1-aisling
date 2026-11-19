@@ -170,7 +170,13 @@
       const li = el("li", `pk-piece ${pc.side}`), b = el("button", "pk-play", "▶");
       b.onclick = () => hear(p, i);
       p.ui.plays.push(b);
-      li.append(b, el("h3", null, pc.name),
+      const NS = "http://www.w3.org/2000/svg", ico = document.createElementNS(NS, "svg"), path = document.createElementNS(NS, "path");
+      ico.setAttribute("viewBox", "0 0 24 24");      // the piece's own icon: a line drawing, the pack's (index.json)
+      ico.setAttribute("class", "pk-ico");
+      ico.setAttribute("aria-hidden", "true");
+      path.setAttribute("d", pc.icon || "M12 4v16M4 12h16");
+      ico.append(path);
+      li.append(b, ico, el("h3", null, pc.name),
         el("p", "pk-meta", `${pc.side === "saint" ? "Saint" : "Sinner"} · ${pc.key} ${pc.mode} · ${pc.tempo} bpm`), el("p", "pk-what", pc.about));
       list.append(li);
     });
