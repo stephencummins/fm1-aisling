@@ -81,7 +81,7 @@
     "ARC": 15, "MOTION": 30, "LMEM": 70}},
 
   {"name": "Banshee", "icon": "M16 4a8 8 0 1 0 4 12 6.5 6.5 0 0 1-4-12M3 20c2-1 3 1 5 0", "side": "sinner",
-   "about": "The bean si keening at the window: a voice sliding down D Phrygian, dark strings a semitone apart, a heartbeat, the wind.",
+   "about": "The bean sí keening at the window: a voice sliding down D Phrygian, dark strings a semitone apart, a heartbeat, the wind.",
    "air": {"_note": "a keen, nobody's: a wail from the octave, falling",
            "notes": [12, 10, 8, 7, 8, 7, 3, 1, 0], "lengths": [8, 2, 2, 8, 2, 2, 4, 4, 8]},
    "recipe": {"TEMPO": 60, "ROOT": "D", "MODE": "Phrygian",
