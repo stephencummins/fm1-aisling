@@ -134,7 +134,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <p class="mg-stand">The same code the FM-1 runs, <em>with sound</em>. No FM-1 needed.</p>
 <p class="mg-go"><a class="btn go big" href="emu/">Open the emulator</a></p>
 <p class="mg-small">Mouse, touch or keyboard. Slide the visualiser up beneath it to watch what it plays painted.</p>
-<p class="mg-small">New: on a phone it is <a href="emu/?app">an app</a>, full screen from the home screen. <a href="./#new">How</a>. Tested on an iPhone, in Safari and Chrome.</p>
+<p class="mg-small">New: on a phone it is <a href="emu/?app">an app</a>, full screen from the home screen. <a href="./#app">How</a>. Tested on an iPhone, in Safari and Chrome.</p>
 </div>
 <div class="mg-shots">
   <img src="img/screen-launch.png" width="240" height="240" alt="The launch screen: a green triskele, AISLING, by CU_STE, www.stephen8n.com">
@@ -404,9 +404,9 @@ CHOOSER = """<!doctype html>
 .ask small { display: block; margin: 0 0 6px; font: 400 12px/1.3 var(--brand-mono); letter-spacing: .12em; color: var(--brand-rust); }
 .band { border-top: 1px solid var(--brand-rule); }
 .band .mg-head { margin-bottom: 18px; }
-#new .mg-num { font-size: clamp(56px, 8vw, 104px); text-transform: uppercase; }
-#new .how { margin: 22px 0 10px; font: 600 22px/1.1 var(--brand-display); text-transform: uppercase; }
-#new .mg-split { align-items: center; }
+#new .mg-num, #app .mg-num { font-size: clamp(56px, 8vw, 104px); text-transform: uppercase; }
+#app .how { margin: 22px 0 10px; font: 600 22px/1.1 var(--brand-display); text-transform: uppercase; }
+#app .mg-split { align-items: center; }
 .band .shot { display: block; border: 1px solid var(--brand-rule); }
 .band .shot img { display: block; width: 100%; height: auto; max-height: 340px; object-fit: cover; }
 /* the tip cup, in the cover's corner: our own drawing. Steam all the time; every 14 seconds a sugar lump goes in and it wiggles */
@@ -502,7 +502,15 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 
 <section class="mg-feat band" id="new" aria-labelledby="newh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">New</div>
-<div><p class="mg-kick">What's new · November 2026</p><h2 id="newh">Aisling, as an app on your phone</h2></div></div>
+<div><p class="mg-kick">What's new · AISLING 1.5 · November 2026</p><h2 id="newh">Sound packs: eight more pieces at a time</h2></div></div>
+<p class="mg-stand">A pack sits on the FM-1 <em>beside AISLING's own eight</em>: turn PRESET past the eighth piece and you are in it. The first is Saints &amp; Sinners, chant and the Delta's blues with Ireland between them.</p>
+<p class="mg-go"><a class="btn go big" href="packs/">Hear Saints &amp; Sinners</a></p>
+<p class="mg-small"><b>Listening needs no FM-1.</b> Putting a pack on needs AISLING 1.5, Chrome or Edge and a USB cable; <a href="install/">update the FM-1</a> first. With no pack on, 1.5 plays as 1.4.1 did.</p>
+</section>
+
+<section class="mg-feat band" id="app" aria-labelledby="apph">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">App</div>
+<div><p class="mg-kick">Also new · November 2026</p><h2 id="apph">Aisling, as an app on your phone</h2></div></div>
 <div class="mg-split">
 <div>
 <p class="mg-stand">The whole instrument, full screen, <em>from your home screen</em>. It plays with no connection, and it can wear any of the store's skins.</p>
