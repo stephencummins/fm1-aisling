@@ -495,7 +495,8 @@ static const char *mode_name(void)
 /* the modes as they're stepped through (ALGORITHM, the Key page's Mode): the most common first; AISLING's two
  * hexatonics last, so the eight keep their places. (The values kept are the engine's, MODE_*) */
 static const uint8_t MODE_ORDER[EN_NMODES] = {MODE_AEOLIAN, MODE_IONIAN, MODE_DORIAN, MODE_MIXOLYDIAN, MODE_PENT_MIN,
-                                              MODE_PENT_MAJ, MODE_PHRYGIAN, MODE_LYDIAN, MODE_HEX_MAJ, MODE_HEX_MIN};
+                                              MODE_PENT_MAJ, MODE_PHRYGIAN, MODE_LYDIAN, MODE_HEX_MAJ, MODE_HEX_MIN,
+                                              MODE_BLUES};
 static int mode_pos(int m)
 {
     int i;

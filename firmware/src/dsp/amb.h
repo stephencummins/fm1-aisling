@@ -35,7 +35,7 @@
 
 /* modes: pools relative to the root (bit i: root + i semitones) */
 enum { MODE_IONIAN, MODE_DORIAN, MODE_PHRYGIAN, MODE_LYDIAN, MODE_MIXOLYDIAN, MODE_AEOLIAN, MODE_PENT_MAJ,
-       MODE_PENT_MIN, MODE_HEX_MAJ, MODE_HEX_MIN, EN_NMODES };   /* (AISLING: the two gapped scales of the airs, after
+       MODE_PENT_MIN, MODE_HEX_MAJ, MODE_HEX_MIN, MODE_BLUES, EN_NMODES };   /* (AISLING: the two gapped scales of the airs, after
                                                                    * the eight, so a mode's number keeps its meaning) */
 extern const char *const EN_MODE_NAME[EN_NMODES];
 extern const uint16_t EN_MODE_POOL[EN_NMODES];
@@ -201,8 +201,8 @@ void en_midi_out(uint32_t st, uint32_t d1, uint32_t d2);
 
 /* the voices: each layer's sounds (ALGORITHM on the layer's page) */
 #define EN_NCV 6                         /* (BERLIN) the Drone's voices: Organ, Strings, Horn, Saws, Glass, Choir */
-#define EN_NBV 8                         /* (the Lead's: Odyssey, Mini, Flute, Theremin, Synthi; AISLING appends
-                                         * Chanter, Fiddle, Voice) */
+#define EN_NBV 9                         /* (the Lead's: Odyssey, Mini, Flute, Theremin, Synthi; AISLING appends
+                                         * Chanter, Fiddle, Voice; Saints & Sinners the Slide) */
 #define EN_NSV 8                        /* (BERLIN) the Sequence's voices: 2600, Moog, Synthi, Pulse, Glass, Harp
                                          * (Pluck), Bouzouki, Dulcimer */
 #define EN_NS2V 10                      /* Sequence 2's: the same five, Sub, Harp, Bouzouki, Dulcimer, Bodhran (the
@@ -391,7 +391,7 @@ const char *en_chord_label(int root, int kind, int type, char *buf);   /* "Fm7",
 
 /* the pieces: recipes for every parameter (Tune and MIDI out included, but they are the player's) */
 #define EN_NPIECES 8
-#define EN_NPIECES2 2                          /* (Saints & Sinners) the second bank's pieces so far, after the
+#define EN_NPIECES2 3                          /* (Saints & Sinners) the second bank's pieces so far, after the
                                                 * eight: en_piece and en_piece_name take 8.. for them; en_piece_light
                                                 * its side (1 a Saint: the white screen; 0 a Sinner, and the eight) */
 #define EN_NAIRS 10                            /* (AISLING) the airs (P_AIR), one a piece; 9 and 10 the second bank's */

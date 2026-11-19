@@ -19,12 +19,13 @@ const char *const EN_NOTE_NAME[12] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G",
  * neighbouring modes disagree on, as so many airs do: Hex maj no seventh (Ionian or Mixolydian), Hex min no sixth
  * (Dorian or Aeolian)) */
 const char *const EN_MODE_NAME[EN_NMODES] = {"Major", "Dorian", "Phrygian", "Lydian", "Mixolyd.", "Minor",
-                                             "Pent maj", "Pent min", "Hex maj", "Hex min"};
+                                             "Pent maj", "Pent min", "Hex maj", "Hex min", "Blues"};   /* (Saints & Sinners: the
+                                                  * minor pentatonic and its flat fifth, the blue note) */
 #define B(a, b, c, d, e, f, g) (1u << (a) | 1u << (b) | 1u << (c) | 1u << (d) | 1u << (e) | 1u << (f) | 1u << (g))
 const uint16_t EN_MODE_POOL[EN_NMODES] = {
     B(0, 2, 4, 5, 7, 9, 11), B(0, 2, 3, 5, 7, 9, 10), B(0, 1, 3, 5, 7, 8, 10), B(0, 2, 4, 6, 7, 9, 11),
     B(0, 2, 4, 5, 7, 9, 10), B(0, 2, 3, 5, 7, 8, 10), B(0, 2, 4, 7, 9, 9, 9),  B(0, 3, 5, 7, 10, 10, 10),
-    B(0, 2, 4, 5, 7, 9, 9),  B(0, 2, 3, 5, 7, 10, 10)};
+    B(0, 2, 4, 5, 7, 9, 9),  B(0, 2, 3, 5, 7, 10, 10), B(0, 3, 5, 6, 7, 10, 10)};
 #undef B
 const uint8_t EN_LOOP_LEN[EN_NLOOP] = {13, 17, 23, 29};
 const uint8_t EN_DRUM_N[EN_NDRUM] = {16, 16, 16, 16, 16};
@@ -244,13 +245,31 @@ static const int16_t PC_ROCKYROAD[] = {       /* The Rocky Road to Dublin: a sli
     P_NCHAR, 7, P_CRACKLE, 7,
     P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 35, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
     P_ARC, 30, P_MOTION, 60, P_LMEM, 75, -1};
+static const int16_t PC_CROSSROADS[] = {      /* Crossroads: the Delta's, where the bargain is struck, and Ireland's,
+                                                * where they danced until the priest came: a slow blues on E, the blue
+                                                * note in it, a guitar's twelve eighths in threes (12/8, a shuffle with
+                                                * the jig's bones), a foot on each beat, a reed organ low, a slide
+                                                * leading, no air (its own lines, made up as it goes), a small room, a
+                                                * slap of echo, an old record's crackle; one chord, E, all the way, as the
+                                                * Delta's own (the scale's A would take the blue note into its chord).
+                                                * A Sinner: the black screen */
+    P_TEMPO, 92, P_ROOT, 4, P_MODE, MODE_BLUES,
+    P_SVOICE, 7, P_SEQOCT, -1, P_SEQLEN, 12, P_DENSITY, 50, P_SACC0, 0x249, P_CUTOFF, 55, P_DECAY, 70,
+    P_SEQ, 52, P_SEQ2, 30, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 6, P_SACC1, 0x09, P_S2DEC, 55, P_MI3, 4,
+    P_CHORD, 30, P_CVOICE, 3, P_CCOL, -20, P_PEDAL, 95, P_DRIFT, 3,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 1,
+    P_LEAD, 76, P_LVOICE, 8, P_LTONE, 55, P_VIB, 30, P_GLIDE, 55, P_LDENS, 85, P_LDIN, 4, P_ORN, 55, P_AIR, 0,
+    P_REVERB, 20, P_SIZE, 35, P_ECHO, 30, P_ETIME, 0, P_FEEDBACK, 25,
+    P_NCHAR, 5, P_CRACKLE, 7,
+    P_MW0, 20, P_MR0, 20, P_MW3, 20, P_MR3, 30, P_BRIDGE, 30,
+    P_ARC, 30, P_MOTION, 45, P_LMEM, 80, -1};
 static const struct {
     const char *name;
     const int16_t *set;
 } PIECES[EN_NPIECES + EN_NPIECES2] = {
     {"Skellig", PC_SKELLIG}, {"Burren", PC_BURREN},     {"Aran", PC_ARAN},         {"Carolan", PC_CAROLAN},
     {"Blasket", PC_BLASKET}, {"Samhain", PC_SAMHAIN}, {"Connemara", PC_CONNEMARA}, {"Tir na nOg", PC_TIRNANOG},
-    {"Glendalough", PC_GLENDALOUGH}, {"Rocky Road", PC_ROCKYROAD},
+    {"Glendalough", PC_GLENDALOUGH}, {"Rocky Road", PC_ROCKYROAD}, {"Crossroads", PC_CROSSROADS},
 };
 #define NPIECES_ALL (EN_NPIECES + EN_NPIECES2)
 
@@ -272,7 +291,7 @@ const char *const EN_CV_NAME[EN_NCV] = {"Organ", "Strings", "Pipes", "Harmonium"
                                                  * Drone's; the voices batch: Horn was Choir, its place kept; the formant
                                                  * Choir appended; AISLING: Pipes in Horn's place, Harmonium in Saws') */
 const char *const EN_BV_NAME[EN_NBV] = {"Odyssey", "Mini", "Flute", "Theremin", "Synthi", "Chanter", "Fiddle",
-                                        "Voice"};   /* (BERLIN: the Lead's; AISLING's appended, so the saves and
+                                        "Voice", "Slide"};   /* (BERLIN: the Lead's; AISLING's appended, so the saves and
                                                      * NACHTFAHRT's pieces keep theirs) */
 const char *const EN_CQ_NAME[EN_NCQ] = {"Empty", "Major", "Minor", "Sus2", "Sus4", "Dim", "Aug"};
 const char *const EN_CX_NAME[EN_NCX] = {"Triad", "6", "7", "Maj7", "9", "11", "Add9"};
@@ -3468,7 +3487,8 @@ static void orn_plan(int dg, int dur)
 {
     static const uint8_t W[EN_NBV][5] = {        /* (cut, tap, roll, slide, turn) */
         {40, 10, 20, 30, 0}, {40, 10, 20, 30, 0}, {50, 10, 35, 5, 0}, {0, 0, 0, 100, 0},
-        {40, 10, 20, 30, 0}, {45, 15, 40, 0, 0},  {20, 5, 35, 40, 0}, {0, 0, 0, 60, 40}};
+        {40, 10, 20, 30, 0}, {45, 15, 40, 0, 0},  {20, 5, 35, 40, 0}, {0, 0, 0, 60, 40},
+        {0, 5, 0, 80, 15}};                      /* (the Slide: slides, a turn now and then) */
     const uint32_t r0 = seq_rand(&or_rng), r1 = seq_rand(&or_rng), r2 = seq_rand(&or_rng);
     const int lv = (unsigned)par[P_LVOICE] < EN_NBV ? par[P_LVOICE] : 0, nt = lead.note;
     const float note = (float)nt, u = (float)(r2 >> 8) * (1.0f / 16777216.0f), nl = (float)dur * step_len;
@@ -6719,7 +6739,8 @@ static void render_drone(uint32_t n)
 
 /* (AISLING) the new voices' levels, each heard as loud as the Flute on the same note (test_lead_voices_level), and
  * their colours */
-static const float LV_GAIN[3] = {0.507f, 0.638f, 1.55f};   /* the Chanter's, the Fiddle's, the Voice's */
+static const float LV_GAIN[4] = {0.507f, 0.638f, 1.55f, 0.86f};   /* the Chanter's, the Fiddle's, the Voice's, the
+                                                  * Slide's */
 #define LV_TRIM 0.031f                           /* (the Fiddle's: octaves a semitone over its middle, 66; a saw's low
                                                   * notes, many overtones in the ear's best octaves, heard ~6 dB over
                                                   * its high ones, where the Flute's sine is the other way) */
@@ -6758,7 +6779,7 @@ static void render_lead(uint32_t n)
 {
     const int lv = (unsigned)par[P_LVOICE] < EN_NBV ? par[P_LVOICE] : 0;
     const float g = lead_vol * 0.45f * (lv >= 5 ? LV_GAIN[lv - 5] : 1.0f),
-                vib = (float)par[P_VIB] * 0.004f + (lv == 3 ? 0.25f : 0.0f), gl = 0.84f, gr = 1.08f,
+                vib = (float)par[P_VIB] * (lv == 8 ? 0.007f : 0.004f) + (lv == 3 ? 0.25f : 0.0f), gl = 0.84f, gr = 1.08f,
                 tone = ld_tone * fo_mul(FO_LEAD),   /* (Tone, moved by the filter motion) */
                 tb = fm_clampf(tone, 0.5f, 2.0f),   /* (AISLING: as the Flute's, so the motion never shuts a voice) */
                 rel = lv == 5 ? 0.0009f : 0.00008f;   /* (~300 ms out; the Chanter stopped in ~25 ms) */
@@ -6774,6 +6795,9 @@ static void render_lead(uint32_t n)
     else if (lv == 6) {                          /* the Fiddle's body: its air, and the bridge's hill */
         svf_coefs(lead.c4, 290.0f, 0.8f);
         svf_coefs(lead.c5, 2800.0f, 1.1f);
+    } else if (lv == 8) {                        /* (Saints & Sinners) the Slide's resonator: the cone's two hills */
+        svf_coefs(lead.c4, 620.0f, 1.4f);
+        svf_coefs(lead.c5, 1900.0f, 1.6f);
     } else if (lv == 7) {                        /* the Voice: the vowel eased toward the note's (Tone and the filter
                                                   * motion open it), its three formants the Choir's, and its gain
                                                   * (lv_level). A high note's harmonics stand further apart than these
@@ -6806,7 +6830,10 @@ static void render_lead(uint32_t n)
     for (j = 0; j < n; j++) {
         float x, bp, a, nose = 0.0f;
         if (!(j & 15u)) {                        /* the glide, the vibrato, the filter: every 16 */
-            const float vd = vib * fm_clampf((lead.vt - 0.4f) * 2.5f, 0.0f, 1.0f), f = mtof(lead.cur + vd * sine(lead.vph));
+            const float vd = vib * fm_clampf((lead.vt - 0.4f) * 2.5f, 0.0f, 1.0f),
+                        f = mtof(lead.cur + vd * sine(lead.vph) - (lv == 8 ? 1.6f * lead.fenv * lead.fenv : 0.0f));
+                                                 /* (the Slide: the bottleneck up into each note, from a tone and a
+                                                  * half under it, ~0.2 s) */
             dt = f * (1.0f / EN_SR);
             if (lv < 5) {
                 svf_coefs(lead.c1, f * (3.0f + 6.0f * lead.fenv) * tone, 0.9f);
@@ -6814,6 +6841,10 @@ static void render_lead(uint32_t n)
             } else if (lv < 7) {                 /* (AISLING) the Chanter's low-pass as the synths', bright at the
                                                   * start; the Fiddle's steadier */
                 const float fc = f * (lv == 5 ? 3.0f + 6.0f * lead.fenv : 4.0f + 3.0f * lead.fenv) * tb;
+                svf_coefs(lead.c1, fc, 0.9f);
+                svf_coefs(lead.c2, fc, 0.7f);
+            } else if (lv == 8) {                /* the Slide: a steel string picked, bright and then mellow */
+                const float fc = f * (2.5f + 7.0f * lead.fenv) * tb;
                 svf_coefs(lead.c1, fc, 0.9f);
                 svf_coefs(lead.c2, fc, 0.7f);
             }
@@ -6869,6 +6900,10 @@ static void render_lead(uint32_t n)
             lead.tl += CH_TILT * (blep_saw(lead.ph, dt) - lead.tl);
             x = lead.tl + (0.02f + 0.1f * ck) * lv_noise();
             break;
+        case 8:                                  /* the Slide: a steel string (a saw and a narrow pulse), the pick's
+                                                  * click, the glass on the string after it */
+            x = 0.7f * blep_saw(lead.ph, dt) + 0.5f * blep_pulse(lead.ph, dt, 0.18f) + (0.015f + 0.5f * ck) * lv_noise();
+            break;
         default: x = blep_saw(lead.ph, dt) - blep_saw(frac1(lead.ph + 0.5f), dt); break;
         }
         lead.ph += dt;
@@ -6892,6 +6927,12 @@ static void render_lead(uint32_t n)
             svf_lp(lead.c4, lead.s4, x, &b1);
             svf_lp(lead.c5, lead.s5, x, &b2);
             x = (x + 0.5f * b1 + 0.35f * b2) * trim;
+        } else if (lv == 8) {                    /* the Slide's cone, and the picked note's fall to what the glass
+                                                  * keeps ringing */
+            float b1, b2;
+            svf_lp(lead.c4, lead.s4, x, &b1);
+            svf_lp(lead.c5, lead.s5, x, &b2);
+            x = (0.6f * x + 0.9f * b1 + 0.6f * b2) * (0.55f + 0.45f * lead.fenv);
         } else if (lv == 7) {                    /* the Voice's throat: its three formants, then its low-pass */
             int f;
             for (f = 0; f < 3; f++) {
