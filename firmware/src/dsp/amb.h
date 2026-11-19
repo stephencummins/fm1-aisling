@@ -391,6 +391,10 @@ const char *en_chord_label(int root, int kind, int type, char *buf);   /* "Fm7",
 
 /* the pieces: recipes for every parameter (Tune and MIDI out included, but they are the player's) */
 #define EN_NPIECES 8
-#define EN_NAIRS 8                             /* (AISLING) the airs (P_AIR), one a piece */
+#define EN_NPIECES2 2                          /* (Saints & Sinners) the second bank's pieces so far, after the
+                                                * eight: en_piece and en_piece_name take 8.. for them; en_piece_light
+                                                * its side (1 a Saint: the white screen; 0 a Sinner, and the eight) */
+#define EN_NAIRS 10                            /* (AISLING) the airs (P_AIR), one a piece; 9 and 10 the second bank's */
 const char *en_piece_name(int i);
+int en_piece_light(int i);
 void en_piece(int i, int16_t *par, uint16_t *pool);

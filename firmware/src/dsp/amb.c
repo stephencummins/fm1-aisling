@@ -212,20 +212,55 @@ static const int16_t PC_TIRNANOG[] = {        /* Tir na nOg, the land of the you
     P_NCHAR, 8, P_CRACKLE, 7,
     P_MW0, 25, P_MR0, 20, P_MW3, 35, P_MR3, 20,
     P_MI1, 8, P_ARC, 20, P_MOTION, 40, P_LMEM, 55, -1};
+/* (Saints & Sinners) the second bank, its first two: a Saint and a Sinner, from the voices the eight have (the
+ * pack's own, the Slide, the mouth organ, the bell, to come). A first pass, to tune by ear */
+static const int16_t PC_GLENDALOUGH[] = {     /* Glendalough, Wicklow, Kevin's monastery between two lakes: a choir
+                                                * held on D, a cantor low and plain over it (little vibrato, few graces),
+                                                * a glass bell now and then, a stone church's long room, the wind
+                                                * outside; Dm and C in turn, thirty-two bars each; the Dies irae's
+                                                * first line its air. A Saint: the white screen */
+    P_TEMPO, 60, P_ROOT, 2, P_MODE, MODE_DORIAN,
+    P_SEQ, 45, P_SVOICE, 4, P_SEQLEN, 16, P_DENSITY, 20, P_DECAY, 95, P_CUTOFF, 45,
+    P_SEQ2, 0,
+    P_CHORD, 80, P_CVOICE, 5, P_PEDAL, 95, P_DRIFT, 4,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7,
+    P_LEAD, 76, P_LVOICE, 7, P_LOCT, -1, P_LTONE, 45, P_VIB, 5, P_GLIDE, 35, P_LDENS, 85, P_LDIN, 4, P_ORN, 10,
+    P_AIR, 9,
+    P_REVERB, 70, P_SIZE, 95,
+    P_NCHAR, 1, P_CRACKLE, 5,
+    P_MW0, 30, P_MT0, 60, P_MR0, 20, P_BRIDGE, 30,
+    P_MI1, 12, P_ARC, 15, P_MOTION, 30, P_LMEM, 70, -1};
+static const int16_t PC_ROCKYROAD[] = {       /* The Rocky Road to Dublin: a slip jig, 9/8: a bouzouki's nine eighths,
+                                                * three threes, over a bodhran's stomp on each three, the pipes' drone
+                                                * on A, a fiddle with the tune, graced; a wooden room, close, a fire;
+                                                * Am and G in turn, eight bars each. A Sinner: the black screen */
+    P_TEMPO, 120, P_ROOT, 9, P_MODE, MODE_DORIAN,
+    P_SVOICE, 6, P_SEQLEN, 9, P_DENSITY, 75, P_SACC0, 0x49, P_CUTOFF, 60, P_DECAY, 60,
+    P_SEQ, 50, P_SEQ2, 34, P_S2VOICE, 9, P_SEQ2OCT, -1, P_SEQ2LEN, 9, P_SACC1, 0x49, P_S2DEC, 65, P_MI3, 4,
+    P_CHORD, 36, P_CVOICE, 2, P_CCOL, -15, P_PEDAL, 90, P_DRIFT, 2,
+    P_PMODE, EN_WALK_HOME | EN_PLOOP, P_CR0, 1, P_CR1, 7, P_CX0, 1, P_CX1, 1,
+    P_LEAD, 72, P_LVOICE, 6, P_LTONE, 55, P_VIB, 15, P_GLIDE, 20, P_LDENS, 95, P_LDIN, 4, P_ORN, 55, P_AIR, 10,
+    P_REVERB, 25, P_SIZE, 40,
+    P_NCHAR, 7, P_CRACKLE, 7,
+    P_MW0, 20, P_MR0, 20, P_SWEEP, 40, P_MR1, 35, P_MW3, 25, P_MR3, 30, P_BRIDGE, 35,
+    P_ARC, 30, P_MOTION, 60, P_LMEM, 75, -1};
 static const struct {
     const char *name;
     const int16_t *set;
-} PIECES[EN_NPIECES] = {
+} PIECES[EN_NPIECES + EN_NPIECES2] = {
     {"Skellig", PC_SKELLIG}, {"Burren", PC_BURREN},     {"Aran", PC_ARAN},         {"Carolan", PC_CAROLAN},
     {"Blasket", PC_BLASKET}, {"Samhain", PC_SAMHAIN}, {"Connemara", PC_CONNEMARA}, {"Tir na nOg", PC_TIRNANOG},
+    {"Glendalough", PC_GLENDALOUGH}, {"Rocky Road", PC_ROCKYROAD},
 };
+#define NPIECES_ALL (EN_NPIECES + EN_NPIECES2)
 
-const char *en_piece_name(int i) { return PIECES[(unsigned)i < EN_NPIECES ? i : 0].name; }
+const char *en_piece_name(int i) { return PIECES[(unsigned)i < NPIECES_ALL ? i : 0].name; }
+int en_piece_light(int i) { return i == EN_NPIECES; }   /* (Glendalough; the bank's Saints, as they come) */
 void en_piece(int i, int16_t *par, uint16_t *pool)
 {
     const int16_t *s;
     int p;
-    i = (unsigned)i < EN_NPIECES ? i : 0;
+    i = (unsigned)i < NPIECES_ALL ? i : 0;
     for (p = 0; p < P_NPARAMS; p++)
         par[p] = PARAMS[p].def;
     for (s = PIECES[i].set; s[0] >= 0; s += 2)
@@ -2246,6 +2281,16 @@ static const struct {
     {{0, 2, 4, 2, 4, 2, 0, 2, 0, 0, 2, 4}, {3, 1, 6, 2, 2, 1, 1, 4, 4, 3, 1, 8}, 12},   /* Tir na nOg: Ossian's
                                                   * Lament (132, G, here in D: Oisin back from Tir na nOg): its pickup,
                                                   * two bars, the third's B held */
+    {{3, 2, 3, 0, 2, -2, 0, 0}, {4, 4, 4, 4, 4, 4, 4, 8}, 8},   /* Glendalough: the Dies irae (the sequence of
+                                                  * the Requiem, 13th century, on D: Dorian), its first line, a note a
+                                                  * syllable, even, the last held. FROM MEMORY: to check against the
+                                                  * Liber Usualis */
+    {{7, 0, 0, -2, 0, 2, 0, 7, 0, 0, -2, 0, 2, -2, -5}, {4, 2, 2, 2, 2, 4, 2, 4, 2, 2, 2, 2, 2, 2, 8}, 15},
+                                                 /* Rocky Road: The Rocky Road to Dublin (traditional, a slip jig,
+                                                  * A Dorian, 9/8: an eighth two sixteenths, a bar eighteen): its first
+                                                  * two bars, the last E held. FROM MEMORY, the setting commonly
+                                                  * played: to check against a printed one (O'Neill's has it in A
+                                                  * Mixolydian) */
 };
 static uint8_t ld_airq;                          /* (the air due: at power-on the piece's parameters are set after
                                                   * en_init, with no regrow, so the Lead's first draw takes it, unless

@@ -3479,7 +3479,7 @@ int main(void)
     {
         static const int FG[4] = {4, 2, 0, 1}, FD[4] = {4, 4, 4, 8};
         int k, m, i, p;
-        for (k = 0; k < EN_NPIECES; k++) {
+        for (k = 0; k < EN_NPIECES + EN_NPIECES2;   /* (the second bank's too) */ k++) {
             int16_t pp[P_NPARAMS];
             uint16_t pl;
             int8_t s[16], off[32], dg[16];
