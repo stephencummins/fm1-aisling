@@ -16,8 +16,12 @@
 #ifndef PACK_H
 #define PACK_H
 #include <stdint.h>
+#if defined(__has_include) && __has_include(<string.h>)
 #include <string.h>
-#include "amb.h"
+#else                                            /* (the device: freestanding, firmware/src/libc.c's own) */
+int memcmp(const void *a, const void *b, unsigned n);
+#endif
+#include "../dsp/amb.h"
 
 #define PK_FORMAT 1
 #define PK_NPIECES 8

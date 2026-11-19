@@ -235,7 +235,7 @@ int pack_install(const uint8_t *b, int len)
         return why;
     project_bank(0);                             /* (the eight play: the pack's bank is about to change under it) */
     if (len)
-        memmove(pack_b, b, (size_t)len);
+        memmove(pack_b, b, (unsigned)len);
     pack_n = (uint16_t)len;
     if (plat_store_save(OBJ_PACK, len ? pack_b : none, len ? (uint32_t)len : sizeof none))
         return 4;

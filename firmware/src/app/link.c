@@ -370,7 +370,7 @@ static uint32_t lk_open(int area)                /* the bytes into lk_x; how man
     if (area == LK_A_PACK) {
         int pn;
         const uint8_t *pk = pack_bytes(&pn);
-        memcpy(lk_x.b, pk, (size_t)pn);
+        memcpy(lk_x.b, pk, (unsigned)pn);
         return (uint32_t)pn;
     }
     if (area == LK_A_FLASH) {
