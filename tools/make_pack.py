@@ -128,7 +128,7 @@ def main():
     os.makedirs(out, exist_ok=True)
     open(os.path.join(out, stem + ".aispack"), "wb").write(blob)
     json.dump({"format": "aisling-pack", "id": stem, "name": src["name"], "version": int(src.get("version", 1)),
-               "level": need, "about": src.get("about", ""), "size": len(blob), "pieces": shown,
+               "level": need, "needs": src.get("needs", ""), "about": src.get("about", ""), "size": len(blob), "pieces": shown,
                "data": base64.b64encode(blob).decode()},
               open(os.path.join(out, stem + ".json"), "w"), indent=1)
     print("%s: %d bytes of %d, level %d" % (stem, len(blob), PK_MAX, need))

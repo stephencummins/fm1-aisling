@@ -538,8 +538,8 @@ static int knob_get(int k)
         return proj.par[k] + (k == P_SEQ2OCT ? s2_shift() : 0);
     if (k == K_LEDS)
         return proj.leds;
-    if (k == K_SCR)
-        return proj.light;
+    if (k == K_SCR)                              /* (packs) the knob: Auto, Dark, Light; kept: 2, 0, 1 */
+        return (proj.light + 1) % 3;
     if (k == K_CPU)
         return (int)plat_cpu_pct();
     if (k == K_SLOT)
@@ -612,7 +612,7 @@ static void knob_text(int k, char *b)
         *b++ = '%';
         *b = 0;
     } else if (k == K_JRP || k == K_JRIN || k == K_DAY || k == K_SCR) {
-        const char *n = k == K_SCR ? (v == 2 ? "Auto" : v ? "Light" : "Dark") : k == K_DAY ? DAY_NAME[v] : k == K_JRP ? piece_name(v) : v ? "In" : "Out";
+        const char *n = k == K_SCR ? (v == 2 ? "Light" : v ? "Dark" : "Auto") : k == K_DAY ? DAY_NAME[v] : k == K_JRP ? piece_name(v) : v ? "In" : "Out";
         while ((*b++ = *n++))
             ;
     } else if (k == K_SLOT) {
@@ -697,7 +697,7 @@ static void knob_set(int k, int v)
     } else if (k == K_LEDS) {
         proj.leds = (uint8_t)v;
     } else if (k == K_SCR) {                     /* (kpal follows it at the next frame: pal_sync) */
-        proj.light = (uint8_t)(v < 0 ? 0 : v > 2 ? 2 : v);   /* (packs: 2, as the piece is) */
+        proj.light = (uint8_t)(((v < 0 ? 0 : v > 2 ? 2 : v) + 2) % 3);   /* (packs: 2, as the piece is) */
     } else if (k == K_SLOT) {
         ui.slot = (uint8_t)v;
         return;                                  /* (only where the page looks: nothing saved) */
@@ -4032,7 +4032,7 @@ static void speak_dump(void)
                 else if (k == K_SLOT)
                     ui.slot = (uint8_t)x;
                 else if (k == K_SCR)
-                    proj.light = (uint8_t)x;
+                    proj.light = (uint8_t)((x + 2) % 3);
                 else if (k == K_DAY)
                     ui.day = (uint8_t)(x == hi ? 0 : x);   /* (left off) */
                 else if (k == K_JRP)

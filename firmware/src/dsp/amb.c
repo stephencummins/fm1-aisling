@@ -2433,7 +2433,8 @@ static const uint8_t LD_RHY[][7] = {
     {8, 4, 4, 8, 8}, {6, 2, 8, 8, 8}, {4, 2, 2, 8, 16}, {12, LD_RST | 2, 2, 4, 4, 8},
     {8, 2, 2, 2, 2, 16}, {12, 1, 1, 1, 1, 16}, {4, 4, 2, 2, 4, 16},
 };
-/* (packs: Rocky Road) a slip jig's (both sequences in nine): the same in threes, an eighth two sixteenths, a bar
+/* (packs: Rocky Road) a slip jig's (both sequences in nine), a jig's or a shuffle's (twelve over six; none of
+ * the eight is either): the same in threes, an eighth two sixteenths, a bar
  * eighteen: ta-TUM (2 4), ONE two three four five (4 2 4 2 6), runs of eighths to a held note */
 static const uint8_t LD_RHY3[][7] = {
     {18, 18}, {12, 6}, {6, 12},
@@ -2446,7 +2447,8 @@ static const uint8_t LD_RHY3[][7] = {
 typedef char ld_rhy3_rows[sizeof LD_RHY3 == sizeof LD_RHY ? 1 : -1];   /* (a template for a template) */
 static const uint8_t *ld_rhy(int j)
 {
-    return par[P_SEQLEN] == 9 && par[P_SEQ2LEN] == 9 && !par[P_SEQGRID] ? LD_RHY3[j] : LD_RHY[j];
+    const int nine = par[P_SEQLEN] == 9 && par[P_SEQ2LEN] == 9, twelve = par[P_SEQLEN] == 12 && par[P_SEQ2LEN] == 6;
+    return (nine || twelve) && !par[P_SEQGRID] ? LD_RHY3[j] : LD_RHY[j];   /* (twelve over six: a jig, a shuffle) */
 }
 static const uint8_t LD_R[7] = {16, 15, 12, 8, 5, 2, 1};   /* range: by degrees from the centre */
 static const uint8_t LD_P[8] = {4, 16, 6, 2, 1, 1, 1, 1};   /* proximity: by degrees from the note before (the
