@@ -404,7 +404,9 @@ CHOOSER = """<!doctype html>
 .ask small { display: block; margin: 0 0 6px; font: 400 12px/1.3 var(--brand-mono); letter-spacing: .12em; color: var(--brand-rust); }
 .band { border-top: 1px solid var(--brand-rule); }
 .band .mg-head { margin-bottom: 18px; }
-#new .mg-num, #app .mg-num { font-size: clamp(56px, 8vw, 104px); text-transform: uppercase; }
+.posts { margin: 14px 0 0; font: 600 22px/1.2 var(--brand-display); letter-spacing: .02em; text-transform: uppercase; }
+.posts b { color: var(--brand-green); font-weight: 600; }
+#store .mg-num, #new .mg-num, #app .mg-num { font-size: clamp(56px, 8vw, 104px); text-transform: uppercase; }
 #app .how { margin: 22px 0 10px; font: 600 22px/1.1 var(--brand-display); text-transform: uppercase; }
 #app .mg-split { align-items: center; }
 .band .shot { display: block; border: 1px solid var(--brand-rule); }
@@ -445,7 +447,7 @@ CHOOSER = """<!doctype html>
 .part ul { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0 16px 16px; }
 p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 /* the store's skins, each on the case it suits best: the store's own pictures, in web/brand/skins/ */
-.skins { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 14px 0 0; padding: 0; }
+.skins { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 14px 0 0; padding: 0; }
 .skins a { display: block; text-decoration: none; color: inherit; }
 .skins img { display: block; width: 100%; height: auto; aspect-ratio: 640 / 382; border-radius: 6px; background: var(--brand-line, #ddd);
   transition: transform .15s ease; }
@@ -499,6 +501,25 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 </g></svg>tip me</a>
 </div>
 </div>
+
+<section class="mg-feat band store" id="store" aria-labelledby="storeh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">Store</div>
+<div><p class="mg-kick">The store · coming soon</p><h2 id="storeh">Skins for the FM-1</h2></div></div>
+<p class="mg-stand">Vinyl skins, printed and cut by hand, <em>for any case colour and any firmware</em>, with the gear that goes with it.</p>
+<p class="posts">Posted to <b>the UK</b>, <b>the US</b>, <b>France</b>, <b>Germany</b> and <b>Spain</b></p>
+<ul class="skins">
+<li><a href="https://store.stephen8n.com/#p-swatch"><img src="skins/swatch.webp" width="640" height="382" loading="lazy" alt="The Swatch skin on a cool grey FM-1"><span>Swatch</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-flightdeck"><img src="skins/flightdeck.webp" width="640" height="382" loading="lazy" alt="The Flight Deck skin on a cool grey FM-1"><span>Flight Deck</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-kinetic"><img src="skins/kinetic.webp" width="640" height="382" loading="lazy" alt="The Kinetic skin on a cool grey FM-1"><span>Kinetic</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-map"><img src="skins/map.webp" width="640" height="382" loading="lazy" alt="The Map skin on a white-blue FM-1"><span>Map</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-neonrain"><img src="skins/neonrain.webp" width="640" height="382" loading="lazy" alt="The Neon Rain skin on a black FM-1"><span>Neon Rain</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-synthwave"><img src="skins/synthwave.webp" width="640" height="382" loading="lazy" alt="The Synthwave skin on a black FM-1"><span>Synthwave</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-ticker"><img src="skins/ticker.webp" width="640" height="382" loading="lazy" alt="The Ticker skin on a black FM-1"><span>Ticker</span></a></li>
+<li><a href="https://store.stephen8n.com/#p-brush"><img src="skins/brush.webp" width="640" height="382" loading="lazy" alt="The Brush skin on a black and green FM-1"><span>Brush</span></a></li>
+</ul>
+<p class="mg-go" style="margin:18px 0 8px"><a class="btn go big" href="https://store.stephen8n.com/">Look around the store</a></p>
+<p class="mg-small">The test prints come first; checkout isn't open yet.</p>
+</section>
 
 <section class="mg-feat band" id="new" aria-labelledby="newh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">New</div>
@@ -562,22 +583,6 @@ __PARTS__
 </div>
 </section>
 
-<section class="mg-feat band store" aria-labelledby="storeh">
-<div class="mg-head"><div class="mg-num" aria-hidden="true">06</div>
-<div><p class="mg-kick">The store · coming soon</p><h2 id="storeh">Skins for the FM-1</h2></div></div>
-<p class="mg-stand">Vinyl skins, printed and cut by hand, <em>for any case colour and any firmware</em>, with the gear that goes with it.</p>
-<ul class="skins">
-<li><a href="https://store.stephen8n.com/#p-swatch"><img src="skins/swatch.webp" width="640" height="382" loading="lazy" alt="The Swatch skin on a cool grey FM-1"><span>Swatch</span></a></li>
-<li><a href="https://store.stephen8n.com/#p-flightdeck"><img src="skins/flightdeck.webp" width="640" height="382" loading="lazy" alt="The Flight Deck skin on a cool grey FM-1"><span>Flight Deck</span></a></li>
-<li><a href="https://store.stephen8n.com/#p-kinetic"><img src="skins/kinetic.webp" width="640" height="382" loading="lazy" alt="The Kinetic skin on a cool grey FM-1"><span>Kinetic</span></a></li>
-<li><a href="https://store.stephen8n.com/#p-map"><img src="skins/map.webp" width="640" height="382" loading="lazy" alt="The Map skin on a white-blue FM-1"><span>Map</span></a></li>
-<li><a href="https://store.stephen8n.com/#p-neonrain"><img src="skins/neonrain.webp" width="640" height="382" loading="lazy" alt="The Neon Rain skin on a black FM-1"><span>Neon Rain</span></a></li>
-<li><a href="https://store.stephen8n.com/#p-synthwave"><img src="skins/synthwave.webp" width="640" height="382" loading="lazy" alt="The Synthwave skin on a black FM-1"><span>Synthwave</span></a></li>
-<li><a href="https://store.stephen8n.com/#p-ticker"><img src="skins/ticker.webp" width="640" height="382" loading="lazy" alt="The Ticker skin on a black FM-1"><span>Ticker</span></a></li>
-</ul>
-<p class="mg-go" style="margin:18px 0 8px"><a class="btn go big" href="https://store.stephen8n.com/">Look around the store</a></p>
-<p class="mg-small">The test prints come first; checkout isn't open yet.</p>
-</section>
 <div class="pane tip">
 <p>Love my firmware? Support its development by <a href="https://ko-fi.com/stejcu">tipping me on Ko-fi</a>. :)</p>
 </div>

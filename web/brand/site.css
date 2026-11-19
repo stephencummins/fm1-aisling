@@ -53,6 +53,10 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
                  text-decoration-color: var(--brand-rule); text-underline-offset: 3px; white-space: nowrap; }
 .sitebar-nav a:hover { text-decoration-color: currentColor; color: var(--brand-green); }
 .sitebar-nav a[aria-current] { color: var(--brand-green); text-decoration: none; }
+/* the store: first on the bar, and a button, so it is seen */
+.sitebar-nav > a[href^="https://store.stephen8n.com"] { align-self: center; padding: 6px 11px 5px; background: var(--brand-green); color: var(--brand-ground);
+                 font: 600 .95rem/1 var(--brand-display); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; }
+.sitebar-nav > a[href^="https://store.stephen8n.com"]:hover { background: var(--brand-ink); color: var(--brand-ground); }
 /* a menu on the bar: a group of the part's pages under one word (site_brand.GROUPS). It opens over the page, so the
    bar keeps its height; wall.js shuts it on a click elsewhere or Escape */
 .sitebar-group { position: relative; }
