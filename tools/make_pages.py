@@ -716,7 +716,7 @@ FX1_LANDING = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AISLING FX-1 · an FM-1 as a USB effects box</title>
-<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. 1.1, released.">
+<meta name="description" content="AISLING FX-1 makes an M-VAVE FM-1 an effects box for a computer: its sound in over USB, through AISLING's filter, echo, reverb and effects, out of the FM-1's socket. A guitar goes through it by way of the computer. 1.1, released.">
 <meta property="og:title" content="AISLING FX-1 · an FM-1 as a USB effects box">
 <meta property="og:description" content="An M-VAVE FM-1 as an effects box for a computer's sound, over USB. 1.1, released.">
 <meta property="og:url" content="__SITE__fx1/">
@@ -731,6 +731,21 @@ ul.plain { list-style: square; padding-left: 1.2rem; margin: 0 0 10px; }
 ul.plain li { margin: 0 0 6px; }
 ul.plain li::marker { color: var(--brand-green); }
 p.small { color: var(--brand-muted); font-size: 12.5px; }
+/* the guitar's way through: boxes in a row with the lead between each named, a column on a phone */
+.chain { list-style: none; display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 0 0 20px; padding: 0; }
+.chain li { flex: 1 1 120px; display: flex; flex-direction: column; justify-content: center; padding: 12px 12px 13px; border: 1px solid var(--brand-rule);
+            background: var(--brand-ground); font-size: 12.5px; line-height: 1.4; }
+.chain li b { display: block; margin: 0 0 3px; font: 600 19px/1.15 var(--brand-display); letter-spacing: .02em; }
+.chain li.fx { background: var(--brand-green); border-color: var(--brand-green); color: var(--brand-ground); }
+.chain li.by { flex: 0 0 auto; justify-content: center; align-items: center; padding: 0 8px; border: 0; background: none; color: var(--brand-muted);
+               font: 400 11px/1.3 var(--brand-mono); text-align: center; }
+.chain li.by::after { content: "→"; font-size: 18px; line-height: 1; color: var(--brand-rust); }
+@media (max-width: 47.99rem) {
+  .chain { flex-direction: column; }
+  .chain li { flex: 0 0 auto; }
+  .chain li.by { flex-direction: row; gap: 8px; padding: 6px 0; }
+  .chain li.by::after { content: "↓"; }
+}
 </style>
 <!--AISLING-HEAD-->
 </head>
@@ -748,17 +763,46 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 <h1>Aisling <span>FX-1</span></h1>
 <p class="mg-gloss">AISLING with its voices taken out and a computer's sound let in.</p>
 </div>
-<p class="mg-deck">An FM-1 as a USB effects box: your computer's sound in over the cable, out through AISLING's filter, echo and reverb.</p>
+<p class="mg-deck">An FM-1 as a USB effects box: a guitar, or anything your computer plays, in over the cable and out through AISLING's filter, echo and reverb.</p>
 </div>
 <div class="mg-pic"><img src="../img/fx1-photo.webp" width="984" height="590" alt="An FM-1 in a printed skin, running AISLING FX-1"></div>
 </div>
 
 <nav class="mg-jump" aria-label="On this page">
-<a href="#controls"><i>01</i>Controls</a><a href="#install"><i>02</i>Install</a><a href="#manual"><i>03</i>Manual</a>
+<a href="#guitar"><i>01</i>Guitar</a><a href="#controls"><i>02</i>Controls</a><a href="#install"><i>03</i>Install</a><a href="#manual"><i>04</i>Manual</a>
 </nav>
 
-<section class="mg-feat" id="controls" aria-labelledby="controlsh">
+<section class="mg-feat" id="guitar" aria-labelledby="guitarh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">01</div>
+<div><p class="mg-kick">What it is for</p><h2 id="guitarh">A guitar through the FM-1</h2></div></div>
+<p class="mg-stand">Plug a guitar into the computer, and the computer into the FM-1: you play through <em>the Filter, the Echo and the Reverb</em>, with a hand free for the knobs.</p>
+<ol class="chain" aria-label="The guitar's way through">
+  <li><b>Guitar</b>or a bass, or a microphone</li>
+  <li class="by">guitar lead</li>
+  <li><b>Interface</b>an iRig, or any sound interface with a guitar input</li>
+  <li class="by">its lead</li>
+  <li><b>Computer</b>music software, with the track's monitor on</li>
+  <li class="by">USB</li>
+  <li class="fx"><b>FM-1</b>running FX-1: the knobs and keys are the effects</li>
+  <li class="by">3.5&nbsp;mm</li>
+  <li><b>Headphones</b>or a speaker or an amp</li>
+</ol>
+<ol class="mg-steps">
+  <li>Plug the guitar into the interface and the interface into the computer. The guitar never goes into the FM-1:
+      <b>its socket is an output only</b>.</li>
+  <li>In your music software, choose the interface as the sound input and <b>AISLING FX-1</b> as the sound output, at
+      44.1&nbsp;kHz, with the smallest buffer that plays cleanly (64 samples here).</li>
+  <li>Make an audio track that listens to the guitar and turn its monitor on (in Ableton Live, Monitor: <b>In</b>).</li>
+  <li>Listen at the FM-1's socket and play. Turn the Echo and the Reverb up at HOME; in PERFORM (SEL) hold a key for
+      an effect.</li>
+</ol>
+<p class="mg-small">Tried by its author: a guitar through an iRig 2, and through the first iRig, into a MacBook's headphone
+socket, Ableton Live 12 on macOS 27, out to the FM-1. The sound goes through the computer, so there is a short delay
+between the string and the speaker; it has not been measured. A bass and a microphone go the same way and have not been tried.</p>
+</section>
+
+<section class="mg-feat" id="controls" aria-labelledby="controlsh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">02</div>
 <div><p class="mg-kick">The controls</p><h2 id="controlsh">Every knob, button and key</h2></div></div>
 <a class="mg-draw" href="controls/" title="The controls page">__PANEL__</a>
 <p class="mg-stand" style="margin-top:18px">At HOME the knobs are <em>the Filter, the Echo, the Reverb and the Dry</em>. In PERFORM the keys are effects while held.</p>
@@ -766,7 +810,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 </section>
 
 <section class="mg-feat" id="install" aria-labelledby="installh">
-<div class="mg-head"><div class="mg-num" aria-hidden="true">02</div>
+<div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
 <div><p class="mg-kick">Install</p><h2 id="installh">Put it on your FM-1</h2></div></div>
 <ol class="mg-steps">
   <li>Put FX-1 on the FM-1 from its <a href="install/">install page</a>, in Chrome or Edge, over AISLING, another
@@ -784,7 +828,7 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 </section>
 
 <section class="mg-feat" id="manual" aria-labelledby="manualh">
-<div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
+<div class="mg-head"><div class="mg-num" aria-hidden="true">04</div>
 <div><p class="mg-kick">The manual</p><h2 id="manualh">Setting it up</h2></div></div>
 <div class="mg-split">
 <div>
