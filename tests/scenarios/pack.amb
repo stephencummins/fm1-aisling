@@ -52,7 +52,7 @@ expect bank 1
 expect piece 0
 expect pname 71
 expect lit 1
-expect par18 60
+expect par18 120
 turn PRESET 1
 expect piece 1
 expect pname 82

@@ -70,6 +70,13 @@ AMB-1. It doesn't read what they saved (it starts with its own eight recipes), a
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
 
+## Coming in 1.5 (on this branch, not released)
+
+- **Sound packs.** Eight more pieces at a time, kept on the FM-1 beside AISLING's own eight: hear a pack on the Packs page, install it over USB, take it off again. PRESETS turns on past the eighth piece into the pack; program changes 8 to 15 choose its pieces. Each pack's pieces keep your changes, apart from the eight's. A pack is data (`packs/*.json`, built by `tools/make_pack.py`; `firmware/src/app/pack.h` has the format).
+- **Saints & Sinners**, the first pack: chant and the Delta's blues with Ireland between them. Glendalough, Rocky Road (a slip jig), Iona, Crossroads, Vespers, Banshee, The Braes, Juke Joint.
+- **Screen: Auto.** The Journey page's Screen is Auto, Dark or Light. Auto follows the piece: a Saint on white, a Sinner on black.
+- **In the engine:** a Blues scale, a Slide for the Lead, and the Lead's rhythms in threes over a slip jig or a jig.
+
 ## What's new in 1.4.1
 
 - **The screen, dark or light.** KNOB 3 on the Journey page (GLO, three times), **Screen**, sets the whole screen: Dark, the colours on black, as it was; or Light, the same colours deeper, on white, for a bright room or daylight. It's saved with the pieces, and changes nothing in the sound.
