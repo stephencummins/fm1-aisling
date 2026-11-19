@@ -28,7 +28,8 @@ SUPPORT = ("support", "support", "support/", "Back an FM-1 up, switch its firmwa
 STEPHEN8N = ("stephen8n", "stephen8n", "https://www.stephen8n.com", "Stephen Cummins's other things")
 GEAR = ("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases")
 VIDEO = ("video", "video", "https://youtu.be/3aUARUvwT_Y", "A short film of AISLING and its visualiser, on YouTube")
-NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM-1 runs"),
+NAV = (STORE,
+       ("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM-1 runs"),
        APP,
        ("editor", "editor", "editor/", "Every setting of a piece on one panel, and your FM-1 over USB"),
        ("install", "install", "install/", "Put AISLING on your FM-1 from Chrome or Edge"),
@@ -40,17 +41,16 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
        ("visualiser", "visualiser", "visualiser/", "An FM-1 running AISLING paints an Irish landscape from its MIDI"),
        ("screen", "screen", "screen/", "A touch screen beside the FM-1: the landscape, the FM-1's own screen, and its knobs"),
        GEAR,
-       STORE,
        DIY,
        SEER,
        VIDEO,
        ("source", "source", REPO, "The code, on GitHub"),
        STEPHEN8N)
-FX1_NAV = (("install", "install", "fx1/install/", "Put AISLING FX-1 on your FM-1 from Chrome or Edge"),
+FX1_NAV = (STORE,
+           ("install", "install", "fx1/install/", "Put AISLING FX-1 on your FM-1 from Chrome or Edge"),
            ("controls", "controls", "fx1/controls/", "Every knob, button and key of the FM-1 running FX-1 and what it does, drawn"),
            ("manual", "manual", "fx1/manual/", "Setting it up with a computer, the effects, the screen, and going back"),
            SUPPORT,
-           STORE,
            DIY,
            SEER,
            ("source", "source", "https://github.com/stephencummins/fx1-aisling", "FX-1's code, on GitHub"),
@@ -59,24 +59,25 @@ SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, 
              ["manual", "manual", "smk37/manual/", "How the port works: the flash, the pins, building, testing, and what's still open"],
              ["source", "source", "https://github.com/stephencummins/smk37-aisling", "The SMK-37 Elite's code, on GitHub"],
              STEPHEN8N]
-COMMON = (APP,
+COMMON = (STORE,
+          APP,
           SUPPORT,
           GEAR,
-          STORE,
           DIY,
           SEER,
           VIDEO,
           ("source", "source", REPO, "The code, on GitHub"),
           STEPHEN8N)
 NAVS = {None: COMMON, "fm1": NAV, "fx1": FX1_NAV, "smk37": SMK37_NAV}
+# The store leads every nav that has it, on the bar itself: site.css draws it as a button (.sitebar-nav > a[href^=store]).
 # How the bar shows a nav: a page's key is a link on the bar itself; (label, keys) is a menu that opens under its label.
 # A nav's pages keep their order, so a group is a run of neighbours; a part with no entry here shows every page.
 MORE = ("more", ("seer", "video", "source", "stephen8n"))
-KIT = ("kit", ("gear", "store", "diy"))
-GROUPS = {None: ("app", "support", KIT, MORE),
-          "fm1": (("play", ("emu", "app", "editor")), "install", "packs", ("docs", ("manual", "controls", "cheat", "support")),
+KIT = ("kit", ("gear", "diy"))
+GROUPS = {None: ("store", "app", "support", KIT, MORE),
+          "fm1": ("store", ("play", ("emu", "app", "editor")), "install", "packs", ("docs", ("manual", "controls", "cheat", "support")),
                   ("visuals", ("visualiser", "screen")), KIT, MORE),
-          "fx1": ("install", "controls", "manual", "support", KIT, MORE)}
+          "fx1": ("store", "install", "controls", "manual", "support", KIT, MORE)}
 
 
 def grouped(product):
