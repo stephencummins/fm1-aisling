@@ -32,6 +32,7 @@ NAV = (("emu", "emulator", "emu/", "AISLING in the browser: the same code the FM
        APP,
        ("editor", "editor", "editor/", "Every setting of a piece on one panel, and your FM-1 over USB"),
        ("install", "install", "install/", "Put AISLING on your FM-1 from Chrome or Edge"),
+       ("packs", "sound packs", "packs/", "Eight more pieces at a time: hear a pack, then put it on your FM-1 over USB"),
        ("manual", "manual", "manual/", "Getting started in a few minutes, then everything else"),
        ("controls", "controls", "fm1/controls/", "Every knob, button and key of the FM-1 and what it does, drawn"),
        ("cheat", "cheat sheet", "cheat/", "Every control and the eight pieces on one page, to print, and the steps drawn as flows"),
@@ -73,7 +74,7 @@ NAVS = {None: COMMON, "fm1": NAV, "fx1": FX1_NAV, "smk37": SMK37_NAV}
 MORE = ("more", ("seer", "video", "source", "stephen8n"))
 KIT = ("kit", ("gear", "store", "diy"))
 GROUPS = {None: ("app", "support", KIT, MORE),
-          "fm1": (("play", ("emu", "app", "editor")), "install", ("docs", ("manual", "controls", "cheat", "support")),
+          "fm1": (("play", ("emu", "app", "editor")), "install", "packs", ("docs", ("manual", "controls", "cheat", "support")),
                   ("visuals", ("visualiser", "screen")), KIT, MORE),
           "fx1": ("install", "controls", "manual", "support", KIT, MORE)}
 

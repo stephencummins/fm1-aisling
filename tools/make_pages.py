@@ -27,6 +27,7 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
   emu/                        AISLING in the browser (build/emu, from web/emu/build.sh), with its screen reader's
                               words and voice in emu/reader/ (fm1-reader, at the commit web/emu/reader.pin names)
   editor/                     the editor (web/editor/index.html; its code from build/editor, web/editor/build.sh)
+  packs/                      the sound packs' page (web/packs) and index.json: every packs/*.json, made by tools/make_pack.py
   words/                      the screen reader's words files (web/words, from firmware/words.tsv)
   install/index.html          the web installer (web/amb_installer.html, with fm1pkg.js, fm1ota.js and
                               the package's metadata inlined; Chrome or Edge, Web MIDI)
@@ -1329,6 +1330,17 @@ def main(pkg, version, out, smk37=None, fx1=None):
     for f in ("amb.wasm", "engine.js", "worklet.js", "link.js", "editor.js", "editor.css"):
         shutil.copy2(ed / f, out / "editor" / f)
     (out / "editor" / "index.html").write_text(stamp((SRC / "web" / "editor" / "index.html").read_text(encoding="utf-8"), "../", "editor"), encoding="utf-8")
+    # the sound packs: the page, and every pack in packs/ made afresh (tools/make_pack.py), listed in index.json
+    (out / "packs").mkdir()
+    for f in ("packs.js", "worklet.js"):
+        shutil.copy2(SRC / "web" / "packs" / f, out / "packs" / f)
+    (out / "packs" / "index.html").write_text(stamp((SRC / "web" / "packs" / "index.html").read_text(encoding="utf-8"), "../", "packs"),
+                                              encoding="utf-8")
+    listed = []
+    for src in sorted((SRC / "packs").glob("*.json")):
+        subprocess.check_call([sys.executable, str(SRC / "tools" / "make_pack.py"), str(src), "-o", str(SRC / "build" / "packs")])
+        listed.append(json.loads((SRC / "build" / "packs" / src.name).read_text(encoding="utf-8")))
+    (out / "packs" / "index.json").write_text(json.dumps(listed), encoding="utf-8")
     # the harp, the bar's style and the fonts, at the root, for every page; Cloudflare's two files with them
     shutil.copytree(SRC / "web" / "brand", out, dirs_exist_ok=True)
     # the visualiser, as it is, but for its switch's SMK-37 if those pages aren't here
