@@ -131,7 +131,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 
 ## What's new in 0.5.1
 
-- **Newer FM-1s can save and update.** Units sold since autumn 2026 carry a different flash chip (0xB36014). AISLING now accepts it beside the first one, so pieces survive switching off and updates start. Nothing else changes. AISLING 1.5 has been tried on one newer FM-1: it plays, a save was still there after switching off and on, a sound pack went on over USB and read back whole, and the editor connected and changed a setting.
+- **Newer FM-1s can save and update.** Units sold since autumn 2026 carry a different flash chip (0xB36014). AISLING now accepts it beside the first one, so pieces survive switching off and updates start. Nothing else changes. AISLING 1.5 has been tried on one newer FM-1: it plays, a save was still there after switching off and on, a sound pack went on over USB, read back whole and was still there after switching off and on, and the editor connected and changed a setting.
 - **On a newer FM-1 with an earlier AISLING?** Those versions refuse updates, so reaching this one takes [the chip's own download mode](https://thefirmwarehub.com/tools/rescue/#chip), once. The [manual](https://aisling.stephen8n.com/manual/#a-newer-fm-1-on-an-earlier-aisling) has the steps.
 - **Still new from 0.5:** [the editor](https://aisling.stephen8n.com/editor/), undo, hold SAVE to save, and USB audio before MASTER.
 
