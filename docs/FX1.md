@@ -208,7 +208,8 @@ command line (16 Nov 2026): the Mac listed it as a sound output and input, the s
 computer's sound came out through the effects. The same screen code ran in AISLING 1.4.1 on that FM-1: both screens looked right, and turning Screen while a full piece
 played took the processor to its limit for a moment, with no dropout. In the simulator, FX-1's own tests and
 AISLING's pass on 1.1. It has also gone on a newer FM-1 (the second flash chip, `0xB36014`) over AISLING 1.5 from the
-command line (20 Nov 2026), and works there. Going back to AISLING from FX-1 has not been tried on that chip.
+command line (20 Nov 2026), and works there. AISLING 1.5 then went back over it: its saved pieces were as they were, byte for byte, and its
+sound pack was still installed.
 
 **Not yet:**
 

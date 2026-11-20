@@ -866,7 +866,8 @@ sound played through its effects). The install page has not been used with FX-1:
   <li>On the FM-1: the sound plays with no gaps and no packets lost, it sounds right, the screen keeps up, and turning
       the Dry down leaves the effects' share as it was. It went on over AISLING and over the stock firmware, and
       AISLING went back over it with its pieces as they were. 1.1 also went on a newer FM-1 (the second memory
-      chip, <code>0xB36014</code>) over AISLING 1.5, and works there.</li>
+      chip, <code>0xB36014</code>) over AISLING 1.5, and works there; AISLING went back over it with its pieces and
+      its sound pack as they were.</li>
   <li>In the simulator, every control and key measured: 17 of PERFORM's 27 effects change a computer's sound, and four
       of the black keys' eleven (the rest were made for AISLING's own voices). The manual and the controls drawing
       say which.</li>
