@@ -4,13 +4,19 @@
 // pack in its store) and put on an FM-1 or taken off it over the USB link (../editor/link.js: area 10). What is on
 // the FM-1 is read back and named; before a pack leaves it, its eight pieces as the player left them are read
 // (areas 1-8, the pack's bank) and kept here, to bring back when that pack goes on again.
+// The track browser ("On your FM-1") lists the sixteen places: AISLING's own eight, which stay, and the pack's eight,
+// which are the player's to change. A piece removed or added there is a change waiting (S.mix); putting it on the
+// FM-1 makes a new pack of the eight in the page (packfile.js: write) and installs it, and the pieces that stay
+// are written back as the player left them, wherever they now sit.
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const PF = globalThis.AislingPackFile, LK = globalThis.AislingLink;
   const S = { packs: [], link: null, hello: null, state: null, dev: null, busy: false, ac: null, node: null, loaded: null, playing: null,
-    wasm: null, edits: {}, pristine: null, level: 2 };
+    wasm: null, edits: {}, pristine: null, level: 2, mix: null, mixOf: "" };
+  const OWN = ["Skellig", "Burren", "Aran", "Carolan", "Blasket", "Samhain", "Connemara", "Tir na nOg"];   // (amb.c's PIECES)
+  const MIX = "My mix";
   const WHY = { 2: "The FM-1 refused it: this pack needs a newer AISLING than the FM-1 has.", 3: "It arrived damaged. Try again.",
     5: "There is no pack on the FM-1." };
   const STOP = "Press PLAY on the FM-1 to stop it, and let the sound die away.";
@@ -30,12 +36,12 @@
   /* ---------- the packs ---------- */
   function fromSite(j) {                             // index.json's: its words, its icons, its bytes
     const bytes = unb64(j.data);
-    return Object.assign({}, j, { bytes, key: keyOf(j.name, j.version, bytes), mine: false });
+    return Object.assign({}, j, { bytes, key: keyOf(j.name, j.version, bytes), mine: false, raws: PF.read(bytes, { level: 255 }).pieces.map((pc) => pc.raw) });
   }
   function fromBytes(bytes, info) {                  // a file's, or one read off an FM-1: what its bytes say
     const key = keyOf(info.name, info.version, bytes);
     return { id: `mine-${LK.sum(bytes).toString(36)}`, name: info.name, version: info.version, level: info.level, needs: "", bytes, key, mine: true,
-      about: "Added to this browser from a file or an FM-1.",
+      raws: info.pieces.map((pc) => pc.raw), about: "Added to this browser from a file or an FM-1.",
       pieces: info.pieces.map((pc) => Object.assign({ icon: "", about: pc.air ? "With an air of its own." : "" }, pc)) };
   }
   function shelve() { return store.set(SHELF, S.packs.filter((p) => p.mine).map((p) => b64(p.bytes))); }
@@ -72,6 +78,80 @@
     const e = savedFor(d.key);
     return `${d.name}, version ${d.version}, is on it: ${what}.${where}${e ? ` Its pieces as you left them on ${day(e.saved)} are kept in this browser.` : ""}`;
   }
+  /* ---------- the track browser: the sixteen places ---------- */
+  const emptyPlace = () => ({ raw: PF.empty(), name: "", from: -1, level: 1 });
+  const devKey = () => S.dev ? S.dev.key : "";
+  function onDevice() {                              // the pack's eight as the FM-1 has them: null if it has one unread
+    if (!S.hello) return null;
+    if (!S.hello.pack) return Array.from({ length: 8 }, emptyPlace);
+    if (!S.dev) return null;
+    return S.dev.pieces.map((pc, i) => PF.isEmpty(pc.raw) ? emptyPlace() : Object.assign({}, pc, { from: i, level: S.dev.level }));
+  }
+  function places() {                                // what the list shows: the change waiting, or the FM-1 as it is
+    if (S.mix && S.mixOf !== devKey()) S.mix = null; // (the FM-1's pack changed under it: nothing to change any more)
+    return S.mix || onDevice();
+  }
+  const sameRaw = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+  function settle(mix) {                             // a change that comes to no change is none
+    const base = onDevice();
+    S.mix = mix.every((e, i) => e.from === base[i].from && sameRaw(e.raw, base[i].raw)) ? null : mix;
+    S.mixOf = devKey();
+    render();
+  }
+  function removePlace(i) {
+    const now = places();
+    if (!now || S.busy) return;
+    const mix = now.slice();
+    mix[i] = emptyPlace();
+    $("mix-note").textContent = "";
+    settle(mix);
+  }
+  function addPiece(p, i) {                          // piece i of pack p into the first free place
+    const now = places();
+    if (!now || S.busy) return;
+    const k = now.findIndex((e) => PF.isEmpty(e.raw));
+    if (k < 0) { say(p, "All eight of the pack's places on the FM-1 are taken: remove a piece in the list at the top first."); return; }
+    const raw = p.raws[i], base = onDevice();
+    // one the FM-1 has already, taken out a moment ago: the same piece, so it keeps what the player made of it
+    const from = base.findIndex((e, j) => e.from >= 0 && sameRaw(e.raw, raw) && !now.some((n) => n.from === j));
+    const mix = now.slice();
+    mix[k] = Object.assign({}, p.pieces[i], { raw, from, level: p.level });
+    say(p, `${p.pieces[i].name} is in place ${9 + k} of the list at the top. "Put these on the FM-1" there makes it so.`);
+    $("mix-note").textContent = "";
+    settle(mix);
+  }
+  function renderPlaces() {
+    const now = places(), base = onDevice(), list = $("fm1-rows");
+    $("fm1-tracks").hidden = !now;
+    if (!now) return;
+    const rows = OWN.map((name, i) => {
+      const li = el("li", "pk-row own");
+      li.append(el("span", "pk-n", String(i + 1)), el("span", "pk-rname", name), el("span", "pk-rmeta", "AISLING's own"));
+      return li;
+    });
+    now.forEach((e, i) => {
+      const none = PF.isEmpty(e.raw), changed = e.from !== base[i].from || !sameRaw(e.raw, base[i].raw);
+      const li = el("li", `pk-row${none ? " none" : ""}${changed ? " changed" : ""}`);
+      li.append(el("span", "pk-n", String(9 + i)), el("span", "pk-rname", none ? "Empty" : e.name));
+      const was = changed && !PF.isEmpty(base[i].raw) ? base[i].name : "";
+      li.append(el("span", "pk-rmeta", none ? (was ? `${was} removed` : "add a piece from a pack below")
+        : `${e.key} ${e.mode} · ${e.tempo} bpm${changed ? (e.from >= 0 ? " · moved" : " · new") : ""}`));
+      if (!none) {
+        const b = el("button", "btn pk-rm", "Remove");
+        b.setAttribute("aria-label", `Remove ${e.name}`);
+        b.disabled = S.busy;
+        b.onclick = () => removePlace(i);
+        li.append(b);
+      }
+      rows.push(li);
+    });
+    list.replaceChildren(...rows);
+    $("mix-go").hidden = $("mix-undo").hidden = !S.mix;
+    $("mix-go").disabled = $("mix-undo").disabled = S.busy;
+    const n = S.mix ? S.mix.filter((e, i) => e.from !== base[i].from || !sameRaw(e.raw, base[i].raw)).length : 0;
+    $("mix-what").textContent = S.mix ? `${n === 1 ? "One place is" : `${n} places are`} changed here, and not yet on the FM-1.`
+      : "The first eight are AISLING's own and stay. The other eight are the pack's, and yours to change: remove one here, add one from any pack below.";
+  }
   function render() {
     const h = S.hello, d = S.dev, on = !!(S.link && h);
     $("dev").textContent = devText();
@@ -88,13 +168,21 @@
       $("fm1-load").disabled = S.busy;
       $("fm1-copy").hidden = !(d && !d.pack);
       $("fm1-copy").disabled = S.busy;
+      renderPlaces();
     }
+    const now = on ? places() : null, free = !!now && now.some((e) => PF.isEmpty(e.raw));
     for (const p of S.packs) {
       const here = d && d.key === p.key, old = h && h.level < p.level;
       p.ui.install.disabled = !S.link || S.busy || old;
       p.ui.install.textContent = here ? "Install again" : d && d.name === p.name ? "Put this version on the FM-1" : "Install on the FM-1";
       p.ui.tag.textContent = here ? "On your FM-1" : p.mine ? "Yours" : "";
       p.ui.tag.hidden = !p.ui.tag.textContent;
+      for (const [i, b] of p.ui.adds.entries()) {
+        const there = !!now && now.some((e) => sameRaw(e.raw, p.raws[i]));
+        b.hidden = !now;
+        b.disabled = S.busy || old || there || !free;
+        b.textContent = there ? (S.mix ? "In the list above" : "On your FM-1") : free ? "Add to my FM-1" : "No free place";
+      }
       for (const [i, b] of p.ui.plays.entries()) {
         const mine = S.playing && S.playing.pack === p && S.playing.i === i;
         b.setAttribute("aria-pressed", mine ? "true" : "false");
@@ -137,7 +225,7 @@
       const info = PF.read(bytes, { level: 255 });
       if (!info.why) {
         const key = keyOf(info.name, info.version, bytes);
-        S.dev = { bytes, key, name: info.name, version: info.version, pack: S.packs.find((p) => p.key === key) || null };
+        S.dev = { bytes, key, name: info.name, version: info.version, level: info.level, pieces: info.pieces, pack: S.packs.find((p) => p.key === key) || null };
       }
     }
     render();
@@ -192,13 +280,14 @@
   }
   // before the pack on the FM-1 changes or goes: its pieces kept here, unless they are still as the pack made them.
   // "kept", "same" (nothing of the player's to keep), "none" (no pack), or "failed"
-  async function keep(tell, what, always) {
+  async function keep(tell, what, always, got) {
     if (!S.link || !S.hello || !S.hello.pack) return "none";
     if (!S.dev) await look();                        // (not named yet: read it first, or its pieces have no home)
     if (!S.dev) return "failed";
     if (!await stopped(tell, what)) return "failed";
     const slots = await readPieces();
     if (!slots) return "failed";
+    if (got) got.slots = slots;
     const now = settings(slots);
     if (!always && S.pristine && S.pristine.key === S.dev.key && same(unb64(S.pristine.pars), now)) return "same";
     const list = S.edits[S.dev.key] || [];
@@ -271,6 +360,62 @@
       : "Nothing was changed: the FM-1 wasn't still, or stopped answering.");
     await refresh();
   }
+  // the change waiting, made so: a pack of the eight built here and installed, then the pieces that stay written back
+  // as the player left them (a pack going on sets its bank to its recipes: project.c's pack_install)
+  async function mixGo() {
+    const mix = S.mix, tell = (t) => { $("mix-note").textContent = t; };
+    if (!S.link || S.busy || !mix) return;
+    if (mix.every((e) => PF.isEmpty(e.raw))) {       // nothing left in it: that is the pack taken off
+      S.mix = null;
+      tell("");
+      if (S.hello.pack) await takeOff(); else render();
+      return;
+    }
+    const whole = S.packs.find((p) => p.raws.every((r, i) => sameRaw(r, mix[i].raw)));   // (a pack as it is made: itself)
+    const bytes = whole ? whole.bytes : PF.write({ name: MIX, version: 1, level: mix.reduce((m, e) => Math.max(m, e.level), 1), pieces: mix.map((e) => e.raw) });
+    if (typeof bytes === "string") { tell(bytes); return; }
+    S.busy = true;
+    render();
+    const got = {}, was = S.hello.pack ? S.hello.pack.name : "";
+    const k = await keep(tell, "Before changing the pack", false, got);
+    if (k === "failed" && !confirm(`The pieces of ${was} as you left them couldn't be read off the FM-1. Change the pack anyway? What you made of them would be lost.`)) {
+      S.busy = false;
+      tell("Nothing was changed.");
+      render();
+      return;
+    }
+    if (k !== "failed" && k !== "none" && !got.slots) got.slots = await readPieces();
+    tell("Sending the eight to the FM-1.");
+    const s = await atRest(tell, "Changing the pack", () => S.link.install(bytes));
+    if (s !== 0) {
+      tell(s === 4 ? "The FM-1 never came to rest, so nothing was changed. Stop it and try again." : WHY[s] || "The FM-1 stopped answering, so nothing was changed.");
+      await refresh();
+      S.busy = false;
+      render();
+      return;
+    }
+    S.mix = null;
+    await refresh();
+    const fresh = S.dev && await readPieces();       // the eight as the pack made them: to tell changes by, from here on
+    S.pristine = fresh ? { key: S.dev.key, pars: b64(settings(fresh)) } : null;
+    store.set(PRISTINE, S.pristine);
+    const stay = mix.map((e, i) => [i, e.from]).filter(([i, j]) => j >= 0 && got.slots && fresh && !same(got.slots[j], fresh[i]));
+    let ok = !!fresh || !got.slots;
+    if (stay.length && await S.link.bank(1) === 0) {
+      for (const [i, j] of stay) ok = ok && await S.link.write(1 + i, got.slots[j]) === 0;
+      if (ok) S.link.post({ type: "save" });
+      await S.link.bank(0);
+    } else if (stay.length) ok = false;
+    const n = mix.filter((e) => !PF.isEmpty(e.raw)).length, name = S.dev ? S.dev.name : MIX;
+    tell(`Done: ${name} is on the FM-1, with ${n === 8 ? "all eight places" : `${n} of its eight places`} filled. Turn PRESET past the eighth piece to play it.`
+      + (!ok ? " The pieces that stayed could not all be written back as you left them: they are as their pack made them. What you had made of them is kept in this browser all the same."
+        : stay.length ? " The pieces that stayed are as you left them." : ""));
+    await refresh();
+    S.busy = false;
+    render();
+  }
+  function mixUndo() { S.mix = null; $("mix-note").textContent = ""; render(); }
+
   async function act(fn) {                           // one thing at a time on the wire
     if (!S.link || S.busy) return;
     S.busy = true;
@@ -382,7 +527,7 @@
     h.append(" ", tag);
     const acts = el("div", "pk-acts"), list = el("ul", "pk-list");
     p.ui = { sec, tag, install: el("button", "btn go", "Install on the FM-1"), file: el("button", "btn", "Download the pack"),
-      note: el("p", "lab pk-note"), plays: [] };
+      note: el("p", "lab pk-note"), plays: [], adds: [] };
     p.ui.note.setAttribute("role", "status");
     p.ui.install.onclick = () => install(p);
     p.ui.file.onclick = () => download(`${fileName(p.name)}-v${p.version}.aispack`, p.bytes, "application/octet-stream");
@@ -407,6 +552,12 @@
       li.append(b, ico, el("h3", null, pc.name),
         el("p", "pk-meta", `${(p.sides || ["Light", "Dark"])[pc.side === "saint" ? 0 : 1]} · ${pc.key} ${pc.mode} · ${pc.tempo} bpm`));
       if (pc.about) li.append(el("p", "pk-what", pc.about));
+      const plus = el("button", "btn pk-addp", "Add to my FM-1");
+      plus.hidden = true;
+      plus.setAttribute("aria-label", `Add ${pc.name} to my FM-1`);
+      plus.onclick = () => addPiece(p, i);
+      p.ui.adds.push(plus);
+      li.append(plus);
       list.append(li);
     });
     sec.append(h, el("p", "pk-about", `${p.about} Version ${p.version}.`), acts, p.ui.note, list);
@@ -479,6 +630,8 @@
     $("fm1-back").onclick = backNow;
     $("fm1-file").onclick = toFile;
     $("fm1-copy").onclick = copyOff;
+    $("mix-go").onclick = mixGo;
+    $("mix-undo").onclick = mixUndo;
     $("fm1-load").onclick = () => $("fm1-load-file").click();
     $("fm1-load-file").onchange = (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) fromFile(f); };
     $("add").onclick = () => $("add-file").click();

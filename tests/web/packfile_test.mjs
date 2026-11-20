@@ -52,5 +52,31 @@ const named = r.name === "Saints & Sinners" && r.pieces.length === 8 && r.pieces
   r.pieces[1].tempo === 160 && r.pieces[1].key === "A" && r.pieces[1].mode === "Dorian" && r.pieces[0].side === "saint";
 console.log(`${named ? "  ok  " : "FAIL  "}the pack's words read from its bytes`);
 bad += !named;
+// a pack put together in the page (write): the firmware must take it, and the pieces must come back as they went in
+const PF = AislingPackFile, raws = r.pieces.map((p) => p.raw);
+const fw = (bytes) => { const f = path.join(out, "pk_case.aispack"); fs.writeFileSync(f, bytes); return +execFileSync(path.join(out, "pk_check_main"), [f], { encoding: "utf8" }); };
+const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+const say = (name, ok) => { console.log(`${ok ? "  ok  " : "FAIL  "}${name}`); bad += !ok; };
+const again = PF.write({ name: "Saints & Sinners", version: r.version, level: r.level, pieces: raws });
+say("the pack's own pieces written again are the pack, byte for byte", typeof again !== "string" && eq(again, good));
+const mixed = PF.write({ name: "My mix", level: 2, pieces: [raws[3], PF.empty(), raws[0], PF.empty(), PF.empty(), raws[7], PF.empty(), PF.empty()] });
+const back = typeof mixed === "string" ? null : PF.read(mixed);
+say("a mix with empty places: the firmware takes it", !!back && fw(mixed) === 0 && back.why === 0);
+say("its pieces are where they were put, the empty ones known", !!back && back.name === "My mix" && back.pieces[0].name === r.pieces[3].name && eq(back.pieces[5].raw, raws[7]) &&
+  PF.isEmpty(back.pieces[1].raw) && !PF.isEmpty(back.pieces[0].raw));
+say("seven pieces refused", typeof PF.write({ name: "x", pieces: raws.slice(1) }) === "string");
+say("a name too long refused", typeof PF.write({ name: "twenty characters xx", pieces: raws }) === "string");
+const fat = new Uint8Array(16 + 4 + 3 * 255); fat.set(raws[0].subarray(0, 16)); fat[18] = 255;
+say("too big refused", typeof PF.write({ name: "Big", pieces: Array.from({ length: 8 }, () => fat) }) === "string");
+const at = (() => { const p = Array.from({ length: 8 }, () => PF.empty()); p[0] = fat.slice(); p[1] = fat.slice(); p[2] = fat.slice(); p[3] = fat.slice();
+  const b = PF.write({ name: "Mark", pieces: p }); return b; })();
+say("a big mix still reads through", typeof at !== "string" ? fw(at) === 0 : true);
+const mid = new Uint8Array(16 + 4 + 3 * 140); mid.set(raws[0].subarray(0, 16)); mid[18] = 140;
+const five = (m) => PF.write({ name: "Mark", pieces: [fat, fat, fat, fat, m, PF.empty(), PF.empty(), PF.empty()] });
+const o = 0xE06 - 32 - 4 * fat.length, hit = mid.slice();   // (the fifth piece lies over 0xE06: a value's high byte, then a parameter)
+hit[o] = 0x41; hit[o + 1] = 0x54;
+const clean = five(mid), marked = five(hit);
+say("a mix that passes 0xE06 clean is taken", typeof clean !== "string" && clean.length > 0xE08 && fw(clean) === 0);
+say("the update loader's mark at 0xE06 refused", typeof marked === "string" && /order/.test(marked));
 console.log(bad ? `packfile: ${bad} FAILED` : "packfile: passed");
 process.exit(bad ? 1 : 0);

@@ -5,7 +5,11 @@
 //
 //   const r = AislingPackFile.read(bytes, { level, nparams });
 //   r.why     0 a pack this AISLING can play; 1 not a pack; 2 a newer AISLING's; 3 damaged
-//   r.name, r.version, r.level, r.pieces: [{ name, side: "saint" | "sinner", tempo, key, mode, air }]
+//   r.name, r.version, r.level, r.pieces: [{ name, side: "saint" | "sinner", tempo, key, mode, air, raw }]
+//
+// And the other way, for a pack put together in the page from pieces of others (raw: a piece's own bytes, as read):
+//   const bytes = AislingPackFile.write({ name, version, level, pieces: [raw x 8] });   // or a string: why not
+//   AislingPackFile.empty()   a place with nothing in it: a pack is always eight, so this fills the rest (it is silent)
 (function () {
   "use strict";
   const FORMAT = 1, NPIECES = 8, HEAD = 32, NAME = 20, PNAME = 16, MAX = 3840;
@@ -58,10 +62,39 @@
         if (id in val) val[id] = i16(b, p.pairs + 3 * k + 1);
       }
       out.pieces.push({ name: text(b, p.name, PNAME), side: p.flags & 1 ? "saint" : "sinner", tempo: val[P_TEMPO],
-        key: KEYS[val[P_ROOT]] || "?", mode: MODES[val[P_MODE]] || "?", air: p.airN });
+        key: KEYS[val[P_ROOT]] || "?", mode: MODES[val[P_MODE]] || "?", air: p.airN, raw: b.slice(p.name, p.end) });
     }
     return p.end === len ? out : bad(3);
   }
 
-  globalThis.AislingPackFile = { read, WHY, MAX };
+  // a pack from eight pieces' bytes: checked as any other is before it is given back
+  function write(src) {
+    const name = String(src.name || ""), pcs = src.pieces || [];
+    if (!name || name.length >= NAME || /[^\x20-\x7e]/.test(name)) return `A pack's name is 1 to ${NAME - 1} plain characters.`;
+    if (pcs.length !== NPIECES) return `A pack has ${NPIECES} pieces.`;
+    const len = HEAD + pcs.reduce((n, r) => n + r.length, 0);
+    if (len > MAX) return `These pieces come to ${len} bytes, and the FM-1 has room for ${MAX}: take one out, or swap one for a smaller.`;
+    const b = new Uint8Array(len), level = src.level || 1, version = src.version || 1;
+    b.set([0x41, 0x50, 0x4B, 0x31, FORMAT, level, NPIECES, 0, len & 255, len >> 8, version & 255, version >> 8 & 255]);
+    for (let i = 0; i < name.length; i++) b[12 + i] = name.charCodeAt(i);
+    let o = HEAD;
+    for (const r of pcs) { b.set(r, o); o += r.length; }
+    // (tools/make_pack.py has why: bytes 0xE06..0xE07 must never read as the update loader's mark)
+    if (len > 0xE08 && b[0xE06] === 0x41 && b[0xE07] === 0x54) return "These pieces can't be stored in this order: take the last one out and put another in its place.";
+    const r = read(b, { level: 255 });
+    return r.why ? r.reason : b;
+  }
+  // nothing in this place: every voice, the atmosphere and the cloud at none (the noise is none unless asked for)
+  const EMPTY_NAME = "Empty";
+  function empty() {
+    const off = [0, 1, 2, 3, 29, 32], r = new Uint8Array(PNAME + 4 + 3 * off.length);
+    for (let i = 0; i < EMPTY_NAME.length; i++) r[i] = EMPTY_NAME.charCodeAt(i);
+    r[PNAME + 2] = off.length;
+    off.forEach((id, k) => { r[PNAME + 4 + 3 * k] = id; });
+    return r;
+  }
+  const same = (a, c) => a.length === c.length && a.every((v, i) => v === c[i]);
+  const isEmpty = (raw) => same(raw, empty());
+
+  globalThis.AislingPackFile = { read, write, empty, isEmpty, WHY, MAX };
 })();
