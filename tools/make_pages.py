@@ -591,7 +591,8 @@ __PARTS__
 <a href="https://github.com/FartyPants/fm1-nachtfahrt">NACHTFAHRT</a> by FartyPants, by way of
 <a href="https://github.com/sbegueria/fm1-dub">DUB-1</a> and <a href="https://github.com/charlesvestal/fm1-amb">AMB-1</a>;
 GPL-3.0. Each part's page has the rest. M-VAVE, FM-1 and SMK-37 are trademarks of their owners; AISLING is not
-affiliated with M-VAVE.</p>
+affiliated with M-VAVE.
+<a href="https://stats.stephen8n.com/" rel="nofollow" style="color:inherit;opacity:.45;text-decoration:none">stats</a></p>
 </div>
 </main>
 </body>
