@@ -18,6 +18,7 @@ const char* const AislingProcessor::LAYER_NAME[NL] = { "Drone", "Sequence", "Lea
 namespace
 {
 std::atomic<AislingProcessor*> theOwner { nullptr };
+std::atomic<juce::uint32> ownerSeen { 0 };       // when the owner last rendered (ms)
 uint8_t plain[AislingProcessor::NL][AislingProcessor::NF];
 std::once_flag once;
 const float ENGINE_RATE = 44100.0f;
@@ -58,7 +59,7 @@ AislingProcessor::AislingProcessor()
       apvts (*this, nullptr, "AISLING", (std::call_once (once, [] { ag_init(); ag_defaults (plain); }), layout()))
 {
     AislingProcessor* none = nullptr;
-    isOwner = theOwner.compare_exchange_strong (none, this);
+    theOwner.compare_exchange_strong (none, this);
     for (int l = 0; l < NL; ++l)
     {
         rawOn[l] = apvts.getRawParameterValue (onId (l));
@@ -79,6 +80,8 @@ AislingProcessor::~AislingProcessor()
     AislingProcessor* me = this;
     theOwner.compare_exchange_strong (me, nullptr);
 }
+
+bool AislingProcessor::owner() const { return theOwner.load() == this; }
 
 bool AislingProcessor::isBusesLayoutSupported (const BusesLayout& l) const
 {
@@ -156,7 +159,20 @@ void AislingProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     juce::ScopedNoDenormals noDenormals;
     const int n = buffer.getNumSamples();
     buffer.clear();
-    if (! isOwner || buffer.getNumChannels() < 2)
+    // The engine is one a process. It goes to the AISLING that is rendering: one a host keeps but no longer runs (a
+    // removed device held for undo) gives it up after half a second, and a second one beside a running first stays silent.
+    const juce::uint32 nowMs = juce::Time::getMillisecondCounter();
+    AislingProcessor* was = theOwner.load();
+    if (was != this && (was == nullptr || nowMs - ownerSeen.load() > 500u) && theOwner.compare_exchange_strong (was, this))
+    {
+        loadPending = true, sentValid = false, muteSent = handSent = skipSent = -1, tempoSent = 0;
+        wasPlaying = freeOn = extClock = false;
+        for (int& v : voiceSent)
+            v = -1;
+    }
+    if (theOwner.load() == this)
+        ownerSeen = nowMs;
+    if (theOwner.load() != this || buffer.getNumChannels() < 2)
         return;
 
     const int skip = rawSkip->load() > 0.5f;

@@ -316,12 +316,21 @@ AislingEditor::AislingEditor (AislingProcessor& p)
         say ("Copied: the \"patch\" block for packs/NAME.json.");
     };
     refresh();
-    if (! proc.owner())
-        say ("Another AISLING is open in this set: only the first one plays. Remove this one.");
+    startTimer (700);
     setSize (940, 676);
 }
 
 AislingEditor::~AislingEditor() { setLookAndFeel (nullptr); }
+
+void AislingEditor::timerCallback()                 // (told while it lasts, and gone when this one has the engine)
+{
+    const bool now = ! proc.owner();
+    if (now)
+        say ("Another AISLING is playing in this set: only one can. Remove the other, or this one.");
+    else if (second)
+        say ({});
+    second = now;
+}
 
 void AislingEditor::say (const juce::String& s) { status.setText (s, juce::dontSendNotification); }
 

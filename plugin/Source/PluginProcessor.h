@@ -46,7 +46,7 @@ public:
     void setStateInformation (const void*, int) override;
 
     // The message thread's.
-    bool owner() const { return isOwner; }             // the engine is one a process: the first AISLING has it
+    bool owner() const;                                 // the engine is one a process: the AISLING rendering has it
     juce::String loadPack (const juce::File&);          // "" or why not
     void useOwn();                                      // AISLING's own eight pieces
     void setPiece (int i, bool takeItsPatches);
@@ -70,7 +70,6 @@ private:
     juce::MidiBuffer keyMidi;
     juce::String setPackBytes (const uint8_t* b, int len);
 
-    bool isOwner = false;
     std::atomic<float>* raw[NL][NF] {};
     std::atomic<float>* rawOn[NL] {};
     std::atomic<float>* rawSolo = nullptr, *rawMidi = nullptr, *rawOwnNotes = nullptr, *rawRun = nullptr, *rawSkip = nullptr;

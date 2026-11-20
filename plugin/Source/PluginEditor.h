@@ -31,7 +31,7 @@ private:
     juce::Typeface::Ptr monoFace, displayFace;
 };
 
-class AislingEditor : public juce::AudioProcessorEditor
+class AislingEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
     explicit AislingEditor (AislingProcessor&);
@@ -55,6 +55,8 @@ private:
         std::vector<std::unique_ptr<APVTS::ComboBoxAttachment>> cAtt;
     };
     void refresh();
+    void timerCallback() override;
+    bool second = false;
     void say (const juce::String&);
     juce::Rectangle<int> bench() const;
 
