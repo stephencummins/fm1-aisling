@@ -1,12 +1,41 @@
 // SPDX-License-Identifier: GPL-3.0-only
+// The panel, in the site's manner (web/brand/site.css): vellum, iron-gall ink, the card's green, rust for what is on;
+// the bit-art wall down the margins, one bar, a hairline box with a header strip, lowercase mono controls, square corners.
 #pragma once
 
 #include "PluginProcessor.h"
+
+class AislingLook : public juce::LookAndFeel_V4
+{
+public:
+    AislingLook();
+    juce::Font mono (float h) const;
+    juce::Font display (float h, float track = 0.06f) const;
+
+    void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
+    juce::Font getTextButtonFont (juce::TextButton&, int) override { return mono (12.5f); }
+    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool, bool) override;
+    void drawComboBox (juce::Graphics&, int, int, bool, int, int, int, int, juce::ComboBox&) override;
+    juce::Font getComboBoxFont (juce::ComboBox&) override { return mono (12.5f); }
+    void positionComboBoxText (juce::ComboBox&, juce::Label&) override;
+    juce::Font getPopupMenuFont() override { return mono (12.5f); }
+    void drawPopupMenuBackground (juce::Graphics&, int, int) override;
+    juce::Font getLabelFont (juce::Label& l) override { return l.getProperties().contains ("display") ? display (18.0f, 0.04f) : mono (12.5f); }
+    void drawLinearSlider (juce::Graphics&, int, int, int, int, float, float, float, juce::Slider::SliderStyle, juce::Slider&) override;
+    int getTabButtonBestWidth (juce::TabBarButton&, int) override;
+    void drawTabButton (juce::TabBarButton&, juce::Graphics&, bool, bool) override;
+    void drawTabAreaBehindFrontButton (juce::TabbedButtonBar&, juce::Graphics&, int, int) override {}
+    void drawTabbedButtonBarBackground (juce::TabbedButtonBar&, juce::Graphics&) override {}
+
+private:
+    juce::Typeface::Ptr monoFace, displayFace;
+};
 
 class AislingEditor : public juce::AudioProcessorEditor
 {
 public:
     explicit AislingEditor (AislingProcessor&);
+    ~AislingEditor() override;
     void paint (juce::Graphics&) override;
     void resized() override;
 
@@ -18,7 +47,7 @@ private:
         void resized() override;
         juce::ToggleButton on;
         juce::OwnedArray<juce::Label> labels;
-        juce::OwnedArray<juce::Slider> sliders;         // (null where the field is a shape)
+        juce::OwnedArray<juce::Slider> sliders;
         juce::OwnedArray<juce::ComboBox> combos;
         std::vector<juce::Component*> controls;
         std::unique_ptr<APVTS::ButtonAttachment> onAtt;
@@ -27,12 +56,15 @@ private:
     };
     void refresh();
     void say (const juce::String&);
+    juce::Rectangle<int> bench() const;
 
     AislingProcessor& proc;
-    juce::TextButton load { "Load a pack..." }, own { "AISLING's own" }, save { "Save into the pack..." }, copy { "Copy as JSON" };
-    juce::Label packLabel, status, soloL { {}, "Solo" }, midiL { {}, "Notes play" };
+    AislingLook look;
+    juce::Image wall;
+    juce::TextButton load { "load a pack..." }, own { "aisling's own" }, save { "save into the pack..." }, copy { "copy as json" };
+    juce::Label packLabel, status, soloL { {}, "solo" }, midiL { {}, "notes play" };
     juce::ComboBox piece, solo, midi;
-    juce::ToggleButton ownNotes { "The piece plays its own Sequence notes" }, run { "Play while the host is stopped" }, skip { "Skip the intros" };
+    juce::ToggleButton ownNotes { "the piece plays its own sequence notes" }, run { "play while the host is stopped" }, skip { "skip the intros" };
     juce::TabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
     std::unique_ptr<APVTS::ComboBoxAttachment> soloAtt, midiAtt;
     std::unique_ptr<APVTS::ButtonAttachment> ownAtt, runAtt, skipAtt;

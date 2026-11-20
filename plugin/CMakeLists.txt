@@ -49,6 +49,12 @@ juce_add_plugin(Aisling
     VST3_CATEGORIES Instrument Synth
     AU_MAIN_TYPE kAudioUnitType_MusicDevice)
 
+# The site's two faces (web/brand/fonts, as TrueType: JUCE reads no woff2), both under the Open Font License.
+juce_add_binary_data(AislingAssets SOURCES
+    Assets/BarlowSemiCondensed-SemiBold.ttf
+    Assets/IBMPlexMono-Regular.ttf)
+set_target_properties(AislingAssets PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 target_sources(Aisling PRIVATE Source/PluginProcessor.cpp Source/PluginEditor.cpp)
 target_compile_definitions(Aisling PUBLIC
     JUCE_WEB_BROWSER=0
@@ -57,6 +63,7 @@ target_compile_definitions(Aisling PUBLIC
     JUCE_DISPLAY_SPLASH_SCREEN=0)
 target_link_libraries(Aisling PRIVATE
     aisling_engine
+    AislingAssets
     juce::juce_audio_utils
   PUBLIC
     juce::juce_recommended_config_flags
@@ -68,5 +75,5 @@ juce_add_console_app(AislingTest PRODUCT_NAME "AislingTest")
 target_sources(AislingTest PRIVATE test/host_test.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
 target_compile_definitions(AislingTest PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JucePlugin_Name="AISLING"
     JucePlugin_Build_Standalone=1 JUCE_STANDALONE_APPLICATION=1)
-target_link_libraries(AislingTest PRIVATE aisling_engine juce::juce_audio_utils juce::juce_recommended_config_flags)
+target_link_libraries(AislingTest PRIVATE aisling_engine AislingAssets juce::juce_audio_utils juce::juce_recommended_config_flags)
 set_target_properties(AislingTest PROPERTIES EXCLUDE_FROM_ALL TRUE)
