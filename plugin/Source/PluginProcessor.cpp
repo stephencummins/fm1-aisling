@@ -255,6 +255,17 @@ void AislingProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     float* l = buffer.getWritePointer (0);
     float* r = buffer.getWritePointer (1);
     int at = 0;
+    keyMidi.clear();                                    // the panel's keys: at the block's start, on the page's layer
+    keys.processNextMidiBuffer (keyMidi, 0, n, true);
+    const int kl = keysLayer.load();
+    for (const auto meta : keyMidi)
+    {
+        const auto m = meta.getMessage();
+        if (m.isNoteOn() && kl >= 1 && kl <= 3)
+            ag_note (kl, m.getNoteNumber(), juce::jlimit (1, 127, (int) m.getVelocity()));
+        else if (m.isNoteOff())                         // (only the Lead holds a note; letting go one it hasn't is nothing)
+            ag_note (2, m.getNoteNumber(), 0);
+    }
     for (const auto meta : midi)
     {
         const auto m = meta.getMessage();

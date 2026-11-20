@@ -35,3 +35,10 @@ first configure (`-DFETCHCONTENT_SOURCE_DIR_JUCE=DIR` uses a copy you have).
 
 `plugin/test/host_test.cpp` runs the plugin under a made-up transport. Against `en_render` at the same tempo the
 output lines up to the frame at 44.1 kHz and stays there.
+
+## The keys
+
+The row of keys under the pages plays the layer whose page is open (Lead, Sequence, Sequence 2), so a sound can be
+heard on demand. With the host stopped and "play while the host is stopped" off, the note is heard alone. The Drone has
+no keys: it holds the piece's chord. Sequence 2 is silent in a piece that has none (Skellig, for one).
+`AislingTest ... keys=LAYER stopped` tests it without a host.

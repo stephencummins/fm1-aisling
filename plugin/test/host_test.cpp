@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // The plugin without a host: a made-up transport, the output to a WAV (tools check the timing), a pack saved.
-//   AislingTest PACK RATE SECS OUT.wav [solo=N] [bpm=N] [loop=BEATS] [notes=LAYER] [stopped] [save=FILE] [set=ID:V,..] [shot=FILE.png]
+//   AislingTest PACK RATE SECS OUT.wav [solo=N] [bpm=N] [loop=BEATS] [notes=LAYER] [keys=LAYER] [stopped] [save=FILE] [set=ID:V,..] [shot=FILE.png]
 #include "../Source/PluginProcessor.h"
 
 struct Head : juce::AudioPlayHead
@@ -27,7 +27,7 @@ int main (int argc, char** argv)
     AislingProcessor p;
     Head head;
     double loop = 0.0;
-    int notes = -1;
+    int notes = -1, keys = -1;
     juce::String saveTo, shot;
     if (juce::String (argv[1]) != "-")
     {
@@ -53,6 +53,7 @@ int main (int argc, char** argv)
         else if (a.startsWith ("loop=")) loop = a.substring (5).getDoubleValue();
         else if (a.startsWith ("notes=")) { notes = a.substring (6).getIntValue(); set ("midi", (float) notes); set ("own", 0.0f); }
         else if (a == "stopped") head.playing = false;
+        else if (a.startsWith ("keys=")) keys = a.substring (5).getIntValue();   // the panel's keys, on layer 1..3
         else if (a.startsWith ("save=")) saveTo = a.substring (5);
         else if (a.startsWith ("shot=")) shot = a.substring (5);
         else if (a.startsWith ("set="))
@@ -73,6 +74,10 @@ int main (int argc, char** argv)
             midi.addEvent (juce::MidiMessage::noteOn (1, 60 + (n / 50) % 12, (juce::uint8) 100), 7);
         if (notes >= 0 && n % 50 == 25)
             midi.addEvent (juce::MidiMessage::noteOff (1, 60 + (n / 50) % 12), 3);
+        if (keys >= 0 && n % 50 == 0)
+            p.keysLayer = keys, p.keys.noteOn (1, 60 + (n / 50) % 12, 0.8f);
+        if (keys >= 0 && n % 50 == 25)
+            p.keys.noteOff (1, 60 + (n / 50) % 12, 0.0f);
         p.processBlock (buf, midi);
         all.copyFrom (0, at, buf, 0, 0, block);
         all.copyFrom (1, at, buf, 1, 0, block);

@@ -65,7 +65,14 @@ private:
     juce::Label packLabel, status, soloL { {}, "solo" }, midiL { {}, "notes play" };
     juce::ComboBox piece, solo, midi;
     juce::ToggleButton ownNotes { "the piece plays its own sequence notes" }, run { "play while the host is stopped" }, skip { "skip the intros" };
-    juce::TabbedComponent tabs { juce::TabbedButtonBar::TabsAtTop };
+    struct Tabs : juce::TabbedComponent
+    {
+        Tabs() : juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop) {}
+        void currentTabChanged (int i, const juce::String&) override { if (onTab) onTab (i); }
+        std::function<void (int)> onTab;
+    } tabs;
+    juce::MidiKeyboardComponent keys;
+    juce::Label keysL;
     std::unique_ptr<APVTS::ComboBoxAttachment> soloAtt, midiAtt;
     std::unique_ptr<APVTS::ButtonAttachment> ownAtt, runAtt, skipAtt;
     std::unique_ptr<juce::FileChooser> chooser;

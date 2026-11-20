@@ -228,8 +228,34 @@ void AislingEditor::LayerPage::resized()
     }
 }
 
-AislingEditor::AislingEditor (AislingProcessor& p) : AudioProcessorEditor (p), proc (p), wall (growWall ("plugin"))
+AislingEditor::AislingEditor (AislingProcessor& p)
+    : AudioProcessorEditor (p), proc (p), wall (growWall ("plugin")), keys (p.keys, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
+    using KB = juce::MidiKeyboardComponent;
+    keys.setAvailableRange (48, 84);                    // three octaves from the C under middle C
+    keys.setKeyWidth (31.4f);
+    keys.setOctaveForMiddleC (4);
+    keys.setColour (KB::whiteNoteColourId, GROUND);
+    keys.setColour (KB::blackNoteColourId, INK);
+    keys.setColour (KB::keySeparatorLineColourId, RULE);
+    keys.setColour (KB::mouseOverKeyOverlayColourId, STRIP);
+    keys.setColour (KB::keyDownOverlayColourId, GREEN);
+    keys.setColour (KB::textLabelColourId, MUTED);
+    keys.setColour (KB::shadowColourId, juce::Colours::transparentBlack);
+    addAndMakeVisible (keys);
+    addAndMakeVisible (keysL);
+    keysL.setColour (juce::Label::textColourId, MUTED);
+    tabs.onTab = [this] (int i) {
+        static const char* const SAY[] = { "the drone holds the piece's chord: it has no keys. solo it and press play",
+                                           "click a key (or type a s d f...) to pluck the sequence. host stopped: the note alone",
+                                           "click a key (or type a s d f...) to play the lead. host stopped: the note alone",
+                                           "click a key to pluck sequence 2 (silent in a piece without one, as skellig). host stopped: the note alone" };
+        proc.keysLayer = i;
+        proc.keys.allNotesOff (0);
+        keys.setEnabled (i != 0);
+        keys.setAlpha (i != 0 ? 1.0f : 0.35f);
+        keysL.setText (SAY[juce::jlimit (0, 3, i)], juce::dontSendNotification);
+    };
     setLookAndFeel (&look);
     for (auto* c : std::initializer_list<juce::Component*> { &load, &own, &save, &copy, &packLabel, &status, &soloL, &midiL, &piece, &solo, &midi, &ownNotes, &run, &skip, &tabs })
         addAndMakeVisible (c);
@@ -292,7 +318,7 @@ AislingEditor::AislingEditor (AislingProcessor& p) : AudioProcessorEditor (p), p
     refresh();
     if (! proc.owner())
         say ("Another AISLING is open in this set: only the first one plays. Remove this one.");
-    setSize (940, 590);
+    setSize (940, 676);
 }
 
 AislingEditor::~AislingEditor() { setLookAndFeel (nullptr); }
@@ -344,6 +370,7 @@ void AislingEditor::paint (juce::Graphics& g)
     g.drawRect (b, 1);
     g.fillRect (b.getX(), b.getY() + HEAD, b.getWidth(), 1);
     g.fillRect (b.getX(), b.getBottom() - 47, b.getWidth(), 1);
+    g.drawRect (keys.getBounds().expanded (1), 1);
 }
 
 void AislingEditor::resized()
@@ -377,6 +404,8 @@ void AislingEditor::resized()
     run.setBounds (row.removeFromLeft (262));
     skip.setBounds (row.removeFromLeft (160));
     area.removeFromTop (8);
-    area.removeFromBottom (4);
+    area.removeFromBottom (10);
+    keys.setBounds (area.removeFromBottom (54).reduced (1, 0));
+    keysL.setBounds (area.removeFromBottom (24));
     tabs.setBounds (area);
 }

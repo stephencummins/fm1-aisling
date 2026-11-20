@@ -57,6 +57,8 @@ public:
     juce::String savePack (const juce::File&);          // "" or why not
     juce::String patchJson() const;                     // the "patch" block for packs/NAME.json
     juce::File packFile;
+    juce::MidiKeyboardState keys;                       // the panel's keys: played on keysLayer
+    std::atomic<int> keysLayer { 2 };
 
     juce::AudioProcessorValueTreeState apvts;
 
@@ -65,6 +67,7 @@ private:
     void patchBytes (uint8_t out[NL][NF]) const;
     void pull (float* l, float* r, int n);
     void produce (float* l, float* r, int n);
+    juce::MidiBuffer keyMidi;
     juce::String setPackBytes (const uint8_t* b, int len);
 
     bool isOwner = false;
