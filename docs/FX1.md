@@ -207,7 +207,8 @@ the same run without it): every control and key above, the saving, and the sleep
 command line (16 Nov 2026): the Mac listed it as a sound output and input, the screen looked right, and the
 computer's sound came out through the effects. The same screen code ran in AISLING 1.4.1 on that FM-1: both screens looked right, and turning Screen while a full piece
 played took the processor to its limit for a moment, with no dropout. In the simulator, FX-1's own tests and
-AISLING's pass on 1.1.
+AISLING's pass on 1.1. It has also gone on a newer FM-1 (the second flash chip, `0xB36014`) over AISLING 1.5 from the
+command line (20 Nov 2026), and works there. Going back to AISLING from FX-1 has not been tried on that chip.
 
 **Not yet:**
 
@@ -217,7 +218,7 @@ AISLING's pass on 1.1.
 - A long session on the FM-1, and more than one kind of computer.
 - The keys' effects on music, by ear, on the FM-1.
 - A save in FX-1 on the FM-1, then AISLING reading it (the source says it takes FX-1's settings as the piece's).
-- A newer FM-1 (the second flash chip), and installing over the stock V15.
+- Installing over the stock V15.
 - Installing from [the install page](https://aisling.stephen8n.com/fx1/install/) (it does what `tools/fm1_install.py`
   does, and is how AISLING is installed).
 
