@@ -509,7 +509,7 @@ const char *en_chord_name(const int *pcs, int n, char *buf)
 
 /* ------------------------------------------------------------ commands --- */
 static float cho_t;                              /* (1.3) the Chorus knob, 0..1 */
-enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT, C_THIN, C_DAY };
+enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT, C_THIN, C_DAY, C_NOTE };
 #define QN 512u                                 /* (a piece is every parameter at once: room for twice over and more) */
 _Static_assert(QN >= 2u * (P_NPARAMS + 8), "the command queue can't hold a piece's parameters twice over");
 static uint32_t q[QN];
@@ -1874,6 +1874,9 @@ static void br_strike(pluck_t *v)
     svf_coefs(v->c1, fm_clampf(3.0f * v->cut * fx_swm, 300.0f, 5000.0f), 1.2f);
 }
 
+#ifdef EN_HOST
+static uint32_t sq_hand;                         /* (the plugin: en_hand) */
+#endif
 static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, panned across from the note */
 {
     int i, best = 0, sv;
@@ -2108,8 +2111,15 @@ static void seq_tick(void)                       /* a sixteenth: the sequences' 
                 vel = q.acc >> st & 1u ? 120 : 120 - 86 * par[P_SACCENT] / 100;   /* the root accented (Accent 50: 77,
                                                                                * as Synth Seeker's 121 and 77); nothing
                                                                                * more (no hidden level: spec 3) */
-                pluck_voice(l, played, vel, 0);
-                roll_n[l] = (int8_t)played, roll_v[l] = (uint8_t)vel;
+#ifdef EN_HOST
+                if (sq_hand >> l & 1u)           /* (the plugin's notes instead: no note, so no repeat of one) */
+                    played = -1;
+                else
+#endif
+                {
+                    pluck_voice(l, played, vel, 0);
+                    roll_n[l] = (int8_t)played, roll_v[l] = (uint8_t)vel;
+                }
             }
             sq_pos[l] = seq_next(&q, st);
             if (fxm >> EN_FX_RETURN & 1u && sq_pos[l] >= 4)   /* (the grid's Return: round its first four steps) */
@@ -2421,6 +2431,10 @@ static void lead_off(void)                       /* the note let go (a grace sou
 }
 void en_lead_key(int d, int on) { post(C_LKEY, d, on); }
 void en_lead_midi(int note, int on) { post(C_LMIDI, note, on); }
+#ifdef EN_HOST
+void en_note(int layer, int note, int vel) { post(C_NOTE, note & 127, (layer & 3) << 8 | (vel & 127)); }
+void en_hand(uint32_t mask) { sq_hand = mask; }
+#endif
 void en_lead_forget(void) { post(C_LFORGET, 0, 0); }
 
 static int ld_deg_raw(int d)                     /* scale degree d (any) as a note, in the Lead's register */
@@ -4786,6 +4800,23 @@ static void drain(void)
             mutes = (uint32_t)a;
             break;
         case C_PERF: perf = (uint32_t)a; break;
+#ifdef EN_HOST
+        case C_NOTE: {
+            const int l = b >> 8 & 3, vel = b & 127;
+            if (l == 2) {
+                if (vel) {                       /* (as a key: its own phrase let go, back two bars after) */
+                    ld_n = 0;
+                    ld_due = 0;
+                    ld_cap &= (uint8_t)~(CP_ANS | CP_NEXT);
+                    ld_key = (int16_t)(LD_MKEY + a);
+                    lead_note(a);
+                } else
+                    lead_release(LD_MKEY + a);
+            } else if (l && vel)
+                pluck_voice(l == 3, a, vel, 0);
+            break;
+        }
+#endif
         case C_DAY:
             if (a < P_NPARAMS && dofs[a] != (int8_t)b) {
                 const int before = pe(a);

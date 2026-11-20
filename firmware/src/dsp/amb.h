@@ -221,6 +221,13 @@ extern const char *const EN_SV_NAME[EN_NS2V];   /* all ten: 2600 .. Glass, Sub, 
 #define EN_PATCH_N 16
 void en_patch(int layer, const uint8_t *p);
 void en_patch_get(int layer, uint8_t *p);
+#ifdef EN_HOST
+/* (the plugin: a computer's notes, as played and not to the scale) a note on a layer (1 the Sequence, 2 the Lead,
+ * 3 Sequence 2; vel 0: let go, the Lead's only), and the Sequences' own notes held back (bit 0 the Sequence's, bit 1
+ * Sequence 2's) while a hand plays them */
+void en_note(int layer, int note, int vel);
+void en_hand(uint32_t mask);
+#endif
 extern volatile uint8_t en_seq_len[2];          /* each sequence's return point as it plays (the performer's moves) */
 extern volatile int8_t en_s2oct_shift;          /* Sequence 2's octave away from its knob's (home): -1, 0, 1 (Motion's,
                                                  * at the section changes; the UI shows the knob as home + it) */
