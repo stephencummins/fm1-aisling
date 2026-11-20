@@ -932,7 +932,8 @@ bootloader or the FM-1's own settings. If the FM-1 never shows up at all, Felucc
 
 FM-1s sold since autumn 2026 carry a different flash chip (a UC25HQ80, ID `0xB36014`). AISLING 0.5.1 and later accept it.
 Earlier versions don't: the FM-1 plays, but SAVE shows **NOT SAVED / FLASH ERROR**, nothing survives switching
-off, and it won't start an update. We have only the first chip, so no AISLING has been tried by us on the newer one.
+off, and it won't start an update. AISLING 1.5 has been tried on one newer FM-1: it plays, and a save was still there
+after switching off and on. Sound packs and the editor have not been tried on that chip.
 
 From M-VAVE's firmware or another that accepts the chip, the [web installer](https://aisling.stephen8n.com/install/)
 works as usual. When it finishes, it names the chip it found: Puya P25Q80 is the first, UCUN UC25HQ80 the newer. From
