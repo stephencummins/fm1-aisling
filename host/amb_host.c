@@ -1184,6 +1184,23 @@ int main(int argc, char **argv)
             if (c[0])
                 dy.t = (uint32_t)((uint64_t)dy.span * strtoul(c, 0, 0) / 1000u), dy.calc = 0;
         }
+        else if (!strcmp(cmd, "par"))            /* (1.6) par N V: a setting by its number, past the knobs */
+            en_set(atoi(a), atoi(b));
+        else if (!strcmp(cmd, "enmute"))         /* (1.6) enmute MASK: EN_M_*'s sum, to hear a layer alone */
+            en_mute((uint32_t)atoi(a));
+        else if (!strcmp(cmd, "patch")) {        /* (1.6) patch L v,v,..: layer L's Patch (the rest its plain one's) */
+            uint8_t pb[EN_PATCH_N];
+            const char *q = b;
+            int k = 0, l = atoi(a);
+            en_patch(l, 0);
+            en_patch_get(l, pb);
+            while (*q && k < EN_PATCH_N) {
+                pb[k++] = (uint8_t)strtol(q, (char **)&q, 10);
+                if (*q == ',')
+                    q++;
+            }
+            en_patch(l, pb);
+        }
         else if (!strcmp(cmd, "setlist"))        /* (1.4) setlist MASK: the pieces left out, a bit each */
             ui.jr_out = (uint8_t)strtoul(a, 0, 0);
         else if (!strcmp(cmd, "midi")) {
