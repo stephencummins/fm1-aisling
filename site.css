@@ -1,0 +1,204 @@
+/* AISLING's site, the part every page shares: the fonts, the wall, the bar along the top, the bench and its parts, the
+   print rule. Written once here and in tools/site_brand.py, in the manner of the gnomes' sites (bit-art down the margins,
+   one bar, a hairline box with a header strip, lowercase mono controls, square corners) in AISLING's own colours: vellum,
+   iron-gall ink, the card's green, rust for what is on. Text reads at 4.5:1 or more. The visualiser has its own copy of
+   all this, because it fetches nothing. */
+@font-face { font-family: "Barlow Semi Condensed"; font-weight: 600; font-display: swap;
+             src: url(fonts/BarlowSemiCondensed-SemiBold.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap;
+             src: url(fonts/IBMPlexMono-Regular.woff2) format("woff2"); }
+:root { --brand-ground: #f3ead7; --brand-strip: #ece2cb; --brand-ink: #2b2219; --brand-muted: #5b4a3a; --brand-rule: #d9ccb1;
+        --brand-soft: #e4d8c0; --brand-green: #146c41; --brand-rust: #8c3510; --brand-bench: 1148px;
+        --brand-bar: 5rem;
+        --brand-display: "Barlow Semi Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        --brand-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; color-scheme: light; }
+body { margin: 0; padding: 0 16px 48px; background: var(--brand-ground); color: var(--brand-ink);
+       font: 400 13.5px/1.6 var(--brand-mono); }
+a { color: var(--brand-ink); text-decoration-color: var(--brand-rule); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--brand-green); text-decoration-color: currentColor; }
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible, pre:focus-visible {
+  outline: 2px solid var(--brand-ink); outline-offset: 2px; }
+
+/* the wall: the page's own bit-art (wall.js), fixed behind everything and masked out of the middle, so it shows only in
+   the margins either side of the bench. A page with a narrower bench sets --brand-bench on its body */
+.wall { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .8s;
+        background-position: center top; background-size: 224px; image-rendering: pixelated;
+        --m: linear-gradient(to right, #000 calc(50% - var(--brand-bench) / 2 - 70px), transparent calc(50% - var(--brand-bench) / 2 - 10px),
+             transparent calc(50% + var(--brand-bench) / 2 + 10px), #000 calc(50% + var(--brand-bench) / 2 + 70px));
+        -webkit-mask-image: var(--m); mask-image: var(--m); }
+.wall.on { opacity: .18; }
+@media (prefers-reduced-motion: reduce) { .wall { transition: none; } }
+
+/* the bar. Its negative margin cancels the body's gutter, so the rule runs edge to edge */
+.sitebar { background: var(--brand-ground); border-bottom: 1px solid var(--brand-rule); margin: 0 -16px; }
+.sitebar-in { box-sizing: border-box; max-width: calc(var(--brand-bench) + 32px); margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap;
+              align-items: center; gap: 2px 20px; }
+.sitebar a { color: var(--brand-ink); }
+.sitebar-home { display: inline-flex; align-items: center; gap: 10px; min-height: 32px; text-decoration: none; }
+.sitebar-mark { display: block; flex: none; box-sizing: content-box; border: 1px solid var(--brand-rule);
+                image-rendering: pixelated; }
+.sitebar-name { font: 600 1.3rem/1 var(--brand-display); letter-spacing: .14em; }
+.sitebar-by { font: 400 .78rem/1 var(--brand-mono); color: var(--brand-green); white-space: nowrap; }
+.sitebar-home:hover .sitebar-name { color: var(--brand-green); }
+/* the switch between the three parts: a hairline box, the page's own part filled green */
+.sitebar-kit { display: flex; border: 1px solid var(--brand-rule); font: 600 .95rem/1 var(--brand-display); letter-spacing: .06em; }
+.sitebar-kit a { padding: 7px 11px 6px; text-decoration: none; white-space: nowrap; }
+.sitebar-kit a + a { border-left: 1px solid var(--brand-rule); }
+.sitebar-kit a:hover { background: var(--brand-strip); color: var(--brand-green); }
+.sitebar-kit a[aria-current] { background: var(--brand-green); color: var(--brand-ground); }
+.sitebar-kit a:focus-visible { outline-offset: -4px; }
+.sitebar-kit a[aria-current]:focus-visible { outline-color: var(--brand-ground); }
+.sitebar-nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: 0 14px; font: 400 .8rem/1 var(--brand-mono); }
+.sitebar-nav a { display: inline-block; padding: 8px 0; text-decoration: underline; text-decoration-thickness: 1px;
+                 text-decoration-color: var(--brand-rule); text-underline-offset: 3px; white-space: nowrap; }
+.sitebar-nav a:hover { text-decoration-color: currentColor; color: var(--brand-green); }
+.sitebar-nav a[aria-current] { color: var(--brand-green); text-decoration: none; }
+/* the store: first on the bar, and a button, so it is seen */
+.sitebar-nav > a[href^="https://store.stephen8n.com"] { align-self: center; padding: 6px 11px 5px; background: var(--brand-green); color: var(--brand-ground);
+                 font: 600 .95rem/1 var(--brand-display); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; }
+.sitebar-nav > a[href^="https://store.stephen8n.com"]:hover { background: var(--brand-ink); color: var(--brand-ground); }
+/* a menu on the bar: a group of the part's pages under one word (site_brand.GROUPS). It opens over the page, so the
+   bar keeps its height; wall.js shuts it on a click elsewhere or Escape */
+.sitebar-group { position: relative; }
+.sitebar-group > summary { display: block; padding: 8px 0; cursor: pointer; white-space: nowrap; list-style: none; user-select: none; -webkit-user-select: none; }
+.sitebar-group > summary::-webkit-details-marker { display: none; }
+.sitebar-group > summary::after { content: ""; display: inline-block; margin-left: 6px; border: 4px solid transparent; border-top-color: currentColor;
+                                  border-bottom-width: 0; vertical-align: middle; opacity: .6; }
+.sitebar-group > summary:hover, .sitebar-group[open] > summary, .sitebar-group.has-now > summary { color: var(--brand-green); }
+.sitebar-group[open] > summary::after { transform: rotate(180deg); }
+.sitebar-menu { position: absolute; top: 100%; left: -13px; z-index: 30; display: flex; flex-direction: column; min-width: 9.5rem; padding: 4px 12px 6px;
+                background: var(--brand-ground); border: 1px solid var(--brand-rule); box-shadow: 3px 3px 0 var(--brand-rule); }
+.sitebar-group:nth-last-child(-n+2) > .sitebar-menu { left: auto; right: -13px; }
+.sitebar-nav .sitebar-menu a { display: block; padding: 7px 0; }
+@media (max-width: 47.99rem) {
+  .sitebar-nav { margin-left: 0; width: 100%; position: relative; }
+  /* a menu hangs from the row's left end, whichever word opened it: no menu runs off a phone's side */
+  .sitebar-group { position: static; }
+  .sitebar-menu, .sitebar-group:nth-last-child(-n+2) > .sitebar-menu { left: 0; right: auto; }
+}
+/* it stays at the top from here up, and a jump to a heading stops clear of it. Its height, --brand-bar, is one row for
+   most parts and two for the FM-1's, which has the most pages (three on a narrow screen): wall.js keeps it exact, and
+   5rem stands in until it has */
+@media (min-width: 48rem) and (min-height: 32rem) {
+  html { scroll-padding-top: calc(var(--brand-bar) + 1.5rem); }
+  .sitebar { position: sticky; top: 0; z-index: 20; }
+}
+
+/* the bench: a hairline box, its header strip, then rows with a hairline between them */
+.bench { box-sizing: border-box; max-width: var(--brand-bench); margin: 20px auto 0; border: 1px solid var(--brand-rule);
+         background: var(--brand-ground); }
+.bench > * + * { border-top: 1px solid var(--brand-rule); }
+.strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+         padding: 8px 14px; background: var(--brand-strip); }
+.lab { margin: 0; font: 400 12.5px/1.55 var(--brand-mono); letter-spacing: .045em; color: var(--brand-muted); }
+.lab b { font-weight: 400; color: var(--brand-ink); }
+/* headings stand clear of the mono text in the display face: a section's, and the one a paragraph or a list item opens on */
+.bh { margin: 0 0 8px; font: 600 17px/1.3 var(--brand-display); letter-spacing: .02em; color: var(--brand-ink); }
+.lead { font: 600 1.18em/1 var(--brand-display); letter-spacing: .01em; color: var(--brand-ink); }
+.pane { min-width: 0; padding: 14px 16px 16px; }
+/* a narrow column and a wide one, or two the same */
+.cols { display: grid; grid-template-columns: 272px minmax(0, 1fr); }
+.side { min-width: 0; border-right: 1px solid var(--brand-rule); }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.two > * + * { border-left: 1px solid var(--brand-rule); }
+/* the controls: lowercase mono, square, hairline; the one to start with filled green. (Only on links and buttons: the
+   emulator's FM-1 has SVG text of this class) */
+a.btn, button.btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 32px;
+       padding: 5px 10px; font: 400 12.5px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: lowercase; color: var(--brand-ink);
+       background: var(--brand-ground); border: 1px solid var(--brand-rule); border-radius: 0; text-decoration: none; cursor: pointer; }
+a.btn:hover, button.btn:hover { color: var(--brand-ink); border-color: var(--brand-ink); }
+a.btn.go, button.btn.go { background: var(--brand-green); border-color: var(--brand-green); color: var(--brand-ground); }
+a.btn.go:hover, button.btn.go:hover { background: #0f5332; border-color: #0f5332; color: var(--brand-ground); }
+button.btn:disabled, button.btn.go:disabled { opacity: .45; cursor: default; }
+@media (max-width: 47.99rem) {
+  .cols, .two { grid-template-columns: minmax(0, 1fr); }
+  .side { border-right: 0; border-bottom: 1px solid var(--brand-rule); }
+  .two > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
+}
+
+/* the magazine parts, for a part's first page and the add-on screen's: a dark cover with the name very large, a bar of
+   jumps, then numbered features (a big outlined numeral, a question, one standing line, a picture, a button), and the
+   long words folded away until asked for */
+.mg-cover { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); background: #1c1610; color: #f3ead7; }
+.mg-words { display: flex; flex-direction: column; justify-content: space-between; gap: 22px; padding: 22px 22px 20px; min-width: 0; }
+.mg-cover h1 { margin: 0; font: 600 clamp(54px, 10.5vw, 136px)/.84 var(--brand-display); letter-spacing: .01em; text-transform: uppercase; }
+.mg-cover h1 span { display: block; color: #e9a23b; }
+.mg-gloss { margin: 12px 0 0; font-size: 12px; letter-spacing: .04em; color: #c9b99a; }
+.mg-deck { margin: 0; font: 600 clamp(19px, 2.1vw, 25px)/1.2 var(--brand-display); letter-spacing: .01em; max-width: 26ch; }
+.mg-pic { display: flex; min-width: 0; }
+.mg-pic img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mg-pic.px img { image-rendering: pixelated; }
+.mg-jump { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--brand-rule); }
+.mg-jump a { display: flex; align-items: baseline; gap: 10px; padding: 12px 16px 11px; background: var(--brand-ground); text-decoration: none;
+             font: 600 clamp(16px, 1.7vw, 20px)/1.1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
+.mg-jump a i { font: 400 12px/1 var(--brand-mono); font-style: normal; color: var(--brand-rust); }
+.mg-jump a:hover { background: var(--brand-strip); }
+.mg-feat { padding: 26px 22px 28px; }
+.mg-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; column-gap: 22px; margin: 0 0 22px; }
+.mg-num { font: 600 clamp(84px, 13vw, 168px)/.74 var(--brand-display); letter-spacing: -.01em; color: transparent;
+          -webkit-text-stroke: 2px var(--brand-rust); }
+@supports not (-webkit-text-stroke: 2px red) { .mg-num { color: var(--brand-rust); } }
+.mg-kick { margin: 0 0 6px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--brand-rust); }
+.mg-feat h2 { margin: 0; font: 600 clamp(30px, 5vw, 58px)/.98 var(--brand-display); letter-spacing: .005em; text-transform: uppercase; max-width: 18ch; }
+.mg-stand { margin: 0 0 18px; font: 600 clamp(18px, 2vw, 23px)/1.3 var(--brand-display); letter-spacing: .01em; max-width: 44ch; }
+.mg-stand em { font-style: normal; color: var(--brand-green); }
+.mg-split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 26px; align-items: center; }
+.mg-go { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+a.btn.big { min-height: 48px; padding: 10px 20px; font: 600 19px/1 var(--brand-display); letter-spacing: .06em; text-transform: uppercase; }
+.mg-small { margin: 0; font-size: 12.5px; color: var(--brand-muted); }
+.mg-shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mg-shots img { display: block; box-sizing: border-box; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--brand-rule); }
+.mg-draw { display: block; padding: 14px; border: 1px solid var(--brand-rule); background: var(--brand-strip); }
+.mg-draw svg, .mg-draw img { display: block; width: 100%; height: auto; }
+.mg-steps { list-style: none; counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1px; margin: 0 0 18px; padding: 0;
+            background: var(--brand-rule); border: 1px solid var(--brand-rule); }
+.mg-steps li { counter-increment: s; padding: 12px 14px 14px; background: var(--brand-ground); font-size: 13px; }
+.mg-steps li::before { content: counter(s); display: block; margin: 0 0 4px; font: 600 44px/1 var(--brand-display); color: var(--brand-green); }
+.mg-steps li b { font-weight: 400; color: var(--brand-green); }
+/* three smaller features side by side */
+.mg-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mg-three > * { display: flex; flex-direction: column; min-width: 0; padding: 22px 22px 24px; }
+.mg-three > * + * { border-left: 1px solid var(--brand-rule); }
+.mg-three .mg-num { font-size: clamp(60px, 7vw, 92px); -webkit-text-stroke-width: 1.5px; margin: 0 0 14px; }
+.mg-three h2 { margin: 0 0 8px; font: 600 clamp(24px, 2.8vw, 34px)/1 var(--brand-display); text-transform: uppercase; }
+.mg-three p { margin: 0 0 14px; }
+.mg-three .mg-tile { display: block; margin: 0 0 14px; aspect-ratio: 16 / 9; border: 1px solid var(--brand-rule); overflow: hidden; }
+.mg-three .mg-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mg-three .mg-tile.type { display: grid; place-items: center; background: #1c1610; color: #e9a23b; text-decoration: none;
+                          font: 600 clamp(34px, 5vw, 62px)/.9 var(--brand-display); text-transform: uppercase; text-align: center; }
+.mg-three .mg-tile.type small { display: block; padding: .35em 0; font: 400 clamp(11px, 1.1vw, 13px)/1.2 var(--brand-mono); letter-spacing: .1em; text-transform: none; color: #c9b99a; }
+.mg-three .mg-go { margin: auto 0 0; }
+.mg-also { display: flex; flex-wrap: wrap; gap: 6px 22px; padding: 14px 22px; font: 600 17px/1.3 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
+.mg-also span { color: var(--brand-rust); font: 400 12px/1.9 var(--brand-mono); letter-spacing: .12em; }
+.mg-fold details { border-top: 1px solid var(--brand-rule); }
+.mg-fold details:first-child { border-top: 0; }
+.mg-fold summary { display: flex; align-items: baseline; gap: 12px; padding: 14px 22px 13px; cursor: pointer; list-style: none;
+                   font: 600 clamp(19px, 2.2vw, 24px)/1.1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
+.mg-fold summary::-webkit-details-marker { display: none; }
+.mg-fold summary::before { content: "+"; flex: none; width: .7em; color: var(--brand-rust); }
+.mg-fold details[open] > summary::before { content: "\2212"; }
+.mg-fold summary:hover { background: var(--brand-strip); }
+.mg-fold summary small { font: 400 12px/1.3 var(--brand-mono); letter-spacing: .02em; text-transform: none; color: var(--brand-muted); }
+.mg-in { padding: 2px 22px 20px; max-width: 86ch; }
+@media (max-width: 59.99rem) {
+  .mg-cover, .mg-split { grid-template-columns: minmax(0, 1fr); }
+  .mg-pic img { max-height: 320px; }
+}
+@media (max-width: 47.99rem) {
+  .mg-feat { padding: 20px 16px 22px; }
+  .mg-head { grid-template-columns: minmax(0, 1fr); row-gap: 14px; }
+  .mg-three { grid-template-columns: minmax(0, 1fr); }
+  .mg-steps { grid-template-columns: minmax(0, 1fr); }
+  .mg-three > * { padding: 20px 16px 22px; }
+  .mg-three > * + * { border-left: 0; border-top: 1px solid var(--brand-rule); }
+  .mg-fold summary, .mg-also { padding-left: 16px; padding-right: 16px; } .mg-in { padding: 2px 16px 18px; }
+}
+
+@media print {
+  :root { --brand-ground: #fff; --brand-strip: #fff; --brand-ink: #000; --brand-muted: #333; --brand-rule: #bbb; --brand-green: #000; }
+  .sitebar, .wall, .side { display: none; }
+  body { padding: 0; }
+  .bench { max-width: none; margin: 0; border: 0; }
+  .cols { display: block; }
+  .strip { padding: 0 0 4px; }
+}
