@@ -285,6 +285,37 @@ await quiet.waitForFunction(() => document.querySelectorAll(".pk-pack").length =
 check("no storage: packs listed, a file added, and it says it won't last", /until this page is closed/.test(await quiet.locator("#add-note").innerText()) && errors2.length === 0,
   `${await quiet.locator("#add-note").innerText()} ${errors2.join(" | ")}`);
 
+// --- a pack by a link: fetched from an address, or whole in the link itself; refused ones say why; the address tidied
+FILES["/packs/shared/linked.aispack"] = [Buffer.from(named("Linked Pack")), "application/octet-stream"];
+const ctx = await browser.newContext();
+await ctx.grantPermissions(["clipboard-read", "clipboard-write"]);
+const linked = await ctx.newPage();
+const errors3 = [];
+linked.on("pageerror", (e) => errors3.push(e.message));
+await linked.goto(`${base}/packs/?add=shared/linked.aispack&add=http://example.invalid/x.aispack&add=shared/none.aispack`);
+await linked.waitForFunction(() => document.querySelectorAll(".pk-pack").length === 2);
+const lsaid = await linked.locator("#add-note").innerText();
+check("a pack fetched by a link is in My packs", /Linked Pack, version 1, came by a link/.test(lsaid) && /Linked Pack/i.test(await linked.locator(".pk-pack h2").nth(1).innerText()), lsaid);
+check("an address that isn't https, and one that isn't there: each refused with why", /example\.invalid: It isn't an address/.test(lsaid) && /none\.aispack: It couldn't be fetched/.test(lsaid), lsaid);
+check("the address tidied, so a reload fetches nothing", new URL(linked.url()).search === "", linked.url());
+await linked.locator(".pk-pack").nth(1).locator("button", { hasText: "Copy a link" }).click();
+const url = await linked.evaluate(() => navigator.clipboard.readText());
+check("its link carries the whole pack", /\/packs\/#pack=[A-Za-z0-9_-]+$/.test(url) && url.length < 4000, `${url.length} characters`);
+const fresh = await (await browser.newContext()).newPage();
+await fresh.goto(url);
+await fresh.waitForFunction(() => document.querySelectorAll(".pk-pack").length === 2);
+const viaLink = await fresh.evaluate(() => Array.from(globalThis.AislingPacks.packs[1].bytes));
+const want = Array.from(named("Linked Pack"));
+check("opened elsewhere: the same pack, byte for byte, and the link tidied", viaLink.length === want.length && viaLink.every((v, i) => v === want[i]) && new URL(fresh.url()).hash === "", fresh.url().slice(0, 60));
+await fresh.goto(`${base}/packs/#pack=AAAA`);
+await fresh.reload();
+await fresh.waitForFunction(() => /The pack in the link/.test(document.getElementById("add-note").textContent));
+check("a damaged link: said, nothing added", /This isn't an AISLING sound pack/.test(await fresh.locator("#add-note").innerText()) && await fresh.locator(".pk-pack").count() === 2,
+  await fresh.locator("#add-note").innerText());   // (the two it had: the site's, and the one the link before brought)
+await linked.locator(".pk-pack").first().locator("button", { hasText: "Copy a link" }).click();
+check("the site's own pack: a plain link to it on the page", /\/packs\/#pk-saints-sinners$/.test(await linked.evaluate(() => navigator.clipboard.readText())));
+check("no page errors by links", errors3.length === 0, errors3.join(" | "));
+
 await browser.close();
 server.close();
 console.log(bad ? `packs page: ${bad} FAILED` : "packs page: passed");

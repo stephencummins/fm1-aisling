@@ -838,6 +838,10 @@ every piece of a pack first, with no FM-1, on the same code the FM-1 runs.
 - **A pack from a file:** "Add a pack from a file" takes a `.aispack` someone made or sent you. The page checks it as
   the FM-1 would, then lists it with the others, to hear and to install. "Download the pack" gives you any pack as
   such a file.
+- **A pack by a link:** "Copy a link to it" on a pack of yours makes a link with the whole pack inside it, to pass
+  on with no file: whoever opens it gets the pack in their own list. A pack kept as a file on a web site can be linked
+  too: `https://aisling.stephen8n.com/packs/?add=` and the file's https address (its site must allow other sites to
+  read it). A link only ever adds to the list; nothing goes onto an FM-1 until you press Install.
 - A pack may need a newer AISLING than the FM-1 has: the page says so, and [the installer](#1-install) updates it.
 
 Packs are data, not code: a pack can only ask for voices and scales the firmware already has. To make one, see

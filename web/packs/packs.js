@@ -386,7 +386,9 @@
     p.ui.note.setAttribute("role", "status");
     p.ui.install.onclick = () => install(p);
     p.ui.file.onclick = () => download(`${fileName(p.name)}-v${p.version}.aispack`, p.bytes, "application/octet-stream");
-    acts.append(p.ui.install, p.ui.file);
+    const share = el("button", "btn", "Copy a link to it");
+    share.onclick = () => copyLink(p);
+    acts.append(p.ui.install, p.ui.file, share);
     if (p.mine) {
       const out = el("button", "btn", "Take it out of My packs");
       out.onclick = () => forget(p);
@@ -421,6 +423,54 @@
     $("add-note").textContent = said.join(" ");
     render();
   }
+  /* ---------- a pack by a link ---------- */
+  // packs/?add=URL fetches a .aispack (this site's, or any https address that lets other sites read it); packs/#pack=...
+  // carries a whole pack in the link itself (base64url: a pack is under 4 KB), so one can be passed on with nowhere to
+  // put a file. Either way it is checked as a file is and only joins My packs: nothing goes to an FM-1 by a link.
+  const b64url = (b) => b64(b).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const unb64url = (t) => unb64(t.replace(/-/g, "+").replace(/_/g, "/"));
+  function linkTo(p) {
+    const here = location.origin + location.pathname;
+    return p.mine ? `${here}#pack=${b64url(p.bytes)}` : `${here}#pk-${p.id}`;
+  }
+  async function copyLink(p) {
+    const url = linkTo(p);
+    try { await navigator.clipboard.writeText(url); say(p, p.mine ? "A link to this pack is copied: the whole pack is in the link itself." : "A link to this pack is copied."); }
+    catch (e) { prompt("Copy this link to the pack:", url); }
+  }
+  async function fromLinks() {
+    const q = new URLSearchParams(location.search), h = new URLSearchParams(location.hash.slice(1)), said = [];
+    const told = (name, p) => said.push(typeof p === "string" ? `${name}: ${p}` : `${p.name}, version ${p.version}, came by a link and is in My packs${p.kept === false ? " until this page is closed" : ""}.`);
+    for (const t of h.getAll("pack")) {
+      let p;
+      try { p = t.length > 2 * PF.MAX ? "It is too big to be a sound pack." : add(unb64url(t)); } catch (e) { p = "The link is damaged."; }
+      told("The pack in the link", p);
+    }
+    for (const u of q.getAll("add").slice(0, 8)) {
+      let url, p;
+      try { url = new URL(u, location.href); } catch (e) { url = null; }
+      const where = url ? (url.origin === location.origin ? url.pathname.split("/").pop() : url.host) : "The link";
+      if (!url || (url.origin !== location.origin && url.protocol !== "https:")) p = "It isn't an address this page will fetch a pack from.";
+      else {
+        try {
+          const res = await fetch(url, { credentials: "omit", redirect: "follow" });
+          if (!res.ok) throw new Error(String(res.status));
+          const buf = await res.arrayBuffer();
+          p = buf.byteLength > PF.MAX ? "It is too big to be a sound pack." : add(new Uint8Array(buf));
+        } catch (e) { p = "It couldn't be fetched: the address is wrong, or its site doesn't let this page read it."; }
+      }
+      told(where, p);
+    }
+    if (!said.length) return;
+    $("add-note").textContent = said.join(" ");
+    q.delete("add");                                 // the address tidied: a reload doesn't fetch again
+    h.delete("pack");
+    const rest = q.toString(), frag = h.toString();
+    history.replaceState(null, "", location.pathname + (rest ? `?${rest}` : "") + (frag ? `#${frag}` : ""));
+    const last = S.packs[S.packs.length - 1];
+    if (last && last.mine) last.ui.sec.scrollIntoView({ block: "start" });
+  }
+
   async function start() {
     $("connect").onclick = connect;
     $("fm1-go").onclick = go;
@@ -452,6 +502,7 @@
     if (site.length) $("packs").replaceChildren(...site.map(card));
     for (const s of store.get(SHELF, []) || []) { try { add(unb64(s)); } catch (e) { /* (not a pack any more: left out) */ } }
     $("need").textContent = site.length ? site[0].needs || "1.5" : "1.5";
+    await fromLinks();
     render();
   }
   globalThis.AislingPacks = S;                       // (for a test to look at)
