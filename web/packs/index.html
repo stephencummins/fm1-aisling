@@ -39,9 +39,17 @@
            color: inherit; font: 400 16px/1 var(--brand-mono); cursor: pointer; }
 .pk-play[aria-pressed="true"] { background: var(--brand-rust); border-color: var(--brand-rust); color: #fff; }
 .pk-play:focus-visible, .pk-acts button:focus-visible { outline: 2px solid var(--brand-rust); outline-offset: 2px; }
+.pk-tag { display: inline-block; vertical-align: middle; margin-left: 6px; padding: 3px 8px 2px; border: 1px solid var(--brand-green); color: var(--brand-green);
+          font: 400 11px/1.2 var(--brand-mono); letter-spacing: .08em; text-transform: uppercase; }
+.pk-fm1 { padding: 18px 22px 8px; border-bottom: 1px solid var(--brand-rule); }
+.pk-fm1 h2, .pk-add h2 { margin: 0 0 6px; font: 600 clamp(22px, 3vw, 30px)/1 var(--brand-display); text-transform: uppercase; }
+.pk-fm1 p, .pk-add p { margin: 0 0 12px; max-width: 74ch; }
+.pk-add { margin: 0 22px 22px; padding: 18px 20px 8px; border: 1.5px dashed var(--brand-rule); }
+.pk-add.over { border-color: var(--brand-green); background: var(--brand-strip); }
 .pk-foot { padding: 16px 22px 26px; }
 .pk-foot p { margin: 0 0 8px; max-width: 70ch; }
 button[disabled] { opacity: .45; cursor: default; }
+[hidden] { display: none !important; }
 </style>
 <!--AISLING-HEAD-->
 </head>
@@ -56,14 +64,36 @@ button[disabled] { opacity: .45; cursor: default; }
   <button class="btn go" id="connect">Connect your FM-1</button>
   <p class="lab" id="dev" role="status">No FM-1 connected. You can listen without one.</p>
 </div>
+<section class="pk-fm1" id="fm1" aria-labelledby="fm1-h" hidden>
+  <h2 id="fm1-h">On your FM-1</h2>
+  <p id="fm1-what"></p>
+  <div class="pk-acts">
+    <button class="btn go" id="fm1-go">Play the pack</button>
+    <button class="btn go" id="fm1-back" hidden>Bring back my pieces</button>
+    <button class="btn" id="fm1-keep">Keep my pieces here</button>
+    <button class="btn" id="fm1-file">Save my pieces to a file</button>
+    <button class="btn" id="fm1-load">Load pieces from a file</button>
+    <button class="btn" id="fm1-copy" hidden>Copy the pack to My packs</button>
+    <button class="btn" id="fm1-off">Take the pack off</button>
+    <input type="file" id="fm1-load-file" accept=".json,application/json" hidden>
+  </div>
+  <p class="lab pk-note" id="fm1-note" role="status"></p>
+</section>
 <div id="packs" aria-live="polite"><p class="lab" style="padding:22px">Loading the packs.</p></div>
+<section class="pk-add" id="add-box" aria-labelledby="add-h">
+  <h2 id="add-h">Add a pack from a file</h2>
+  <p>Have a pack someone made or sent you? Choose its <b>.aispack</b> file, or drop it here. It is checked, then kept in this browser beside the packs above, to hear and to install.</p>
+  <div class="pk-acts"><button class="btn" id="add">Choose a file</button><input type="file" id="add-file" accept=".aispack" multiple hidden></div>
+  <p class="lab pk-note" id="add-note" role="status"></p>
+</section>
 <div class="pk-foot">
-  <p class="lab">Listening plays the same code the FM-1 runs, in this page. Installing needs Chrome or Edge, a USB cable, and the FM-1 stopped (press PLAY and let the sound die away). The FM-1 holds one pack at a time; your own changes to a pack's pieces go when the pack does, so back them up first if you want them.</p>
+  <p class="lab">Listening plays the same code the FM-1 runs, in this page. Installing needs Chrome or Edge, a USB cable, and the FM-1 stopped (press PLAY and let the sound die away). The FM-1 holds one pack at a time. When a pack leaves it, this page first keeps its pieces as you left them, in this browser, and offers them back when that pack goes on again; save them to a file to carry them elsewhere.</p>
   <p class="lab">A pack needs AISLING <b id="need"></b> or later. <a href="../install/">Update the FM-1</a> if this page says it is older.</p>
 </div>
 </main>
 <script src="../editor/engine.js"></script>
 <script src="../editor/link.js"></script>
+<script src="packfile.js"></script>
 <script src="packs.js"></script>
 </body>
 </html>

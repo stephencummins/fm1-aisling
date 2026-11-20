@@ -823,12 +823,21 @@ every piece of a pack first, with no FM-1, on the same code the FM-1 runs.
 
 - **Install:** connect on the page, stop the FM-1 (PLAY) and let the sound die away, then press Install. It takes a
   few seconds. Installing another pack replaces the one that was there.
+- **On your FM-1:** once connected, the page reads the pack back off the FM-1 and says which it is: one from its
+  list, one of your own, or one it has never seen (which it can copy off, to keep).
 - **Play it:** turn PRESETS past the eighth piece and you are in the pack's first; on through its eight and round to
   Skellig again. Program changes 8 to 15 choose them too.
 - **Yours as the eight are:** every piece of a pack keeps its settings as you leave it, apart from the eight's. Hold
   GLO to take one back to how the pack made it.
-- **Remove:** the page's "Take it off the FM-1". The eight are untouched. Your changes to the pack's pieces go with
-  it, and they go too when another pack replaces it.
+- **Remove:** the page's "Take the pack off". The eight are untouched.
+- **Your changes are kept:** before a pack leaves the FM-1, taken off or replaced by another, the page reads its
+  eight pieces as you left them and keeps them in the browser. When that pack goes on again, "Bring back my pieces"
+  puts them back; Tune, MIDI out, Lights and Screen are left as they are. "Save my pieces to a file" carries them to
+  another browser or another FM-1 with the same pack. A pack removed some other way (the command line, another
+  browser) has nothing kept.
+- **A pack from a file:** "Add a pack from a file" takes a `.aispack` someone made or sent you. The page checks it as
+  the FM-1 would, then lists it with the others, to hear and to install. "Download the pack" gives you any pack as
+  such a file.
 - A pack may need a newer AISLING than the FM-1 has: the page says so, and [the installer](#1-install) updates it.
 
 Packs are data, not code: a pack can only ask for voices and scales the firmware already has. To make one, see
