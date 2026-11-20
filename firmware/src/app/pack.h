@@ -7,9 +7,11 @@
  *    8  length.2: all of it      10  version.2      12  name[20], NUL-padded
  *   32  the pieces, one after another:
  *         name[16], NUL-padded      flags (bit 0: a Saint, the white screen)      air notes (0..16)      pairs
- *         0
+ *         patches (level 3; else 0): a bit a layer, 1 the Drone's, 2 the Sequence's, 4 the Lead's, 8 Sequence 2's
  *         the air: its notes' semitones over the root (int8), then their sixteenths (1..255)
  *         the recipe: pairs of parameter (a byte), value (int16), over the defaults (en_recipe_apply)
+ *         the patches (level 3): EN_PATCH_N bytes for each layer that has one, in that order (en_patch: what the
+ *         layer's voice "Patch" plays; a layer without one plays the plain Patch)
  *
  * Nothing here is trusted: pk_check walks the lot before a pack is kept or played. A parameter the engine has not
  * is refused (the level says so first); a value out of range is clamped as it is applied. */
@@ -34,8 +36,8 @@ int memcmp(const void *a, const void *b, unsigned n);
 typedef struct {
     const uint8_t *name;                         /* (PK_PNAME bytes, NUL-terminated: pk_check) */
     const int8_t *air_s;
-    const uint8_t *air_d, *pairs;
-    uint8_t flags, air_n, npairs;
+    const uint8_t *air_d, *pairs, *patches;
+    uint8_t flags, air_n, npairs, pmask;
 } pk_piece_t;
 
 static inline int pk_len(const uint8_t *b) { return b[8] | b[9] << 8; }
@@ -51,13 +53,18 @@ static inline int pk_piece(const uint8_t *b, int len, int i, pk_piece_t *p)
         if (o + PK_PNAME + 4 > len)
             return -1;
         p->name = b + o;
+        int np = 0, l;
         p->flags = b[o + PK_PNAME], p->air_n = b[o + PK_PNAME + 1], p->npairs = b[o + PK_PNAME + 2];
+        p->pmask = b[o + PK_PNAME + 3];
+        for (l = 0; l < 8; l++)                  /* (a bit past the four: counted, so it never reads through) */
+            np += p->pmask >> l & 1;
         o += PK_PNAME + 4;
-        if (p->air_n > 16 || o + 2 * p->air_n + 3 * p->npairs > len)
+        if (p->air_n > 16 || o + 2 * p->air_n + 3 * p->npairs + EN_PATCH_N * np > len)
             return -1;
         p->air_s = (const int8_t *)b + o, p->air_d = b + o + p->air_n;
         p->pairs = b + o + 2 * p->air_n;
-        o += 2 * p->air_n + 3 * p->npairs;
+        p->patches = p->pairs + 3 * p->npairs;
+        o += 2 * p->air_n + 3 * p->npairs + EN_PATCH_N * np;
         if (k == i)
             return 0;
     }
@@ -67,6 +74,7 @@ static inline int pk_piece(const uint8_t *b, int len, int i, pk_piece_t *p)
 static inline int pk_check(const uint8_t *b, int len)
 {
     pk_piece_t p;
+    const uint8_t *end = b;
     int i, k, n;
     if (len < PK_HEAD || len > PK_MAX || memcmp(b, "APK1", 4) || b[4] != PK_FORMAT || pk_len(b) != len)
         return 1;
@@ -77,6 +85,11 @@ static inline int pk_check(const uint8_t *b, int len)
     for (i = 0; i < PK_NPIECES; i++) {
         if (pk_piece(b, len, i, &p) || p.name[PK_PNAME - 1] || !p.name[0])
             return 3;
+        if (p.pmask > 15 || (p.pmask && b[5] < 3))   /* (patches: four layers', a level 3 pack's) */
+            return 3;
+        end = p.patches;
+        for (k = 0; k < 4; k++)
+            end += p.pmask >> k & 1 ? EN_PATCH_N : 0;
         for (k = 0; k < PK_PNAME && p.name[k]; k++)
             if (p.name[k] < 32 || p.name[k] > 126)
                 return 3;
@@ -87,7 +100,7 @@ static inline int pk_check(const uint8_t *b, int len)
             if (p.pairs[3 * k] >= P_NPARAMS || p.pairs[3 * k] == P_AIR)
                 return 3;
     }
-    n = (int)(p.pairs + 3 * p.npairs - b);       /* (the eighth's end: the pack's) */
+    n = (int)(end - b);                          /* (the eighth's end: the pack's) */
     return n == len ? 0 : 3;
 }
 
@@ -98,4 +111,15 @@ static inline void pk_recipe(const pk_piece_t *p, int16_t *par, uint16_t *pool)
     par[P_AIR] = (int16_t)(p->air_n ? EN_NAIRS + 1 : 0);
 }
 static inline void pk_air(const pk_piece_t *p) { en_air_set(p->air_s, p->air_d, p->air_n); }
+/* its patches into the engine; a layer it has none for, and every layer of p 0 (AISLING's own): the plain one */
+static inline void pk_patch(const pk_piece_t *p)
+{
+    const uint8_t *q = p ? p->patches : 0;
+    int l;
+    for (l = 0; l < 4; l++)
+        if (p && p->pmask >> l & 1)
+            en_patch(l, q), q += EN_PATCH_N;
+        else
+            en_patch(l, 0);
+}
 #endif

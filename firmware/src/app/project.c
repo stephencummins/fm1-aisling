@@ -272,8 +272,11 @@ void project_apply(void)                         /* (then en_regrow keeps the pi
     const slot_t *s = &proj.slot[proj.piece];
     pk_piece_t pk;
     bank_stale = 0;
-    if (pack_piece(bank, proj.piece, &pk))       /* (packs) its air, before the parameters ask for it */
+    if (pack_piece(bank, proj.piece, &pk)) {     /* (packs) its air, before the parameters ask for it; its patches */
         pk_air(&pk);
+        pk_patch(&pk);
+    } else
+        pk_patch(0);
     for (i = 0; i < P_NPARAMS; i++)
         en_set(i, proj.par[i]);
     en_pool(proj.pool);

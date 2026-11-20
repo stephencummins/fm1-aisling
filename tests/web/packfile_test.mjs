@@ -22,7 +22,9 @@ const CASES = {
   "cut short, its length put right": vary((b) => { const c = b.slice(0, b.length - 7); c[8] = c.length & 255; c[9] = c.length >> 8; return c; }),
   "not APK1": vary((b) => { b[0] = 0x58; }),
   "another format": vary((b) => { b[4] = 2; }),
-  "a newer engine's": vary((b) => { b[5] = 3; }),
+  "a newer engine's": vary((b) => { b[5] = 4; }),
+  "patches said, level 2": vary((b) => { b[first + 19] = 4; }),
+  "patches said, none there": vary((b) => { b[5] = 3; b[first + 19] = 4; }),
   "seven pieces": vary((b) => { b[6] = 7; }),
   "no name": vary((b) => { b[12] = 0; }),
   "a name with no end": vary((b) => { b.fill(65, 12, 32); }),
@@ -64,6 +66,23 @@ const back = typeof mixed === "string" ? null : PF.read(mixed);
 say("a mix with empty places: the firmware takes it", !!back && fw(mixed) === 0 && back.why === 0);
 say("its pieces are where they were put, the empty ones known", !!back && back.name === "My mix" && back.pieces[0].name === r.pieces[3].name && eq(back.pieces[5].raw, raws[7]) &&
   PF.isEmpty(back.pieces[1].raw) && !PF.isEmpty(back.pieces[0].raw));
+// (1.6) patches: sixteen bytes a layer after a piece's pairs, its fourth byte saying whose
+const withPatch = (raw, mask) => { const n = [1, 2, 4, 8].filter((m) => mask & m).length, o = new Uint8Array(raw.length + 16 * n);
+  o.set(raw); o[19] = mask; for (let i = 0; i < 16 * n; i++) o[raw.length + i] = i % 16 === 3 ? 256 - 12 : i % 50; return o; };
+const pRaws = raws.slice(); pRaws[0] = withPatch(raws[0], 4); pRaws[5] = withPatch(raws[5], 11);
+const patched = PF.write({ name: "Patched", level: 3, pieces: pRaws });
+const pBack = typeof patched === "string" ? null : PF.read(patched);
+say("a pack with patches: the firmware takes it, the page reads whose they are", !!pBack && fw(patched) === 0 && pBack.why === 0 &&
+  pBack.pieces[0].patches === 4 && pBack.pieces[5].patches === 11 && pBack.pieces[1].patches === 0 && patched.length === good.length + 64);
+say("its pieces come back byte for byte", !!pBack && pBack.pieces.every((pc, i) => eq(pc.raw, pRaws[i])));
+say("AISLING 1.5 (level 2) is told it needs a newer one", !!pBack && PF.read(patched, { level: 2 }).why === 2);
+say("patches in a level 2 pack refused", typeof PF.write({ name: "Patched", level: 2, pieces: pRaws }) === "string");
+if (pBack) {
+  const five = patched.slice(); five[first + 19] = 16 | 4;
+  say("a fifth layer's patch refused by both", fw(five) === 3 && PF.read(five).why === 3);
+  const cut = patched.slice(0, patched.length - 16); cut[8] = cut.length & 255; cut[9] = cut.length >> 8;
+  say("a patch cut off refused by both", fw(cut) === 3 && PF.read(cut).why === 3);
+}
 say("seven pieces refused", typeof PF.write({ name: "x", pieces: raws.slice(1) }) === "string");
 say("a name too long refused", typeof PF.write({ name: "twenty characters xx", pieces: raws }) === "string");
 const fat = new Uint8Array(16 + 4 + 3 * 255); fat.set(raws[0].subarray(0, 16)); fat[18] = 255;

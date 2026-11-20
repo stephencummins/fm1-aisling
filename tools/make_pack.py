@@ -22,6 +22,8 @@ def engine_table():
     subprocess.check_call(["cc", "-O1", "-DEN_HOST", "-I" + os.path.join(ROOT, "firmware/src/dsp"), "-o", exe,
                            os.path.join(ROOT, "host/en_params.c"), os.path.join(ROOT, "firmware/src/dsp/amb.c"), "-lm"])
     lines = subprocess.check_output([exe], text=True).splitlines()
+    global PT_DEF
+    PT_DEF = [[int(x) for x in ln.split()] for ln in subprocess.check_output([exe, "patch"], text=True).splitlines()]
     m = re.match(r"level (\d+) airs (\d+)", lines[0])
     level, airs = int(m.group(1)), int(m.group(2))
     table = []
@@ -52,6 +54,43 @@ def value(key, v, lo, hi, texts, where):
     return v
 
 
+# a piece's "patch": {"drone" | "seq" | "lead" | "seq2": sixteen numbers, or some of these by name over the layer's
+# plain Patch}. The engine's own order and ranges (amb.h: en_patch)
+PT_LAYERS = ["drone", "seq", "lead", "seq2"]
+PT_SHAPES = ["saw", "pulse", "sine", "organ"]
+PT_FIELDS = [("a", 0, 3), ("width", 5, 50), ("b", 0, 3), ("semi", -24, 36), ("cents", -50, 50), ("level", 0, 100),
+             ("fm", 0, 100), ("fm_env", 0, 100), ("sub", 0, 100), ("noise", 0, 100), ("cutoff", -36, 36),
+             ("res", 0, 100), ("env", 0, 100), ("key", 0, 100), ("attack", 0, 100), ("gain", -24, 12)]
+PT_DEF = []
+
+
+def patch_bytes(layer, v, where):
+    where = "%s: the %s patch" % (where, PT_LAYERS[layer])
+    q = list(PT_DEF[layer])
+    if isinstance(v, list):
+        if len(v) != len(PT_FIELDS):
+            sys.exit("%s is %d numbers" % (where, len(PT_FIELDS)))
+        q = list(v)
+    elif isinstance(v, dict):
+        names = [f[0] for f in PT_FIELDS]
+        for key, x in v.items():
+            if key.startswith("_"):
+                continue
+            if key not in names:
+                sys.exit("%s has no \"%s\" (it has: %s)" % (where, key, ", ".join(names)))
+            if key in ("a", "b") and isinstance(x, str):
+                if x.lower() not in PT_SHAPES:
+                    sys.exit("%s: %s is one of %s" % (where, key, ", ".join(PT_SHAPES)))
+                x = PT_SHAPES.index(x.lower())
+            q[names.index(key)] = x
+    else:
+        sys.exit("%s is a list of numbers or named settings" % where)
+    for (key, lo, hi), x in zip(PT_FIELDS, q):
+        if not isinstance(x, int) or isinstance(x, bool) or not lo <= x <= hi:
+            sys.exit("%s: %s = %r is outside %d..%d" % (where, key, x, lo, hi))
+    return struct.pack("16b", *[x - 256 if x > 127 else x for x in q])
+
+
 def name_bytes(s, n, where):
     b = s.encode("ascii", "strict") if all(32 <= ord(c) < 127 for c in s) else None
     if not b or len(b) >= n:
@@ -62,7 +101,10 @@ def name_bytes(s, n, where):
 def build(src):
     table, names, level, airs = engine_table()
     idx = {n: i for i, n in enumerate(names)}
-    need = int(src.get("level", level))
+    patched = any(pc.get("patch") for pc in src["pieces"])
+    need = int(src.get("level", 3 if patched else min(level, 2)))   # (2: AISLING 1.5 plays it too)
+    if patched and need < 3:
+        sys.exit("a pack with patches is level 3 (AISLING 1.6)")
     if need > level:
         sys.exit("the pack asks for engine level %d; this engine is level %d" % (need, level))
     pieces = src["pieces"]
@@ -97,8 +139,13 @@ def build(src):
             pairs += struct.pack("<Bh", i, full[i])
         if len(pairs) // 3 > 255:
             sys.exit("%s: too many parameters" % where)
-        body += name_bytes(pc["name"], PK_PNAME, where) + bytes([1 if light else 0, len(notes), len(pairs) // 3, 0])
+        pt = pc.get("patch") or {}
+        if any(k not in PT_LAYERS for k in pt if not k.startswith("_")):
+            sys.exit("%s: a patch is for one of %s" % (where, ", ".join(PT_LAYERS)))
+        mask = sum(1 << l for l, n in enumerate(PT_LAYERS) if n in pt)
+        body += name_bytes(pc["name"], PK_PNAME, where) + bytes([1 if light else 0, len(notes), len(pairs) // 3, mask])
         body += struct.pack("%db" % len(notes), *notes) + bytes(lens) + pairs
+        body += b"".join(patch_bytes(l, pt[n], where) for l, n in enumerate(PT_LAYERS) if n in pt)
         icon = pc.get("icon", "")              # (the page's: an SVG path on a 24 by 24 grid, drawn as a line)
         if not re.fullmatch(r"[MmLlHhVvCcSsQqTtAaZz0-9 .,\-]{0,400}", icon):
             sys.exit("%s: its icon is an SVG path's d, up to 400 characters" % where)

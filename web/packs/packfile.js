@@ -5,15 +5,16 @@
 //
 //   const r = AislingPackFile.read(bytes, { level, nparams });
 //   r.why     0 a pack this AISLING can play; 1 not a pack; 2 a newer AISLING's; 3 damaged
-//   r.name, r.version, r.level, r.pieces: [{ name, side: "saint" | "sinner", tempo, key, mode, air, raw }]
+//   r.name, r.version, r.level, r.pieces: [{ name, side: "saint" | "sinner", tempo, key, mode, air, patches, raw }]
+//   (patches: a bit a layer, 1 the Drone's, 2 the Sequence's, 4 the Lead's, 8 Sequence 2's; their bytes are in raw)
 //
 // And the other way, for a pack put together in the page from pieces of others (raw: a piece's own bytes, as read):
 //   const bytes = AislingPackFile.write({ name, version, level, pieces: [raw x 8] });   // or a string: why not
 //   AislingPackFile.empty()   a place with nothing in it: a pack is always eight, so this fills the rest (it is silent)
 (function () {
   "use strict";
-  const FORMAT = 1, NPIECES = 8, HEAD = 32, NAME = 20, PNAME = 16, MAX = 3840;
-  const LEVEL = 2, NPARAMS = 133;                    // AISLING 1.5's: what this page knows of, unless told
+  const FORMAT = 1, NPIECES = 8, HEAD = 32, NAME = 20, PNAME = 16, MAX = 3840, PATCH = 16;
+  const LEVEL = 3, NPARAMS = 133;                    // AISLING 1.6's: what this page knows of, unless told
   const P_TEMPO = 18, P_ROOT = 19, P_MODE = 20, P_AIR = 132;
   const DEF = { [P_TEMPO]: 96, [P_ROOT]: 5, [P_MODE]: 1 };
   const KEYS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
@@ -26,13 +27,15 @@
     let o = HEAD;
     for (let k = 0; ; k++) {
       if (o + PNAME + 4 > len) return null;
-      const p = { name: o, flags: b[o + PNAME], airN: b[o + PNAME + 1], npairs: b[o + PNAME + 2] };
+      const p = { name: o, flags: b[o + PNAME], airN: b[o + PNAME + 1], npairs: b[o + PNAME + 2], pmask: b[o + PNAME + 3] };
+      let np = 0;
+      for (let l = 0; l < 8; l++) np += p.pmask >> l & 1;
       o += PNAME + 4;
-      if (p.airN > 16 || o + 2 * p.airN + 3 * p.npairs > len) return null;
+      if (p.airN > 16 || o + 2 * p.airN + 3 * p.npairs + PATCH * np > len) return null;
       p.airS = o;
       p.airD = o + p.airN;
       p.pairs = o + 2 * p.airN;
-      o += 2 * p.airN + 3 * p.npairs;
+      o += 2 * p.airN + 3 * p.npairs + PATCH * np;
       p.end = o;
       if (k === i) return p;
     }
@@ -50,6 +53,7 @@
     for (let i = 0; i < NPIECES; i++) {
       p = piece(b, len, i);
       if (!p || b[p.name + PNAME - 1] || !b[p.name]) return bad(3);
+      if (p.pmask > 15 || (p.pmask && b[5] < 3)) return bad(3);
       for (let k = 0; k < PNAME && b[p.name + k]; k++) if (b[p.name + k] < 32 || b[p.name + k] > 126) return bad(3);
       for (let k = 0; k < p.airN; k++) {
         const s = b[p.airS + k] >= 128 ? b[p.airS + k] - 256 : b[p.airS + k];
@@ -62,7 +66,7 @@
         if (id in val) val[id] = i16(b, p.pairs + 3 * k + 1);
       }
       out.pieces.push({ name: text(b, p.name, PNAME), side: p.flags & 1 ? "saint" : "sinner", tempo: val[P_TEMPO],
-        key: KEYS[val[P_ROOT]] || "?", mode: MODES[val[P_MODE]] || "?", air: p.airN, raw: b.slice(p.name, p.end) });
+        key: KEYS[val[P_ROOT]] || "?", mode: MODES[val[P_MODE]] || "?", air: p.airN, patches: p.pmask, raw: b.slice(p.name, p.end) });
     }
     return p.end === len ? out : bad(3);
   }

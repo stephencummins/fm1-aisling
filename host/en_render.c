@@ -78,6 +78,7 @@ int main(int argc, char **argv)
                 return 2;
             }
             pk_air(&pc);
+            pk_patch(&pc);
             pk_recipe(&pc, par, &pool);
             if (logit || 1)
                 fprintf(stderr, "%s: %s\n", pk_name(pk), (const char *)pc.name);
