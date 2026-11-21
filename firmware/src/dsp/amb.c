@@ -6739,6 +6739,80 @@ static void choir(uint32_t n, float g, const float *c)   /* both banks into drl/
 #endif
 }
 
+/* (1.6) the Drone in Patch, a voice at a time: what the patch does not use is not worked out (B when it is silent
+ * and turns nothing, the sub at no level), and the shapes are chosen once a voice, not once a sample (sa, sb: constants
+ * where this is called, so each call is its own loop). Ten voices of it must cost what Pipes' do. The sums are as
+ * pt_mix's, so a patch sounds as it does in the other layers. amp: the swell, a sample at a time (pt_amp) */
+static float pt_amp[BLK];
+static inline __attribute__((always_inline)) void pt_drone_run(const patch_t *p, drv_t *v, uint32_t n, const float *c,
+                                                               float pm, float d, float p2, int sa, int sb, int useb)
+{
+    const float dt = v->dt, dt2 = fm_minf(p2 * dt, 0.45f), st2 = p2 * dt, w = p->w, lb = p->lb, sub = p->sub,
+                gain = p->gain, gl = v->gl, gr = v->gr;
+    const int usesub = sub > 0.0f;
+    float ph = v->ph, ph2 = v->ph2, vp = v->vp, fs[2];
+    uint32_t j;
+    fs[0] = v->s[0], fs[1] = v->s[1];
+    for (j = 0; j < n; j++) {
+        float x, b = 0.0f, bp;
+        if (useb)
+            b = pt_osc(sb, ph2, dt2, w);
+        if (sa >= 2) {
+            const float t = useb ? ph + 4.0f + d * b : ph + 4.0f;
+            x = sa == 2 ? sine(t) : organ(frac1(t));
+        } else
+            x = pt_osc(sa, ph, dt, w);
+        if (useb && usesub)
+            x += lb * b + sub * sine(vp);
+        else if (useb)
+            x += lb * b;
+        else if (usesub)
+            x += sub * sine(vp);
+        x *= gain;
+        vp += 0.5f * dt;
+        if (vp >= 1.0f)
+            vp -= 1.0f;
+        ph += dt;
+        if (ph >= 1.0f)
+            ph -= 1.0f;
+        ph2 += st2;
+        if (ph2 >= 1.0f)
+            ph2 -= (float)(int)ph2;
+        x = svf_lp(c, fs, x, &bp);
+        x = x * pt_amp[j] * pm;
+        drl[j] += x * gl;
+        drr[j] += x * gr;
+    }
+    v->ph = ph, v->ph2 = ph2, v->vp = vp, v->s[0] = fs[0], v->s[1] = fs[1];
+}
+static void pt_drone(const patch_t *p, drv_t *v, uint32_t n, const float *c, float pm, float d, float p2)
+{
+    const int useb = p->lb > 0.0f || (p->a >= 2 && d > 0.0f);
+#define PT_RUN(A, B, U) pt_drone_run(p, v, n, c, pm, d, p2, A, B, U); break
+    switch (p->a * 5 + (useb ? 1 + p->b : 0)) {
+    case 0: PT_RUN(0, 0, 0);
+    case 1: PT_RUN(0, 0, 1);
+    case 2: PT_RUN(0, 1, 1);
+    case 3: PT_RUN(0, 2, 1);
+    case 4: PT_RUN(0, 3, 1);
+    case 5: PT_RUN(1, 0, 0);
+    case 6: PT_RUN(1, 0, 1);
+    case 7: PT_RUN(1, 1, 1);
+    case 8: PT_RUN(1, 2, 1);
+    case 9: PT_RUN(1, 3, 1);
+    case 10: PT_RUN(2, 0, 0);
+    case 11: PT_RUN(2, 0, 1);
+    case 12: PT_RUN(2, 1, 1);
+    case 13: PT_RUN(2, 2, 1);
+    case 14: PT_RUN(2, 3, 1);
+    case 15: PT_RUN(3, 0, 0);
+    case 16: PT_RUN(3, 0, 1);
+    case 17: PT_RUN(3, 1, 1);
+    case 18: PT_RUN(3, 2, 1);
+    default: PT_RUN(3, 3, 1);
+    }
+#undef PT_RUN
+}
 static void render_drone(uint32_t n)
 {
     static const float P2[EN_NCV] = {1.006f, 1.006f, 2.0016f, 1.003f, 3.5f, 1.006f, 1.0f};   /* (ph2's rate: Pipes' baritone
@@ -6786,12 +6860,18 @@ static void render_drone(uint32_t n)
     for (b = 0; b < 2 && cv != CV_CHOIR; b++) {
         float lvl = dr_lvl[b];
         const float to = dr_on[b] ? 1.0f : 0.0f;
-        float fmd[NDR] = {0.0f};
         if (!dr_on[b] && lvl <= 0.0f)
             continue;
-        if (cv == CV_PATCH)
+        if (cv == CV_PATCH) {                    /* (1.6) a voice at a time: pt_drone */
+            for (j = 0; j < n; j++) {
+                lvl = to > lvl ? fm_minf(lvl + dr_up, 1.0f) : fm_maxf(lvl - dr_down, 0.0f);
+                pt_amp[j] = lvl * lvl * g;
+            }
             for (i = 0; i < NDR; i++)
-                fmd[i] = pt_fmd(p, drv[b][i].dt, 1.0f);
+                pt_drone(p, &drv[b][i], n, c, i == EN_NPAD ? dr_pedal : 1.0f, pt_fmd(p, drv[b][i].dt, 1.0f), p2);
+            dr_lvl[b] = lvl;
+            continue;
+        }
         for (j = 0; j < n; j++) {
             float a;
             lvl = to > lvl ? fm_minf(lvl + dr_up, 1.0f) : fm_maxf(lvl - dr_down, 0.0f);
@@ -6836,13 +6916,6 @@ static void render_drone(uint32_t n)
                         x = v->fy0;
                     } else
                         x = 0.5f * (v->fy0 + v->fy1);
-                    break;
-                case CV_PATCH:                   /* (1.6: no noise in ten voices, and no envelope: the Drone's
-                                                  * own swell) */
-                    x = pt_mix(p, v->ph, v->ph2, v->vp, v->dt, fm_minf(p2 * v->dt, 0.45f), fmd[i], 0.0f);
-                    v->vp += 0.5f * v->dt;
-                    if (v->vp >= 1.0f)
-                        v->vp -= 1.0f;
                     break;
                 default: x = sine(v->ph + 2.0f + 0.7f * sine(v->ph2)); break;
                 }
