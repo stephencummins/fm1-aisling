@@ -21,7 +21,8 @@ first configure (`-DFETCHCONTENT_SOURCE_DIR_JUCE=DIR` uses a copy you have).
   panel: "The piece's own Sequence notes" (on), "Play while the host is stopped" (off), "Skip the intros" (on).
 - **Save into the pack**: writes the pack with this piece's patches in it and those layers set to Patch. A pack
   with a patch needs AISLING 1.6; without one it stays a 1.5 pack. **Copy as JSON** gives the `"patch"` block for
-  `packs/NAME.json` (`tools/make_pack.py`).
+  `packs/NAME.json` (`tools/make_pack.py`). Choosing another piece keeps the one you leave as you made it, until
+  another pack is loaded or the plugin closes; only Save writes it, one piece at a time.
 
 ## Limits
 
@@ -51,7 +52,8 @@ no keys: it holds the piece's chord. Sequence 2 is silent in a piece that has no
 `firmware/src/app/link.c`). A layer that "plays its patch" here plays it there; one that doesn't gets the piece's own
 voice back, and so do all of them when the box is unticked or the plugin closes. It is only in the FM-1's engine:
 nothing is stored and the piece is not marked as edited. The FM-1 must be in a pack's bank (the line beside the box
-says so if it isn't), and it plays whichever piece it is on, not the one chosen here. Needs AISLING 1.6 on the FM-1.
+says so if it isn't), on the piece chosen here and with the same pack as is loaded here (by its name): on another
+piece, or with another pack, it keeps its own voices and the line says which. Needs AISLING 1.6 on the FM-1.
 The editor page and `tools/fm1_link.py` use the same link: close those first (two at once is untried).
 
 From the command line: `tools/fm1_link.py patch seq 2,50,0,12,0,0,40,60,0,0,0,20,50,30,0,0`, and `patch seq off`.

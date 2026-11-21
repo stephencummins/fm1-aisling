@@ -123,7 +123,10 @@ bool Fm1Link::next (const uint8_t pt[NL][NF], const bool on[NL])
 {
     for (int l = 0; l < NL; ++l)
     {
-        if (on[l] && (there[l] != 1 || std::memcmp (pt[l], sent[l], NF) != 0))
+        // (said again each second while it stands: the FM-1 loads a piece's own patch whenever it takes the piece
+        // up again, and a quick turn away and back is over before its state says so)
+        if (on[l] && (there[l] != 1 || std::memcmp (pt[l], sent[l], NF) != 0
+                      || juce::Time::getMillisecondCounter() - tSent[l] >= 1000))
         {
             ask (l, true, pt[l]);
             return true;
@@ -191,7 +194,7 @@ void Fm1Link::timerCallback()
             {
                 there[pLayer] = pOn ? 1 : 0;
                 if (pOn)
-                    std::memcpy (sent[pLayer], pVals, NF);
+                    std::memcpy (sent[pLayer], pVals, NF), tSent[pLayer] = now;
                 if (phase == Phase::up)
                     said = "The FM-1 plays these patches.";
             }
@@ -239,9 +242,17 @@ void Fm1Link::timerCallback()
     }
     uint8_t pt[NL][NF];
     bool on[NL];
-    const int mine = want (pt, on), its = fmPiece.load();
+    const auto here = want (pt, on);
+    const int mine = here.piece, its = fmPiece.load();
+    juce::String has;
+    {
+        const juce::SpinLock::ScopedLockType lock (nameLock);
+        has = fmPack;
+    }
+    wrong = mine >= 0 && has.isNotEmpty() && has != here.pack.substring (0, 31)
+              ? "The FM-1 has the pack \"" + has + "\", not this one: nothing sent." : juce::String();
     other = mine >= 0 && its >= 0 && mine != its;       // another piece there: it keeps (gets back) its own voices
-    if (other)
+    if (other || wrong.isNotEmpty())
         for (auto& o : on)
             o = false;
     next (pt, on);
@@ -257,7 +268,18 @@ void Fm1Link::handleIncomingMidiMessage (juce::MidiInput*, const juce::MidiMessa
         return;
     heard = juce::Time::getMillisecondCounter();
     if (d[3] == R_HELLO)
+    {
+        const auto* a = d + 5;                          // (after the version: level, bank, the pack's version, name)
+        const int na = n - 5, at = na > 9 ? 10 + a[9] : 0;
+        char nm[32] {};
+        if (at && na >= at + 5 && na >= at + 5 + a[at + 4])
+            std::memcpy (nm, a + at + 5, (size_t) juce::jmin (31, (int) a[at + 4]));
+        {
+            const juce::SpinLock::ScopedLockType lock (nameLock);
+            std::memcpy (fmPack, nm, sizeof fmPack);
+        }
         helloSeen = true;
+    }
     else if (d[3] == 67 && n >= 8)                      // STATE: view, flags, the piece
         fmPiece = d[7];
     else if (d[3] == R_ACK && n >= 6)

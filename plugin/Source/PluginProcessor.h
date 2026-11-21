@@ -73,6 +73,9 @@ private:
     void produce (float* l, float* r, int n);
     juce::MidiBuffer keyMidi;
     std::unique_ptr<Fm1Link> fm1;
+    struct Held { bool has = false; int mask = 0; uint8_t pt[NL][NF] {}; };
+    Held held[8];                                       // each piece's patches as left here, not yet in the pack
+    int heldFor = 1;                                    // 0: a pack just chosen, what was kept is dropped
     juce::String setPackBytes (const uint8_t* b, int len);
 
     std::atomic<float>* raw[NL][NF] {};

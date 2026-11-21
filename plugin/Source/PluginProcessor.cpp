@@ -93,7 +93,7 @@ void AislingProcessor::fm1Send (bool on)
             patchBytes (pt);
             for (int l = 0; l < NL; ++l)
                 lit[l] = rawOn[l]->load() > 0.5f;
-            return packLen ? pieceIx.load() : -1;
+            return Fm1Link::Where { packLen ? pieceIx.load() : -1, packLen ? packName() : juce::String() };
         });
     }
     fm1->setOn (on);
@@ -339,6 +339,7 @@ juce::String AislingProcessor::loadPack (const juce::File& f)
     if (why.isNotEmpty())
         return why;
     packFile = f;
+    heldFor = 0;
     setPiece (0, true);
     return {};
 }
@@ -350,16 +351,35 @@ void AislingProcessor::useOwn()
         packLen = 0;
     }
     packFile = juce::File();
+    heldFor = 0;
     setPiece (0, true);
 }
 
 void AislingProcessor::setPiece (int i, bool take)
 {
+    if (take && heldFor == 1)                           // the piece being left keeps what was made on it, until
+    {                                                   // another pack is loaded or the plugin closes
+        auto& h = held[pieceIx.load()];
+        patchBytes (h.pt);
+        h.mask = 0;
+        for (int l = 0; l < NL; ++l)
+            if (auto* p = apvts.getParameter (onId (l)))
+                h.mask |= (p->getValue() > 0.5f ? 1 : 0) << l;
+        h.has = true;
+    }
     pieceIx = juce::jlimit (0, 7, i);
     if (take)
     {
+        if (heldFor != 1)                               // (a pack just loaded, or AISLING's own: nothing kept)
+        {
+            for (auto& h : held)
+                h.has = false;
+            heldFor = 1;
+        }
         uint8_t pt[NL][NF];
-        const int mask = ag_peek (packLen ? pack : nullptr, packLen, pieceIx.load(), pt);
+        int mask = ag_peek (packLen ? pack : nullptr, packLen, pieceIx.load(), pt);
+        if (const auto& h = held[pieceIx.load()]; h.has)
+            std::memcpy (pt, h.pt, sizeof pt), mask = h.mask;
         for (int l = 0; l < NL; ++l)
         {
             if (auto* p = apvts.getParameter (onId (l)))
