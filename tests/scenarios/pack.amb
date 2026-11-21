@@ -5,12 +5,14 @@ wait 500
 expect playing 1
 expect pack 0
 expect bank 0
-expect light 0
+expect light 2
 link hello
 expect linkon 1
 linkbeat 1
 # --- no pack: no bank to go to, nothing to read
 link bank 1
+expect linkack 5
+link patch 1 2 50 0 7 0 0 40 60 0 0 0 20 50 30 0 0
 expect linkack 5
 expect bank 0
 linkread 10
@@ -42,9 +44,9 @@ expect pname 83
 expect dirty 0
 linkread 10
 expect lsame 1
-# the screen was dark: now as the piece is, and the eight are dark
+# the screen as the piece is, and the eight are light
 expect light 2
-expect lit 0
+expect lit 1
 # --- the pack's bank: its names, its recipes, its sides
 link bank 1
 expect linkack 0
@@ -53,11 +55,29 @@ expect piece 0
 expect pname 71
 expect lit 1
 expect par18 120
+expect dirty 1
+# (1.6) a Patch over the link, to hear it: in RAM, clamped, the layer checked; the next piece brings its own
+link patch 1 2 50 0 7 -20 0 40 60 0 0 -12 20 50 30 0 99
+expect linkack 0
+expect pt1.0 2
+expect pt1.3 7
+expect pt1.4 -20
+expect pt1.10 -12
+expect pt1.15 12
+link patch 4 2 50 0 7 0 0 40 60 0 0 0 20 50 30 0 0
+expect linkack 1
+expect par33 !=8
+link patch 9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+expect linkack 0
+expect pt1.3 !=7
+link patch 1 2 50 0 7 -20 0 40 60 0 0 -12 20 50 30 0 99
+expect pt1.3 7
 turn PRESET 1
 expect piece 1
 expect pname 82
 expect lit 0
 expect par18 160
+expect pt1.3 !=7
 # back past its first: the eight's last; and on round
 turn PRESET -2
 expect bank 0
@@ -128,4 +148,4 @@ reboot
 wait 500
 expect pack 0
 expect bank 0
-expect lit 0
+expect lit 1

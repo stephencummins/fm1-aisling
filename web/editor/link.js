@@ -15,7 +15,7 @@
   "use strict";
   const H0 = 0x7D, H1 = 0x41, H2 = 0x4C;
   const LK = { HELLO: 1, BYE: 2, BEAT: 3, SET: 4, VIEW: 5, PIECE: 6, PLAY: 7, HOLD: 8, PERF: 9, FORGET: 10, KEYS: 11, BUTTONS: 12,
-    UNDO: 13, REDO: 14, SAVE: 15, VOICE: 16, COPY: 17, SWAP: 18, RESET: 19, OPEN: 20, READ: 21, BEGIN: 22, WRITE: 23, COMMIT: 24, BANK: 25 };
+    UNDO: 13, REDO: 14, SAVE: 15, VOICE: 16, COPY: 17, SWAP: 18, RESET: 19, OPEN: 20, READ: 21, BEGIN: 22, WRITE: 23, COMMIT: 24, BANK: 25, PATCH: 26 };
   const R_HELLO = 65, R_ACK = 66, R_STATE = 67, R_VALS = 68, R_CHUNK = 69;
   const OK = 0, GAVE_UP = -1;
   const VER = 1, CHUNK = 128;
@@ -276,6 +276,13 @@
     install(bytes) { return this.write(AislingLink.A_PACK, bytes); }   // 0 kept; 4: the FM-1 isn't at rest; 2: refused
     remove() { return this.write(AislingLink.A_PACK, new Uint8Array(0)); }
     bank(b) { return this.req(LK.BANK, [b ? 1 : 0]).then((r) => r.status); }   // 0; 5: no pack to go to
+    /* (1.6) a layer's Patch (0 Drone, 1 Sequence, 2 Lead, 3 Sequence 2), its 16 numbers: the layer plays it at once, and
+     * it is kept nowhere. vals null: the piece's own voice and patch back. 0; 5: not in the pack's bank */
+    patch(layer, vals) {
+      const a = [(layer & 3) | (vals ? 0 : 8)];
+      for (let i = 0; i < 16; i++) a.push(vals ? vals[i] & 0x7F : 0, vals ? vals[i] >> 7 & 0x7F : 0);
+      return this.req(LK.PATCH, a).then((r) => r.status);
+    }
 
     /* ---------- the messages the page's worklet takes ---------- */
     post(m) {

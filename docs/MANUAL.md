@@ -175,10 +175,11 @@ The **Journey page** is its set list: KNOB 1 picks a piece, KNOB 2 puts it in or
 out), and the journey passes over the ones that are out. The journey changes nothing in the pieces and saves
 nothing; the stay and the list aren't saved either, so it's off, with all eight in, every time the FM-1 starts.
 
-**The screen, dark or light.** KNOB 3 on the Journey page, **Screen**, sets the whole screen: Dark, the colours on
-black, as it comes; Light, the same colours deeper, on white, for a bright room or daylight; or Auto, as the piece
-is: AISLING's own eight are dark, and a [sound pack](#sound-packs)'s pieces say which they are (Saints & Sinners:
-a Saint white, a Sinner black). Installing a pack turns Dark to Auto. It changes nothing in the sound. It's saved with the pieces, as Lights is, and a CC never turns it. The turn itself redraws the whole
+**The screen, dark or light.** KNOB 3 on the Journey page, **Screen**, sets the whole screen: Auto, as it comes
+(1.6), as the piece is: AISLING's own eight are light, and a [sound pack](#sound-packs)'s pieces say which they are (Saints & Sinners:
+a Saint white, a Sinner black); Light, the colours deep on white, for a bright room or daylight; or Dark, the
+colours on black. An FM-1 that already has saved pieces keeps the screen it had (Dark, before 1.6, unless it was
+turned). Installing a pack turns Dark to Auto. It changes nothing in the sound. It's saved with the pieces, as Lights is, and a CC never turns it. The turn itself redraws the whole
 screen at once, the busiest moment the FM-1 has: set it between pieces rather than in the middle of one.
 
 ![The main screen, light: the same screen on white, the colours deeper](img/screen-light.png "The main screen with Screen at Light")

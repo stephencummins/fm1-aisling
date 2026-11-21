@@ -924,6 +924,10 @@ static int expect(const char *what, const char *val)
         for (l = 0; l < EN_NLOOP; l++)
             for (i = 0; i < EN_LOOP_MAX; i++)
                 got += en_loop_note[l][i] >= 0;
+    } else if (!strncmp(what, "pt", 2) && what[2] >= '0' && what[2] <= '3' && what[3] == '.') {
+        uint8_t pb[EN_PATCH_N];                  /* (1.6) ptL.I: layer L's Patch, its byte I (as a signed byte) */
+        en_patch_get(what[2] - '0', pb);
+        got = (int8_t)pb[atoi(what + 4) % EN_PATCH_N];
     } else if (!strncmp(what, "par", 3)) {        /* parN: parameter N (amb.h P_*) */
         int k = atoi(what + 3);
         if (k < 0 || k >= P_NPARAMS) {
@@ -978,7 +982,8 @@ static int link_command(const char *name, const char *line)
         {"perf", LK_PERF, "11"}, {"forget", LK_FORGET, ""}, {"keys", LK_KEYS, "4"}, {"buttons", LK_BUTTONS, "2"},
         {"undo", LK_UNDO, ""}, {"redo", LK_REDO, ""}, {"save", LK_SAVE, ""}, {"voice", LK_VOICE, "22"}, {"copy", LK_COPY, "11"},
         {"swap", LK_SWAP, "11"}, {"reset", LK_RESET, "1"}, {"open", LK_OPEN, "1"}, {"read", LK_READ, "2"}, {"begin", LK_BEGIN, "1"},
-        {"write", LK_WRITE, "2"}, {"commit", LK_COMMIT, "3"}, {"bank", LK_BANK, "1"}, {"nonsense", 60, ""},
+        {"write", LK_WRITE, "2"}, {"commit", LK_COMMIT, "3"}, {"bank", LK_BANK, "1"}, {"patch", LK_PATCH, "12222222222222222"},
+        {"nonsense", 60, ""},
     };
     uint32_t i, n = 0;
     if (!strcmp(name, "again"))

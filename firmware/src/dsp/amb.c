@@ -6385,22 +6385,48 @@ static inline float pt_mix(const patch_t *p, float ph, float ph2, float ph3, flo
     }
     return x * p->gain;
 }
-static void render_pt_pluck(pluck_t *v, uint32_t n, float g, float es, float rv)   /* a Sequence's note in Patch */
+/* (1.6) a Sequence's note in Patch. As the Drone's (pt_drone): what the patch does not use is not worked out, the
+ * shapes are constants where this is called (each call its own loop), and the note's filters and phases are held
+ * here while it runs. The sums are as pt_mix's */
+static inline __attribute__((always_inline)) void pt_pluck_run(const patch_t *p, pluck_t *v, uint32_t n, float g,
+                                                               float es, float rv, int sa, int sb, int useb)
 {
-    const patch_t *p = &pt[v->layer ? 3 : 1];
-    const float dt = v->dt, dt2 = v->dt2, adec = v->adec, edec = v->edec,
-                kc = p->cut * fm_exp2f(p->kf * ((float)v->note - 60.0f)), k = 1.6f - 1.45f * p->res;
-    float amp = v->amp, env = v->env, att = v->att, ph = v->ph, ph2 = v->ph2, ph3 = v->ph3, d = 0.0f, y = 0.0f;
-    uint32_t j;
+    const float dt = v->dt, dt2 = v->dt2, adec = v->adec, edec = v->edec, w = p->w, lb = p->lb, sub = p->sub,
+                gain = p->gain, pnz = p->nz, patt = p->att, gl = v->gl, gr = v->gr,
+                kc = v->cut * (p->cut * fm_exp2f(p->kf * ((float)v->note - 60.0f))), k = 1.6f - 1.45f * p->res,
+                ea7 = 7.0f * p->ea, fm0 = 1.0f - p->fmf, fmf = p->fmf;
+    const int usesub = sub > 0.0f, usenz = pnz > 0.0f, usefm = sa >= 2 && useb;
+    float amp = v->amp, env = v->env, att = v->att, ph = v->ph, ph2 = v->ph2, ph3 = v->ph3, d = 0.0f, y = 0.0f,
+          c1[4], c2[4], s1[2], s2[2];
+    uint32_t j, rng = pt_rng;
+    s1[0] = v->s1[0], s1[1] = v->s1[1], s2[0] = v->s2[0], s2[1] = v->s2[1];
     for (j = 0; j < n; j++) {
-        float x, bp;
+        float x, b = 0.0f, bp;
         if (!(j & 15u)) {
-            const float f = v->cut * kc * fm_exp2f(7.0f * p->ea * env) * fx_swm;
-            svf_coefs(v->c1, f, k);
-            svf_coefs(v->c2, f, 0.6f);
-            d = pt_fmd(p, dt, 1.0f - p->fmf + p->fmf * env);
+            const float f = kc * fm_exp2f(ea7 * env) * fx_swm;
+            svf_coefs(c1, f, k);
+            svf_coefs(c2, f, 0.6f);
+            if (usefm)
+                d = pt_fmd(p, dt, fm0 + fmf * env);
         }
-        x = pt_mix(p, ph, ph2, ph3, dt, dt2, d, p->nz * (0.2f + 0.8f * env));
+        if (useb)
+            b = pt_osc(sb, ph2, dt2, w);
+        if (sa >= 2) {
+            const float t = useb ? ph + 4.0f + d * b : ph + 4.0f;
+            x = sa == 2 ? sine(t) : organ(frac1(t));
+        } else
+            x = pt_osc(sa, ph, dt, w);
+        if (useb && usesub)
+            x += lb * b + sub * sine(ph3);
+        else if (useb)
+            x += lb * b;
+        else if (usesub)
+            x += sub * sine(ph3);
+        if (usenz) {
+            rng = rng * 1664525u + 1013904223u;
+            x += pnz * (0.2f + 0.8f * env) * ((float)(rng >> 8) * (1.0f / 16777216.0f) - 0.5f);
+        }
+        x *= gain;
         ph += dt;
         if (ph >= 1.0f)
             ph -= 1.0f;
@@ -6410,19 +6436,50 @@ static void render_pt_pluck(pluck_t *v, uint32_t n, float g, float es, float rv)
         ph3 += 0.5f * dt;
         if (ph3 >= 1.0f)
             ph3 -= 1.0f;
-        x = svf_lp(v->c1, v->s1, x, &bp);
-        x = svf_lp(v->c2, v->s2, x, &bp);
+        x = svf_lp(c1, s1, x, &bp);
+        x = svf_lp(c2, s2, x, &bp);
         y = x *= amp * att * g;
-        mixl[j] += x * v->gl;
-        mixr[j] += x * v->gr;
+        mixl[j] += x * gl;
+        mixr[j] += x * gr;
         rsend[j] += x * rv;
         esend[j] += x * es;
         amp *= adec;
         env *= edec;
-        att += (1.0f - att) * p->att;
+        att += (1.0f - att) * patt;
     }
+    pt_rng = rng;
+    v->s1[0] = s1[0], v->s1[1] = s1[1], v->s2[0] = s2[0], v->s2[1] = s2[1];
     v->amp = amp, v->env = env, v->att = att, v->ph = ph, v->ph2 = ph2, v->ph3 = ph3, v->last = y;
-    if (amp < 0.0008f) {
+}
+static void render_pt_pluck(pluck_t *v, uint32_t n, float g, float es, float rv)
+{
+    const patch_t *p = &pt[v->layer ? 3 : 1];
+    const int useb = p->lb > 0.0f || (p->a >= 2 && p->fm > 0.0f);
+#define PT_RUN(A, B, U) pt_pluck_run(p, v, n, g, es, rv, A, B, U); break
+    switch (p->a * 5 + (useb ? 1 + p->b : 0)) {
+    case 0: PT_RUN(0, 0, 0);
+    case 1: PT_RUN(0, 0, 1);
+    case 2: PT_RUN(0, 1, 1);
+    case 3: PT_RUN(0, 2, 1);
+    case 4: PT_RUN(0, 3, 1);
+    case 5: PT_RUN(1, 0, 0);
+    case 6: PT_RUN(1, 0, 1);
+    case 7: PT_RUN(1, 1, 1);
+    case 8: PT_RUN(1, 2, 1);
+    case 9: PT_RUN(1, 3, 1);
+    case 10: PT_RUN(2, 0, 0);
+    case 11: PT_RUN(2, 0, 1);
+    case 12: PT_RUN(2, 1, 1);
+    case 13: PT_RUN(2, 2, 1);
+    case 14: PT_RUN(2, 3, 1);
+    case 15: PT_RUN(3, 0, 0);
+    case 16: PT_RUN(3, 0, 1);
+    case 17: PT_RUN(3, 1, 1);
+    case 18: PT_RUN(3, 2, 1);
+    default: PT_RUN(3, 3, 1);
+    }
+#undef PT_RUN
+    if (v->amp < 0.0008f) {
         v->on = 0;
         midi(v->layer ? 0x83u : 0x81u, v->note, 0);
     }

@@ -29,8 +29,8 @@ const char *piece_name(int i)
 }
 int piece_light(int i)
 {
-    pk_piece_t p;
-    return pack_piece(bank, i, &p) && (p.flags & PK_LIGHT);
+    pk_piece_t p;                                /* (1.6) AISLING's own eight: light */
+    return !pack_piece(bank, i, &p) || (p.flags & PK_LIGHT);
 }
 int piece_empty(int b, int i)                    /* (1.6) piece i of bank b is a place the pack left empty */
 {
@@ -99,6 +99,7 @@ static void defaults_of(int b, project_t *x)     /* bank b's recipes, its first 
         x->par[i] = global_par(i) ? en_param_info(i)->def : x->slot[0].par[i];
     x->pool = x->slot[0].pool;
     x->leds = 1;
+    x->light = 2;                                /* (1.6) the screen as the piece is, and the eight are light */
 }
 void project_defaults(void) { defaults_of(bank, &proj); }
 
@@ -246,7 +247,7 @@ int pack_install(const uint8_t *b, int len)
         return 4;
     if (len) {
         defaults_of(1, &proj_off);
-        if (!proj.light)                         /* (dark, as it ever was: now as the pieces are, the eight dark still) */
+        if (!proj.light)                         /* (dark: now as the pieces are, and the eight are light) */
             proj.light = 2;
         globals_to(&proj_off, &proj);
         off_dirty = 1;
@@ -269,6 +270,18 @@ void project_piece_reset(void)
     s.screen = proj.screen;                      /* (the view stays as it is) */
     take(&s);
     proj.slot[proj.piece].pings_ok = 0;          /* (its loops grown afresh too) */
+}
+
+void pack_patch_own(int l)                       /* (1.6) layer l's Patch as the piece playing has it */
+{
+    pk_piece_t pk;
+    const uint8_t *q = 0;
+    int i;
+    if (pack_piece(bank, proj.piece, &pk) && (pk.pmask >> l & 1))
+        for (q = pk.patches, i = 0; i < l; i++)
+            if (pk.pmask >> i & 1)
+                q += EN_PATCH_N;
+    en_patch(l, q);
 }
 
 void project_apply(void)                         /* (then en_regrow keeps the piece's loops, if it has them) */
