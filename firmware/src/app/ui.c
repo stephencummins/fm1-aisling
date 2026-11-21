@@ -888,11 +888,19 @@ static void set_piece_bank(int b, int i)        /* (packs) piece i of bank b (0 
         memset(ui.sig, 0, sizeof ui.sig);        /* (other names, perhaps another screen: all drawn again) */
     set_piece(i);
 }
-static void set_piece_ring(int n)               /* PRESET's turn: past the eighth, the pack's first, and round */
+static void set_piece_ring(int e)               /* PRESET's turn by e: past the eighth, the pack's first, and round.
+                                                  * (1.6) A place the pack left empty is passed over. */
 {
-    const int all = NPIECES * (pack_have() ? 2 : 1);
-    n = ((n + NPIECES * bank) % all + all) % all;
-    set_piece_bank(n / NPIECES, n % NPIECES);
+    const int all = NPIECES * (pack_have() ? 2 : 1), d = e < 0 ? -1 : 1, was = proj.piece + NPIECES * bank;
+    int n = was, k;
+    for (e = e < 0 ? -e : e; e > 0; e--)
+        for (k = 0; k < all; k++) {              /* (the eight are never empty: it ends) */
+            n = (n + d + all) % all;
+            if (!piece_empty(n / NPIECES, n % NPIECES))
+                break;
+        }
+    if (n != was)
+        set_piece_bank(n / NPIECES, n % NPIECES);
 }
 
 /* ----------------------------------------------------------- PERFORM --- */
@@ -1811,7 +1819,7 @@ static int jr_next(void)                         /* the set list's next piece af
 {
     int i;
     for (i = 1; i < NPIECES; i++)
-        if (!(ui.jr_out >> (proj.piece + i) % NPIECES & 1u))
+        if (!(ui.jr_out >> (proj.piece + i) % NPIECES & 1u) && !piece_empty(bank, (proj.piece + i) % NPIECES))
             return (proj.piece + i) % NPIECES;
     return -1;
 }
@@ -2200,7 +2208,7 @@ static void input(void)
         ui.turn_t = plat_ms();
     }
     if ((e = plat_enc(EN_PRESET)) != 0) {
-        set_piece_ring(proj.piece + (int)e);
+        set_piece_ring((int)e);
         ui.turn_t = plat_ms();
     }
     if ((btn >> B_GLO & 1u) && !ui.reset_done && plat_ms() - ui.down_t[B_GLO] > RESET_HOLD) {

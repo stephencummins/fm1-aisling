@@ -32,6 +32,11 @@ int piece_light(int i)
     pk_piece_t p;
     return pack_piece(bank, i, &p) && (p.flags & PK_LIGHT);
 }
+int piece_empty(int b, int i)                    /* (1.6) piece i of bank b is a place the pack left empty */
+{
+    pk_piece_t p;
+    return pack_piece(b, i, &p) && pk_empty(&p);
+}
 int screen_light(void) { return proj.light == 2 ? piece_light(proj.piece) : proj.light != 0; }
 
 static int global_par(int p) { return p == P_TUNE || p == P_MIDI; }

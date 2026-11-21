@@ -110,6 +110,20 @@ static inline void pk_recipe(const pk_piece_t *p, int16_t *par, uint16_t *pool)
     en_recipe_apply(p->pairs, p->npairs, par, pool);
     par[P_AIR] = (int16_t)(p->air_n ? EN_NAIRS + 1 : 0);
 }
+/* (1.6) a place with nothing in it: the Packs page's own filler, byte for byte (web/packs/packfile.js: empty), since
+ * a pack is always eight. PRESET and the Journey pass over it. */
+static inline int pk_empty(const pk_piece_t *p)
+{
+    static const uint8_t E[PK_PNAME + 4 + 18] = {'E', 'm', 'p', 't', 'y', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0,
+                                                 0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 29, 0, 0, 32, 0, 0};
+    int i;
+    if (p->flags || p->air_n || p->npairs != 6 || p->pmask)
+        return 0;
+    for (i = 0; i < (int)sizeof E; i++)          /* (the name, the four, the six pairs: they lie together) */
+        if (p->name[i] != E[i])
+            return 0;
+    return 1;
+}
 static inline void pk_air(const pk_piece_t *p) { en_air_set(p->air_s, p->air_d, p->air_n); }
 /* its patches into the engine; a layer it has none for, and every layer of p 0 (AISLING's own): the plain one */
 static inline void pk_patch(const pk_piece_t *p)

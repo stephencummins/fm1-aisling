@@ -58,6 +58,7 @@ const uint8_t *pack_bytes(int *len);     /* as installed (len 0: none) */
 int pack_install(const uint8_t *b, int len);   /* 0 kept (len 0: the pack removed), else pk_check's refusal; the
                                                 * pack's bank is its recipes again, the eight play. Then project_save */
 int project_bank(int b);                 /* 1: the other bank taken up as it was left (then project_apply) */
+int piece_empty(int b, int i);           /* (1.6) piece i of bank b (1: the pack's) is an empty place */
 int piece_light(int i);                  /* piece i of the bank playing a Saint: the white screen */
 int screen_light(void);                  /* the screen now: proj.light, or (2) as the piece playing is */
 void piece_recipe(int i, int16_t *par, uint16_t *pool);   /* piece i's recipe, of the bank playing */

@@ -66,6 +66,8 @@ const back = typeof mixed === "string" ? null : PF.read(mixed);
 say("a mix with empty places: the firmware takes it", !!back && fw(mixed) === 0 && back.why === 0);
 say("its pieces are where they were put, the empty ones known", !!back && back.name === "My mix" && back.pieces[0].name === r.pieces[3].name && eq(back.pieces[5].raw, raws[7]) &&
   PF.isEmpty(back.pieces[1].raw) && !PF.isEmpty(back.pieces[0].raw));
+say("the firmware knows the empty places for what they are, and no other", (() => { const f = path.join(out, "pk_mix.aispack"); fs.writeFileSync(f, mixed);
+  return +execFileSync(path.join(out, "pk_check_main"), [f, "empty"], { encoding: "utf8" }) === 0b11011010; })());
 // (1.6) patches: sixteen bytes a layer after a piece's pairs, its fourth byte saying whose
 const withPatch = (raw, mask) => { const n = [1, 2, 4, 8].filter((m) => mask & m).length, o = new Uint8Array(raw.length + 16 * n);
   o.set(raw); o[19] = mask; for (let i = 0; i < 16 * n; i++) o[raw.length + i] = i % 16 === 3 ? 256 - 12 : i % 50; return o; };
