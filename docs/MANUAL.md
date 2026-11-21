@@ -175,10 +175,11 @@ The **Journey page** is its set list: KNOB 1 picks a piece, KNOB 2 puts it in or
 out), and the journey passes over the ones that are out. The journey changes nothing in the pieces and saves
 nothing; the stay and the list aren't saved either, so it's off, with all eight in, every time the FM-1 starts.
 
-**The screen, dark or light.** KNOB 3 on the Journey page, **Screen**, sets the whole screen: Dark, the colours on
-black, as it comes; Light, the same colours deeper, on white, for a bright room or daylight; or Auto, as the piece
-is: AISLING's own eight are dark, and a [sound pack](#sound-packs)'s pieces say which they are (Saints & Sinners:
-a Saint white, a Sinner black). Installing a pack turns Dark to Auto. It changes nothing in the sound. It's saved with the pieces, as Lights is, and a CC never turns it. The turn itself redraws the whole
+**The screen, dark or light.** KNOB 3 on the Journey page, **Screen**, sets the whole screen: Auto, as it comes
+(1.6), as the piece is: AISLING's own eight are light, and a [sound pack](#sound-packs)'s pieces say which they are (Saints & Sinners:
+a Saint white, a Sinner black); Light, the colours deep on white, for a bright room or daylight; or Dark, the
+colours on black. An FM-1 that already has saved pieces keeps the screen it had (Dark, before 1.6, unless it was
+turned). Installing a pack turns Dark to Auto. It changes nothing in the sound. It's saved with the pieces, as Lights is, and a CC never turns it. The turn itself redraws the whole
 screen at once, the busiest moment the FM-1 has: set it between pieces rather than in the middle of one.
 
 ![The main screen, light: the same screen on white, the colours deeper](img/screen-light.png "The main screen with Screen at Light")
@@ -358,6 +359,16 @@ waves, Rain's showers coming and going, Fire's breathing and flicker); Colour, d
 wanders, the drops' pitch, the fire's glow, hiss and pops, how reedy the curlew's whistle); Ring, how much it rings
 (how narrow Wind's band, how long each drop and each pop, how slow the curlew's calls); Air, the hiss under it; Width,
 Reverb and Echo as everywhere.
+
+**Patch** (1.6) is one more voice, the last in the list of each of the four: the Drone, both Sequences and the Lead.
+It is a sound made of sixteen numbers instead of a fixed one: two oscillators (each a saw, a pulse, a sine or an
+organ tone; the second set apart from the first in semitones and cents, at its own level, or bending the first as an
+FM bell's does), a sine an octave under, noise, the filter (where it sits, its resonance, how far each note's envelope
+opens it, how far it follows the note up the keys), the attack and the level. The numbers aren't set on the FM-1: a
+[sound pack](#sound-packs)'s piece brings its own, a layer at a time, and that is how a pack has sounds the firmware
+doesn't. The layer's knobs do what they always do on top of it (Cutoff, Decay, Colour, the Lead's Tone, Vibrato and
+Glide, the filter's motion). On AISLING's own eight, and on a pack's piece that brings none, Patch is a plain sound:
+two saws a hair apart through the layer's filter.
 
 ---
 
@@ -823,16 +834,51 @@ every piece of a pack first, with no FM-1, on the same code the FM-1 runs.
 
 - **Install:** connect on the page, stop the FM-1 (PLAY) and let the sound die away, then press Install. It takes a
   few seconds. Installing another pack replaces the one that was there.
+- **On your FM-1:** once connected, the page reads the pack back off the FM-1 and says which it is: one from its
+  list, one of your own, or one it has never seen (which it can copy off, to keep).
 - **Play it:** turn PRESETS past the eighth piece and you are in the pack's first; on through its eight and round to
   Skellig again. Program changes 8 to 15 choose them too.
 - **Yours as the eight are:** every piece of a pack keeps its settings as you leave it, apart from the eight's. Hold
   GLO to take one back to how the pack made it.
-- **Remove:** the page's "Take it off the FM-1". The eight are untouched. Your changes to the pack's pieces go with
-  it, and they go too when another pack replaces it.
+- **Remove:** the page's "Take the pack off". The eight are untouched.
+- **Your changes are kept:** before a pack leaves the FM-1, taken off or replaced by another, the page reads its
+  eight pieces as you left them and keeps them in the browser. When that pack goes on again, "Bring back my pieces"
+  puts them back; Tune, MIDI out, Lights and Screen are left as they are. "Save my pieces to a file" carries them to
+  another browser or another FM-1 with the same pack. A pack removed some other way (the command line, another
+  browser) has nothing kept.
+- **A pack from a file:** "Add a pack from a file" takes a `.aispack` someone made or sent you. The page checks it as
+  the FM-1 would, then lists it with the others, to hear and to install. "Download the pack" gives you any pack as
+  such a file.
+- **A pack by a link:** "Copy a link to it" on a pack of yours makes a link with the whole pack inside it, to pass
+  on with no file: whoever opens it gets the pack in their own list. A pack kept as a file on a web site can be linked
+  too: `https://aisling.stephen8n.com/packs/?add=` and the file's https address (its site must allow other sites to
+  read it). A link only ever adds to the list; nothing goes onto an FM-1 until you press Install.
+- **A piece at a time** (1.6): connected, the page lists the sixteen pieces on the FM-1. "Add to my FM-1" on any
+  pack's piece puts it in the first free place, "Remove" empties a place, and "Put these on the FM-1" makes one pack
+  of the eight places and installs it. The pieces that stay keep what you made of them. PRESETS and the Journey pass
+  over an empty place.
 - A pack may need a newer AISLING than the FM-1 has: the page says so, and [the installer](#1-install) updates it.
 
 Packs are data, not code: a pack can only ask for voices and scales the firmware already has. To make one, see
 `packs/saints-sinners.json` and `tools/make_pack.py` in the source.
+
+**Sounds of your own** (1.6). A pack's piece can carry a [Patch](#5-the-layers) for any of its Drone, Sequence, Lead
+and Sequence 2: sixteen numbers a layer, which travel in the pack with the piece. Such a pack needs AISLING 1.6; one
+without a patch stays a 1.5 pack. There are two ways to make them:
+
+- **By ear, in a DAW.** AISLING's engine is also a plugin (VST3, Audio Unit, and an app by itself; built from
+  `plugin/` in the source, where its README has the details). Load a pack, choose a piece, and shape each layer's
+  Patch while the piece plays in the host's time, or play it from a MIDI clip or a keyboard. "Save into the pack"
+  writes the `.aispack` with the piece's patches in it, to add on the Packs page and install as any other.
+- **As numbers.** A `"patch"` block on a piece in `packs/NAME.json`, built by `tools/make_pack.py`; the plugin's
+  "Copy as JSON" gives the block.
+
+With an FM-1 on USB, the plugin's "send to the fm-1" plays each patch on the FM-1 itself as you shape it. The FM-1
+must have the same pack (by its name) and be on the same piece; otherwise it keeps its own voices and the plugin says
+why. Nothing is stored and the piece isn't marked as changed: switch the FM-1 off, or close the plugin, and the
+piece's own sound is back. To keep a sound, save it into the pack and install the pack. The plugin goes on sending
+for as long as it is in the host's set, its window open or not; and the plugin, the editor and the Packs page share
+the one link, so use one at a time.
 
 ## 12. Saving
 

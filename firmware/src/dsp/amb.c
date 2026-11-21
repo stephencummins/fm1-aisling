@@ -250,11 +250,11 @@ void en_recipe_apply(const uint8_t *pairs, int n, int16_t *par, uint16_t *pool)
     *pool = EN_MODE_POOL[par[P_MODE]];
 }
 
-const char *const EN_CV_NAME[EN_NCV] = {"Organ", "Strings", "Pipes", "Harmonium", "Glass", "Choir"};   /* (BERLIN: the
+const char *const EN_CV_NAME[EN_NCV] = {"Organ", "Strings", "Pipes", "Harmonium", "Glass", "Choir", "Patch"};   /* (BERLIN: the
                                                  * Drone's; the voices batch: Horn was Choir, its place kept; the formant
                                                  * Choir appended; AISLING: Pipes in Horn's place, Harmonium in Saws') */
 const char *const EN_BV_NAME[EN_NBV] = {"Odyssey", "Mini", "Flute", "Theremin", "Synthi", "Chanter", "Fiddle",
-                                        "Voice", "Slide"};   /* (BERLIN: the Lead's; AISLING's appended, so the saves and
+                                        "Voice", "Slide", "Patch"};   /* (BERLIN: the Lead's; AISLING's appended, so the saves and
                                                      * NACHTFAHRT's pieces keep theirs) */
 const char *const EN_CQ_NAME[EN_NCQ] = {"Empty", "Major", "Minor", "Sus2", "Sus4", "Dim", "Aug"};
 const char *const EN_CX_NAME[EN_NCX] = {"Triad", "6", "7", "Maj7", "9", "11", "Add9"};
@@ -290,11 +290,13 @@ static char *itoa_s(int v, char *b)
 #define SV_BOUZ 7
 #define SV_DULC 8
 #define SV_BODH 9
+#define SV_PATCH 10                              /* (1.6) the player's own: an oscillator voice, after the strings */
+#define SV_STRUNG(v) ((v) >= SV_PLUCK && (v) != SV_PATCH)   /* (a string or the drum) */
 static int sv_of(int l, int v)
 {
     if (l)
         return (unsigned)v < EN_NS2V ? v : 0;
-    return (unsigned)v < EN_NSV ? (v >= 5 ? v + 1 : v) : 0;
+    return (unsigned)v < EN_NSV ? (v == EN_NSV - 1 ? SV_PATCH : v >= 5 ? v + 1 : v) : 0;
 }
 
 void en_param_text(int i, int v, char *b)
@@ -507,7 +509,7 @@ const char *en_chord_name(const int *pcs, int n, char *buf)
 
 /* ------------------------------------------------------------ commands --- */
 static float cho_t;                              /* (1.3) the Chorus knob, 0..1 */
-enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT, C_THIN, C_DAY };
+enum { C_SET, C_POOL, C_PLAY, C_NEXT, C_FREEZE, C_SEED, C_PANIC, C_CLOCK, C_REGROW, C_MUTE, C_PERF, C_FX, C_SEQ, C_MACRO, C_PROT, C_REWALK, C_LOCK, C_SEQSET, C_LKEY, C_LMIDI, C_MOVE, C_LFORGET, C_FX2, C_CHORUS, C_AMT, C_THIN, C_DAY, C_NOTE };
 #define QN 512u                                 /* (a piece is every parameter at once: room for twice over and more) */
 _Static_assert(QN >= 2u * (P_NPARAMS + 8), "the command queue can't hold a piece's parameters twice over");
 static uint32_t q[QN];
@@ -800,6 +802,54 @@ static float chord_vol;
 static int shape, root_note = 55;               /* the voicing's shape, the chord's root as voiced (MIDI) */
 /* (the dub's chord voices, by number: a regrow's voicing still follows them, regrow; the Drone's own are EN_CV_NAME) */
 enum { CV_SAWS, CV_KEYS, CV_ORGAN, CV_PAD, CV_BELL };
+/* (1.6) Patch: the player's own voice, one a layer (amb.h's bytes, as the renders want them). Made of what the
+ * built-in voices are made of, and no dearer than the dearest of them */
+typedef struct {
+    uint8_t a, b, raw[EN_PATCH_N];
+    float w, ratio, lb, fm, fmf, sub, nz, cut, res, ea, kf, att, gain;
+} patch_t;
+static patch_t pt[4];
+static uint32_t pt_rng = 0x6C8E9CF5u;            /* (its own dice: the other voices' streams as they were) */
+static const int8_t PT_DEF[4][EN_PATCH_N] = {    /* two saws a hair apart, as each layer's synths are filtered */
+    {0, 50, 0, 0, 6, 70, 0, 0, 0, 0, 0, 30, 0, 0, 0, -7},
+    {0, 50, 0, 0, 7, 70, 0, 0, 0, 0, 0, 15, 50, 0, 0, 0},
+    {0, 50, 0, 0, 7, 70, 0, 0, 0, 0, 0, 48, 50, 100, 0, 0},
+    {0, 50, 0, 0, 7, 70, 0, 0, 30, 0, 0, 15, 50, 0, 0, 0}};
+static int pt_cl(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+void en_patch(int layer, const uint8_t *p)
+{
+    static const int8_t LO[EN_PATCH_N] = {0, 5, 0, -24, -50, 0, 0, 0, 0, 0, -36, 0, 0, 0, 0, -24},
+                        HI[EN_PATCH_N] = {3, 50, 3, 36, 50, 100, 100, 100, 100, 100, 36, 100, 100, 100, 100, 12};
+    patch_t *t;
+    int q[EN_PATCH_N], i;
+    if ((unsigned)layer > 3u)
+        return;
+    t = &pt[layer];
+    for (i = 0; i < EN_PATCH_N; i++) {
+        q[i] = pt_cl(p ? (LO[i] < 0 ? (int8_t)p[i] : p[i]) : PT_DEF[layer][i], LO[i], HI[i]);
+        t->raw[i] = (uint8_t)q[i];
+    }
+    t->a = (uint8_t)q[0], t->b = (uint8_t)q[2];
+    t->w = (float)q[1] * 0.01f;
+    t->ratio = fm_exp2f(((float)q[3] + (float)q[4] * 0.01f) * (1.0f / 12.0f));
+    t->lb = (float)q[5] * 0.01f;
+    t->fm = (float)q[6] * 0.03f;                 /* (turns: Glass's is 1.8 on the Sequence, 0.7 on the Drone) */
+    t->fmf = (float)q[7] * 0.01f;
+    t->sub = (float)q[8] * 0.01f;
+    t->nz = (float)q[9] * 0.02f;
+    t->cut = fm_exp2f((float)q[10] * (1.0f / 12.0f));
+    t->res = (float)q[11] * 0.01f;
+    t->ea = (float)q[12] * 0.01f;
+    t->kf = (float)q[13] * (0.01f / 12.0f);
+    t->att = 0.03f * fm_exp2f(-6.6f * (float)q[14] * 0.01f);   /* (~1 ms .. ~75 ms) */
+    t->gain = 0.7f * fm_exp2f((float)q[15] * (1.0f / 12.04f));
+}
+void en_patch_get(int layer, uint8_t *p)
+{
+    int i;
+    for (i = 0; i < EN_PATCH_N; i++)
+        p[i] = pt[layer & 3].raw[i];
+}
 static int cvoice;                              /* the chord's voice now */
 
 /* ------------------------------------------------------------------ the grid --- */
@@ -1509,6 +1559,7 @@ typedef struct {
     uint16_t ks_r2, ks_h;                        /* (AISLING, step 4: Bouzouki, Dulcimer) the second string's read;
                                                   * the half of the line each string has (0: one string, the whole) */
     float ks_fr2, ks_fb2, ks_a2, ks_x2, ks_s;    /* the second string's, as the first's; the loop's weight (the voice's) */
+    float ph3;                                   /* (1.6) Patch's sub */
 } pluck_t;
 static pluck_t pluck[NPLUCK];
 
@@ -1565,7 +1616,7 @@ volatile int8_t en_s2oct_shift;
 volatile uint16_t en_seq_lane[5], en_seq_acc[2];   /* (the Pattern page's lanes as Auto plays them: each sequence's
                                                   * steps (as Density thins them), octaves; the Sequence's skips; accents) */
 const char *const EN_SV_NAME[EN_NS2V] = {"2600", "Moog",     "Synthi",   "Pulse",  "Glass",
-                                         "Sub",  "Harp", "Bouzouki", "Dulcimer", "Bodhran"};
+                                         "Sub",  "Harp", "Bouzouki", "Dulcimer", "Bodhran", "Patch"};
 
 /* a piece's patterns, kept (en_seq_get, en_seq: EN_SEQ_N bytes): each one's degrees (16 + 16), steps, octaves and
  * accents (two bytes each, low first) and Density's order (16 + 16) */
@@ -1823,6 +1874,9 @@ static void br_strike(pluck_t *v)
     svf_coefs(v->c1, fm_clampf(3.0f * v->cut * fx_swm, 300.0f, 5000.0f), 1.2f);
 }
 
+#ifdef EN_HOST
+static uint32_t sq_hand;                         /* (the plugin: en_hand) */
+#endif
 static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, panned across from the note */
 {
     int i, best = 0, sv;
@@ -1840,7 +1894,7 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
     if (v->on) {
         midi(v->layer ? 0x83u : 0x81u, v->note, 0);
 #ifdef EN_HOST
-        if (sv < SV_PLUCK && fm_fabsf(v->last) > en_pl_steal)    /* (the step a take leaves: an oscillator's
+        if (!SV_STRUNG(sv) && fm_fabsf(v->last) > en_pl_steal)    /* (the step a take leaves: an oscillator's
                                                                    * last sample; a string's or the drum's,
                                                                    * render_ks's) */
             en_pl_steal = fm_fabsf(v->last);
@@ -1848,8 +1902,8 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
     }
     /* (Harp) a string rings long, so it is often taken while still heard: what was sounding fades out under it
      * (render_ks: ~2 ms from its last sample), no step; (step 4) the other strings and the drum the same */
-    v->ks_dk = v->on && sv >= SV_PLUCK ? v->last : 0.0f;
-    v->tk = (uint8_t)(v->on && sv >= SV_PLUCK);
+    v->ks_dk = v->on && SV_STRUNG(sv) ? v->last : 0.0f;
+    v->tk = (uint8_t)(v->on && SV_STRUNG(sv));
     v->on = 1;
     v->note = (uint8_t)n;
     v->layer = (uint8_t)l;
@@ -1857,7 +1911,9 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
     v->dt = mtof((float)n) * (1.0f / EN_SR);
     v->dt2 = v->dt * (v->voice == 1 ? 1.004f : v->voice == 4 ? 3.5f : 0.5f);   /* Moog's second saw, Glass's
                                                                                 * modulator, Sub's octave under */
-    v->ph = v->ph2 = 0.0f;
+    if (sv == SV_PATCH)
+        v->dt2 = fm_minf(v->dt * pt[l ? 3 : 1].ratio, 0.45f);
+    v->ph = v->ph2 = v->ph3 = 0.0f;
     v->amp = (float)vel * (1.0f / 127.0f);
     v->att = 0.0f;
     v->env = 1.0f;
@@ -1873,7 +1929,7 @@ static void pluck_voice(int l, int n, int vel, int rep)   /* rep: a repeat, pann
         ks_strike(v, ks_line[best]);
     else if (v->voice == SV_BODH)
         br_strike(v);
-    else if (v->voice > SV_PLUCK)
+    else if (SV_STRUNG(v->voice))
         ks2_strike(v, ks_line[best]);
     p = ((l ? 0.0f : rep ? 0.35f : -0.25f) + 1.0f) * (FM_PI / 4.0f);
     v->gl = fm_cosf(p);
@@ -2055,8 +2111,15 @@ static void seq_tick(void)                       /* a sixteenth: the sequences' 
                 vel = q.acc >> st & 1u ? 120 : 120 - 86 * par[P_SACCENT] / 100;   /* the root accented (Accent 50: 77,
                                                                                * as Synth Seeker's 121 and 77); nothing
                                                                                * more (no hidden level: spec 3) */
-                pluck_voice(l, played, vel, 0);
-                roll_n[l] = (int8_t)played, roll_v[l] = (uint8_t)vel;
+#ifdef EN_HOST
+                if (sq_hand >> l & 1u)           /* (the plugin's notes instead: no note, so no repeat of one) */
+                    played = -1;
+                else
+#endif
+                {
+                    pluck_voice(l, played, vel, 0);
+                    roll_n[l] = (int8_t)played, roll_v[l] = (uint8_t)vel;
+                }
             }
             sq_pos[l] = seq_next(&q, st);
             if (fxm >> EN_FX_RETURN & 1u && sq_pos[l] >= 4)   /* (the grid's Return: round its first four steps) */
@@ -2368,6 +2431,10 @@ static void lead_off(void)                       /* the note let go (a grace sou
 }
 void en_lead_key(int d, int on) { post(C_LKEY, d, on); }
 void en_lead_midi(int note, int on) { post(C_LMIDI, note, on); }
+#ifdef EN_HOST
+void en_note(int layer, int note, int vel) { post(C_NOTE, note & 127, (layer & 3) << 8 | (vel & 127)); }
+void en_hand(uint32_t mask) { sq_hand = mask; }
+#endif
 void en_lead_forget(void) { post(C_LFORGET, 0, 0); }
 
 static int ld_deg_raw(int d)                     /* scale degree d (any) as a note, in the Lead's register */
@@ -3469,7 +3536,8 @@ static void orn_plan(int dg, int dur)
     static const uint8_t W[EN_NBV][5] = {        /* (cut, tap, roll, slide, turn) */
         {40, 10, 20, 30, 0}, {40, 10, 20, 30, 0}, {50, 10, 35, 5, 0}, {0, 0, 0, 100, 0},
         {40, 10, 20, 30, 0}, {45, 15, 40, 0, 0},  {20, 5, 35, 40, 0}, {0, 0, 0, 60, 40},
-        {0, 5, 0, 80, 15}};                      /* (the Slide: slides, a turn now and then) */
+        {0, 5, 0, 80, 15},                       /* (the Slide: slides, a turn now and then) */
+        {40, 10, 20, 30, 0}};                    /* (Patch: as the synths) */
     const uint32_t r0 = seq_rand(&or_rng), r1 = seq_rand(&or_rng), r2 = seq_rand(&or_rng);
     const int lv = (unsigned)par[P_LVOICE] < EN_NBV ? par[P_LVOICE] : 0, nt = lead.note;
     const float note = (float)nt, u = (float)(r2 >> 8) * (1.0f / 16777216.0f), nl = (float)dur * step_len;
@@ -4454,6 +4522,8 @@ void en_init(void)
         sint[i] = fm_sinf((float)i * (FM_TWO_PI / (float)SN));
     for (i = 0; i <= SN; i++)
         orgt[i] = sint[i % SN] + 0.5f * sint[2 * i % SN] + 0.3f * sint[3 * i % SN] + 0.2f * sint[4 * i % SN];
+    for (i = 0; i < 4; i++)
+        en_patch(i, 0);
     ch_gt_init();                                /* (the Choir's level steps here, not on the audio thread's first
                                                   * Choir chunk: ~230 trig calls in one block) */
     rng = 0x9E3779B9u;                           /* (BERLIN) the dice from the top: a reset plays the same again */
@@ -4730,6 +4800,23 @@ static void drain(void)
             mutes = (uint32_t)a;
             break;
         case C_PERF: perf = (uint32_t)a; break;
+#ifdef EN_HOST
+        case C_NOTE: {
+            const int l = b >> 8 & 3, vel = b & 127;
+            if (l == 2) {
+                if (vel) {                       /* (as a key: its own phrase let go, back two bars after) */
+                    ld_n = 0;
+                    ld_due = 0;
+                    ld_cap &= (uint8_t)~(CP_ANS | CP_NEXT);
+                    ld_key = (int16_t)(LD_MKEY + a);
+                    lead_note(a);
+                } else
+                    lead_release(LD_MKEY + a);
+            } else if (l && vel)
+                pluck_voice(l == 3, a, vel, 0);
+            break;
+        }
+#endif
         case C_DAY:
             if (a < P_NPARAMS && dofs[a] != (int8_t)b) {
                 const int before = pe(a);
@@ -6266,6 +6353,137 @@ static void render_bodhran(pluck_t *v, uint32_t n, float g, float es, float rv)
     }
 }
 
+/* (1.6) Patch's sound: A (a sine or organ A turned by B, the FM), B, the sub, the noise. d: the FM in turns, held
+ * under what the note's pitch has room for (Carson's rule to 0.45 of the rate: pt_fmd) */
+static inline float pt_osc(int sh, float t, float dt, float w)
+{
+    switch (sh) {
+    case 1: return blep_pulse(t, dt, w);
+    case 2: return sine(t);
+    case 3: return organ(t);
+    default: return blep_saw(t, dt);
+    }
+}
+static inline float pt_fmd(const patch_t *p, float dt, float e)
+{
+    const float room = ((0.45f - dt) / (dt * p->ratio) - 1.0f) * (1.0f / FM_TWO_PI);
+    return fm_clampf(p->fm * e, 0.0f, fm_maxf(room, 0.0f));
+}
+static inline float pt_mix(const patch_t *p, float ph, float ph2, float ph3, float dt, float dt2, float d, float nz)
+{
+    const float b = pt_osc(p->b, ph2, dt2, p->w);
+    float x;
+    if (p->a >= 2) {
+        const float t = ph + 4.0f + d * b;
+        x = p->a == 2 ? sine(t) : organ(frac1(t));
+    } else
+        x = pt_osc(p->a, ph, dt, p->w);
+    x += p->lb * b + p->sub * sine(ph3);
+    if (nz > 0.0f) {
+        pt_rng = pt_rng * 1664525u + 1013904223u;
+        x += nz * ((float)(pt_rng >> 8) * (1.0f / 16777216.0f) - 0.5f);
+    }
+    return x * p->gain;
+}
+/* (1.6) a Sequence's note in Patch. As the Drone's (pt_drone): what the patch does not use is not worked out, the
+ * shapes are constants where this is called (each call its own loop), and the note's filters and phases are held
+ * here while it runs. The sums are as pt_mix's */
+static inline __attribute__((always_inline)) void pt_pluck_run(const patch_t *p, pluck_t *v, uint32_t n, float g,
+                                                               float es, float rv, int sa, int sb, int useb)
+{
+    const float dt = v->dt, dt2 = v->dt2, adec = v->adec, edec = v->edec, w = p->w, lb = p->lb, sub = p->sub,
+                gain = p->gain, pnz = p->nz, patt = p->att, gl = v->gl, gr = v->gr,
+                kc = v->cut * (p->cut * fm_exp2f(p->kf * ((float)v->note - 60.0f))), k = 1.6f - 1.45f * p->res,
+                ea7 = 7.0f * p->ea, fm0 = 1.0f - p->fmf, fmf = p->fmf;
+    const int usesub = sub > 0.0f, usenz = pnz > 0.0f, usefm = sa >= 2 && useb;
+    float amp = v->amp, env = v->env, att = v->att, ph = v->ph, ph2 = v->ph2, ph3 = v->ph3, d = 0.0f, y = 0.0f,
+          c1[4], c2[4], s1[2], s2[2];
+    uint32_t j, rng = pt_rng;
+    s1[0] = v->s1[0], s1[1] = v->s1[1], s2[0] = v->s2[0], s2[1] = v->s2[1];
+    for (j = 0; j < n; j++) {
+        float x, b = 0.0f, bp;
+        if (!(j & 15u)) {
+            const float f = kc * fm_exp2f(ea7 * env) * fx_swm;
+            svf_coefs(c1, f, k);
+            svf_coefs(c2, f, 0.6f);
+            if (usefm)
+                d = pt_fmd(p, dt, fm0 + fmf * env);
+        }
+        if (useb)
+            b = pt_osc(sb, ph2, dt2, w);
+        if (sa >= 2) {
+            const float t = useb ? ph + 4.0f + d * b : ph + 4.0f;
+            x = sa == 2 ? sine(t) : organ(frac1(t));
+        } else
+            x = pt_osc(sa, ph, dt, w);
+        if (useb && usesub)
+            x += lb * b + sub * sine(ph3);
+        else if (useb)
+            x += lb * b;
+        else if (usesub)
+            x += sub * sine(ph3);
+        if (usenz) {
+            rng = rng * 1664525u + 1013904223u;
+            x += pnz * (0.2f + 0.8f * env) * ((float)(rng >> 8) * (1.0f / 16777216.0f) - 0.5f);
+        }
+        x *= gain;
+        ph += dt;
+        if (ph >= 1.0f)
+            ph -= 1.0f;
+        ph2 += dt2;
+        if (ph2 >= 1.0f)
+            ph2 -= 1.0f;
+        ph3 += 0.5f * dt;
+        if (ph3 >= 1.0f)
+            ph3 -= 1.0f;
+        x = svf_lp(c1, s1, x, &bp);
+        x = svf_lp(c2, s2, x, &bp);
+        y = x *= amp * att * g;
+        mixl[j] += x * gl;
+        mixr[j] += x * gr;
+        rsend[j] += x * rv;
+        esend[j] += x * es;
+        amp *= adec;
+        env *= edec;
+        att += (1.0f - att) * patt;
+    }
+    pt_rng = rng;
+    v->s1[0] = s1[0], v->s1[1] = s1[1], v->s2[0] = s2[0], v->s2[1] = s2[1];
+    v->amp = amp, v->env = env, v->att = att, v->ph = ph, v->ph2 = ph2, v->ph3 = ph3, v->last = y;
+}
+static void render_pt_pluck(pluck_t *v, uint32_t n, float g, float es, float rv)
+{
+    const patch_t *p = &pt[v->layer ? 3 : 1];
+    const int useb = p->lb > 0.0f || (p->a >= 2 && p->fm > 0.0f);
+#define PT_RUN(A, B, U) pt_pluck_run(p, v, n, g, es, rv, A, B, U); break
+    switch (p->a * 5 + (useb ? 1 + p->b : 0)) {
+    case 0: PT_RUN(0, 0, 0);
+    case 1: PT_RUN(0, 0, 1);
+    case 2: PT_RUN(0, 1, 1);
+    case 3: PT_RUN(0, 2, 1);
+    case 4: PT_RUN(0, 3, 1);
+    case 5: PT_RUN(1, 0, 0);
+    case 6: PT_RUN(1, 0, 1);
+    case 7: PT_RUN(1, 1, 1);
+    case 8: PT_RUN(1, 2, 1);
+    case 9: PT_RUN(1, 3, 1);
+    case 10: PT_RUN(2, 0, 0);
+    case 11: PT_RUN(2, 0, 1);
+    case 12: PT_RUN(2, 1, 1);
+    case 13: PT_RUN(2, 2, 1);
+    case 14: PT_RUN(2, 3, 1);
+    case 15: PT_RUN(3, 0, 0);
+    case 16: PT_RUN(3, 0, 1);
+    case 17: PT_RUN(3, 1, 1);
+    case 18: PT_RUN(3, 2, 1);
+    default: PT_RUN(3, 3, 1);
+    }
+#undef PT_RUN
+    if (v->amp < 0.0008f) {
+        v->on = 0;
+        midi(v->layer ? 0x83u : 0x81u, v->note, 0);
+    }
+}
 static void render_plucks(uint32_t n)           /* (and Pluck's strings: render_ks) */
 {
     int i;
@@ -6280,8 +6498,11 @@ static void render_plucks(uint32_t n)           /* (and Pluck's strings: render_
         float y = 0.0f;
         if (!v->on)
             continue;
-        if (v->voice >= SV_PLUCK) {              /* (a string or the drum: no oscillator, not these filters) */
-            if (v->voice == SV_PLUCK)
+        if (v->voice >= SV_PLUCK) {              /* (a string or the drum: no oscillator, not these filters; Patch:
+                                                  * its own) */
+            if (v->voice == SV_PATCH)
+                render_pt_pluck(v, n, g, es, 0.35f * sq_rev[v->layer]);
+            else if (v->voice == SV_PLUCK)
                 render_ks(v, ks_line[i], n, g, es, 0.35f * sq_rev[v->layer]);
             else if (v->voice == SV_BODH)        /* (a drum's repeats muddy the line: a little) */
                 render_bodhran(v, n, g, 0.3f * es, 0.35f * sq_rev[v->layer]);
@@ -6369,6 +6590,7 @@ static float ens_tap(float d)                    /* d samples back, between two 
  * After Felucca's VOICE (eng_formant.c, Leo Kuroshita, Hügelton Instruments, GPL-3.0), written again in floating
  * point; its vowel table (F1..F3) is Felucca's VOWEL_F as it stands, itself Hillenbrand's means */
 #define CV_CHOIR 5
+#define CV_PATCH 6
 #define CH_TILT 0.0950f                          /* (the tilt's one-pole: 1 - exp(-2 pi 700 / fs), its corner 700 Hz) */
 #define CH_GAIN 0.57f                            /* (its level: about Strings' at the same Colour and Resonance) */
 #define CH_NG 39                                 /* (the level's estimate: 80 Hz x 2^(i/6), i < 39) */
@@ -6574,14 +6796,90 @@ static void choir(uint32_t n, float g, const float *c)   /* both banks into drl/
 #endif
 }
 
+/* (1.6) the Drone in Patch, a voice at a time: what the patch does not use is not worked out (B when it is silent
+ * and turns nothing, the sub at no level), and the shapes are chosen once a voice, not once a sample (sa, sb: constants
+ * where this is called, so each call is its own loop). Ten voices of it must cost what Pipes' do. The sums are as
+ * pt_mix's, so a patch sounds as it does in the other layers. amp: the swell, a sample at a time (pt_amp) */
+static float pt_amp[BLK];
+static inline __attribute__((always_inline)) void pt_drone_run(const patch_t *p, drv_t *v, uint32_t n, const float *c,
+                                                               float pm, float d, float p2, int sa, int sb, int useb)
+{
+    const float dt = v->dt, dt2 = fm_minf(p2 * dt, 0.45f), st2 = p2 * dt, w = p->w, lb = p->lb, sub = p->sub,
+                gain = p->gain, gl = v->gl, gr = v->gr;
+    const int usesub = sub > 0.0f;
+    float ph = v->ph, ph2 = v->ph2, vp = v->vp, fs[2];
+    uint32_t j;
+    fs[0] = v->s[0], fs[1] = v->s[1];
+    for (j = 0; j < n; j++) {
+        float x, b = 0.0f, bp;
+        if (useb)
+            b = pt_osc(sb, ph2, dt2, w);
+        if (sa >= 2) {
+            const float t = useb ? ph + 4.0f + d * b : ph + 4.0f;
+            x = sa == 2 ? sine(t) : organ(frac1(t));
+        } else
+            x = pt_osc(sa, ph, dt, w);
+        if (useb && usesub)
+            x += lb * b + sub * sine(vp);
+        else if (useb)
+            x += lb * b;
+        else if (usesub)
+            x += sub * sine(vp);
+        x *= gain;
+        vp += 0.5f * dt;
+        if (vp >= 1.0f)
+            vp -= 1.0f;
+        ph += dt;
+        if (ph >= 1.0f)
+            ph -= 1.0f;
+        ph2 += st2;
+        if (ph2 >= 1.0f)
+            ph2 -= (float)(int)ph2;
+        x = svf_lp(c, fs, x, &bp);
+        x = x * pt_amp[j] * pm;
+        drl[j] += x * gl;
+        drr[j] += x * gr;
+    }
+    v->ph = ph, v->ph2 = ph2, v->vp = vp, v->s[0] = fs[0], v->s[1] = fs[1];
+}
+static void pt_drone(const patch_t *p, drv_t *v, uint32_t n, const float *c, float pm, float d, float p2)
+{
+    const int useb = p->lb > 0.0f || (p->a >= 2 && d > 0.0f);
+#define PT_RUN(A, B, U) pt_drone_run(p, v, n, c, pm, d, p2, A, B, U); break
+    switch (p->a * 5 + (useb ? 1 + p->b : 0)) {
+    case 0: PT_RUN(0, 0, 0);
+    case 1: PT_RUN(0, 0, 1);
+    case 2: PT_RUN(0, 1, 1);
+    case 3: PT_RUN(0, 2, 1);
+    case 4: PT_RUN(0, 3, 1);
+    case 5: PT_RUN(1, 0, 0);
+    case 6: PT_RUN(1, 0, 1);
+    case 7: PT_RUN(1, 1, 1);
+    case 8: PT_RUN(1, 2, 1);
+    case 9: PT_RUN(1, 3, 1);
+    case 10: PT_RUN(2, 0, 0);
+    case 11: PT_RUN(2, 0, 1);
+    case 12: PT_RUN(2, 1, 1);
+    case 13: PT_RUN(2, 2, 1);
+    case 14: PT_RUN(2, 3, 1);
+    case 15: PT_RUN(3, 0, 0);
+    case 16: PT_RUN(3, 0, 1);
+    case 17: PT_RUN(3, 1, 1);
+    case 18: PT_RUN(3, 2, 1);
+    default: PT_RUN(3, 3, 1);
+    }
+#undef PT_RUN
+}
 static void render_drone(uint32_t n)
 {
-    static const float P2[EN_NCV] = {1.006f, 1.006f, 2.0016f, 1.003f, 3.5f, 1.006f};   /* (ph2's rate: Pipes' baritone
+    static const float P2[EN_NCV] = {1.006f, 1.006f, 2.0016f, 1.003f, 3.5f, 1.006f, 1.0f};   /* (ph2's rate: Pipes' baritone
                                                   * drone an octave up and a hair sharp, Harmonium's celeste rank) */
     const int cv = cvoice < EN_NCV ? cvoice : 0;
     float g = mutes & EN_M_CHORD ? 0.0f : chord_vol * 0.072f, fc = 1800.0f * fm_exp2f(2.0f * rel(P_CCOL)) * fo_mul(FO_DRONE);
-    const float k = fm_clampf(1.2f - 0.9f * rel(P_CRES), 0.2f, 2.0f);
+    float k = fm_clampf(1.2f - 0.9f * rel(P_CRES), 0.2f, 2.0f);
     const uint32_t hm_odd = hm_n & 1u;
+    const patch_t *const p = &pt[0];
+    const float p2 = cv == CV_PATCH ? p->ratio : P2[cv];
     float c[4], ch[4], cf1[4], cf2[4];
     uint32_t j;
     int b, i;
@@ -6600,6 +6898,10 @@ static void render_drone(uint32_t n)
         if (hm_ph2 >= 1.0f)
             hm_ph2 -= 1.0f;
     }
+    if (cv == CV_PATCH) {                        /* (1.6) its filter round Colour's, its resonance on Resonance's */
+        fc *= p->cut;
+        k = fm_clampf(k * (1.3f - p->res), 0.15f, 2.0f);
+    }
     svf_coefs(c, fc, k);
     if (cv == 3)
         svf_coefs(ch, 2.0f * fc, k);             /* (the Harmonium's low-pass at half the rate) */
@@ -6617,6 +6919,16 @@ static void render_drone(uint32_t n)
         const float to = dr_on[b] ? 1.0f : 0.0f;
         if (!dr_on[b] && lvl <= 0.0f)
             continue;
+        if (cv == CV_PATCH) {                    /* (1.6) a voice at a time: pt_drone */
+            for (j = 0; j < n; j++) {
+                lvl = to > lvl ? fm_minf(lvl + dr_up, 1.0f) : fm_maxf(lvl - dr_down, 0.0f);
+                pt_amp[j] = lvl * lvl * g;
+            }
+            for (i = 0; i < NDR; i++)
+                pt_drone(p, &drv[b][i], n, c, i == EN_NPAD ? dr_pedal : 1.0f, pt_fmd(p, drv[b][i].dt, 1.0f), p2);
+            dr_lvl[b] = lvl;
+            continue;
+        }
         for (j = 0; j < n; j++) {
             float a;
             lvl = to > lvl ? fm_minf(lvl + dr_up, 1.0f) : fm_maxf(lvl - dr_down, 0.0f);
@@ -6667,7 +6979,7 @@ static void render_drone(uint32_t n)
                 v->ph += v->dt;
                 if (v->ph >= 1.0f)
                     v->ph -= 1.0f;
-                v->ph2 += P2[cv] * v->dt;
+                v->ph2 += p2 * v->dt;
                 if (v->ph2 >= 1.0f)
                     v->ph2 -= (float)(int)v->ph2;
                 if (cv != 3)                     /* (the Harmonium's low-pass: above, at half the rate) */
@@ -6720,11 +7032,12 @@ static void render_drone(uint32_t n)
 
 /* (AISLING) the new voices' levels, each heard as loud as the Flute on the same note (test_lead_voices_level), and
  * their colours */
-static const float LV_GAIN[4] = {0.507f, 0.638f, 1.55f, 0.86f};   /* the Chanter's, the Fiddle's, the Voice's, the
+static const float LV_GAIN[5] = {0.507f, 0.638f, 1.55f, 0.86f, 1.0f};   /* the Chanter's, the Fiddle's, the Voice's, the
                                                   * Slide's */
 #define LV_TRIM 0.031f                           /* (the Fiddle's: octaves a semitone over its middle, 66; a saw's low
                                                   * notes, many overtones in the ear's best octaves, heard ~6 dB over
                                                   * its high ones, where the Flute's sine is the other way) */
+#define LV_PATCH 9
 #define LV_NOSE 0.5f                             /* (the Chanter's formant, over its reed) */
 static float lv_aw2(float f)                     /* (A-weighting's power at f, a product of ratios: f^8 overflows) */
 {
@@ -6759,13 +7072,14 @@ static float lv_level(const float rc[3][3], const float *c, float f0)
 static void render_lead(uint32_t n)
 {
     const int lv = (unsigned)par[P_LVOICE] < EN_NBV ? par[P_LVOICE] : 0;
+    const patch_t *const p = &pt[2];
     const float g = lead_vol * 0.45f * (lv >= 5 ? LV_GAIN[lv - 5] : 1.0f),
                 vib = (float)par[P_VIB] * (lv == 8 ? 0.007f : 0.004f) + (lv == 3 ? 0.25f : 0.0f), gl = 0.84f, gr = 1.08f,
                 tone = ld_tone * fo_mul(FO_LEAD),   /* (Tone, moved by the filter motion) */
                 tb = fm_clampf(tone, 0.5f, 2.0f),   /* (AISLING: as the Flute's, so the motion never shuts a voice) */
                 rel = lv == 5 ? 0.0009f : 0.00008f;   /* (~300 ms out; the Chanter stopped in ~25 ms) */
     uint32_t j;
-    float dt = 0.0f, h2 = 0.0f, h3 = 0.0f, br = 0.0f, ck = 0.0f, stop = 1.0f, trim = 1.0f, vdg = 0.0f,
+    float dt = 0.0f, h2 = 0.0f, h3 = 0.0f, br = 0.0f, ck = 0.0f, stop = 1.0f, trim = 1.0f, vdg = 0.0f, pd = 0.0f,
           rc[3][3] = {{0.0f}}, tg = orn.n ? orn.tg : (float)lead.note, gk = orn.n ? orn.gk : ld_gk;
     if (!lead.on && lead.env < 1e-5f) {
         en_bass_level = 0.0f;                    /* (the meter, at rest) */
@@ -6828,6 +7142,13 @@ static void render_lead(uint32_t n)
                 const float fc = f * (2.2f + 4.0f * lead.fenv) * tb;
                 svf_coefs(lead.c1, fc, 0.9f);
                 svf_coefs(lead.c2, fc, 0.7f);
+            } else if (lv == LV_PATCH) {         /* (1.6) as the synths' at its plain settings: three times the note,
+                                                  * nine at the start */
+                const float fc = 261.6256f * fm_exp2f(p->kf * (lead.cur - 60.0f)) * p->cut *
+                                 (3.0f + 12.0f * p->ea * lead.fenv) * tb;
+                svf_coefs(lead.c1, fc, 1.6f - 1.45f * p->res);
+                svf_coefs(lead.c2, fc, 0.7f);
+                pd = pt_fmd(p, dt, 1.0f - p->fmf + p->fmf * lead.fenv);
             }
             if (lv == 2) {                       /* (AISLING's Flute: breath, a band round the second harmonic; the
                                                   * overtones a low note and Tone give it, none up high; the chiff,
@@ -6885,17 +7206,29 @@ static void render_lead(uint32_t n)
                                                   * click, the glass on the string after it */
             x = 0.7f * blep_saw(lead.ph, dt) + 0.5f * blep_pulse(lead.ph, dt, 0.18f) + (0.015f + 0.5f * ck) * lv_noise();
             break;
+        case LV_PATCH:
+            x = pt_mix(p, lead.ph, lead.ph2, lead.ph3, dt, fm_minf(dt * p->ratio, 0.45f), pd, p->nz * (0.15f + ck));
+            break;
         default: x = blep_saw(lead.ph, dt) - blep_saw(frac1(lead.ph + 0.5f), dt); break;
         }
         lead.ph += dt;
         if (lead.ph >= 1.0f)
             lead.ph -= 1.0f;
-        lead.ph2 += dt * 1.004f;
-        if (lead.ph2 >= 1.0f)
-            lead.ph2 -= 1.0f;
-        lead.ph3 += dt * 0.996f;
-        if (lead.ph3 >= 1.0f)
-            lead.ph3 -= 1.0f;
+        if (lv == LV_PATCH) {                    /* (B's interval, the sub's octave under) */
+            lead.ph2 += fm_minf(dt * p->ratio, 0.45f);
+            if (lead.ph2 >= 1.0f)
+                lead.ph2 -= 1.0f;
+            lead.ph3 += dt * 0.5f;
+            if (lead.ph3 >= 1.0f)
+                lead.ph3 -= 1.0f;
+        } else {
+            lead.ph2 += dt * 1.004f;
+            if (lead.ph2 >= 1.0f)
+                lead.ph2 -= 1.0f;
+            lead.ph3 += dt * 0.996f;
+            if (lead.ph3 >= 1.0f)
+                lead.ph3 -= 1.0f;
+        }
         if (lv != 2 && lv != 3 && lv != 7) {
             x = svf_lp(lead.c1, lead.s1, x, &bp);
             x = svf_lp(lead.c2, lead.s2, x, &bp);

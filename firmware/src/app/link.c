@@ -29,6 +29,10 @@
  *   BEGIN area           to write
  *   WRITE off.2 data
  *   COMMIT sum.3         checked as flash is checked at boot, then taken
+ *   PATCH layer (v.2)x16 (1.6) a layer's Patch, to hear it as it is made: the layer plays Patch, and this one. In the
+ *                        engine only (the piece and its VOICE page are as they were), and only in the pack's bank
+ *                        (else NONE). layer + 8: no more of it, the piece's own voice and patch back, as choosing the
+ *                        piece again brings them
  *
  * FM-1 -> host, seq 0 unless it answers one
  *   HELLO ver format proj.2 slot.2 npars.2 npieces len version-text
@@ -49,7 +53,8 @@
 
 enum { LK_HELLO = 1, LK_BYE, LK_BEAT, LK_SET, LK_VIEW, LK_PIECE, LK_PLAY, LK_HOLD, LK_PERF, LK_FORGET, LK_KEYS, LK_BUTTONS,
        LK_UNDO, LK_REDO, LK_SAVE, LK_VOICE, LK_COPY, LK_SWAP, LK_RESET, LK_OPEN, LK_READ, LK_BEGIN, LK_WRITE, LK_COMMIT,
-       LK_BANK };                                /* (packs) the bank: 0 the eight, 1 the pack's */
+       LK_BANK,                                  /* (packs) the bank: 0 the eight, 1 the pack's */
+       LK_PATCH };                               /* (1.6) a layer's Patch, heard live */
 enum { LKR_HELLO = 65, LKR_ACK, LKR_STATE, LKR_VALS, LKR_CHUNK };
 enum { LK_OK, LK_BAD, LK_REFUSED, LK_SUM, LK_BUSY, LK_NONE };
 /* areas: the project as it plays; pieces 1..8's slots (LK_A_SLOT + i); the bytes saved in flash; (packs) the sound
@@ -437,7 +442,7 @@ static int lk_do(int cmd, const uint8_t *a, uint32_t n)
 {
     static const uint8_t ARGS[] = {[LK_SET] = 4, [LK_VIEW] = 2, [LK_PIECE] = 1, [LK_PERF] = 2, [LK_KEYS] = 4, [LK_BUTTONS] = 2,
                                    [LK_VOICE] = 4, [LK_COPY] = 2, [LK_SWAP] = 2, [LK_RESET] = 1, [LK_OPEN] = 1, [LK_BEGIN] = 1,
-                                   [LK_WRITE] = 2, [LK_COMMIT] = 3, [LK_BANK] = 1};
+                                   [LK_WRITE] = 2, [LK_COMMIT] = 3, [LK_BANK] = 1, [LK_PATCH] = 1 + 2 * EN_PATCH_N};
     int k, v;
     if (cmd >= (int)sizeof ARGS || n < ARGS[cmd])
         return LK_BAD;
@@ -529,6 +534,25 @@ static int lk_do(int cmd, const uint8_t *a, uint32_t n)
             link_gen++;
         }
         break;
+    case LK_PATCH: {
+        static const uint8_t VP[4] = {P_CVOICE, P_SVOICE, P_LVOICE, P_S2VOICE};
+        const int l = a[0] & 3, vp = VP[l];
+        uint8_t q[EN_PATCH_N];
+        if (a[0] & ~0x0Bu)
+            return LK_BAD;
+        if (!bank || !pack_have())
+            return LK_NONE;
+        if (a[0] & 8u) {
+            pack_patch_own(l);
+            en_set(vp, proj.par[vp]);
+            break;
+        }
+        for (k = 0; k < EN_PATCH_N; k++)         /* (each a byte, a negative's two's complement: en_patch clamps) */
+            q[k] = (uint8_t)get14u(a + 1 + 2 * k);
+        en_patch(l, q);
+        en_set(vp, en_param_info(vp)->hi);       /* (Patch: each family's last) */
+        break;
+    }
     case LK_BEGIN:
         if (a[0] > LK_A_PACK)
             return LK_BAD;

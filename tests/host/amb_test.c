@@ -1955,7 +1955,7 @@ int main(void)
         en_param_text(P_CVOICE, 4, t);
         CHECK(!strcmp(t, "Glass"), "ctone 4: %s", t);
         en_param_text(P_CVOICE, 5, t);
-        CHECK(!strcmp(t, "Choir") && en_param_info(P_CVOICE)->hi == 5, "test_choir_listed: drone voice 5 %s, hi %d", t,
+        CHECK(!strcmp(t, "Choir") && en_param_info(P_CVOICE)->hi == 6, "test_choir_listed: drone voice 5 %s, hi %d", t,
               en_param_info(P_CVOICE)->hi);
         en_param_text(P_TAPAT, 1, t);
         CHECK(!strcmp(t, "1/8."), "repeat A time 1: %s", t);
@@ -1993,8 +1993,16 @@ int main(void)
                 en_param_text(P_S2VOICE, 6 + i, t);
                 CHECK(!strcmp(t, S2[i]), "test_voices_listed: seq2 voice %d %s (%s)", 6 + i, t, S2[i]);
             }
-            CHECK(en_param_info(P_SVOICE)->hi == 7 && en_param_info(P_S2VOICE)->hi == 9,
-                  "test_voices_listed: hi %d, %d (7, 9)", en_param_info(P_SVOICE)->hi, en_param_info(P_S2VOICE)->hi);
+            en_param_text(P_SVOICE, 8, t);       /* (1.6) Patch the last of each */
+            CHECK(!strcmp(t, "Patch"), "test_voices_listed: seq voice 8 %s (Patch)", t);
+            en_param_text(P_S2VOICE, 10, t);
+            CHECK(!strcmp(t, "Patch"), "test_voices_listed: seq2 voice 10 %s (Patch)", t);
+            en_param_text(P_CVOICE, 6, t);
+            CHECK(!strcmp(t, "Patch"), "test_voices_listed: drone voice 6 %s (Patch)", t);
+            en_param_text(P_LVOICE, 9, t);
+            CHECK(!strcmp(t, "Patch"), "test_voices_listed: lead voice 9 %s (Patch)", t);
+            CHECK(en_param_info(P_SVOICE)->hi == 8 && en_param_info(P_S2VOICE)->hi == 10,
+                  "test_voices_listed: hi %d, %d (8, 10)", en_param_info(P_SVOICE)->hi, en_param_info(P_S2VOICE)->hi);
             en_param_text(P_SVOICE, 3, t);
             CHECK(!strcmp(t, "Pulse"), "test_voices_listed: seq voice 3 %s (Pulse, kept)", t);
         }
@@ -2008,8 +2016,8 @@ int main(void)
                 CHECK(!strcmp(t, L[i]), "test_voices_listed: lead voice %d %s (%s)", 4 + i, t, L[i]);
             }
             en_param_text(P_LVOICE, 2, t);
-            CHECK(!strcmp(t, "Flute") && en_param_info(P_LVOICE)->hi == 8,
-                  "test_voices_listed: lead voice 2 %s (Flute, kept), hi %d (8)", t, en_param_info(P_LVOICE)->hi);
+            CHECK(!strcmp(t, "Flute") && en_param_info(P_LVOICE)->hi == 9,
+                  "test_voices_listed: lead voice 2 %s (Flute, kept), hi %d (9)", t, en_param_info(P_LVOICE)->hi);
         }
         en_param_text(P_CATT, 40, t);
         CHECK(!strcmp(t, "40"), "attack 40, unsigned: %s", t);

@@ -3,6 +3,7 @@
  "version": 1,
  "level": 2,
  "needs": "1.5",
+ "sides": ["Saint", "Sinner"],
  "about": "Monastic chant and the Delta's blues, with Ireland between them. Saints light the screen; Sinners darken it.",
  "pieces": [
   {"name": "Glendalough", "icon": "M9 21V8l3-5 3 5v13M7 21h10M11 12h2M11 16h2", "side": "saint",

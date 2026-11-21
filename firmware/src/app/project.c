@@ -29,8 +29,13 @@ const char *piece_name(int i)
 }
 int piece_light(int i)
 {
+    pk_piece_t p;                                /* (1.6) AISLING's own eight: light */
+    return !pack_piece(bank, i, &p) || (p.flags & PK_LIGHT);
+}
+int piece_empty(int b, int i)                    /* (1.6) piece i of bank b is a place the pack left empty */
+{
     pk_piece_t p;
-    return pack_piece(bank, i, &p) && (p.flags & PK_LIGHT);
+    return pack_piece(b, i, &p) && pk_empty(&p);
 }
 int screen_light(void) { return proj.light == 2 ? piece_light(proj.piece) : proj.light != 0; }
 
@@ -94,6 +99,7 @@ static void defaults_of(int b, project_t *x)     /* bank b's recipes, its first 
         x->par[i] = global_par(i) ? en_param_info(i)->def : x->slot[0].par[i];
     x->pool = x->slot[0].pool;
     x->leds = 1;
+    x->light = 2;                                /* (1.6) the screen as the piece is, and the eight are light */
 }
 void project_defaults(void) { defaults_of(bank, &proj); }
 
@@ -241,7 +247,7 @@ int pack_install(const uint8_t *b, int len)
         return 4;
     if (len) {
         defaults_of(1, &proj_off);
-        if (!proj.light)                         /* (dark, as it ever was: now as the pieces are, the eight dark still) */
+        if (!proj.light)                         /* (dark: now as the pieces are, and the eight are light) */
             proj.light = 2;
         globals_to(&proj_off, &proj);
         off_dirty = 1;
@@ -266,14 +272,29 @@ void project_piece_reset(void)
     proj.slot[proj.piece].pings_ok = 0;          /* (its loops grown afresh too) */
 }
 
+void pack_patch_own(int l)                       /* (1.6) layer l's Patch as the piece playing has it */
+{
+    pk_piece_t pk;
+    const uint8_t *q = 0;
+    int i;
+    if (pack_piece(bank, proj.piece, &pk) && (pk.pmask >> l & 1))
+        for (q = pk.patches, i = 0; i < l; i++)
+            if (pk.pmask >> i & 1)
+                q += EN_PATCH_N;
+    en_patch(l, q);
+}
+
 void project_apply(void)                         /* (then en_regrow keeps the piece's loops, if it has them) */
 {
     int i;
     const slot_t *s = &proj.slot[proj.piece];
     pk_piece_t pk;
     bank_stale = 0;
-    if (pack_piece(bank, proj.piece, &pk))       /* (packs) its air, before the parameters ask for it */
+    if (pack_piece(bank, proj.piece, &pk)) {     /* (packs) its air, before the parameters ask for it; its patches */
         pk_air(&pk);
+        pk_patch(&pk);
+    } else
+        pk_patch(0);
     for (i = 0; i < P_NPARAMS; i++)
         en_set(i, proj.par[i]);
     en_pool(proj.pool);

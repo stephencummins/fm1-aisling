@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* The engine alone, to a WAV: for listening to changes quickly (no UI, no screen).
  *
- *   en_render OUT.wav SECS [pack=FILE] [piece=N] [NAME=V ...] [freeze=T0-T1] [seed=S] [log]
+ *   en_render OUT.wav SECS [pack=FILE] [piece=N] [NAME=V ...] [patch=L:v,v,..] [mute=M] [freeze=T0-T1] [seed=S] [log]
  *
  * pack=FILE takes piece N from a sound pack (tools/make_pack.py's .aispack) instead of the engine's own eight.
  *
@@ -78,6 +78,7 @@ int main(int argc, char **argv)
                 return 2;
             }
             pk_air(&pc);
+            pk_patch(&pc);
             pk_recipe(&pc, par, &pool);
             if (logit || 1)
                 fprintf(stderr, "%s: %s\n", pk_name(pk), (const char *)pc.name);
@@ -101,11 +102,26 @@ int main(int argc, char **argv)
             am[nam].t = 0;
             sscanf(a + 4, "%d:%d@%lf", &am[nam].p, &am[nam].v, &am[nam].t);
             nam++;
+        } else if (!strncmp(a, "mute=", 5)) {      /* (1.6) mute=M: EN_M_*'s sum (1 Drone, 2 Seq, 4 Lead, 24 Seq2, 32 Noise) */
+            en_mute((uint32_t)atoi(a + 5));
+        } else if (!strncmp(a, "patch=", 6)) {     /* (1.6) patch=L:v,v,.. a layer's Patch (0 Drone, 1 Seq, 2 Lead,
+                                                    * 3 Seq2), amb.h's sixteen bytes in decimal; fewer: the rest plain */
+            uint8_t pb[EN_PATCH_N];
+            const int l = atoi(a + 6);
+            const char *c = strchr(a, ':');
+            int k = 0;
+            en_patch(l, 0);
+            en_patch_get(l, pb);
+            while (c && k < EN_PATCH_N) {
+                pb[k++] = (uint8_t)atoi(c + 1);
+                c = strchr(c + 1, ',');
+            }
+            en_patch(l, pb);
         } else if (!strncmp(a, "chorus=", 7)) {    /* (1.3) PERFORM's Chorus, 0..100, from the start */
             en_chorus(atoi(a + 7));
         } else if (!strncmp(a, "seed=", 5)) {
             seed = (unsigned)atoi(a + 5);
-        } else if (eq && strncmp(a, "piece=", 6) && strncmp(a, "pack=", 5)) {
+        } else if (eq && strncmp(a, "piece=", 6) && strncmp(a, "pack=", 5) && strncmp(a, "patch=", 6) && strncmp(a, "mute=", 5)) {
             int p = find_param(a, (int)(eq - a));
             const char *at = strchr(eq, '@');
             if (p < 0) {

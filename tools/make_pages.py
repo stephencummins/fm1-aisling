@@ -1348,7 +1348,7 @@ def main(pkg, version, out, smk37=None, fx1=None):
     (out / "editor" / "index.html").write_text(stamp((SRC / "web" / "editor" / "index.html").read_text(encoding="utf-8"), "../", "editor"), encoding="utf-8")
     # the sound packs: the page, and every pack in packs/ made afresh (tools/make_pack.py), listed in index.json
     (out / "packs").mkdir()
-    for f in ("packs.js", "worklet.js"):
+    for f in ("packs.js", "packfile.js", "worklet.js"):
         shutil.copy2(SRC / "web" / "packs" / f, out / "packs" / f)
     (out / "packs" / "index.html").write_text(stamp((SRC / "web" / "packs" / "index.html").read_text(encoding="utf-8"), "../", "packs"),
                                               encoding="utf-8")
