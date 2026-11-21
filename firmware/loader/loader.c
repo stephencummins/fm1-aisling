@@ -5,6 +5,7 @@
  * It is a USB-MIDI device "Felucca Update" (1209:0002) that answers the
  * M-UPGRADE update protocol as "ota-FM-1_900" (hosts look for "ota-"), and
  * writes the app area only (ldr_core.c). The UBOOT soft key works here too.
+ * It says so on the screen (ldr_ui.c): UPDATING, a percentage and a bar.
  * Single compilation unit. */
 #include <stdint.h>
 #define FELUCCA_LOADER 1
@@ -19,8 +20,11 @@
 /* the loader may write the app area and erase update records; never the head */
 #define FL_RANGE_OK(off, n) (FL_IN(off, n, 0x4000u, 0x93000u) || FL_IN(off, n, 0x93000u, 0xFC000u))
 #include "fm1_flash.h"
+#include "fm1_lcd_hw.h"
 #include "../src/libc.c"
 #include "../src/usb.c"
+#include "../src/lcd.c"
+#include "ldr_ui.c"
 
 static uint32_t ldr_ms(void)   /* monotonic ms; survives the TIMER4 wrap (178.9 s) */
 {
@@ -71,7 +75,11 @@ static void ldr_record_clear(void)
 {
     fm1_updata_parm_clear();                        /* CRC 0: the SPL ignores it on a warm reset */
 }
-static void ldr_progress(uint32_t done, uint32_t total) { (void)done; (void)total; ldr_poll(); }
+static void ldr_progress(uint32_t done, uint32_t total)
+{
+    ui_progress(done, total);
+    ldr_poll();
+}
 #include "ldr_core.c"
 
 extern uint32_t _bss_start[], _bss_end[];
@@ -80,6 +88,8 @@ void ldr_main(void)
 {
     fm1_wdt_arm(0x0D);                              /* ~8 s, fed by ldr_poll */
     fm1_time_init();
+    ui_init();                                      /* (~0.4 s, before the USB: nothing to poll yet) */
+    fm1_wdt_feed();
     usb_start();
     for (;;) {
         ldr_poll();
@@ -91,8 +101,12 @@ void ldr_main(void)
         }
         ota_service();                              /* handshake */
         if (usb.ota_req) {
+            int rc;
             usb.ota_req = 0;
-            if (ldr_session() == 0) {
+            ui_begin();
+            rc = ldr_session();
+            ui_end(rc);
+            if (rc == 0) {
                 fm1_delay_ms(200);                  /* the "success" reply leaves */
                 usb_detach();
                 fm1_delay_ms(30);

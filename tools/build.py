@@ -5,7 +5,7 @@
 
   tools/build.py [--release X.Y[-suffix]]
 
-Outputs in build/: amb.bin (app), loader/ota.bin (update loader, Felucca's, unchanged),
+Outputs in build/: amb.bin (app), loader/ota.bin (update loader: Felucca's, with a screen, loader/ldr_ui.c),
 amb.fwsc (package). See BUILDING.md for the toolchain and the SDK.
 
 The JieLi toolchain is Linux x86-64 only. JIELI_TOOLCHAIN points at it; on
