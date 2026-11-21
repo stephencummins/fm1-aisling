@@ -5,6 +5,7 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 
+#include "Fm1Link.h"
 #include "glue.h"
 
 class AislingProcessor : public juce::AudioProcessor
@@ -56,6 +57,9 @@ public:
     juce::StringArray pieceNames() const;
     juce::String savePack (const juce::File&);          // "" or why not
     juce::String patchJson() const;                     // the "patch" block for packs/NAME.json
+    void fm1Send (bool on);                             // the patches to an FM-1 on USB, as they change
+    bool fm1Sending() const { return fm1 != nullptr && fm1->isOn(); }
+    juce::String fm1Status() const { return fm1 != nullptr ? fm1->status() : juce::String(); }
     juce::File packFile;
     juce::MidiKeyboardState keys;                       // the panel's keys: played on keysLayer
     std::atomic<int> keysLayer { 2 };
@@ -68,6 +72,7 @@ private:
     void pull (float* l, float* r, int n);
     void produce (float* l, float* r, int n);
     juce::MidiBuffer keyMidi;
+    std::unique_ptr<Fm1Link> fm1;
     juce::String setPackBytes (const uint8_t* b, int len);
 
     std::atomic<float>* raw[NL][NF] {};

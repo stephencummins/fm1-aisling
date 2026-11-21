@@ -83,6 +83,22 @@ AislingProcessor::~AislingProcessor()
 
 bool AislingProcessor::owner() const { return theOwner.load() == this; }
 
+void AislingProcessor::fm1Send (bool on)
+{
+    if (fm1 == nullptr)
+    {
+        if (! on)
+            return;
+        fm1 = std::make_unique<Fm1Link> ([this] (uint8_t pt[NL][NF], bool lit[NL]) {
+            patchBytes (pt);
+            for (int l = 0; l < NL; ++l)
+                lit[l] = rawOn[l]->load() > 0.5f;
+            return packLen ? pieceIx.load() : -1;
+        });
+    }
+    fm1->setOn (on);
+}
+
 bool AislingProcessor::isBusesLayoutSupported (const BusesLayout& l) const
 {
     return l.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();

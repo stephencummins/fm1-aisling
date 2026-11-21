@@ -97,10 +97,41 @@ void AislingLook::drawButtonBackground (juce::Graphics& g, juce::Button& b, cons
 {
     const auto r = b.getLocalBounds();
     const bool go = (bool) b.getProperties().getWithDefault ("go", false);
-    g.setColour (go ? (over || down ? juce::Colour (0xff0f5332) : GREEN) : down ? STRIP : GROUND);
+    const bool on = b.getClickingTogglesState() && b.getToggleState();      // (rust for what is on)
+    g.setColour (on ? RUST : go ? (over || down ? juce::Colour (0xff0f5332) : GREEN) : down ? STRIP : GROUND);
     g.fillRect (r);
-    g.setColour (go ? juce::Colours::transparentBlack : over ? INK : RULE);
+    g.setColour (on || go ? juce::Colours::transparentBlack : over ? INK : RULE);
     g.drawRect (r, 1);
+}
+
+// the tooltip: a quiet note on the paper, not the look's dark bold box
+namespace
+{
+juce::TextLayout tipLayout (const juce::Font& f, const juce::String& text)
+{
+    juce::AttributedString s;
+    s.setJustification (juce::Justification::topLeft);
+    s.append (text, f, MUTED);
+    juce::TextLayout tl;
+    tl.createLayout (s, 300.0f);
+    return tl;
+}
+}
+
+juce::Rectangle<int> AislingLook::getTooltipBounds (const juce::String& text, juce::Point<int> at, juce::Rectangle<int> parent)
+{
+    const auto tl = tipLayout (mono (11.0f), text);
+    const int w = (int) std::ceil (tl.getWidth()) + 18, h = (int) std::ceil (tl.getHeight()) + 12;
+    return juce::Rectangle<int> (at.x > parent.getCentreX() ? at.x - (w + 12) : at.x + 16,
+                                 at.y > parent.getCentreY() ? at.y - (h + 8) : at.y + 18, w, h).constrainedWithin (parent);
+}
+
+void AislingLook::drawTooltip (juce::Graphics& g, const juce::String& text, int w, int h)
+{
+    g.fillAll (STRIP);
+    g.setColour (RULE);
+    g.drawRect (0, 0, w, h, 1);
+    tipLayout (mono (11.0f), text).draw (g, juce::Rectangle<float> (9.0f, 6.0f, (float) w - 18.0f, (float) h - 12.0f));
 }
 
 void AislingLook::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b, bool over, bool)
@@ -178,9 +209,38 @@ void AislingLook::drawTabButton (juce::TabBarButton& b, juce::Graphics& g, bool 
     g.drawText (b.getButtonText().toUpperCase(), r.translated (0, 1), juce::Justification::centred, false);
 }
 
+namespace
+{
+// what each of the sixteen does to the sound (amb.h: en_patch)
+const char* const TIP[AislingProcessor::NF] = {
+    "The main oscillator's wave. Saw is bright and buzzy, pulse hollow, sine pure, organ a sine with drawbar harmonics. FM only works on a sine or organ.",
+    "How wide the pulse is, for either oscillator set to pulse. 50 is a square, hollow and woody; lower is thinner and more nasal.",
+    "The second oscillator's wave. Heard through B level, and it is what bends A when FM is up.",
+    "B's pitch against A, in semitones. 0 with a few cents thickens the sound; 12 is an octave up, 7 a fifth. With FM it sets the character: 0 and 12 smooth, the others bell-like or clangy.",
+    "B's fine tuning. A few cents either way makes a slow beating and a wider sound.",
+    "How loud B is beside A. At 0 it is silent, but it still drives the FM.",
+    "How far B bends A's pitch, many times a second (A must be sine or organ). A little adds bite; more gives bells, metal and growl. It is held back on high notes to keep them clean.",
+    "How far the FM follows the note's envelope. 0: the same all through the note. 100: strong at the start and fading, like something struck.",
+    "A sine an octave under the note, for weight.",
+    "Breath or hiss mixed in, most at the start of the note.",
+    "Moves the filter up or down in semitones, on top of the piece's own Cutoff, Colour or Lead tone. Down is darker and rounder, up brighter.",
+    "Emphasis at the filter's edge. Higher gives a nasal, whistling ring, and more of a 'wow' as the filter moves.",
+    "How far each note opens the filter at its start before it closes again. 0 is even; high is plucked and snappy.",
+    "How far the filter follows the pitch. 100: high notes as bright as low ones. 0: the filter stays where it is, so high notes are duller.",
+    "How softly a Sequence note begins. 0 is at once, a pluck; higher fades it in, bowed.",
+    "The patch's loudness in half decibels (-24 is 12 dB down, 12 is 6 dB up), to sit it beside the piece's other voices.",
+};
+}
+
+void AislingEditor::LayerPage::mouseDown (const juce::MouseEvent& e)
+{
+    if (e.eventComponent != this && e.eventComponent != &on && e.eventComponent->isEnabled() && ! on.getToggleState())
+        on.setToggleState (true, juce::sendNotificationSync);
+}
+
 AislingEditor::LayerPage::LayerPage (AislingProcessor& p, int layer)
 {
-    on.setButtonText (juce::String (AislingProcessor::LAYER_NAME[layer]).toLowerCase() + " plays its patch (off: the piece's own voice)");
+    on.setButtonText (juce::String (AislingProcessor::LAYER_NAME[layer]).toLowerCase() + " patch on");
     addAndMakeVisible (on);
     onAtt = std::make_unique<APVTS::ButtonAttachment> (p.apvts, AislingProcessor::onId (layer), on);
     for (int f = 0; f < AislingProcessor::NF; ++f)
@@ -205,6 +265,20 @@ AislingEditor::LayerPage::LayerPage (AislingProcessor& p, int layer)
             sAtt.push_back (std::make_unique<APVTS::SliderAttachment> (p.apvts, AislingProcessor::pid (layer, f), *s));
             controls.push_back (s);
         }
+    }
+    for (auto* c : controls)
+        c->addMouseListener (this, true);
+    on.setTooltip ("On: this layer plays the patch below. Off: the piece's own voice, to compare. Touching a control turns it on.");
+    for (int f = 0; f < AislingProcessor::NF; ++f)
+    {
+        juce::String t (TIP[f]);
+        if (layer == 0 && (f == 7 || f == 9 || f == 12 || f == 13))
+            t << " The Drone doesn't use it: it holds its notes, with no envelope and no noise.";
+        if (f == 14 && layer != 1 && layer != 3)
+            t = "The Sequences' only: how softly a note begins.";
+        labels[f]->setTooltip (t);
+        if (auto* tc = dynamic_cast<juce::SettableTooltipClient*> (controls[(size_t) f]))
+            tc->setTooltip (t);
     }
     if (layer != 1 && layer != 3)                       // (the attack: the Sequences' only)
     {
@@ -315,15 +389,51 @@ AislingEditor::AislingEditor (AislingProcessor& p)
         juce::SystemClipboard::copyTextToClipboard (proc.patchJson());
         say ("Copied: the \"patch\" block for packs/NAME.json.");
     };
+    addAndMakeVisible (fm1);
+    fm1.setClickingTogglesState (true);
+    load.setTooltip ("Open a sound pack (.aispack) and work on its pieces.");
+    own.setTooltip ("Leave the pack and play AISLING's own eight pieces. Patches made on these can be heard and copied, but only a pack can keep them.");
+    piece.setTooltip ("The piece that plays. Each piece keeps its own four patches.");
+    solo.setTooltip ("Hear one layer alone, or all of them.");
+    soloL.setTooltip (solo.getTooltip());
+    midi.setTooltip ("Which layer the keys below, a MIDI clip or a keyboard play: the Lead or one of the Sequences, with the exact notes.");
+    midiL.setTooltip (midi.getTooltip());
+    save.setTooltip ("Write the pack to a file with this piece's patches in it. Layers with 'patch on' are set to play their patch. A pack with a patch needs AISLING 1.6.");
+    copy.setTooltip ("Copy this piece's patches as the \"patch\" block for the pack's JSON source.");
+    keysL.setTooltip ("Click, or type a s d f..., to play the layer whose page is open. The Drone has no keys: it holds the piece's chord.");
+    static const char* const TAB_TIP[4] = {
+        "The Drone: the held chord under the piece.",
+        "The Sequence: the first repeating line of notes.",
+        "The Lead: the melody, and what MIDI notes play by default.",
+        "Sequence 2: the second line of notes. Silent in a piece that has none.",
+    };
+    for (int i = 0; i < tabs.getNumTabs() && i < 4; ++i)
+        tabs.getTabbedButtonBar().getTabButton (i)->setTooltip (TAB_TIP[i]);
+    fm1.setColour (juce::TextButton::textColourOnId, GROUND);
+    addAndMakeVisible (fm1L);
+    fm1.setTooltip ("Sends each layer's patch to an FM-1 on USB as it changes, to hear it there. Nothing is stored on the FM-1, which must be in a pack's bank.");
+    tips.setColour (juce::TooltipWindow::backgroundColourId, GROUND);
+    tips.setColour (juce::TooltipWindow::textColourId, INK);
+    tips.setColour (juce::TooltipWindow::outlineColourId, RULE);
+    fm1L.setColour (juce::Label::textColourId, RUST);
+    fm1L.setMinimumHorizontalScale (0.7f);
+    fm1L.setFont (fm1L.getFont().withHeight (12.0f));
+    fm1.setToggleState (proc.fm1Sending(), juce::dontSendNotification);
+    fm1.onClick = [this] { proc.fm1Send (fm1.getToggleState()); fm1L.setText (proc.fm1Status(), juce::dontSendNotification); };
     refresh();
-    startTimer (700);
-    setSize (940, 676);
+    startTimer (400);
+    for (auto* c : { &ownNotes, &run, &skip })
+        c->setVisible (false);
+    setSize (940, 648);
 }
 
 AislingEditor::~AislingEditor() { setLookAndFeel (nullptr); }
 
 void AislingEditor::timerCallback()                 // (told while it lasts, and gone when this one has the engine)
 {
+    fm1.setToggleState (proc.fm1Sending(), juce::dontSendNotification);
+    fm1L.setText (proc.fm1Status(), juce::dontSendNotification);
+    fm1L.setTooltip (proc.fm1Status());
     const bool now = ! proc.owner();
     if (now)
         say ("Another AISLING is playing in this set: only one can. Remove the other, or this one.");
@@ -407,11 +517,9 @@ void AislingEditor::resized()
     midiL.setBounds (row.removeFromLeft (84));
     midi.setBounds (row.removeFromLeft (124));
     row.removeFromLeft (16);
-    ownNotes.setBounds (row);
-    area.removeFromTop (2);
-    row = area.removeFromTop (26);
-    run.setBounds (row.removeFromLeft (262));
-    skip.setBounds (row.removeFromLeft (160));
+    fm1.setBounds (row.removeFromLeft (150));
+    row.removeFromLeft (10);               // (the piece's own notes, play while stopped, skip the
+    fm1L.setBounds (row);                                   // intros: parameters still, for the host; no boxes)
     area.removeFromTop (8);
     area.removeFromBottom (10);
     keys.setBounds (area.removeFromBottom (54).reduced (1, 0));

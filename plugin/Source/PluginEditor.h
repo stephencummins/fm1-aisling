@@ -15,6 +15,8 @@ public:
     void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
     juce::Font getTextButtonFont (juce::TextButton&, int) override { return mono (12.5f); }
     void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool, bool) override;
+    juce::Rectangle<int> getTooltipBounds (const juce::String&, juce::Point<int>, juce::Rectangle<int>) override;
+    void drawTooltip (juce::Graphics&, const juce::String&, int, int) override;
     void drawComboBox (juce::Graphics&, int, int, bool, int, int, int, int, juce::ComboBox&) override;
     juce::Font getComboBoxFont (juce::ComboBox&) override { return mono (12.5f); }
     void positionComboBoxText (juce::ComboBox&, juce::Label&) override;
@@ -45,6 +47,7 @@ private:
     {
         LayerPage (AislingProcessor&, int layer);
         void resized() override;
+        void mouseDown (const juce::MouseEvent&) override;   // a control touched: the layer plays its patch
         juce::ToggleButton on;
         juce::OwnedArray<juce::Label> labels;
         juce::OwnedArray<juce::Slider> sliders;
@@ -67,6 +70,9 @@ private:
     juce::Label packLabel, status, soloL { {}, "solo" }, midiL { {}, "notes play" };
     juce::ComboBox piece, solo, midi;
     juce::ToggleButton ownNotes { "the piece plays its own sequence notes" }, run { "play while the host is stopped" }, skip { "skip the intros" };
+    juce::TextButton fm1 { "send to the fm-1" };      // (a button that stays down: rust while it sends)
+    juce::Label fm1L;
+    juce::TooltipWindow tips { this, 500 };
     struct Tabs : juce::TabbedComponent
     {
         Tabs() : juce::TabbedComponent (juce::TabbedButtonBar::TabsAtTop) {}
