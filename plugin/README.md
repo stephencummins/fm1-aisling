@@ -54,6 +54,9 @@ voice back, and so do all of them when the box is unticked or the plugin closes.
 nothing is stored and the piece is not marked as edited. The FM-1 must be in a pack's bank (the line beside the box
 says so if it isn't), on the piece chosen here and with the same pack as is loaded here (by its name): on another
 piece, or with another pack, it keeps its own voices and the line says which. Needs AISLING 1.6 on the FM-1.
+A standing patch is sent again each second, because the FM-1 takes up a piece with the pack's own patch. Sending goes
+on while the plugin is in the host's set, its window open or not: untick the box, or switch the device off, to hear
+what the pack itself holds.
 The editor page and `tools/fm1_link.py` use the same link: close those first (two at once is untried).
 
 From the command line: `tools/fm1_link.py patch seq 2,50,0,12,0,0,40,60,0,0,0,20,50,30,0,0`, and `patch seq off`.
