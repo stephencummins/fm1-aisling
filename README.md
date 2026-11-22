@@ -76,6 +76,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 - **AISLING as a plugin.** The FM-1's engine, the same C, as a VST3, an Audio Unit and an app: load a pack, shape a piece's patches by ear in a DAW, and save them into the pack. With an FM-1 on USB it plays each patch on the FM-1 as you shape it. It is built from source ([plugin/](plugin/README.md)); there is no download yet.
 - **A piece at a time.** The Packs page lists the sixteen pieces on a connected FM-1, and adds or removes the pack's pieces one by one, from any pack. PRESETS and the Journey pass over an empty place.
 - **Screen: Auto is light for the eight.** AISLING's own eight show light on a new FM-1; a pack's pieces say which they are, as before. An FM-1 with saved pieces keeps the screen it had.
+- **The update shows on the screen.** While a later update is written, the FM-1 shows UPDATING, how far it has got and a bar.
 - With no pack, or a pack without patches, the sound is 1.5's.
 
 ## What's new in 1.5
@@ -102,7 +103,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 
 - **The effects grid in PERFORM's look.** Hold REC and the grid has a colour for each group (Echo, Filter, Space, Moves), its name in the uncial hand and a plaited rule under each group's name; a held effect's cell fills with its colour. Only the drawing changed: the keys, the effects and the sound are 1.3's.
 - **PERFORM, from 1.3, played:** every key an effect on the whole music for as long as you hold it, with the screen flashing its colour and name. [Watch a short demo](https://youtube.com/shorts/WtvuUBjDFCo).
-- **[Photos and videos](https://aisling.stephen8n.com/screen/)** are on the touch screen's page: AISLING playing, PERFORM's flash, and the VOXBOX, the box that gives the FM-1 a second, bigger screen.
+- **[Photos and videos](https://aisling.stephen8n.com/voxbox/)** are on the touch screen's page: AISLING playing, PERFORM's flash, and the VOXBOX, the box that gives the FM-1 a second, bigger screen.
 - Everything else 1.3 brought is in [its release notes](https://github.com/stephencummins/fm1-aisling/releases/tag/v1.3), and listed below.
 
 ## What's new in 1.3
@@ -114,7 +115,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 - **Effects over MIDI.** Each effect has a CC (20 to 31 and 102 to 116), on any channel: 64 or more holds it, less lets it go, on any page. An effect played by hand sends its CC on channel 16, so a DAW can record a performance and play it back. CC 80 is Chorus.
 - **A more Celtic screen.** A plaited rule over the knobs on every page, page names in the uncial hand, and a small green triskele in PERFORM's map that turns with the music.
 - **Gone from PERFORM:** the mutes and solos (a layer's level is SELECT on its own page), and SAVE tapped there is now Forget, which clears what the Lead remembers.
-- **[The touch screen](https://aisling.stephen8n.com/screen/)** (the VOXBOX) build for 1.3 follows all of this: Chorus under your finger, the flash of a held effect, and it now shows as a serial port on a Mac, so it can be reloaded without its BOOT button.
+- **[The touch screen](https://aisling.stephen8n.com/voxbox/)** (the VOXBOX) build for 1.3 follows all of this: Chorus under your finger, the flash of a held effect, and it now shows as a serial port on a Mac, so it can be reloaded without its BOOT button.
 
 ## What's new in 1.2
 

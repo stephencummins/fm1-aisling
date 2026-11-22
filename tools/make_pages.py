@@ -9,7 +9,7 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
   _headers, _redirects        Cloudflare's (web/brand); GitHub Pages serves them as two stray files
   404.html                    the page for an address the site does not have (web/brand); both hosts use it
   visualiser/                 the visualiser (web/visualiser)
-  index.html                  the root: what AISLING is, then the three things it runs on (site_brand.PRODUCTS), each
+  index.html                  the root: what AISLING is, then its four parts (site_brand.PRODUCTS), each
                               drawn, with how far it has got and its pages; the bar's switch goes between them too
   fm1/index.html              the FM-1's page: what AISLING is, and the ways in: install, try, the visualiser; then the
                               help (manual, controls, cheat sheet, troubleshooting), the download and the source
@@ -175,10 +175,10 @@ p.small { color: var(--brand-muted); font-size: 12.5px; }
 </section>
 <section id="voxbox" aria-labelledby="voxboxh">
 <div class="mg-num" aria-hidden="true">05</div>
-<a class="mg-tile" href="screen/" tabindex="-1"><img src="screen/img/over-fm1.jpg" width="1280" height="720" loading="lazy" alt="A small touch screen on a stand above the FM-1, showing the landscape in mauve, pink and gold"></a>
+<a class="mg-tile" href="voxbox/" tabindex="-1"><img src="voxbox/img/over-fm1.jpg" width="1280" height="720" loading="lazy" alt="A small touch screen on a stand above the FM-1, showing the landscape in mauve, pink and gold"></a>
 <h2 id="voxboxh">Voxbox</h2>
 <p>A touch screen beside the FM-1: the landscape, the FM-1's own screen bigger, its knobs under your finger. A kit you put together.</p>
-<p class="mg-go"><a class="btn go" href="screen/">See the screen</a></p>
+<p class="mg-go"><a class="btn go" href="voxbox/">See the VOXBOX</a></p>
 </section>
 <section id="cheat" aria-labelledby="cheath">
 <div class="mg-num" aria-hidden="true">06</div>
@@ -429,7 +429,7 @@ CHOOSER = """<!doctype html>
                       51% { transform: translateY(0); opacity: 1; } 52%, 100% { transform: translateY(0); opacity: 0; } }
 @keyframes cup-plop { 0%, 51% { transform: translateY(0); opacity: 0; } 52% { opacity: 1; } 55% { transform: translateY(-2px); opacity: 0; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .cup .mug, .cup .lump, .cup .plop, .cup .steam rect { animation: none; } .cup .steam rect { opacity: .6; } }
-.parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
+.parts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--brand-rule); }
 .part { display: flex; flex-direction: column; min-width: 0; background: var(--brand-ground); }
 .part > a { display: block; flex: 1; padding: 16px 16px 12px; color: var(--brand-ink); text-decoration: none; }
 .part > a:hover { background: var(--brand-strip); color: var(--brand-ink); }
@@ -438,8 +438,9 @@ CHOOSER = """<!doctype html>
 .pic svg { display: block; width: 100%; height: 100%; }
 .pic svg text { display: none; }
 .pic img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.pic img.photo { object-fit: cover; }
 .part .mg-num { margin: 0 0 14px; font-size: clamp(60px, 7vw, 92px); -webkit-text-stroke-width: 1.5px; }
-.part h2 { margin: 0 0 6px; font: 600 clamp(30px, 3.4vw, 42px)/1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
+.part h2 { margin: 0 0 6px; font: 600 clamp(30px, 3vw, 38px)/1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
 .part > a:hover h2 { color: var(--brand-green); }
 .state { margin: 0 0 8px; font-size: 12px; letter-spacing: .03em; color: var(--brand-rust); }
 .state.out { color: var(--brand-green); }
@@ -523,10 +524,18 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 
 <section class="mg-feat band" id="new" aria-labelledby="newh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">New</div>
-<div><p class="mg-kick">What's new · AISLING 1.5 · November 2026</p><h2 id="newh">Sound packs: eight more pieces at a time</h2></div></div>
-<p class="mg-stand">A pack sits on the FM-1 <em>beside AISLING's own eight</em>: turn PRESET past the eighth piece and you are in it. The first is Saints &amp; Sinners, chant and the Delta's blues with Ireland between them.</p>
-<p class="mg-go"><a class="btn go big" href="packs/">Hear Saints &amp; Sinners</a></p>
-<p class="mg-small"><b>Listening needs no FM-1.</b> Putting a pack on needs AISLING 1.5, Chrome or Edge and a USB cable; <a href="install/">update the FM-1</a> first. With no pack on, 1.5 plays as 1.4.1 did.</p>
+<div><p class="mg-kick">What's new · AISLING 1.6 · November 2026</p><h2 id="newh">Sounds of your own</h2></div></div>
+<p class="mg-stand">A piece in a sound pack can now bring <em>a sound the FM-1 never had</em>: a Patch, for the drone, the harps or the flute. Shape one by ear with AISLING as a plugin in your DAW, and hear it on the FM-1 as you go.</p>
+<ul class="mg-small" style="margin:0 0 14px; padding-left:1.2rem">
+<li><b>Patch voices.</b> Sixteen numbers make a sound: two oscillators, FM, a sub, noise, the filter, the attack.</li>
+<li><b>AISLING as a plugin.</b> The FM-1's own engine as a VST3, an Audio Unit and an app. Built from <a href="https://github.com/stephencummins/fm1-aisling/tree/main/plugin">source</a> for now; there is no download yet.</li>
+<li><b>A piece at a time.</b> The <a href="packs/">Packs page</a> adds or removes a pack's pieces one by one.</li>
+<li><b>A light screen.</b> AISLING's own eight show on white on a new FM-1. An FM-1 with saved pieces keeps the screen it had.</li>
+<li><b>The update shows on the FM-1.</b> While a later update is written, the screen says UPDATING, with how far it has got.</li>
+<li><b>Beside it, the VOXBOX.</b> The touch screen kit now <a href="voxbox/#card">puts firmware on the FM-1 from a card</a>, and its landscape answers a finger.</li>
+</ul>
+<p class="mg-go"><a class="btn go big" href="install/">Install 1.6</a> <a class="btn" href="packs/">Hear Saints &amp; Sinners</a></p>
+<p class="mg-small">Installing needs Chrome or Edge and a USB cable. Your saved pieces and your pack stay. With no pack, or a pack without patches, 1.6 sounds as 1.5 did.</p>
 </section>
 
 <section class="mg-feat band" id="app" aria-labelledby="apph">
@@ -550,7 +559,7 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 <p class="mg-small">It sounds even with the phone's silent switch on. For a skin, tap the menu button in the corner and choose one under Decal. Once it has been opened from its icon, it works with no connection.</p>
 </section>
 
-<h2 class="ask band"><small>three firmwares</small>Which have you got?</h2>
+<h2 class="ask band"><small>three firmwares and a screen</small>Which have you got?</h2>
 <div class="parts">
 __PARTS__
 </div>
@@ -568,18 +577,6 @@ __PARTS__
   <img src="img/screen-main.png" width="240" height="240" loading="lazy" alt="The main screen: the chord's name among orbiting dots, the five layers' meters, the two harps' lanes">
   <img src="img/screen-perform.png" width="240" height="240" loading="lazy" alt="PERFORM at rest: a map of the 27 effects, a green triskele, and Filter, Wet, Energy and Chorus on the knobs">
 </div>
-</div>
-</section>
-
-<section class="mg-feat band" aria-labelledby="voxboxh">
-<div class="mg-head"><div class="mg-num" aria-hidden="true">05</div>
-<div><p class="mg-kick">The add-on screen</p><h2 id="voxboxh">Voxbox</h2></div></div>
-<div class="mg-split">
-<div>
-<p class="mg-stand">A touch screen for the FM-1 that <em>paints what it plays</em>. A kit you put together.</p>
-<p class="mg-go" style="margin:0"><a class="btn go big" href="screen/">See the screen</a></p>
-</div>
-<a class="shot" href="screen/" tabindex="-1"><img src="screen/img/over-fm1.jpg" width="1280" height="720" loading="lazy" alt="A small touch screen on a stand above the FM-1, showing the landscape in mauve, pink and gold"></a>
 </div>
 </section>
 
@@ -615,6 +612,10 @@ PART_CARDS = (
      "faders the mix.",
      (("download", SMK37_REPO + "/releases/tag/v__SMK37__", True), ("controls", "smk37/controls/", False),
       ("manual", "smk37/manual/", False))),
+    ("voxbox", "test 22 · a kit you put together", True,
+     "A touch screen beside the FM-1: the landscape it paints, its own screen bigger, its knobs and effects under your "
+     "finger, and firmware put on from a card.",
+     (("see it", "voxbox/", True), ("get one", "voxbox/#get", False), ("lego tray", "voxbox/tray/", False))),
 )
 
 # the controls pages: an FM-1 drawn, in its colours, then a table of the controls
@@ -1297,11 +1298,12 @@ def main(pkg, version, out, smk37=None, fx1=None):
     shutil.copy(SRC / "docs" / "card.png", out / "img" / "card.png")
     shutil.copy(SRC / "docs" / "card-fx1.png", out / "img" / "card-fx1.png")
     shutil.copy(SRC / "web" / "visualiser" / "share.jpg", out / "img" / "visualiser.jpg")
-    # the root: the three parts, each drawn
+    # the root: the four parts, each drawn or pictured
     pics = {"fm1": drawing(SRC / "docs" / "img" / "fm1-controls.svg"),
             "fx1": '<img src="img/fx1-photo.webp" width="984" height="590" alt="">',     # docs/img: CÚ_STE's FM-1, skinned
             "smk37": drawing(smk37 / "img" / "smk37-panel.svg").replace('<svg ', '<svg data-skin="grey" ', 1) if smk37
-            else f'<img src="{SMK37_AWAY}img/smk37-panel.svg" alt="">'}
+            else f'<img src="{SMK37_AWAY}img/smk37-panel.svg" alt="">',
+            "voxbox": '<img class="photo" src="voxbox/img/over-fm1.jpg" width="1280" height="720" alt="">'}
     (out / "index.html").write_text(stamp(CHOOSER.replace("__PARTS__", part_cards(version, pics)).replace("__SITE__", SITE)
                                           .replace("__BY__", BY), "", None, None), encoding="utf-8")
     # the FM-1's page, written as if at the root (as it was) and moved down one
@@ -1364,10 +1366,19 @@ def main(pkg, version, out, smk37=None, fx1=None):
     if not smk37:
         v = out / "visualiser" / "index.html"
         v.write_text(v.read_text(encoding="utf-8").replace(f'href="{SITE}smk37/"', f'href="{SMK37_AWAY}"'), encoding="utf-8")
-    # the add-on screen's page and its pictures
-    shutil.copytree(SRC / "web" / "screen", out / "screen")
-    (out / "screen" / "index.html").write_text(stamp((SRC / "web" / "screen" / "index.html").read_text(encoding="utf-8"), "../", "screen"),
+    # VOXBOX, the touch screen: its page, its pictures and builds, and its Lego tray's page
+    shutil.copytree(SRC / "web" / "voxbox", out / "voxbox")
+    (out / "voxbox" / "index.html").write_text(stamp((SRC / "web" / "voxbox" / "index.html").read_text(encoding="utf-8"), "../", None, "voxbox"),
                                                encoding="utf-8")
+    (out / "voxbox" / "tray" / "index.html").write_text(
+        stamp((SRC / "web" / "voxbox" / "tray" / "index.html").read_text(encoding="utf-8"), "../../", "tray", "voxbox"), encoding="utf-8")
+    # it was at screen/: Cloudflare sends that on (web/brand/_redirects); GitHub Pages ignores that file, so a page does
+    (out / "screen").mkdir()
+    (out / "screen" / "index.html").write_text(
+        f'<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>VOXBOX has moved</title>\n'
+        f'<link rel="canonical" href="{SITE}voxbox/">\n<meta http-equiv="refresh" content="0; url=../voxbox/">\n'
+        f'<meta name="robots" content="noindex">\n</head>\n<body>\n<p>The VOXBOX page is now at <a href="../voxbox/">{SITE}voxbox/</a>.</p>\n'
+        f'<script>location.replace("../voxbox/" + location.hash)</script>\n</body>\n</html>\n', encoding="utf-8")
     # the support page: M-Flasher and m-bootloader
     (out / "support").mkdir()
     (out / "support" / "index.html").write_text(stamp((SRC / "web" / "support" / "index.html").read_text(encoding="utf-8"), "../", "support"),
@@ -1377,7 +1388,7 @@ def main(pkg, version, out, smk37=None, fx1=None):
     (out / ".nojekyll").write_text("")
     print(f"site: {out}: index.html, fm1/ (and controls/), fx1/ (controls/, manual/, install/ ({fx1_product})), "
           f"smk37/ {'(from ' + str(smk37) + ')' if smk37 else '(not here: ' + SMK37_AWAY + ')'}, install/ ({product}), "
-          f"manual/, cheat/, emu/, editor/, visualiser/, screen/, words/, firmware/{name} ({len(raw)} B) "
+          f"manual/, cheat/, emu/, editor/, visualiser/, voxbox/ (and tray/), words/, firmware/{name} ({len(raw)} B) "
           f"and {fx1_name} ({len(fx1_raw)} B)")
 
 
