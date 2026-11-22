@@ -38,7 +38,7 @@ remembers and answers) and changes what it plays:
   **Fras** (FRASS, a burst of rain);
 - a green triskele on the launch screen and the main page.
 
-**Status: 1.6** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
+**Status: 1.6.1** (see [the releases](https://github.com/stephencummins/fm1-aisling/releases)).
 It runs on the FM-1, installed from the [web installer](https://aisling.stephen8n.com/install/), and
 in the [browser emulator](https://aisling.stephen8n.com/emu/), from the same code.
 
@@ -69,6 +69,10 @@ tried. The [manual](docs/MANUAL.md#11-midi) has the details.
 AMB-1. It doesn't read what they saved (it starts with its own eight recipes), and its first save, a few seconds
 after you change something, replaces theirs; they ignore AISLING's in the same way and replace it when they save.
 Installing another firmware may lose what AISLING saved. AISLING uses no samples.
+
+## What's new in 1.6.1
+
+- **A richer screen.** At start-up AISLING now gives the screen M-VAVE's own full settings (its voltages and its gamma), not the short start-up it had from Felucca. On the two FM-1s it was tried on, one with each flash chip, black is stronger and the colours richer; on the newer one the screen had been pale. Nothing else is changed: the sound, the pieces and what is saved are 1.6's.
 
 ## What's new in 1.6
 

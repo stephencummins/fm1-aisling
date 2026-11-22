@@ -531,9 +531,10 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 <li><b>AISLING as a plugin.</b> The FM-1's own engine as a VST3, an Audio Unit and an app. Built from <a href="https://github.com/stephencummins/fm1-aisling/tree/main/plugin">source</a> for now; there is no download yet.</li>
 <li><b>A piece at a time.</b> The <a href="packs/">Packs page</a> adds or removes a pack's pieces one by one.</li>
 <li><b>A light screen.</b> AISLING's own eight show on white on a new FM-1. An FM-1 with saved pieces keeps the screen it had.</li>
+<li><b>A richer screen (1.6.1).</b> The screen starts with M-VAVE's own full settings: stronger black, richer colours, where some FM-1s were pale.</li>
 <li><b>The update shows on the FM-1.</b> While a later update is written, the screen says UPDATING, with how far it has got.</li>
 </ul>
-<p class="mg-go"><a class="btn go big" href="install/">Install 1.6</a> <a class="btn" href="packs/">Hear Saints &amp; Sinners</a></p>
+<p class="mg-go"><a class="btn go big" href="install/">Install 1.6.1</a> <a class="btn" href="packs/">Hear Saints &amp; Sinners</a></p>
 <p class="mg-small">Installing needs Chrome or Edge and a USB cable. Your saved pieces and your pack stay. With no pack, or a pack without patches, 1.6 sounds as 1.5 did.</p>
 </section>
 
