@@ -20,7 +20,7 @@ vision), and a pun on *AI Synth Link*; [Saying the names](#saying-the-names) has
 by FartyPants, a Berlin School firmware: it keeps NACHTFAHRT's whole machine and changes what it plays. NACHTFAHRT
 is a fork of DUB-1, itself a fork of AMB-1, Charles Vestal's generative ambient firmware for the FM-1.
 
-**This is 1.6:** 1.5 (the journey through the pieces, the day and the weather, PERFORM's 27 effects, a screen you can set dark or light, and [sound packs](#sound-packs) of eight more pieces beside AISLING's own eight) with sounds of your own: a [Patch](#5-the-layers) voice on the Drone, both Sequences and the Lead, which a pack's piece brings with it. It runs
+**This is 1.6.1:** 1.6 with a richer screen (the panel is started with M-VAVE's own full settings, so black is stronger and the colours are not pale). 1.6 is 1.5 (the journey through the pieces, the day and the weather, PERFORM's 27 effects, a screen you can set dark or light, and [sound packs](#sound-packs) of eight more pieces beside AISLING's own eight) with sounds of your own: a [Patch](#5-the-layers) voice on the Drone, both Sequences and the Lead, which a pack's piece brings with it. It runs
 on the FM-1 (install it from the web installer) and in the browser emulator, from the same code.
 
 ![A drawing of the FM-1 running AISLING, each control labelled with what it does: the Controls section below says the same in words](img/fm1-panel.svg "The FM-1 (a drawing), running AISLING, each control labelled")
