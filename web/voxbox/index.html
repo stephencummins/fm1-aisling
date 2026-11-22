@@ -27,7 +27,7 @@
 .cover .gloss { margin: 10px 0 0; font-size: 12px; letter-spacing: .04em; color: #c9b99a; }
 .cover .deck { margin: 0; font: 600 clamp(19px, 2.1vw, 25px)/1.2 var(--brand-display); letter-spacing: .01em; max-width: 22ch; }
 .cover video { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16 / 9; }
-.jump { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.jump { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .jump a { display: flex; align-items: baseline; gap: 12px; padding: 12px 16px 11px; text-decoration: none;
           font: 600 clamp(17px, 2vw, 22px)/1.1 var(--brand-display); letter-spacing: .04em; text-transform: uppercase; }
 .jump a + a { border-left: 1px solid var(--brand-rule); }
@@ -93,6 +93,11 @@ a.btn.big { min-height: 48px; padding: 10px 20px; font: 600 19px/1 var(--brand-d
 .facts { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 16px 0 0; padding: 0; background: var(--brand-rule); border: 1px solid var(--brand-rule); }
 .facts li { padding: 10px 12px 11px; background: var(--brand-ground); font-size: 12px; color: var(--brand-muted); }
 .facts b { display: block; font: 600 clamp(24px, 2.6vw, 32px)/1.05 var(--brand-display); color: var(--brand-green); }
+.bigpix { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; margin: 0 0 22px; }
+.bigpix video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #1c1610; border: 1px solid var(--brand-rule); box-sizing: border-box; }
+.bigpix img { aspect-ratio: 16 / 9; object-fit: cover; }
+@media (max-width: 40rem) { .bigpix { grid-template-columns: minmax(0, 1fr); } }
+.steps.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .steps.bricks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .steps.bricks li { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-content: start; }
 .steps.bricks li:last-child { grid-column: span 2; }
@@ -142,7 +147,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
   .cover, .fwgrid, .buy { grid-template-columns: minmax(0, 1fr); }
   .films { grid-template-columns: repeat(2, minmax(0, 1fr)); } .films .film:first-child { grid-column: 1 / -1; }
   .mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .steps, .steps.bricks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps, .steps.four, .steps.bricks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 47.99rem) {
   .jump { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -174,7 +179,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 <main class="bench">
 <div class="strip">
 <p class="lab"><b>voxbox</b> · the touch screen</p>
-<p class="lab">test 22 · made and tried on one box</p>
+<p class="lab">test 22, and test 25 for a big screen · made and tried on one box</p>
 </div>
 
 <div class="cover">
@@ -190,7 +195,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 </div>
 
 <nav class="jump" aria-label="On this page">
-<a href="#see"><i>01</i>See it</a><a href="#card"><i>02</i>Firmware from a card</a><a href="#others"><i>03</i>Other firmware</a><a href="#get"><i>04</i>Get one</a><a href="#tray"><i>05</i>Lego tray</a>
+<a href="#see"><i>01</i>See it</a><a href="#card"><i>02</i>Firmware from a card</a><a href="#others"><i>03</i>Other firmware</a><a href="#big"><i>04</i>Big screen</a><a href="#get"><i>05</i>Get one</a><a href="#tray"><i>06</i>Lego tray</a>
 </nav>
 
 <section class="feat" id="see" aria-labelledby="seeh">
@@ -278,8 +283,52 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 </div>
 </section>
 
-<section class="feat" id="get" aria-labelledby="geth">
+<section class="feat" id="big" aria-labelledby="bigh">
 <div class="feat-head"><div class="num d" aria-hidden="true">04</div>
+<div><p class="kick">New · test 25</p><h2 id="bigh">The landscape on a big screen</h2></div></div>
+<div class="bigpix">
+<figure><video src="img/hdmi-arzopa.mp4" poster="img/hdmi-arzopa-poster.jpg" width="1280" height="720" controls muted loop playsinline preload="none"
+  aria-label="The landscape moving on the Arzopa monitor: close up first, then the whole screen, with orange clouds drifting over green and brown bands"></video><figcaption>Eight seconds of it on the Arzopa, filmed off the screen. No sound.</figcaption></figure>
+<figure><img src="img/hdmi-arzopa.jpg" width="1600" height="1000" loading="lazy" alt="The Arzopa monitor filled with the landscape: a pale sky, soft green and brown bands, and paint in blue, green and pink"><figcaption>The monitor filled with it, a moment before. A phone's photo of a screen.</figcaption></figure>
+</div>
+<div class="buy">
+<div>
+<p class="stand">The board has a mini HDMI socket, and <em>the landscape now comes out of it</em>. A monitor shows the picture while the touch screen carries on as before, and the FM-1 plays through the box as it did.</p>
+<ul class="tiers">
+<li><div class="big">The picture</div><div><h3>The landscape, and only that</h3><p>The same paint as the touch screen's, at the same moment. The box's other pages stay on the touch screen, and the big picture keeps moving while you use them.</p><span class="tried">tried: a 16 inch Arzopa Z1RC</span></div></li>
+<li><div class="big">Soft</div><div><h3>640 × 480, in 320 × 120 points</h3><p>The signal is the plainest one every screen takes. Each point is blended from the paint around it, so the monitor shows soft bands, not blocks. It can't go finer: the board has no video chip and no room to keep a picture.</p></div></li>
+<li><div class="big">The cost</div><div><h3>A slower touch screen</h3><p>The board works the big picture out line by line as it sends it. The touch screen's landscape drops from 55 frames a second to 35.</p></div></li>
+<li><div class="big">No sound</div><div><h3>Picture only</h3><p>Nothing goes down the HDMI cable but the picture. The sound still comes from the FM-1.</p></div></li>
+</ul>
+<p class="never">It's a separate program that runs the board's chip at 252 MHz, well past the 150 it's rated for, with its voltage a step up. Mine has run that way without trouble; yours is at your own risk.</p>
+</div>
+<div>
+<div class="kit">
+<div><h3>A monitor</h3><p>Anything with an HDMI input that takes 640 × 480. Mine is the Arzopa Z1RC, a 16 inch portable one. It needs its own power, through one of its USB-C sockets.</p>
+<p class="where"><a rel="sponsored nofollow" href="https://www.amazon.co.uk/dp/B0CJC93CH9?tag=stephen8n-21"><span class="ad">ad</span>Arzopa Z1RC</a></p></div>
+<div><h3>A mini HDMI cable</h3><p>The board's socket is mini HDMI. So is the Arzopa's, so between those two the cable is mini HDMI at both ends. For a monitor with a full-size socket, mini HDMI to HDMI.</p>
+<p class="where"><a rel="sponsored nofollow" href="https://www.amazon.co.uk/dp/B09J4HWVGD?tag=stephen8n-21"><span class="ad">ad</span>mini to mini, 30 cm</a></p></div>
+<div><h3>The box</h3><p>The same board and touch screen as below. Nothing is added to them, and the touch screen stays on.</p>
+<p class="where"><a href="#get">the kit</a> · <a href="https://store.stephen8n.com/#g-screen">in the store</a></p></div>
+<div><h3>The program</h3><p>Test 25's HDMI build, in place of test 22. Everything test 22 does, and the picture out of the socket.</p>
+<p class="where"><a href="aisling-screen-test25-hdmi.uf2" download>aisling-screen-test25-hdmi.uf2</a></p></div>
+</div>
+<p class="small" style="margin-top:12px">The cable linked is one that fits by its listing; I haven't tried that very one. The Arzopa comes with a mini HDMI to full-size HDMI cable, which fits the monitor but not the board.</p>
+</div>
+</div>
+<h3 class="sub">Four steps</h3>
+<ol class="steps four">
+<li><b>Load the HDMI program.</b> On a new board, as in <a href="#get">the six steps</a>, with <a href="aisling-screen-test25-hdmi.uf2" download>this file</a> in place of test 22's. On a box already built, it loads over USB with the screen in place: <a href="https://github.com/stephencummins/aisling-viz-box#load">the source's README</a> has the two lines.</li>
+<li><b>Plug the cable in,</b> from the board's mini HDMI socket to the monitor.</li>
+<li><b>Power the monitor,</b> from its own charger, and choose its HDMI input if it doesn't find it.</li>
+<li><b>Play.</b> The landscape is on both screens. Touch still paints it, on the small one.</li>
+</ol>
+<p class="small" style="margin-top:12px">To go back, load test 22 the same way. The file is 418,816 bytes; its SHA-256 is
+<code>c5eaf2ebd1200461d294bdfb16a6e4fde00737abf9538716d9202e69df12e9f6</code>. A hobby build with no warranty, tried on one board, one monitor and one cable. The picture's shape (the whole 640 × 480, or a 16:9 band of it) and how hard the pins drive the cable are changed by keys over the board's USB serial port: <code>H</code> and <code>D</code>. How it's done is in <a href="https://github.com/stephencummins/aisling-viz-box/tree/main/viz-test24">the source's notes for test 24</a>.</p>
+</section>
+
+<section class="feat" id="get" aria-labelledby="geth">
+<div class="feat-head"><div class="num d" aria-hidden="true">05</div>
 <div><p class="kick">Get one</p><h2 id="geth">How do I buy it?</h2></div></div>
 <div class="buy">
 <div>
@@ -321,7 +370,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 </section>
 
 <section class="feat" id="tray" aria-labelledby="trayh">
-<div class="feat-head"><div class="num d" aria-hidden="true">05</div>
+<div class="feat-head"><div class="num d" aria-hidden="true">06</div>
 <div><p class="kick">A stand from bricks</p><h2 id="trayh">Build it a Lego tray</h2></div></div>
 <div class="buy">
 <div>
