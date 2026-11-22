@@ -523,10 +523,17 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 
 <section class="mg-feat band" id="new" aria-labelledby="newh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">New</div>
-<div><p class="mg-kick">What's new · AISLING 1.5 · November 2026</p><h2 id="newh">Sound packs: eight more pieces at a time</h2></div></div>
-<p class="mg-stand">A pack sits on the FM-1 <em>beside AISLING's own eight</em>: turn PRESET past the eighth piece and you are in it. The first is Saints &amp; Sinners, chant and the Delta's blues with Ireland between them.</p>
-<p class="mg-go"><a class="btn go big" href="packs/">Hear Saints &amp; Sinners</a></p>
-<p class="mg-small"><b>Listening needs no FM-1.</b> Putting a pack on needs AISLING 1.5, Chrome or Edge and a USB cable; <a href="install/">update the FM-1</a> first. With no pack on, 1.5 plays as 1.4.1 did.</p>
+<div><p class="mg-kick">What's new · AISLING 1.6 · November 2026</p><h2 id="newh">Sounds of your own</h2></div></div>
+<p class="mg-stand">A piece in a sound pack can now bring <em>a sound the FM-1 never had</em>: a Patch, for the drone, the harps or the flute. Shape one by ear with AISLING as a plugin in your DAW, and hear it on the FM-1 as you go.</p>
+<ul class="mg-small" style="margin:0 0 14px; padding-left:1.2rem">
+<li><b>Patch voices.</b> Sixteen numbers make a sound: two oscillators, FM, a sub, noise, the filter, the attack.</li>
+<li><b>AISLING as a plugin.</b> The FM-1's own engine as a VST3, an Audio Unit and an app. Built from <a href="https://github.com/stephencummins/fm1-aisling/tree/main/plugin">source</a> for now; there is no download yet.</li>
+<li><b>A piece at a time.</b> The <a href="packs/">Packs page</a> adds or removes a pack's pieces one by one.</li>
+<li><b>A light screen.</b> AISLING's own eight show on white on a new FM-1. An FM-1 with saved pieces keeps the screen it had.</li>
+<li><b>The update shows on the FM-1.</b> While a later update is written, the screen says UPDATING, with how far it has got.</li>
+</ul>
+<p class="mg-go"><a class="btn go big" href="install/">Install 1.6</a> <a class="btn" href="packs/">Hear Saints &amp; Sinners</a></p>
+<p class="mg-small">Installing needs Chrome or Edge and a USB cable. Your saved pieces and your pack stay. With no pack, or a pack without patches, 1.6 sounds as 1.5 did.</p>
 </section>
 
 <section class="mg-feat band" id="app" aria-labelledby="apph">

@@ -76,6 +76,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 - **AISLING as a plugin.** The FM-1's engine, the same C, as a VST3, an Audio Unit and an app: load a pack, shape a piece's patches by ear in a DAW, and save them into the pack. With an FM-1 on USB it plays each patch on the FM-1 as you shape it. It is built from source ([plugin/](plugin/README.md)); there is no download yet.
 - **A piece at a time.** The Packs page lists the sixteen pieces on a connected FM-1, and adds or removes the pack's pieces one by one, from any pack. PRESETS and the Journey pass over an empty place.
 - **Screen: Auto is light for the eight.** AISLING's own eight show light on a new FM-1; a pack's pieces say which they are, as before. An FM-1 with saved pieces keeps the screen it had.
+- **The update shows on the screen.** While a later update is written, the FM-1 shows UPDATING, how far it has got and a bar.
 - With no pack, or a pack without patches, the sound is 1.5's.
 
 ## What's new in 1.5
