@@ -7,18 +7,19 @@ The links between the pages are relative, so each place the site is served from 
 its home at SITE as its canonical address. The visualiser fetches nothing, so it has its own copy of the harp
 (tools/make_brand.py) and of this bar: a change here goes there too, and tools/make_pages.py stops if they differ.
 
-AISLING runs on three things, so the site has three parts, PRODUCTS, and its root chooses between them. The bar has a
-switch between the three (the page's own filled), then the page's part's nav: NAVS[part]. The root belongs to none of
+AISLING runs on three things and has a box of its own beside them (VOXBOX, the touch screen), so the site has four
+parts, PRODUCTS, and its root chooses between them. The bar has a switch between the four (the page's own filled), then the page's part's nav: NAVS[part]. The root belongs to none of
 them and has the nav every part shares, COMMON. The FM-1's pages are where they always were (emu/, install/, manual/ ...)
 so the links already out there still work; only its landing page moved, to fm1/."""
 
 NAME, BY = "AISLING", "by CÚ_STE"
 SITE = "https://aisling.stephen8n.com/"
 REPO = "https://github.com/stephencummins/fm1-aisling"
-# the three parts: (key, label, where it starts, relative to the site's root unless a whole URL, what it is)
+# the four parts: (key, label, where it starts, relative to the site's root unless a whole URL, what it is)
 PRODUCTS = [["fm1", "FM-1", "fm1/", "AISLING on the M-VAVE FM-1: the instrument, to install"],
             ["fx1", "FX-1", "fx1/", "AISLING FX-1: an FM-1 as a USB effects box for a computer's sound"],
-            ["smk37", "SMK-37", "smk37/", "AISLING on the M-VAVE SMK-37 Elite: 37 keys, pads and faders"]]
+            ["smk37", "SMK-37", "smk37/", "AISLING on the M-VAVE SMK-37 Elite: 37 keys, pads and faders"],
+            ["voxbox", "VOXBOX", "voxbox/", "VOXBOX: a touch screen beside the FM-1, a kit you put together"]]
 # (the page's key, its label, where it goes: relative to the site's root unless it's a whole URL, what it is)
 STORE = ("store", "store", "https://store.stephen8n.com/", "Skins for the FM-1, printed and cut by hand, and the gear that goes with it: coming soon")
 DIY = ("diy", "make a skin", "https://store.stephen8n.com/diy/", "How to make your own skin for the FM-1 at home: what to buy, and how to print and cut it")
@@ -39,7 +40,6 @@ NAV = (STORE,
        ("cheat", "cheat sheet", "cheat/", "Every control and the eight pieces on one page, to print, and the steps drawn as flows"),
        SUPPORT,
        ("visualiser", "visualiser", "visualiser/", "An FM-1 running AISLING paints an Irish landscape from its MIDI"),
-       ("screen", "screen", "screen/", "A touch screen beside the FM-1: the landscape, the FM-1's own screen, and its knobs"),
        GEAR,
        DIY,
        SEER,
@@ -59,6 +59,13 @@ SMK37_NAV = [["controls", "controls", "smk37/controls/", "Every key, pad, knob, 
              ["manual", "manual", "smk37/manual/", "How the port works: the flash, the pins, building, testing, and what's still open"],
              ["source", "source", "https://github.com/stephencummins/smk37-aisling", "The SMK-37 Elite's code, on GitHub"],
              STEPHEN8N]
+VOXBOX_NAV = (STORE,
+              ("tray", "lego tray", "voxbox/tray/", "A Lego tray for the box: the build drawn step by step, the parts to buy, the model"),
+              ("visualiser", "visualiser", "visualiser/", "The same landscape in a browser, painted from an FM-1's MIDI"),
+              SUPPORT,
+              GEAR,
+              ("source", "source", "https://github.com/stephencummins/aisling-viz-box", "The box's code, on GitHub"),
+              STEPHEN8N)
 COMMON = (STORE,
           APP,
           SUPPORT,
@@ -68,7 +75,7 @@ COMMON = (STORE,
           VIDEO,
           ("source", "source", REPO, "The code, on GitHub"),
           STEPHEN8N)
-NAVS = {None: COMMON, "fm1": NAV, "fx1": FX1_NAV, "smk37": SMK37_NAV}
+NAVS = {None: COMMON, "fm1": NAV, "fx1": FX1_NAV, "smk37": SMK37_NAV, "voxbox": VOXBOX_NAV}
 # The store leads every nav that has it, on the bar itself: site.css draws it as a button (.sitebar-nav > a[href^=store]).
 # How the bar shows a nav: a page's key is a link on the bar itself; (label, keys) is a menu that opens under its label.
 # A nav's pages keep their order, so a group is a run of neighbours; a part with no entry here shows every page.
@@ -76,7 +83,7 @@ MORE = ("more", ("seer", "video", "source", "stephen8n"))
 KIT = ("kit", ("gear", "diy"))
 GROUPS = {None: ("store", "app", "support", KIT, MORE),
           "fm1": ("store", ("play", ("emu", "app", "editor")), "install", "packs", ("docs", ("manual", "controls", "cheat", "support")),
-                  ("visuals", ("visualiser", "screen")), KIT, MORE),
+                  "visualiser", KIT, MORE),
           "fx1": ("store", "install", "controls", "manual", "support", KIT, MORE)}
 
 
@@ -149,7 +156,7 @@ def head(root, current=None, product="fm1"):
 
 
 def bar(root, current=None, product="fm1"):
-    """The bar itself: the home mark (the root, where the three parts are chosen), the switch, then the part's nav.
+    """The bar itself: the home mark (the root, where the four parts are chosen), the switch, then the part's nav.
     `current` is the page's key in that nav; a part's first page has none, and is its switch's."""
     kit = []
     for key, label, h, what in PRODUCTS:
@@ -159,11 +166,11 @@ def bar(root, current=None, product="fm1"):
                      + (' aria-current="page"' if now else "") + f'>{n[1]}</a>')
     home = root or "./"
     now = ' aria-current="page"' if product is None else ""
-    # the wall's seed: the FM-1's pages keep theirs from before there were three parts
+    # the wall's seed: the FM-1's pages keep theirs from before there were parts
     art = "aisling" if product is None else (current or "home") if product == "fm1" else f"{product}-{current or 'home'}"
     return (f'<div class="wall" data-art="{art}" aria-hidden="true"></div>\n'
             f'<div class="sitebar"><div class="sitebar-in">\n'
-            f'<a class="sitebar-home" href="{home}" title="{NAME}: the FM-1, FX-1 and SMK-37"{now}>'
+            f'<a class="sitebar-home" href="{home}" title="{NAME}: the FM-1, FX-1, SMK-37 and VOXBOX"{now}>'
             f'<img class="sitebar-mark" src="{root}mark.png" width="30" height="30" alt="">'
             f'<span class="sitebar-name">{NAME}</span><span class="sitebar-by">{BY}</span></a>\n'
             f'<nav class="sitebar-kit" aria-label="{NAME} for">{"".join(kit)}</nav>\n'
