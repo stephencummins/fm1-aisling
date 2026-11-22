@@ -93,6 +93,10 @@ a.btn.big { min-height: 48px; padding: 10px 20px; font: 600 19px/1 var(--brand-d
 .facts { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 16px 0 0; padding: 0; background: var(--brand-rule); border: 1px solid var(--brand-rule); }
 .facts li { padding: 10px 12px 11px; background: var(--brand-ground); font-size: 12px; color: var(--brand-muted); }
 .facts b { display: block; font: 600 clamp(24px, 2.6vw, 32px)/1.05 var(--brand-display); color: var(--brand-green); }
+.bigpix { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; margin: 0 0 22px; }
+.bigpix video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #1c1610; border: 1px solid var(--brand-rule); box-sizing: border-box; }
+.bigpix img { aspect-ratio: 16 / 9; object-fit: cover; }
+@media (max-width: 40rem) { .bigpix { grid-template-columns: minmax(0, 1fr); } }
 .steps.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .steps.bricks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .steps.bricks li { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-content: start; }
@@ -282,6 +286,11 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 <section class="feat" id="big" aria-labelledby="bigh">
 <div class="feat-head"><div class="num d" aria-hidden="true">04</div>
 <div><p class="kick">New · test 25</p><h2 id="bigh">The landscape on a big screen</h2></div></div>
+<div class="bigpix">
+<figure><video src="img/hdmi-arzopa.mp4" poster="img/hdmi-arzopa-poster.jpg" width="1280" height="720" controls muted loop playsinline preload="none"
+  aria-label="The landscape moving on the Arzopa monitor: close up first, then the whole screen, with orange clouds drifting over green and brown bands"></video><figcaption>Eight seconds of it on the Arzopa, filmed off the screen. No sound.</figcaption></figure>
+<figure><img src="img/hdmi-arzopa.jpg" width="1600" height="1000" loading="lazy" alt="The Arzopa monitor filled with the landscape: a pale sky, soft green and brown bands, and paint in blue, green and pink"><figcaption>The monitor filled with it, a moment before. A phone's photo of a screen.</figcaption></figure>
+</div>
 <div class="buy">
 <div>
 <p class="stand">The board has a mini HDMI socket, and <em>the landscape now comes out of it</em>. A monitor shows the picture while the touch screen carries on as before, and the FM-1 plays through the box as it did.</p>
