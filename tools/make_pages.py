@@ -532,10 +532,27 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 <li><b>A piece at a time.</b> The <a href="packs/">Packs page</a> adds or removes a pack's pieces one by one.</li>
 <li><b>A light screen.</b> AISLING's own eight show on white on a new FM-1. An FM-1 with saved pieces keeps the screen it had.</li>
 <li><b>The update shows on the FM-1.</b> While a later update is written, the screen says UPDATING, with how far it has got.</li>
-<li><b>Beside it, the VOXBOX.</b> The touch screen kit now <a href="voxbox/#card">puts firmware on the FM-1 from a card</a>, and its landscape answers a finger.</li>
 </ul>
 <p class="mg-go"><a class="btn go big" href="install/">Install 1.6</a> <a class="btn" href="packs/">Hear Saints &amp; Sinners</a></p>
 <p class="mg-small">Installing needs Chrome or Edge and a USB cable. Your saved pieces and your pack stay. With no pack, or a pack without patches, 1.6 sounds as 1.5 did.</p>
+</section>
+
+<section class="mg-feat band" id="loader" aria-labelledby="loaderh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">Box</div>
+<div><p class="mg-kick">Also new · VOXBOX test 22 · November 2026</p><h2 id="loaderh">Firmware from a card</h2></div></div>
+<div class="mg-split">
+<div>
+<p class="mg-stand">The VOXBOX, the touch screen kit beside the FM-1, now <em>puts firmware on it from a microSD card</em>. Touch a package, INSTALL, SURE?. No computer.</p>
+<ul>
+<li><b>A shelf of firmware.</b> Copy <code>.fwsc</code> packages into a folder on the card, up to 20. Change to another and back the same way.</li>
+<li><b>Tried with five.</b> AISLING 1.5, AISLING FX-1 1.1, Choralroot 0.41, Handy-1 0.3.0 and FMini-1 2.6.0. Others are untried.</li>
+<li><b>A landscape that answers.</b> A touch drops paint, a drag leaves a swirl.</li>
+</ul>
+<p class="mg-go"><a class="btn go big" href="voxbox/#card">How it works</a> <a class="btn" href="voxbox/#get">Get one</a></p>
+<p class="mg-small">The FM-1 needs firmware with Felucca's updater on it already, as AISLING has; a stock FM-1 gets its first AISLING from a computer. Tried on one box with two FM-1s.</p>
+</div>
+<a class="shot" href="voxbox/#card" tabindex="-1"><img src="img/voxbox-loader.webp" width="1000" height="1000" loading="lazy" alt="The VOXBOX in a tray of Lego bricks, showing a list of five firmware packages and the buttons INSTALL, MORE and BACK"></a>
+</div>
 </section>
 
 <section class="mg-feat band" id="app" aria-labelledby="apph">
