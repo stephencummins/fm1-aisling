@@ -234,6 +234,27 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 </ul>
 </div>
 </div>
+<h3 class="sub" id="card-how" style="margin-top:26px">How to, start to finish</h3>
+<ol class="steps">
+<li><b>Get a card ready.</b> Any small microSD card, formatted FAT32 (FAT16 works too). A card of 64 GB or more comes as exFAT: format it FAT32 on a computer first. The box never formats a card.</li>
+<li><b>Get the packages.</b> A package is one file ending <code>.fwsc</code>. AISLING's is on <a href="https://github.com/stephencummins/fm1-aisling/releases/latest">its release page</a>, AISLING FX-1's on <a href="https://github.com/stephencummins/fx1-aisling/releases/latest">its own</a>. Other people's firmware is at <a href="https://thefirmwarehub.com/">The Firmware Hub</a>.</li>
+<li><b>Put them in a folder called FM1,</b> at the top of the card. Either put the card in a computer, or leave it in the box: plug the box's socket marked USB into the computer, then MENU, CARD, MOUNT ON MAC. Eject the card on the computer when you're done, or touch UNMOUNT.</li>
+<li><b>Plug the FM-1 in,</b> into the box's socket marked PIO-USB, switched on, with firmware on it that has Felucca's updater (AISLING has). The page says AN FM-1 IS PLUGGED IN.</li>
+<li><b>Open the shelf.</b> MENU, CARD, then the bar FIRMWARE FOR THE FM-1. It says PICK ONE OF, and lists each package with its size. MORE turns the page when there are more than five.</li>
+<li><b>Touch a package, then INSTALL, then SURE?.</b> Touching another row takes SURE? back. The box reads the whole file first, and refuses one it can't put on, saying why.</li>
+<li><b>Leave it alone while it runs.</b> The page shows ASKING WHO IT IS, THE FM-1 CHECKS IT, TO ITS LOADER, WRITING with a bar, then RESTARTING. Keep the FM-1 on and plugged in. No button does anything until it ends.</li>
+<li><b>Read the last line.</b> It names the firmware and says it IS ON THE FM-1. If it says something else, it also says whether anything was written and what to do; most often that is INSTALL again.</li>
+<li><b>To go back,</b> do the same with the other package. Keep AISLING's on the card so there is always a way home.</li>
+</ol>
+<h3 class="sub" style="margin-top:26px">What the screen shows</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px 14px">
+<figure style="margin:0"><img src="img/s1-card.png" width="960" height="640" loading="lazy" style="display:block;width:100%;height:auto" alt="The card's page: CARD OK, the card's size, SETTINGS.TXT, a bar reading FIRMWARE FOR THE FM-1, and the buttons MOUNT ON MAC, SAVE NOW and BACK"><figcaption><b style="font-weight:400;color:var(--brand-green)">Step 5.</b> The card's page. The bar FIRMWARE FOR THE FM-1 opens the shelf. The lines above it depend on your card.</figcaption></figure>
+<figure style="margin:0"><img src="img/s2-shelf.png" width="960" height="640" loading="lazy" style="display:block;width:100%;height:auto" alt="The firmware page: PICK ONE OF 5, five packages with their sizes, AN FM-1 IS PLUGGED IN in green, INSTALL and MORE grey, BACK white"><figcaption><b style="font-weight:400;color:var(--brand-green)">Step 5.</b> The shelf. Nothing is picked yet, so INSTALL is grey. The green line says an FM-1 is plugged in.</figcaption></figure>
+<figure style="margin:0"><img src="img/s3-sure.png" width="960" height="640" loading="lazy" style="display:block;width:100%;height:auto" alt="The firmware page with AISLING-1.5 picked, an orange line saying it replaces what is on the FM-1 and to tap again, and the first button reading SURE? in orange"><figcaption><b style="font-weight:400;color:var(--brand-green)">Step 6.</b> A package touched, then INSTALL: the button turns to SURE? and the page says what it will replace.</figcaption></figure>
+<figure style="margin:0"><img src="img/s4-writing.png" width="960" height="640" loading="lazy" style="display:block;width:100%;height:auto" alt="The firmware page while writing: WRITING 42% in orange, PUTTING AISLING-1.5 ON THE FM-1, LEAVE THE FM-1 ON AND PLUGGED IN, a bar part filled in green, all three buttons grey"><figcaption><b style="font-weight:400;color:var(--brand-green)">Step 7.</b> While it writes: how far it has got, and every button grey.</figcaption></figure>
+<figure style="margin:0"><img src="img/s5-done.png" width="960" height="640" loading="lazy" style="display:block;width:100%;height:auto" alt="The firmware page afterwards: the list again with AISLING-1.5 picked, and AISLING-1.5 IS ON THE FM-1 in orange"><figcaption><b style="font-weight:400;color:var(--brand-green)">Step 8.</b> Done. The orange line names what is now on the FM-1.</figcaption></figure>
+</div>
+<p class="small" style="margin-top:12px">These five are drawings, made from the box's own page layout and lettering in its dark look, with example packages; they are not photos. The photo above is the real thing. AISLING 1.6 itself has not been put on from the card yet; 1.5 has, several times.</p>
 </section>
 
 <section class="feat" id="others" aria-labelledby="othersh">
