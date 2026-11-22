@@ -49,6 +49,7 @@ figure img { display: block; box-sizing: border-box; width: 100%; height: auto; 
 figcaption { margin-top: 6px; font-size: 12px; line-height: 1.45; color: var(--brand-muted); }
 /* 01: three films, then the pages as a mosaic */
 .films { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; margin: 0 0 12px; }
+.films.two { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 22px 0 0; }
 .film { position: relative; display: block; overflow: hidden; background: #1c1610; color: #f3ead7; text-decoration: none; }
 .film img { display: block; width: 100%; height: 100%; min-height: 150px; object-fit: cover; opacity: .82; transition: opacity .2s, transform .4s; }
 .film:hover img { opacity: 1; transform: scale(1.03); }
@@ -140,7 +141,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 @media (max-width: 59.99rem) { .made { grid-template-columns: minmax(0, 1fr); } .checks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 59.99rem) {
   .cover, .fwgrid, .buy { grid-template-columns: minmax(0, 1fr); }
-  .films { grid-template-columns: repeat(2, minmax(0, 1fr)); } .films .film:first-child { grid-column: 1 / -1; }
+  .films { grid-template-columns: repeat(2, minmax(0, 1fr)); } .films .film:first-child { grid-column: 1 / -1; } .films.two .film:first-child { grid-column: auto; }
   .mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps, .steps.bricks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -160,7 +161,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 }
 @media (max-width: 30rem) {
   .jump a { flex-direction: column; gap: 4px; padding: 10px 12px; }
-  .kit, .steps, .films { grid-template-columns: minmax(0, 1fr); }
+  .kit, .steps, .films, .films.two { grid-template-columns: minmax(0, 1fr); }
   .jump a { font-size: 15px; }
   .tiers li { grid-template-columns: minmax(0, 1fr); }
 }
@@ -234,6 +235,10 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 </ul>
 </div>
 </div>
+<div class="films two">
+<a class="film" href="https://youtu.be/lU-PAlkRJKo"><img src="img/film-install.jpg" width="1280" height="720" loading="lazy" alt="The VOXBOX in its Lego tray beside an FM-1: the box says WRITING 25% and PUTTING AISLING-1.6 ON THE FM-1, and the FM-1's own screen says UPDATING 25%"><span><small>Film · 1 min</small>Firmware changed by touch</span></a>
+<a class="film" href="https://youtu.be/N9eISK_WW9s"><img src="img/film-packs.jpg" width="1280" height="720" loading="lazy" alt="The Sound Packs page on a laptop, with an FM-1 connected and its eight own pieces listed"><span><small>Film · 1 min</small>A sound pack from the browser</span></a>
+</div>
 <h3 class="sub" id="card-how" style="margin-top:26px">How to, start to finish</h3>
 <ol class="steps">
 <li><b>Get a card ready.</b> Any small microSD card, formatted FAT32 (FAT16 works too). A card of 64 GB or more comes as exFAT: format it FAT32 on a computer first. The box never formats a card.</li>
@@ -254,7 +259,7 @@ pre.line { margin: 0 0 10px; padding: 10px 12px; overflow-x: auto; border: 1px s
 <figure style="margin:0"><img src="img/s4-writing.png" width="960" height="640" loading="lazy" style="display:block;width:100%;height:auto" alt="The firmware page while writing: WRITING 42% in orange, PUTTING AISLING-1.5 ON THE FM-1, LEAVE THE FM-1 ON AND PLUGGED IN, a bar part filled in green, all three buttons grey"><figcaption><b style="font-weight:400;color:var(--brand-green)">Step 7.</b> While it writes: how far it has got, and every button grey.</figcaption></figure>
 <figure style="margin:0"><img src="img/s5-done.png" width="960" height="640" loading="lazy" style="display:block;width:100%;height:auto" alt="The firmware page afterwards: the list again with AISLING-1.5 picked, and AISLING-1.5 IS ON THE FM-1 in orange"><figcaption><b style="font-weight:400;color:var(--brand-green)">Step 8.</b> Done. The orange line names what is now on the FM-1.</figcaption></figure>
 </div>
-<p class="small" style="margin-top:12px">These five are drawings, made from the box's own page layout and lettering in its dark look, with example packages; they are not photos. The photo above is the real thing. AISLING 1.6 itself has not been put on from the card yet; 1.5 has, several times.</p>
+<p class="small" style="margin-top:12px">These five are drawings, made from the box's own page layout and lettering in its dark look, with example packages; they are not photos. The photo above is the real thing. AISLING 1.6 has gone on from the card too, over Handy-1 0.3.0: the first film above is that install.</p>
 </section>
 
 <section class="feat" id="others" aria-labelledby="othersh">
