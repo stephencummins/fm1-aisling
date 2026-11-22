@@ -555,6 +555,20 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 </div>
 </section>
 
+<section class="mg-feat band" id="vibe" aria-labelledby="vibeh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">Vibe</div>
+<div><p class="mg-kick">Also new · AISLING for VIBE FM 1.3 · November 2026</p><h2 id="vibeh">Play it from your DAW, or from Strudel</h2></div></div>
+<p class="mg-stand">AISLING also runs with no FM-1, as a firmware for The Firmware Hub's VIBE FM: in its plugin and in its Playground. From 1.3 a sequencer can <em>play its layers by MIDI channel</em> while the piece plays on.</p>
+<ul class="mg-small" style="margin:0 0 14px; padding-left:1.2rem">
+<li><b>Four channels.</b> Channel 1 plays the flute, kept to the piece's scale. Channel 2 plays it with the exact notes. Channels 3 and 4 pluck the two harps.</li>
+<li><b>Program change chooses the piece.</b> Programs 0 to 7, AISLING's own eight.</li>
+<li><b>Own notes.</b> A new control takes the piece's own harps out, one or both, so only yours are heard.</li>
+<li><b>In Strudel.</b> <a href="https://github.com/alienmind/strdltn">strdltn Live[code]</a> plays it from Strudel in VS Code: <code>.s("vibefm1:aisling").midichan(3)</code>.</li>
+</ul>
+<p class="mg-go"><a class="btn go big" href="https://github.com/stephencummins/vibe-aisling/releases/latest">Get 1.3</a> <a class="btn" href="https://github.com/stephencummins/vibe-aisling/blob/main/vibe/README.md#from-a-sequencer-13">How to play it</a></p>
+<p class="mg-small">Tried in strdltn 0.4.1 and in the VIBE FM VST in Ableton Live. With nothing sent on the new channels, 1.3 sounds as 1.2 did.</p>
+</section>
+
 <section class="mg-feat band" id="app" aria-labelledby="apph">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">App</div>
 <div><p class="mg-kick">Also new · November 2026</p><h2 id="apph">Aisling, as an app on your phone</h2></div></div>
