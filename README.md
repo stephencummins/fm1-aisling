@@ -72,7 +72,7 @@ Installing another firmware may lose what AISLING saved. AISLING uses no samples
 
 ## What's new in 1.6.1
 
-- **A richer screen.** At start-up AISLING now gives the screen M-VAVE's own full settings (its voltages and its gamma), not the short start-up it had from Felucca. On the two FM-1s it was tried on, one with each flash chip, black is stronger and the colours richer; on the newer one the screen had been pale. Nothing else is changed: the sound, the pieces and what is saved are 1.6's.
+- **A richer screen.** At start-up AISLING now gives the screen M-VAVE's own full settings (its voltages and its gamma), not the short start-up it had from Felucca. On the two FM-1s it was tried on, one with each flash chip, black is stronger and the colours richer; on the newer one the screen had been pale. Those were development builds; the released package has since been installed on the older of the two, and its screen looks the same good way. Nothing else is changed: the sound, the pieces and what is saved are 1.6's.
 
 ## What's new in 1.6
 
