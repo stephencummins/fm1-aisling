@@ -39,6 +39,9 @@ kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); backgr
 .credit { font-size: 12.5px; }
 @media (max-width: 59.99rem) { .sum { border-left: 0; border-top: 1px solid #3a2f22; } }
 @media (max-width: 47.99rem) { table.acts td:first-child { white-space: normal; } }
+figure.shot { margin: 0 0 14px; max-width: 980px; }
+figure.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--brand-rule); }
+figure.shot figcaption { margin-top: 6px; font-size: 12.5px; color: var(--brand-muted); }
 </style>
 <!--AISLING-HEAD-->
 </head>
@@ -61,8 +64,9 @@ kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); backgr
 <nav class="sum" aria-label="On this page">
 <a href="#sound"><i>01</i>The sound<small>six steps to a recording</small></a>
 <a href="#time"><i>02</i>In time<small>Ableton's tempo, start and stop</small></a>
-<a href="#effects"><i>03</i>The effects<small>record what your hands did</small></a>
-<a href="#wrong"><i>04</i>If it goes wrong<small>no device, no sound, a howl of notes</small></a>
+<a href="#notes"><i>03</i>The notes<small>each layer on its own channel</small></a>
+<a href="#effects"><i>04</i>The effects<small>record what your hands did</small></a>
+<a href="#wrong"><i>05</i>If it goes wrong<small>no device, no sound, a howl of notes</small></a>
 </nav>
 </div>
 
@@ -105,8 +109,36 @@ kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); backgr
 </ul>
 </section>
 
-<section class="mg-feat" id="effects" aria-labelledby="effectsh">
+<section class="mg-feat" id="notes" aria-labelledby="notesh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
+<div><p class="mg-kick">The piece as MIDI</p><h2 id="notesh">Record the notes it plays</h2></div></div>
+<p class="mg-stand">AISLING sends every note it plays out over USB, <em>each layer on its own channel</em>. A MIDI track for each catches the piece as notes, to edit, or to play on another instrument.</p>
+<figure class="shot"><img src="../img/shot-record.png" width="1600" height="631" loading="lazy" alt="Ableton Live's arrangement: a track of the Lead's notes taken from DUB-1 FM-1 on channel 3, two tracks of the Drone's chords from channel 1, a track of many short notes, and below them the piece's sound as a wave">
+<figcaption>A piece in Ableton Live: the Lead from channel 3, the Drone's chords from channel 1, and the sound itself on an audio track.</figcaption></figure>
+<table class="acts">
+<thead><tr><th scope="col">Channel</th><th scope="col">What it carries</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>The Drone: the piece's chords, as long notes.</td></tr>
+<tr><td>2</td><td>The Sequence, and its repeats.</td></tr>
+<tr><td>3</td><td>The Lead.</td></tr>
+<tr><td>4</td><td>Sequence 2.</td></tr>
+<tr><td>16</td><td>The effects you play (the next section).</td></tr>
+</tbody>
+</table>
+<ol class="mg-steps">
+<li><strong>Let the notes in</strong>MIDI out is on unless you turned it off (<kbd>GLO</kbd>'s Setup page). In Live's <b>Link, Tempo &amp; MIDI</b>, switch <b>Track</b> on for the DUB-1 FM-1 input.</li>
+<li><strong>A track for each layer</strong>A MIDI track with <b>MIDI From: DUB-1 FM-1</b> and, under it, the layer's channel: <b>Ch. 3</b> for the Lead, <b>Ch. 1</b> for the Drone.</li>
+<li><strong>Monitor Off, and record</strong>Set each track's Monitor to <b>Off</b>, arm them all (hold Cmd to arm more than one), and record.</li>
+</ol>
+<ul class="plain">
+<li><b>Monitor Off matters.</b> A track that sends the notes back to the FM-1 makes every layer play the Lead.</li>
+<li><b>A muted layer sends nothing.</b> Turn a layer up on the FM-1 if its track stays empty.</li>
+<li><b>AISLING sends its own clock too,</b> with start and stop, so Live can follow the FM-1's tempo in place of leading it: switch <b>Sync</b> on for the DUB-1 FM-1 input.</li>
+</ul>
+</section>
+
+<section class="mg-feat" id="effects" aria-labelledby="effectsh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">04</div>
 <div><p class="mg-kick">The performance</p><h2 id="effectsh">Record the effects you play</h2></div></div>
 <p class="mg-stand">Each effect you hold on the FM-1 goes out as a MIDI message. Record those, and Live can <em>play your hands back</em>.</p>
 <ol class="mg-steps">
@@ -122,7 +154,7 @@ kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); backgr
 </section>
 
 <section class="mg-feat" id="wrong" aria-labelledby="wrongh">
-<div class="mg-head"><div class="mg-num" aria-hidden="true">04</div>
+<div class="mg-head"><div class="mg-num" aria-hidden="true">05</div>
 <div><p class="mg-kick">Trouble</p><h2 id="wrongh">If it goes wrong</h2></div></div>
 <table class="acts">
 <thead><tr><th scope="col">What you find</th><th scope="col">What to do</th></tr></thead>
@@ -134,8 +166,8 @@ kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); backgr
 <tr><td>You hear it twice</td><td>Once from the FM-1's socket and once, late, through Live. Turn Monitor to Off, or unplug the FM-1's own headphones.</td></tr>
 </tbody>
 </table>
-<p class="tried"><b>Tried here</b> · AISLING's USB sound has been recorded on a Mac, in a browser, by the <a href="../visualiser/">visualiser</a>. Clock, program change and the effects' messages are tested each release. Ableton Live 12 on a Mac has played its sound out through an FM-1 running <a href="../fx1/">FX-1</a>, at 44,100.</p>
-<p class="untried"><b>Not tried here</b> · These steps, start to finish, in Ableton Live: they are written from how AISLING works and from Live 12's settings. Windows, where Live may want an ASIO driver to see the FM-1. Other versions of Live.</p>
+<p class="tried"><b>Tried here</b> · In Ableton Live 12 on a Mac the FM-1 appears as DUB-1 FM-1, and a piece's Lead and Drone were recorded as notes from channels 3 and 1 (the picture above). AISLING's USB sound has been recorded on a Mac, in a browser, by the <a href="../visualiser/">visualiser</a>. Clock, program change and the effects' messages are tested each release. Ableton Live 12 on a Mac has played its sound out through an FM-1 running <a href="../fx1/">FX-1</a>, at 44,100.</p>
+<p class="untried"><b>Not tried here</b> · Live's clock leading the FM-1, and recording the effects and sending them back, in Ableton Live: those steps are written from how AISLING works and from Live 12's settings. Windows, where Live may want an ASIO driver to see the FM-1. Other versions of Live.</p>
 </section>
 </main>
 </body>

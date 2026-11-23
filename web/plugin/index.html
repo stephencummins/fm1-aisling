@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING · the patch bench plug-in</title>
+<meta name="description" content="AISLING's engine as a VST3 and Audio Unit plug-in: shape a pack piece's Patch sounds by ear in a DAW, hear them on the FM-1, and save them into the pack.">
+<meta property="og:title" content="AISLING · the patch bench plug-in">
+<meta property="og:description" content="AISLING's engine as a VST3 and Audio Unit plug-in: shape a pack piece's Patch sounds by ear in a DAW, hear them on the FM-1, and save them into the pack.">
+<meta property="og:url" content="https://aisling.stephen8n.com/plugin/">
+<meta property="og:image" content="https://aisling.stephen8n.com/img/card.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+/* This page's own, after the record page's: the cover's right half is type, not a picture; a table of what
+   each setting is; the notes that say what was tried here and what was not. The rest is the site's (web/brand/site.css) */
+.mg-feat p, .mg-in p { margin: 0 0 10px; max-width: 78ch; }
+.mg-feat p b, .mg-feat li b, .mg-in b { font-weight: 400; color: var(--brand-green); }
+.mg-steps li strong { display: block; margin: 0 0 3px; font: 600 18px/1.2 var(--brand-display); letter-spacing: .03em; text-transform: uppercase; }
+.sum { display: grid; align-content: stretch; gap: 1px; background: #3a2f22; border-left: 1px solid #3a2f22; }
+.sum a { align-content: center; }
+.sum a { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); align-items: baseline; padding: 15px 18px 14px; background: #1c1610;
+         color: #f3ead7; text-decoration: none; font: 600 clamp(19px, 2.2vw, 26px)/1.1 var(--brand-display); letter-spacing: .03em; text-transform: uppercase; }
+.sum a i { font: 400 12px/1 var(--brand-mono); font-style: normal; color: #e9a23b; }
+.sum a small { grid-column: 2; margin-top: 5px; font: 400 12px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: none; color: #c9b99a; }
+.sum a:hover { background: #2a2118; color: #f3ead7; }
+.tried, .untried { margin: 16px 0 0; padding: 10px 12px; border-left: 3px solid var(--brand-green); background: var(--brand-strip); font-size: 12.5px; max-width: 78ch; }
+.untried { border-left-color: var(--brand-rust); }
+.tried b, .untried b { letter-spacing: .1em; text-transform: uppercase; font-size: 11.5px; }
+.untried b { color: var(--brand-rust) !important; }
+table.acts { width: 100%; max-width: 86ch; border-collapse: collapse; margin: 0 0 6px; font-size: 13px; }
+table.acts th, table.acts td { padding: 8px 10px 7px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--brand-rule); }
+table.acts th { font: 600 15px/1.2 var(--brand-display); letter-spacing: .06em; text-transform: uppercase; border-bottom: 2px solid var(--brand-ink); }
+table.acts td:first-child { white-space: nowrap; color: var(--brand-green); }
+ul.plain { margin: 0 0 10px; padding-left: 1.2em; max-width: 78ch; }
+ul.plain li { margin: 0 0 5px; }
+.mg-steps.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 47.99rem) { .mg-steps.six { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); background: var(--brand-strip); white-space: nowrap; }
+.credit { font-size: 12.5px; }
+@media (max-width: 59.99rem) { .sum { border-left: 0; border-top: 1px solid #3a2f22; } }
+@media (max-width: 47.99rem) { table.acts td:first-child { white-space: normal; } }
+figure.shot { margin: 0 0 14px; max-width: 980px; }
+figure.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--brand-rule); }
+figure.shot figcaption { margin-top: 6px; font-size: 12.5px; color: var(--brand-muted); }
+pre.code { margin: 0 0 12px; padding: 12px 14px; max-width: 980px; overflow-x: auto; background: #1c1610; color: #f3ead7; font: 400 12.5px/1.6 var(--brand-mono); }
+pre.code i { font-style: normal; color: #c9b99a; }
+</style>
+<!--AISLING-HEAD-->
+</head>
+<body>
+<!--AISLING-BAR-->
+<main class="bench">
+<div class="strip">
+<p class="lab"><b>plug-in</b> · the patch bench</p>
+<p class="lab">VST3, Audio Unit and an app · for AISLING 1.6 and later</p>
+</div>
+
+<div class="mg-cover">
+<div class="mg-words">
+<div>
+<h1>Plug<span>-in</span></h1>
+<p class="mg-gloss">The patch bench: AISLING's engine in a DAW.</p>
+</div>
+<p class="mg-deck">Make a pack piece's own sounds by ear, hear them on the FM-1 as you turn, and save them into the pack.</p>
+</div>
+<nav class="sum" aria-label="On this page">
+<a href="#what"><i>01</i>What it is<small>the FM-1's engine, on a track</small></a>
+<a href="#get"><i>02</i>Get it<small>built from the source, on a Mac</small></a>
+<a href="#shape"><i>03</i>Shape a sound<small>sixteen numbers a layer</small></a>
+<a href="#fm1"><i>04</i>On the FM-1<small>send to the fm-1, and save</small></a>
+</nav>
+</div>
+
+<section class="mg-feat" id="what" aria-labelledby="whath">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">01</div>
+<div><p class="mg-kick">The bench</p><h2 id="whath">What it is</h2></div></div>
+<p class="mg-stand">The plug-in is the FM-1's engine, the same C, on a track in a DAW. It is for making a <a href="../manual/#sound-packs">sound pack</a> piece's <em>Patch</em>: a sound of your own for its Drone, Sequence, Lead or Sequence 2.</p>
+<figure class="shot"><img src="../img/shot-plugin.png" width="1600" height="988" loading="lazy" alt="Ableton Live with the AISLING plug-in open on a track: the patch bench, AISLING's own pieces with Skellig chosen, tabs for Drone, Sequence, Lead and Sequence 2, the Lead's sixteen controls and a row of keys">
+<figcaption>The patch bench in Ableton Live, as a VST3: Skellig chosen, the Lead's page open.</figcaption></figure>
+<ul class="plain">
+<li><b>The piece plays in the host's time.</b> It starts with the transport, on the host's sixteenths, at the host's tempo.</li>
+<li><b>It is not a way to play AISLING without an FM-1.</b> For that there is the <a href="../emu/">emulator</a>. This is a workbench for sounds.</li>
+<li><b>A pack with a patch needs AISLING 1.6</b> on the FM-1. One without stays a 1.5 pack.</li>
+</ul>
+</section>
+<section class="mg-feat" id="get" aria-labelledby="geth">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">02</div>
+<div><p class="mg-kick">Getting it</p><h2 id="geth">Build it from the source</h2></div></div>
+<p class="mg-stand">There is no download yet. <em>It is built from the source</em>, in the <b>plugin</b> folder, with CMake.</p>
+<pre class="code">git clone https://github.com/stephencummins/fm1-aisling
+cd fm1-aisling
+cmake -S plugin -B plugin/build
+cmake --build plugin/build -j8</pre>
+<ul class="plain">
+<li><b>The build puts it in place:</b> <b>AISLING.vst3</b> and <b>AISLING.component</b> go into <b>~/Library/Audio/Plug-Ins</b>, and there is an app that runs by itself.</li>
+<li><b>JUCE 8 is fetched</b> the first time, so that run needs the internet and takes a while.</li>
+<li><b>In Ableton Live:</b> rescan plug-ins, then find AISLING under <b>Plug-Ins</b> and drop it on a MIDI track.</li>
+</ul>
+<p class="mg-small">Its own account, with the tests, is <a href="https://github.com/stephencummins/fm1-aisling/tree/main/plugin" target="_blank" rel="noopener">plugin/README.md</a> in the source.</p>
+</section>
+<section class="mg-feat" id="shape" aria-labelledby="shapeh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
+<div><p class="mg-kick">The sound</p><h2 id="shapeh">Shape a sound</h2></div></div>
+<p class="mg-stand">A layer's Patch is sixteen numbers: two oscillators, a sub, noise, a filter and its envelope. <em>Each is a control on the panel and a parameter in the host</em>, so it can be automated or put on a controller.</p>
+<ol class="mg-steps six">
+<li><strong>Choose a piece</strong><b>load a pack…</b> takes an <b>.aispack</b>; choose a piece from it. Or shape one of AISLING's own eight to try.</li>
+<li><strong>Press play</strong>In the host. The piece starts with it.</li>
+<li><strong>Open a layer</strong>The tabs: Drone, Sequence, Lead, Sequence 2.</li>
+<li><strong>Turn a control</strong>Touching one ticks <b>patch on</b> for that layer. Unticked, the layer keeps the piece's own voice. Hover over a control for what it does.</li>
+<li><strong>Solo it</strong><b>solo</b> plays one layer alone, to hear the sound without the rest.</li>
+<li><strong>Play it</strong>The keys under the page play the open layer. <b>notes play</b> sends a MIDI clip or a keyboard to the Lead or a Sequence, the exact notes.</li>
+</ol>
+<ul class="plain">
+<li><b>With the host stopped,</b> a key plays its note alone.</li>
+<li><b>The Drone has no keys.</b> It holds the piece's chord.</li>
+<li><b>Sequence 2 is silent</b> in a piece that has none: Skellig, for one.</li>
+<li><b>Choosing another piece</b> keeps the one you leave as you made it, until another pack is loaded or the plug-in closes. Only saving writes it.</li>
+</ul>
+</section>
+<section class="mg-feat" id="fm1" aria-labelledby="fm1h">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">04</div>
+<div><p class="mg-kick">The FM-1</p><h2 id="fm1h">Hear it on the FM-1, and save</h2></div></div>
+<p class="mg-stand">With an FM-1 on USB, tick <b>send to the fm-1</b> and <em>the FM-1 plays each patch as you shape it</em>.</p>
+<table class="acts">
+<thead><tr><th scope="col">To</th><th scope="col">Do this</th></tr></thead>
+<tbody>
+<tr><td>Hear it on the FM-1</td><td>The FM-1 must have the same pack (by its name) and be on the same piece. If not, it keeps its own voices and the line beside the box says why.</td></tr>
+<tr><td>Get the pack's sound back</td><td>Untick the box, close the plug-in, or switch the FM-1 off. Nothing was stored on it.</td></tr>
+<tr><td>Keep a sound</td><td><b>save into the pack…</b> writes the pack with this piece's patches in it. Add it on the <a href="../packs/">Packs page</a> and install it as any other.</td></tr>
+<tr><td>Have it as numbers</td><td><b>copy as json</b> gives the piece's patch block, for a pack built from a file.</td></tr>
+</tbody>
+</table>
+<ul class="plain">
+<li><b>It goes on sending with its window closed,</b> for as long as it is on a track in an open set. Untick the box to hear what the pack itself holds.</li>
+<li><b>One at a time on the link:</b> close the <a href="../editor/">editor</a> and the Packs page first.</li>
+<li><b>One AISLING in a set.</b> A second one stays silent and says so.</li>
+<li><b>The engine runs at 44,100.</b> At other rates its sound is resampled, about 2 ms late, which the host is told.</li>
+</ul>
+<p class="tried"><b>Tried here</b> · Built on a Mac and loaded as a VST3 in Ableton Live 12. With an FM-1 on USB, the FM-1's sound followed the sliders. A Lead patch saved into a pack from the plug-in was installed on an FM-1 and was still there after switching it off and on.</p>
+<p class="untried"><b>Not tried here</b> · Windows. Hosts other than Ableton Live. Tempos outside AISLING's own 60 to 160.</p>
+</section>
+</main>
+</body>
+</html>
