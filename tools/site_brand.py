@@ -26,6 +26,7 @@ DIY = ("diy", "make a skin", "https://store.stephen8n.com/diy/", "How to make yo
 SEER = ("seer", "seer", "https://seer.stephen8n.com/", "The Flash Seer: a fortune cabinet that asks strange questions and deals the FM-1 firmware you should flash")
 APP = ("app", "app", "emu/?app", "AISLING as an app on a phone: full screen, from the home screen, with no connection")
 SUPPORT = ("support", "support", "support/", "Back an FM-1 up, switch its firmware, and bring one back that won't start: M-Flasher and m-bootloader")
+RECORD = ("record", "record", "record/", "Record an FM-1 running AISLING into Ableton Live over its USB cable: the sound, the tempo, the effects")
 STEPHEN8N = ("stephen8n", "stephen8n", "https://www.stephen8n.com", "Stephen Cummins's other things")
 GEAR = ("gear", "gear", "https://gear.stephen8n.com/", "What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases")
 VIDEO = ("video", "video", "https://youtu.be/3aUARUvwT_Y", "A short film of AISLING and its visualiser, on YouTube")
@@ -38,6 +39,7 @@ NAV = (STORE,
        ("manual", "manual", "manual/", "Getting started in a few minutes, then everything else"),
        ("controls", "controls", "fm1/controls/", "Every knob, button and key of the FM-1 and what it does, drawn"),
        ("cheat", "cheat sheet", "cheat/", "Every control and the eight pieces on one page, to print, and the steps drawn as flows"),
+       RECORD,
        SUPPORT,
        ("visualiser", "visualiser", "visualiser/", "An FM-1 running AISLING paints an Irish landscape from its MIDI"),
        GEAR,
@@ -82,7 +84,7 @@ NAVS = {None: COMMON, "fm1": NAV, "fx1": FX1_NAV, "smk37": SMK37_NAV, "voxbox": 
 MORE = ("more", ("seer", "video", "source", "stephen8n"))
 KIT = ("kit", ("gear", "diy"))
 GROUPS = {None: ("store", "app", "support", KIT, MORE),
-          "fm1": ("store", ("play", ("emu", "app", "editor")), "install", "packs", ("docs", ("manual", "controls", "cheat", "support")),
+          "fm1": ("store", ("play", ("emu", "app", "editor")), "install", "packs", ("docs", ("manual", "controls", "cheat", "record", "support")),
                   "visualiser", KIT, MORE),
           "fx1": ("store", "install", "controls", "manual", "support", KIT, MORE)}
 

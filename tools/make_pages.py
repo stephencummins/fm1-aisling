@@ -1423,6 +1423,10 @@ def main(pkg, version, out, smk37=None, fx1=None):
     (out / "support").mkdir()
     (out / "support" / "index.html").write_text(stamp((SRC / "web" / "support" / "index.html").read_text(encoding="utf-8"), "../", "support"),
                                                 encoding="utf-8")
+    # the record page: an FM-1 into Ableton Live
+    (out / "record").mkdir()
+    (out / "record" / "index.html").write_text(stamp((SRC / "web" / "record" / "index.html").read_text(encoding="utf-8"), "../", "record"),
+                                               encoding="utf-8")
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
