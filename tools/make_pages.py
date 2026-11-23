@@ -1427,6 +1427,11 @@ def main(pkg, version, out, smk37=None, fx1=None):
     (out / "record").mkdir()
     (out / "record" / "index.html").write_text(stamp((SRC / "web" / "record" / "index.html").read_text(encoding="utf-8"), "../", "record"),
                                                encoding="utf-8")
+    # Strudel in VS Code (strdltn), and the patch bench plug-in
+    for name in ("strudel", "plugin"):
+        (out / name).mkdir()
+        (out / name / "index.html").write_text(stamp((SRC / "web" / name / "index.html").read_text(encoding="utf-8"), "../", name),
+                                               encoding="utf-8")
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
