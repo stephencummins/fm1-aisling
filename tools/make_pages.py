@@ -570,6 +570,14 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 <p class="mg-small">Tried in strdltn 0.4.1 and in the VIBE FM VST in Ableton Live. With nothing sent on the new channels, 1.3 sounds as 1.2 did.</p>
 </section>
 
+<section class="mg-feat band" id="zodiac" aria-labelledby="zodiach">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">Zodiac</div>
+<div><p class="mg-kick">From the same hand · another firmware for the FM-1</p><h2 id="zodiach">Twelve signs that play themselves</h2></div></div>
+<p class="mg-stand">Zodiac is a second firmware for the FM-1, separate from AISLING. Each sign of the zodiac is <em>a picture and a piece of music that composes itself</em>: choose one and leave it running, or play its effects from the keys.</p>
+<p class="mg-go"><a class="btn go big" href="https://zodiac.stephen8n.com/">See Zodiac</a> <a class="btn" href="https://zodiac.stephen8n.com/emu/">Play it in the browser</a></p>
+<p class="mg-small">An FM-1 holds one firmware at a time. Zodiac's install page puts it on, and this site's puts AISLING back; either can put M-VAVE's own back.</p>
+</section>
+
 <section class="mg-feat band" id="app" aria-labelledby="apph">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">App</div>
 <div><p class="mg-kick">Also new · November 2026</p><h2 id="apph">Aisling, as an app on your phone</h2></div></div>
