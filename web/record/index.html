@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING · record into Ableton Live</title>
+<meta name="description" content="Record an FM-1 running AISLING into Ableton Live over its one USB cable: the sound, the tempo in step, and the effects you play.">
+<meta property="og:title" content="AISLING · record into Ableton Live">
+<meta property="og:description" content="Record an FM-1 running AISLING into Ableton Live over one USB cable: the sound, the tempo in step, and the effects you play.">
+<meta property="og:url" content="https://aisling.stephen8n.com/record/">
+<meta property="og:image" content="https://aisling.stephen8n.com/img/card.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+/* The record page's own, after the support page's: the cover's right half is type, not a picture; a table of what
+   each setting is; the notes that say what was tried here and what was not. The rest is the site's (web/brand/site.css) */
+.mg-feat p, .mg-in p { margin: 0 0 10px; max-width: 78ch; }
+.mg-feat p b, .mg-feat li b, .mg-in b { font-weight: 400; color: var(--brand-green); }
+.mg-steps li strong { display: block; margin: 0 0 3px; font: 600 18px/1.2 var(--brand-display); letter-spacing: .03em; text-transform: uppercase; }
+.sum { display: grid; align-content: stretch; gap: 1px; background: #3a2f22; border-left: 1px solid #3a2f22; }
+.sum a { align-content: center; }
+.sum a { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); align-items: baseline; padding: 15px 18px 14px; background: #1c1610;
+         color: #f3ead7; text-decoration: none; font: 600 clamp(19px, 2.2vw, 26px)/1.1 var(--brand-display); letter-spacing: .03em; text-transform: uppercase; }
+.sum a i { font: 400 12px/1 var(--brand-mono); font-style: normal; color: #e9a23b; }
+.sum a small { grid-column: 2; margin-top: 5px; font: 400 12px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: none; color: #c9b99a; }
+.sum a:hover { background: #2a2118; color: #f3ead7; }
+.tried, .untried { margin: 16px 0 0; padding: 10px 12px; border-left: 3px solid var(--brand-green); background: var(--brand-strip); font-size: 12.5px; max-width: 78ch; }
+.untried { border-left-color: var(--brand-rust); }
+.tried b, .untried b { letter-spacing: .1em; text-transform: uppercase; font-size: 11.5px; }
+.untried b { color: var(--brand-rust) !important; }
+table.acts { width: 100%; max-width: 86ch; border-collapse: collapse; margin: 0 0 6px; font-size: 13px; }
+table.acts th, table.acts td { padding: 8px 10px 7px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--brand-rule); }
+table.acts th { font: 600 15px/1.2 var(--brand-display); letter-spacing: .06em; text-transform: uppercase; border-bottom: 2px solid var(--brand-ink); }
+table.acts td:first-child { white-space: nowrap; color: var(--brand-green); }
+ul.plain { margin: 0 0 10px; padding-left: 1.2em; max-width: 78ch; }
+ul.plain li { margin: 0 0 5px; }
+.mg-steps.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 47.99rem) { .mg-steps.six { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); background: var(--brand-strip); white-space: nowrap; }
+.credit { font-size: 12.5px; }
+@media (max-width: 59.99rem) { .sum { border-left: 0; border-top: 1px solid #3a2f22; } }
+@media (max-width: 47.99rem) { table.acts td:first-child { white-space: normal; } }
+</style>
+<!--AISLING-HEAD-->
+</head>
+<body>
+<!--AISLING-BAR-->
+<main class="bench">
+<div class="strip">
+<p class="lab"><b>record</b> · the FM-1 into Ableton Live</p>
+<p class="lab">one USB cable, no audio interface</p>
+</div>
+
+<div class="mg-cover">
+<div class="mg-words">
+<div>
+<h1>Rec<span>ord</span></h1>
+<p class="mg-gloss">An FM-1 running AISLING, into Ableton Live.</p>
+</div>
+<p class="mg-deck">The FM-1 sends its sound down the USB cable. Ableton records it like any other input.</p>
+</div>
+<nav class="sum" aria-label="On this page">
+<a href="#sound"><i>01</i>The sound<small>six steps to a recording</small></a>
+<a href="#time"><i>02</i>In time<small>Ableton's tempo, start and stop</small></a>
+<a href="#effects"><i>03</i>The effects<small>record what your hands did</small></a>
+<a href="#wrong"><i>04</i>If it goes wrong<small>no device, no sound, a howl of notes</small></a>
+</nav>
+</div>
+
+<section class="mg-feat" id="sound" aria-labelledby="soundh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">01</div>
+<div><p class="mg-kick">The recording</p><h2 id="soundh">Record the sound</h2></div></div>
+<p class="mg-stand">The computer sees the FM-1 as a sound input called <em>DUB-1 FM-1</em>. It needs no driver on a Mac, and no cable but the USB one.</p>
+<ol class="mg-steps six">
+<li><strong>Plug it in</strong>The FM-1 into the computer with a USB <b>data</b> cable, switched on, with AISLING playing.</li>
+<li><strong>Choose the input</strong>In Live: <b>Settings → Audio</b>. Driver Type <b>CoreAudio</b>, Audio Input Device <b>DUB-1 FM-1</b>. Leave the output on your speakers or headphones.</li>
+<li><strong>Set 44,100</strong>On the same page, Sample Rate <b>44100</b>. It is the only rate the FM-1 sends.</li>
+<li><strong>Make a track</strong>A new audio track. <b>Audio From: Ext. In</b>, and under it the pair <b>1/2</b>: AISLING is in stereo.</li>
+<li><strong>Listen</strong>Monitor <b>In</b> to hear it through the computer, a moment late. Or leave Monitor <b>Off</b> and listen at the FM-1's own socket: an armed track records either way.</li>
+<li><strong>Record</strong>Arm the track, press record, and play. Stop when the piece has said what it had to say.</li>
+</ol>
+<table class="acts">
+<thead><tr><th scope="col">What comes down the cable</th><th scope="col">What that means</th></tr></thead>
+<tbody>
+<tr><td>All of AISLING</td><td>The whole mix, effects and all, as it leaves for the socket. There are no separate layers.</td></tr>
+<tr><td>Before MASTER</td><td>The level is fixed. Turn <kbd>MASTER</kbd> right down and the recording is the same, so it can be quiet in the room.</td></tr>
+<tr><td>Stereo, 16 bits, 44,100</td><td>A standard USB sound device, input only. Nothing goes back up the cable to the FM-1's socket.</td></tr>
+<tr><td>Only while it plays</td><td>Stopped, the FM-1 sends silence. The sleep timer's fade is not in the recording, but its stop is.</td></tr>
+</tbody>
+</table>
+<p class="mg-small">Reading the sound over USB adds a little to the FM-1's work. A busy piece that was near its limit may drop out sooner.</p>
+</section>
+
+<section class="mg-feat" id="time" aria-labelledby="timeh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">02</div>
+<div><p class="mg-kick">Tempo</p><h2 id="timeh">Keep it in time with the set</h2></div></div>
+<p class="mg-stand">Send the FM-1 Ableton's clock and it <em>starts, stops and keeps time with Live</em>, so what you record lies on the grid.</p>
+<ol class="mg-steps">
+<li><strong>Turn Sync on</strong><b>Settings → Link, Tempo &amp; MIDI</b>. Find <b>DUB-1 FM-1</b> among the outputs and switch <b>Sync</b> on.</li>
+<li><strong>Press play in Live</strong>The FM-1 starts with it. Its screen shows <b>EXT</b> where the tempo was.</li>
+<li><strong>Set the tempo in Live</strong>The sequences follow it. Stop in Live stops the FM-1; when the clock goes, AISLING takes its own tempo back.</li>
+</ol>
+<ul class="plain">
+<li><b>The recording arrives a little late,</b> by the time the sound takes to cross the cable and the computer. If it sits behind the grid, drag the clip back, or set <b>Driver Error Compensation</b> on the Audio page.</li>
+<li><b>To change piece from Live,</b> give a MIDI clip a program number and send the track to DUB-1 FM-1. Live counts from 1, so <b>Pgm 1 to 8</b> are the eight pieces in their order, Skellig first.</li>
+</ul>
+</section>
+
+<section class="mg-feat" id="effects" aria-labelledby="effectsh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
+<div><p class="mg-kick">The performance</p><h2 id="effectsh">Record the effects you play</h2></div></div>
+<p class="mg-stand">Each effect you hold on the FM-1 goes out as a MIDI message. Record those, and Live can <em>play your hands back</em>.</p>
+<ol class="mg-steps">
+<li><strong>MIDI out on</strong>On the FM-1: press <kbd>GLO</kbd> for the Setup page and set <b>MIDI out</b> on.</li>
+<li><strong>Take it in</strong>In Live's <b>Link, Tempo &amp; MIDI</b>, switch <b>Track</b> on for the DUB-1 FM-1 input. Make a MIDI track with <b>MIDI From: DUB-1 FM-1</b>, channel 16.</li>
+<li><strong>Record, then send it back</strong>Arm it and record while you play the effects. To play them back, set the track's <b>MIDI To: DUB-1 FM-1</b>.</li>
+</ol>
+<ul class="plain">
+<li><b>What is sent:</b> an effect's own controller on channel 16, 127 as it starts and 0 as it ends. The <a href="../manual/#s11">manual</a> lists which controller is which.</li>
+<li><b>The knobs answer controllers too,</b> so Live's automation can turn Filter, Evolve, Motion, Drift and the page's four knobs. The manual has that table as well.</li>
+<li><b>Record the sound and the effects together</b> and you have both: the take as it was, and the moves to make it again.</li>
+</ul>
+</section>
+
+<section class="mg-feat" id="wrong" aria-labelledby="wrongh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">04</div>
+<div><p class="mg-kick">Trouble</p><h2 id="wrongh">If it goes wrong</h2></div></div>
+<table class="acts">
+<thead><tr><th scope="col">What you find</th><th scope="col">What to do</th></tr></thead>
+<tbody>
+<tr><td>No DUB-1 FM-1 in the list</td><td>Try another cable: many USB cables only charge. Plug it straight into the computer, not a hub. On macOS 13 the MIDI appears but the sound device does not: there is no USB sound there.</td></tr>
+<tr><td>The meter stays still</td><td>Press play on the FM-1: it sends silence while stopped. Check the track says Ext. In and 1/2, and that the track is armed or its Monitor is In.</td></tr>
+<tr><td>Clicks, or the pitch is off</td><td>Set Live's Sample Rate to 44100. A larger Buffer Size (256 or 512) cures most clicks.</td></tr>
+<tr><td>The Lead plays a storm of notes</td><td>Live is sending the FM-1's own notes straight back to it. Set that MIDI track's Monitor to <b>Off</b>, or send it somewhere else. Failing that, turn <b>MIDI out</b> off on the FM-1.</td></tr>
+<tr><td>You hear it twice</td><td>Once from the FM-1's socket and once, late, through Live. Turn Monitor to Off, or unplug the FM-1's own headphones.</td></tr>
+</tbody>
+</table>
+<p class="tried"><b>Tried here</b> · AISLING's USB sound has been recorded on a Mac, in a browser, by the <a href="../visualiser/">visualiser</a>. Clock, program change and the effects' messages are tested each release. Ableton Live 12 on a Mac has played its sound out through an FM-1 running <a href="../fx1/">FX-1</a>, at 44,100.</p>
+<p class="untried"><b>Not tried here</b> · These steps, start to finish, in Ableton Live: they are written from how AISLING works and from Live 12's settings. Windows, where Live may want an ASIO driver to see the FM-1. Other versions of Live.</p>
+</section>
+</main>
+</body>
+</html>
