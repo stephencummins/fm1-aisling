@@ -8,6 +8,8 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
                               the harp, the bar, the look and the fonts every page shares (web/brand, tools/site_brand.py)
   _headers, _redirects        Cloudflare's (web/brand); GitHub Pages serves them as two stray files
   404.html                    the page for an address the site does not have (web/brand); both hosts use it
+  llms.txt                    the site in short, for assistants (web/brand/llms.txt, written by hand: a new page, or
+                              a change to what has been tried, goes in there too)
   visualiser/                 the visualiser (web/visualiser)
   index.html                  the root: what AISLING is, then its four parts (site_brand.PRODUCTS), each
                               drawn, with how far it has got and its pages; the bar's switch goes between them too
