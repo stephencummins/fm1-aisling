@@ -776,6 +776,60 @@ The effects, in the keys' order from the lowest (the low octave is 20 to 31, the
 | 27 | Repeat | 106 | Shimmer | 115 | Drop |
 | 28 | Rise | 107 | Ring | 116 | Crush |
 
+### Koala Sampler
+
+Koala is elf audio's sampler for phones, tablets and computers. MIDI clock keeps it in time with AISLING, and the
+FM-1's USB audio lets it sample AISLING, both down one USB cable.
+
+**Not tried yet.** AISLING hasn't been tried here with Koala, nor its USB sound and MIDI with a phone or tablet. These
+steps come from how AISLING works and from [Koala's manual](https://manual.koalasampler.com/mobile/8-settings/). If you
+try them, please say in an issue what worked, and on which device.
+
+Plug the FM-1 into the device with a USB data cable (through whatever adapter it needs). In Koala, open the MIDI
+settings: the **MIDI DEVICES** panel at the bottom lists what is connected. Then pick which of the two leads. Only one
+can.
+
+**The FM-1 leads** (try this first: Koala can trim the timing this way round).
+
+1. On the FM-1, leave **MIDI out** on (**GLO**'s Setup page). With it off, no clock is sent.
+2. In Koala, set **Midi Clock mode** to **RECEIVE**. Ableton Link can't be used at the same time.
+3. Keep the FM-1's notes off Koala's pads (see **The pads**, below).
+4. AISLING plays as soon as it's on, so press **PLAY** to rest it first. Press **PLAY** again: it sends start, then
+   its clock, and Koala starts with it. PLAY once more sends stop. Start and stop from the FM-1, not from Koala.
+5. If Koala sits a little early or late, adjust **Sync latency compensation**.
+
+The tempo is the FM-1's (**HOME** again, the Key page). Check that Koala shows the same; if it doesn't, set it there by
+hand. Changing piece changes the tempo.
+
+**Koala leads.**
+
+1. In Koala, set **Midi Clock mode** to **SEND**.
+2. On the FM-1, turn **MIDI out** off, so that its notes don't play Koala's pads. AISLING follows by itself, and while
+   it does it sends no clock back.
+3. On the Key page, set **Tempo** to Koala's BPM (60 to 160). Only the sequences' grid follows the incoming clock:
+   echo time, note lengths, Swing and Roll still go by the FM-1's own tempo.
+4. Press play in Koala. The FM-1 starts its piece from the opening and shows **EXT** for the tempo; stop in Koala stops
+   it.
+
+**The pads.** With MIDI out on, the FM-1 sends its notes on channels 1 to 4 (the Drone, the Sequence, the Lead and
+Sequence 2), and notes play Koala's pads. To stop that, with Koala's **Use MIDI mapping** off, set its **MIDI
+Channel** to one from 5 to 16, not **ALL**. To have the FM-1 play the pads instead, choose one layer's channel, say 2
+for the Sequence, and set **MIDI Note Offset** so that its notes land on the pads. In the other direction, any note
+Koala sends plays AISLING's Lead, and a CC may turn a knob (see the tables above).
+
+**Sampling AISLING in time.**
+
+1. In Koala's audio settings, set **Input source** to **L + R**, and choose **Input** as the source to sample.
+2. Start the two together, as above. The FM-1 sends sound only while it plays.
+3. Use Koala's [loop recording](https://manual.koalasampler.com/mobile/4-sample/) (while recording a pad, swipe down
+   from it to **LOOP**): it waits for the next bar line to start and stops on one, so the sample loops in time.
+
+The sound is 44,100 only and comes at a fixed level, before MASTER. Nothing goes back up the cable: Koala plays out of
+its own device, and the FM-1's socket carries only the FM-1. Reading the sound adds a little to the FM-1's work. If no
+**Input** appears, the device may not be taking the FM-1's USB audio (see [Troubleshooting](#13-troubleshooting)); the
+MIDI sync doesn't depend on it. On Android, leave **Use OpenSL** off: Koala's manual says MIDI sync doesn't work with
+it.
+
 ### The visualiser
 
 [The visualiser](https://aisling.stephen8n.com/visualiser/) turns the MIDI out into a painting of the west of Ireland: the
