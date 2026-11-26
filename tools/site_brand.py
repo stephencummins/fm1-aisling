@@ -21,7 +21,7 @@ PRODUCTS = [["fm1", "FM-1", "fm1/", "AISLING on the M-VAVE FM-1: the instrument,
             ["smk37", "SMK-37", "smk37/", "AISLING on the M-VAVE SMK-37 Elite: 37 keys, pads and faders"],
             ["voxbox", "VOXBOX", "voxbox/", "VOXBOX: a touch screen beside the FM-1, a kit you put together"]]
 # (the page's key, its label, where it goes: relative to the site's root unless it's a whole URL, what it is)
-STORE = ("store", "store", "https://store.stephen8n.com/", "Skins for the FM-1, printed and cut by hand, and the gear that goes with it: coming soon")
+STORE = ("store", "store", "https://store.stephen8n.com/", "Skins and decals for the FM-1, printed and die-cut, and the gear that goes with it: coming soon")
 DIY = ("diy", "make a skin", "https://store.stephen8n.com/diy/", "How to make your own skin for the FM-1 at home: what to buy, and how to print and cut it")
 SEER = ("seer", "seer", "https://seer.stephen8n.com/", "The Flash Seer: a fortune cabinet that asks strange questions and deals the FM-1 firmware you should flash")
 APP = ("app", "app", "emu/?app", "AISLING as an app on a phone: full screen, from the home screen, with no connection")

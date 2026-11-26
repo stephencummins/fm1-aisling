@@ -7,6 +7,7 @@ files go to GitHub Pages too (https://stephencummins.github.io/fm1-aisling/), wh
   favicon.svg, favicon-32.png, apple-touch-icon.png, mark.png, site.css, wall.js, fonts/
                               the harp, the bar, the look and the fonts every page shares (web/brand, tools/site_brand.py)
   _headers, _redirects        Cloudflare's (web/brand); GitHub Pages serves them as two stray files
+  sitemap.xml, robots.txt     every page, for search engines (write_sitemap)
   404.html                    the page for an address the site does not have (web/brand); both hosts use it
   llms.txt                    the site in short, for assistants (web/brand/llms.txt, written by hand: a new page, or
                               a change to what has been tried, goes in there too)
@@ -508,7 +509,7 @@ p.small { margin: 0; color: var(--brand-muted); font-size: 12.5px; }
 <section class="mg-feat band store" id="store" aria-labelledby="storeh">
 <div class="mg-head"><div class="mg-num" aria-hidden="true">Store</div>
 <div><p class="mg-kick">The store · coming soon</p><h2 id="storeh">Skins for the FM-1</h2></div></div>
-<p class="mg-stand">Vinyl skins, printed and cut by hand, <em>for any case colour and any firmware</em>, with the gear that goes with it.</p>
+<p class="mg-stand">Vinyl skins and decals, printed and die-cut, <em>for any case colour and any firmware</em>, with the gear that goes with it.</p>
 <p class="posts">Posted to <b>the UK</b>, <b>the US</b>, <b>France</b>, <b>Germany</b> and <b>Spain</b></p>
 <ul class="skins">
 <li><a href="https://store.stephen8n.com/#p-swatch"><img src="skins/swatch.webp" width="640" height="382" loading="lazy" alt="The Swatch skin on a cool grey FM-1"><span>Swatch</span></a></li>
@@ -1184,6 +1185,8 @@ def controls_page(kind, svg_path):
 # AISLING's words on FX-1's page. Its "Back to the stock firmware" becomes "Going back", pointing at AISLING's page
 FX1_INSTALL_EDITS = (
     ("<title>Install · AISLING</title>", "<title>Install · AISLING FX-1</title>"),
+    ('content="Install AISLING, free ambient firmware, on an M-VAVE FM-1 from the browser:',
+     'content="Install AISLING FX-1, effects box firmware, on an M-VAVE FM-1 from the browser:'),
     ("put AISLING on your FM-1</p>", "put AISLING FX-1 on your FM-1</p>"),
     ("<h1>Install <span>AISLING</span></h1>", "<h1>Install <span>FX-1</span></h1>"),
     ('href="../manual/#recovering', 'href="../../manual/#recovering'),
@@ -1289,6 +1292,16 @@ def check_visualiser_bar():
         want = [(href if href.startswith("https:") else SITE + href, label) for _, label, href, _ in items]
         if found != want:
             raise SystemExit(f"web/visualiser/index.html: its {cls} differs from tools/site_brand.py's:\n  {found}\n  {want}")
+
+
+def write_sitemap(out):
+    """sitemap.xml, every page a search engine may list (not those marked noindex), and robots.txt, which names it"""
+    pages = [p for p in sorted(out.rglob("index.html")) if not re.search(r'name="robots"[^>]*noindex', p.read_text(encoding="utf-8"))]
+    urls = "".join(f"  <url><loc>{SITE}{p.parent.relative_to(out).as_posix() + '/' if p.parent != out else ''}</loc></url>\n"
+                   for p in pages)
+    (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n'
+                                     f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
+    (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}sitemap.xml\n", encoding="utf-8")
 
 
 def main(pkg, version, out, smk37=None, fx1=None):
@@ -1437,6 +1450,7 @@ def main(pkg, version, out, smk37=None, fx1=None):
     # the screen reader's words files (fm1-reader): every one ever made, for the devices that point at them
     shutil.copytree(SRC / "web" / "words", out / "words")
     (out / ".nojekyll").write_text("")
+    write_sitemap(out)
     print(f"site: {out}: index.html, fm1/ (and controls/), fx1/ (controls/, manual/, install/ ({fx1_product})), "
           f"smk37/ {'(from ' + str(smk37) + ')' if smk37 else '(not here: ' + SMK37_AWAY + ')'}, install/ ({product}), "
           f"manual/, cheat/, emu/, editor/, visualiser/, voxbox/ (and tray/), words/, firmware/{name} ({len(raw)} B) "
