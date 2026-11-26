@@ -1,0 +1,61 @@
+# AISLING
+
+> AISLING (said ASH-ling) is a generative Irish ambient instrument: harps and a flute over a held drone, in the old modes. It is free firmware for the M-VAVE FM-1 and the M-VAVE SMK-37 Elite, by CÚ_STE (Stephen Cummins).
+
+- It plays itself from the moment it is switched on, and you can play along. Eight pieces.
+- No hardware is needed to try it: the browser emulator runs the same code as the FM-1.
+- Four parts: AISLING on the FM-1; AISLING FX-1, which makes an FM-1 a USB effects box for a computer's sound; AISLING on the SMK-37 Elite (the Elite only, not the SMK-37 Pro, on M-VAVE's firmware V016; installed from a computer, with no web installer yet); and VOXBOX, a touch screen kit beside the FM-1.
+- Installing other firmware is at your own risk. An FM-1 holds one firmware at a time. The support page covers backing up, switching and recovery.
+- GPL-3.0, a fork of NACHTFAHRT, built on Felucca. Not affiliated with M-VAVE.
+
+## AISLING on the FM-1
+
+- [FM-1 page](https://aisling.stephen8n.com/fm1/): what it is and the current release
+- [Install](https://aisling.stephen8n.com/install/): from Chrome or Edge on a computer, over a USB data cable
+- [Manual](https://aisling.stephen8n.com/manual/): every control, page and piece
+- [Controls](https://aisling.stephen8n.com/fm1/controls/): each knob, button and key, drawn
+- [Cheat sheet](https://aisling.stephen8n.com/cheat/): the steps as flows, and one page to print
+- [Support](https://aisling.stephen8n.com/support/): back up, switch firmware and recover an FM-1 with M-Flasher, a tool by Julius Vitkauskas
+
+## Without an FM-1
+
+- [Emulator](https://aisling.stephen8n.com/emu/): AISLING in the browser, with sound
+- [App](https://aisling.stephen8n.com/emu/?app): the emulator as a home-screen app on a phone; tested on an iPhone only
+- [Visualiser](https://aisling.stephen8n.com/visualiser/): paints a landscape from what an FM-1 plays, over Web MIDI, or from a demo
+
+## Making and recording
+
+- [Editor](https://aisling.stephen8n.com/editor/): every setting of a piece on one panel, on the emulator or an FM-1 over USB
+- [Sound packs](https://aisling.stephen8n.com/packs/): hear a pack in the page, then put it on an FM-1
+- [Plug-in](https://aisling.stephen8n.com/plugin/): AISLING's engine as a VST3, Audio Unit and app, for making pack sounds; built from source, no download yet
+- [Record into Ableton Live](https://aisling.stephen8n.com/record/): sound, notes, tempo and effects over one USB cable; the page says which steps have been tried
+- [Strudel](https://aisling.stephen8n.com/strudel/): play AISLING for VIBE FM from VS Code with strdltn, no FM-1 needed
+
+## AISLING FX-1
+
+- [FX-1 page](https://aisling.stephen8n.com/fx1/): a computer's sound, or a guitar by way of the computer, through AISLING's filter, echo, reverb and effects
+- [Install](https://aisling.stephen8n.com/fx1/install/)
+- [Manual](https://aisling.stephen8n.com/fx1/manual/)
+- [Controls](https://aisling.stephen8n.com/fx1/controls/)
+
+## SMK-37 Elite
+
+- [SMK-37 page](https://aisling.stephen8n.com/smk37/): release, download and what has been checked
+- [Manual](https://aisling.stephen8n.com/smk37/manual/)
+- [Controls](https://aisling.stephen8n.com/smk37/controls/)
+
+## VOXBOX
+
+- [VOXBOX](https://aisling.stephen8n.com/voxbox/): a 3.5-inch touch screen for the FM-1 that paints what it plays and puts firmware on it from a microSD card; made and tried on one box
+- [Lego tray](https://aisling.stephen8n.com/voxbox/tray/): a 50-brick stand for it, built once as a prototype
+
+## Source
+
+- [fm1-aisling](https://github.com/stephencummins/fm1-aisling): the FM-1 firmware and this site
+- [fx1-aisling](https://github.com/stephencummins/fx1-aisling): FX-1
+- [smk37-aisling](https://github.com/stephencummins/smk37-aisling): the SMK-37 Elite port
+
+## Related
+
+- [Gear](https://gear.stephen8n.com/): what plugs into an FM-1 running AISLING, and how
+- [Store](https://store.stephen8n.com/): FM-1 skins, coming soon; checkout is not open

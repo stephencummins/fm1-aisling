@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AISLING · play it from Strudel</title>
+<meta name="description" content="Play AISLING as an instrument from Strudel in VS Code, with strdltn Live[code]: a bass on the harp, a tune on the flute, while the piece goes on.">
+<meta property="og:title" content="AISLING · play it from Strudel">
+<meta property="og:description" content="Play AISLING as an instrument from Strudel in VS Code, with strdltn Live[code]: a bass on the harp, a tune on the flute, while the piece goes on.">
+<meta property="og:url" content="https://aisling.stephen8n.com/strudel/">
+<meta property="og:image" content="https://aisling.stephen8n.com/img/card.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+/* This page's own, after the record page's: the cover's right half is type, not a picture; a table of what
+   each setting is; the notes that say what was tried here and what was not. The rest is the site's (web/brand/site.css) */
+.mg-feat p, .mg-in p { margin: 0 0 10px; max-width: 78ch; }
+.mg-feat p b, .mg-feat li b, .mg-in b { font-weight: 400; color: var(--brand-green); }
+.mg-steps li strong { display: block; margin: 0 0 3px; font: 600 18px/1.2 var(--brand-display); letter-spacing: .03em; text-transform: uppercase; }
+.sum { display: grid; align-content: stretch; gap: 1px; background: #3a2f22; border-left: 1px solid #3a2f22; }
+.sum a { align-content: center; }
+.sum a { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); align-items: baseline; padding: 15px 18px 14px; background: #1c1610;
+         color: #f3ead7; text-decoration: none; font: 600 clamp(19px, 2.2vw, 26px)/1.1 var(--brand-display); letter-spacing: .03em; text-transform: uppercase; }
+.sum a i { font: 400 12px/1 var(--brand-mono); font-style: normal; color: #e9a23b; }
+.sum a small { grid-column: 2; margin-top: 5px; font: 400 12px/1.4 var(--brand-mono); letter-spacing: .02em; text-transform: none; color: #c9b99a; }
+.sum a:hover { background: #2a2118; color: #f3ead7; }
+.tried, .untried { margin: 16px 0 0; padding: 10px 12px; border-left: 3px solid var(--brand-green); background: var(--brand-strip); font-size: 12.5px; max-width: 78ch; }
+.untried { border-left-color: var(--brand-rust); }
+.tried b, .untried b { letter-spacing: .1em; text-transform: uppercase; font-size: 11.5px; }
+.untried b { color: var(--brand-rust) !important; }
+table.acts { width: 100%; max-width: 86ch; border-collapse: collapse; margin: 0 0 6px; font-size: 13px; }
+table.acts th, table.acts td { padding: 8px 10px 7px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--brand-rule); }
+table.acts th { font: 600 15px/1.2 var(--brand-display); letter-spacing: .06em; text-transform: uppercase; border-bottom: 2px solid var(--brand-ink); }
+table.acts td:first-child { white-space: nowrap; color: var(--brand-green); }
+ul.plain { margin: 0 0 10px; padding-left: 1.2em; max-width: 78ch; }
+ul.plain li { margin: 0 0 5px; }
+.mg-steps.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 47.99rem) { .mg-steps.six { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); background: var(--brand-strip); white-space: nowrap; }
+.credit { font-size: 12.5px; }
+@media (max-width: 59.99rem) { .sum { border-left: 0; border-top: 1px solid #3a2f22; } }
+@media (max-width: 47.99rem) { table.acts td:first-child { white-space: normal; } }
+figure.shot { margin: 0 0 14px; max-width: 980px; }
+figure.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--brand-rule); }
+figure.shot figcaption { margin-top: 6px; font-size: 12.5px; color: var(--brand-muted); }
+pre.code { margin: 0 0 12px; padding: 12px 14px; max-width: 980px; overflow-x: auto; background: #1c1610; color: #f3ead7; font: 400 12.5px/1.6 var(--brand-mono); }
+pre.code i { font-style: normal; color: #c9b99a; }
+</style>
+<link rel="canonical" href="https://aisling.stephen8n.com/strudel/">
+<meta name="theme-color" content="#f3ead7">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/BarlowSemiCondensed-SemiBold.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../fonts/IBMPlexMono-Regular.woff2">
+<link rel="stylesheet" href="../site.css">
+<script src="../wall.js" defer></script>
+</head>
+<body>
+<div class="wall" data-art="strudel" aria-hidden="true"></div>
+<div class="sitebar"><div class="sitebar-in">
+<a class="sitebar-home" href="../" title="AISLING: the FM-1, FX-1, SMK-37 and VOXBOX"><img class="sitebar-mark" src="../mark.png" width="30" height="30" alt=""><span class="sitebar-name">AISLING</span><span class="sitebar-by">by CÚ_STE</span></a>
+<nav class="sitebar-kit" aria-label="AISLING for"><a href="../fm1/" title="AISLING on the M-VAVE FM-1: the instrument, to install" aria-current="true">FM-1</a><a href="../fx1/" title="AISLING FX-1: an FM-1 as a USB effects box for a computer's sound">FX-1</a><a href="../smk37/" title="AISLING on the M-VAVE SMK-37 Elite: 37 keys, pads and faders">SMK-37</a><a href="../voxbox/" title="VOXBOX: a touch screen beside the FM-1, a kit you put together">VOXBOX</a></nav>
+<nav class="sitebar-nav" aria-label="AISLING's pages"><a href="https://store.stephen8n.com/" title="Skins and decals for the FM-1, printed and die-cut, and the gear that goes with it: coming soon">store</a><details class="sitebar-group" name="sitebar"><summary>play</summary><div class="sitebar-menu"><a href="../emu/" title="AISLING in the browser: the same code the FM-1 runs">emulator</a><a href="../emu/?app" title="AISLING as an app on a phone: full screen, from the home screen, with no connection">app</a><a href="../editor/" title="Every setting of a piece on one panel, and your FM-1 over USB">editor</a></div></details><a href="../install/" title="Put AISLING on your FM-1 from Chrome or Edge">install</a><a href="../packs/" title="Eight more pieces at a time: hear a pack, then put it on your FM-1 over USB">sound packs</a><details class="sitebar-group has-now" name="sitebar"><summary>docs</summary><div class="sitebar-menu"><a href="../manual/" title="Getting started in a few minutes, then everything else">manual</a><a href="../fm1/controls/" title="Every knob, button and key of the FM-1 and what it does, drawn">controls</a><a href="../cheat/" title="Every control and the eight pieces on one page, to print, and the steps drawn as flows">cheat sheet</a><a href="../record/" title="Record an FM-1 running AISLING into Ableton Live over its USB cable: the sound, the tempo, the effects">record</a><a href="../strudel/" title="Play AISLING from Strudel in VS Code with strdltn: a bass on the harp, a tune on the flute, while the piece goes on" aria-current="page">strudel</a><a href="../plugin/" title="The patch bench: AISLING's engine as a VST3 and Audio Unit, for making a pack piece's own sounds by ear in a DAW">plug-in</a><a href="../support/" title="Back an FM-1 up, switch its firmware, and bring one back that won't start: M-Flasher and m-bootloader">support</a></div></details><a href="../visualiser/" title="An FM-1 running AISLING paints an Irish landscape from its MIDI">visualiser</a><details class="sitebar-group" name="sitebar"><summary>kit</summary><div class="sitebar-menu"><a href="https://gear.stephen8n.com/" title="What plugs into an FM-1 running AISLING, and how: keyboards, cables, power, cases">gear</a><a href="https://store.stephen8n.com/diy/" title="How to make your own skin for the FM-1 at home: what to buy, and how to print and cut it">make a skin</a></div></details><details class="sitebar-group" name="sitebar"><summary>more</summary><div class="sitebar-menu"><a href="https://seer.stephen8n.com/" title="The Flash Seer: a fortune cabinet that asks strange questions and deals the FM-1 firmware you should flash">seer</a><a href="https://youtu.be/3aUARUvwT_Y" title="A short film of AISLING and its visualiser, on YouTube">video</a><a href="https://github.com/stephencummins/fm1-aisling" title="The code, on GitHub">source</a><a href="https://www.stephen8n.com" title="Stephen Cummins's other things">stephen8n</a></div></details></nav>
+</div></div>
+<main class="bench">
+<div class="strip">
+<p class="lab"><b>strudel</b> · AISLING in VS Code</p>
+<p class="lab">AISLING for VIBE FM 1.3, in strdltn Live[code]</p>
+</div>
+
+<div class="mg-cover">
+<div class="mg-words">
+<div>
+<h1>Stru<span>del</span></h1>
+<p class="mg-gloss">AISLING as an instrument you write lines for.</p>
+</div>
+<p class="mg-deck">The piece plays itself. Your lines of Strudel add a bass on the harp and a tune on the flute.</p>
+</div>
+<nav class="sum" aria-label="On this page">
+<a href="#start"><i>01</i>Set it up<small>the extension, a folder, the firmware</small></a>
+<a href="#lines"><i>02</i>Write lines<small>a channel for each layer</small></a>
+<a href="#panel"><i>03</i>The panel<small>AISLING's screen and its sliders</small></a>
+<a href="#limits"><i>04</i>What it can't do<small>and what was tried</small></a>
+</nav>
+</div>
+
+<section class="mg-feat" id="start" aria-labelledby="starth">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">01</div>
+<div><p class="mg-kick">Setting up</p><h2 id="starth">Set it up</h2></div></div>
+<p class="mg-stand"><a href="https://github.com/alienmind/strdltn" target="_blank" rel="noopener">strdltn Live[code]</a> is an extension that runs Strudel in VS Code and plays VIBE FM firmwares as its sounds. <em>AISLING for VIBE FM is one of them.</em> No FM-1 is needed.</p>
+<ol class="mg-steps six">
+<li><strong>Install strdltn</strong>It is a <b>.vsix</b> file from its GitHub page. In VS Code: Extensions, the <b>…</b> menu, <b>Install from VSIX</b>.</li>
+<li><strong>Make a folder</strong>Open a new folder in VS Code, and in it make a folder called <b>firmware</b>.</li>
+<li><strong>Add AISLING</strong>Put <b>aisling.wasm</b> from the <a href="https://github.com/stephencummins/vibe-aisling/releases/latest" target="_blank" rel="noopener">latest VIBE release</a> in the firmware folder. The sound is named after the file: <b>vibefm1:aisling</b>.</li>
+<li><strong>Write a file</strong>A file ending <b>.strudel</b>, with the lines below in it.</li>
+<li><strong>Press play</strong>The green triangle at the top of the editor. The first press asks to enable audio.</li>
+<li><strong>Open Devices</strong>In the bottom panel, the <b>Devices</b> tab shows AISLING's screen, and <b>Mixer</b> your lines' levels.</li>
+</ol>
+<figure class="shot"><img src="../img/shot-strudel.png" width="1400" height="1395" loading="lazy" alt="VS Code with aisling.strudel open: two lines of Strudel above, and below them AISLING's screen showing Skellig in D minor at 76 with the chord Dm7, beside a column of sliders">
+<figcaption>strdltn in VS Code: the lines above, AISLING's screen and its sliders in the Devices tab below.</figcaption></figure>
+</section>
+<section class="mg-feat" id="lines" aria-labelledby="linesh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">02</div>
+<div><p class="mg-kick">The lines</p><h2 id="linesh">Write lines for the layers</h2></div></div>
+<p class="mg-stand">The MIDI channel chooses the layer. <em>Channel 3 plucks the harp, channel 2 plays the flute</em>, and the piece goes on under both.</p>
+<pre class="code"><i>// Skellig is in D minor at 76</i>
+setcps(76 / 240)
+
+<i>// channel 3: the Sequence (the harp), plucked, by its velocity</i>
+$bass: note("&lt;d2 d2 bb1 c2&gt;*2").s("vibefm1:aisling").midichan(3).velocity(0.8)
+
+<i>// channel 2: the Lead (the flute), the notes as written</i>
+$tune: note("&lt;[d4 f4 a4 g4] [f4 e4 d4 ~] [a4 c5 a4 g4] [f4 ~ d4 ~]&gt;").s("vibefm1:aisling").midichan(2)</pre>
+<table class="acts">
+<thead><tr><th scope="col">On the line</th><th scope="col">What it does</th></tr></thead>
+<tbody>
+<tr><td>.midichan(1)</td><td>The Lead, moved to the nearest note of the piece's scale. Channels 5 to 16 do the same.</td></tr>
+<tr><td>.midichan(2)</td><td>The Lead, the notes exactly as written.</td></tr>
+<tr><td>.midichan(3)</td><td>The Sequence, plucked, the notes as written.</td></tr>
+<tr><td>.midichan(4)</td><td>Sequence 2, the same. It is silent in a piece that has none: Skellig, for one.</td></tr>
+<tr><td>.velocity(0 to 1)</td><td>How hard a Sequence is plucked.</td></tr>
+<tr><td>.progNum(0) to .progNum(7)</td><td>The piece: Skellig, Burren, Aran, Carolan, Blasket, Samhain, Connemara, Tir na nOg.</td></tr>
+</tbody>
+</table>
+<ul class="plain">
+<li><b>The Lead gives way.</b> It stops its own phrase when you play it and takes it up again two bars after you stop.</li>
+<li><b>The Sequences keep their own notes</b> unless you hold them back with the Own notes slider (below).</li>
+<li><b>The Drone and the Atmosphere always play.</b> They take no notes.</li>
+<li><b>Tempo.</b> AISLING follows Strudel's from 60 to 160. Outside that it stays at the nearest end.</li>
+</ul>
+</section>
+<section class="mg-feat" id="panel" aria-labelledby="panelh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">03</div>
+<div><p class="mg-kick">The Devices tab</p><h2 id="panelh">AISLING's screen and its sliders</h2></div></div>
+<p class="mg-stand">The Devices tab shows what a VIBE FM shows: <em>the piece, its key and tempo, the chord sounding and the five layers</em>. Beside it, every parameter is a slider.</p>
+<table class="acts">
+<thead><tr><th scope="col">Slider</th><th scope="col">What it is</th></tr></thead>
+<tbody>
+<tr><td>Own notes</td><td>Holds back the notes the piece plays by itself on the Sequence, on Sequence 2 or on both, so only yours sound there.</td></tr>
+<tr><td>The five levels</td><td>Drone, Sequence, Lead, Sequence 2 and Atmosphere. Turn a layer down to leave room for your line.</td></tr>
+<tr><td>Echo, Reverb</td><td>The piece's own echo and reverb. These are the effects to use.</td></tr>
+<tr><td>Tempo, Root, Mode, Transpose</td><td>The piece's key and time, as on the FM-1.</td></tr>
+</tbody>
+</table>
+<p class="mg-small">F1 to F6 under the screen choose a layer's pages, as the six page keys do on a VIBE FM.</p>
+</section>
+<section class="mg-feat" id="limits" aria-labelledby="limitsh">
+<div class="mg-head"><div class="mg-num" aria-hidden="true">04</div>
+<div><p class="mg-kick">Limits</p><h2 id="limitsh">What it can't do</h2></div></div>
+<p class="mg-stand">Strudel's own effects stop at the firmware's door.</p>
+<ul class="plain">
+<li><b>Effects written on the line</b> (<b>.room()</b>, <b>.delay()</b> and the like) do not reach a firmware. Use AISLING's Echo and Reverb sliders.</li>
+<li><b>This is the VIBE FM build,</b> not the FM-1's: it has no sound packs and no Patch voices. Its own page is on <a href="https://github.com/stephencummins/vibe-aisling/tree/main/vibe" target="_blank" rel="noopener">GitHub</a>.</li>
+<li><b>The same firmware plays in a DAW</b> through the VIBE FM plug-in from The Firmware Hub, with the same channels from a MIDI clip.</li>
+</ul>
+<p class="tried"><b>Tried here</b> · strdltn 0.4.1 in VS Code on a Mac, with AISLING for VIBE FM 1.3 as <b>aisling.wasm</b> in the firmware folder and the lines above: it loads, the Devices tab shows the screen and the sliders, and the bass and the tune are heard over Skellig. The channels were also played from a clip in the VIBE FM plug-in in Ableton Live 12.</p>
+<p class="untried"><b>Not tried here</b> · Loading it by a web address with strdltn's <b>firmware('…/aisling.zip')</b> line in place of the file. Windows and Linux. Other versions of strdltn.</p>
+<p class="credit">strdltn Live[code] is by alienmind: <a href="https://github.com/alienmind/strdltn" target="_blank" rel="noopener">github.com/alienmind/strdltn</a>. Strudel is its own project, at <a href="https://strudel.cc/" target="_blank" rel="noopener">strudel.cc</a>. Questions about them go to their authors.</p>
+</section>
+</main>
+</body>
+</html>
