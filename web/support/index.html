@@ -38,6 +38,8 @@ ul.plain li { margin: 0 0 5px; }
 kbd { font: inherit; padding: 0 4px; border: 1px solid var(--brand-rule); background: var(--brand-strip); white-space: nowrap; }
 .credit { font-size: 12.5px; }
 #rescue h3 { margin: 26px 0 10px; padding-top: 14px; border-top: 1px solid var(--brand-rule); font: 600 22px/1.2 var(--brand-display); letter-spacing: .03em; text-transform: uppercase; scroll-margin-top: calc(var(--brand-bar, 60px) + 12px); }
+div.untried { margin-bottom: 14px; }
+.untried ul.plain { margin: 8px 0 0; }
 #pico ~ table.acts, #pico ~ .mg-steps { margin-bottom: 14px; }
 @media (max-width: 59.99rem) { .sum { border-left: 0; border-top: 1px solid #3a2f22; } }
 @media (max-width: 47.99rem) { table.acts td:first-child { white-space: normal; } }
@@ -149,9 +151,17 @@ With m-bootloader it is two fingers:</p>
 </ol>
 <p>With M-VAVE's bootloader, no backup, and a Mac: AISLING's own rescue script puts M-VAVE's firmware back from the command line.
 It is in the manual, under <a href="../manual/#recovering-an-fm-1-that-wont-start">Recovering an FM-1 that won't start</a>.</p>
-<p>If none of that reaches it, the chip has to be forced into download mode from outside. Below are two ways, neither tried here.</p>
+<p>If none of that reaches it, the chip has to be forced into download mode from outside. Below are two ways, <b>neither tried here</b>.</p>
 
 <h3 id="pico">With a Raspberry Pi Pico</h3>
+<div class="untried"><b>Before you start</b>
+<ul class="plain">
+<li><b>Not tried here.</b> This is one person's account of one FM-1. AISLING has not built or tested it.</li>
+<li><b>The guide is written for a different board,</b> the Seeed XIAO RP2040. The post names three differences from it: the board, the cable and no soldering. By that account the guide's own firmware file ran on a Pico; the post is the only evidence for that read here.</li>
+<li><b>A newer unit may not be covered.</b> The guide's example check shows the older memory chip (<code>856014</code>). FM-1s sold from late 2026 have another (<code>B36014</code>), and nothing read for this page says the route works on it.</li>
+<li><b>It puts M-VAVE's V15 on,</b> not what was there before. Install the firmware you want afterwards.</li>
+<li><b>At your own risk.</b> Neither AISLING nor M-VAVE supports it.</li>
+</ul></div>
 <p>A post on r/MVaveFM1, <a href="https://www.reddit.com/r/MVaveFM1/comments/1y5nzua/unbricked_my_fm1_with_a_raspberry_pi_pico/" target="_blank" rel="noopener">Unbricked my FM-1 with a Raspberry Pi Pico</a>,
 is the account this is taken from. The poster's FM-1 went black halfway through a flash of M-VAVE's V16 with M-UPGRADE, over Felucca.
 After that neither Windows nor Linux saw it, and no key combination or restart helped, though the charging light still worked.
@@ -173,21 +183,18 @@ With a Pico and the <b>FM-1 Transporter</b> it started again, on V15. They descr
 <li><strong>Follow the guide</strong><a href="https://github.com/Quixotic7/MvaveFM1Unbricker/blob/main/TRANSPORTER-GUIDE.md" target="_blank" rel="noopener">Quixotic7's Transporter guide</a> takes you from loading the board to a backup of the FM-1's memory, and writes V15 only after you type <b>WRITE</b>. Switch the FM-1 on when it says to.</li>
 </ol>
 <ul class="plain">
-<li><b>The guide is written for a Seeed XIAO RP2040.</b> The post names three differences from it: the board, the cable and no soldering.
-By that account the guide's own firmware file ran on a Pico. The post is the only evidence for that read here.</li>
 <li><b>A separate route:</b> <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener">kurogedelic's FM-1 Transporter</a>, which the guide's board program comes from, has a file built for the Pico
 (<code>fm1_transporter_pico.uf2</code>, marked untested) and its own tools. Follow its instructions from start to finish if you take it.</li>
-<li><b>Newer FM-1s:</b> the guide's example check shows the older memory chip (<code>856014</code>). FM-1s sold from late 2026 have another (<code>B36014</code>), and nothing read for this page says the route covers it.</li>
 <li><b>Other Pico guides use other pins.</b> Take the wiring and the program from the same place, and don't mix them.</li>
 <li><b>Keep the backup.</b> It holds that FM-1's own settings and data.</li>
 </ul>
-<p class="credit">With thanks to the post's author; to <b>Quixotic7</b> and <b>kurogedelic</b> for the tools; and to <b>Rastapopolix</b>, whom the post credits with showing that a Pico works. None of this is AISLING's work, or M-VAVE's. At your own risk.</p>
+<p class="credit">With thanks to the post's author; to <b>Quixotic7</b> and <b>kurogedelic</b> for the tools; and to <b>Rastapopolix</b>, whom the post credits with showing that a Pico works. The account of what happened, the parts and which wire goes to GP0, GP1 and GND are the post's. The pin numbers are the Pico's own. The rest is from the tools' pages, read on 26 November 2026.</p>
 
 <h3 id="unbricker">With a second FM-1, or an SMK-37</h3>
 <p>If you have, or can borrow, one that works, Julius Vitkauskas's <a href="https://jvitkauskas.github.io/m-apps/unbricker/" target="_blank" rel="noopener">M-Unbricker</a> repairs the dead one over a USB-C cable.
 It gives it m-bootloader and erases its old firmware and settings, so install a firmware afterwards.
 <b>AISLING isn't on its list</b> of firmwares the working one can be running: M-VAVE's own V15 and V16 are. Check <a href="https://jvitkauskas.github.io/m-apps/unbricker/" target="_blank" rel="noopener">the list on its page</a>, and put a listed one on first.</p>
-<p class="untried"><b>Not tried here</b> · Neither the Pico nor M-Unbricker. The account of what happened, the parts and which wire goes to GP0, GP1 and GND are the post's. The pin numbers are the Pico's own. The rest is from the tools' pages, read on 26 November 2026.</p>
+<p class="untried"><b>Not tried here</b> · M-Unbricker. This is from its own page, read on 26 November 2026.</p>
 </section>
 
 <div class="mg-fold">
